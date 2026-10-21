@@ -1799,7 +1799,6 @@
 
   
   <!-- Speaker Notes Overlay -->
-  <!-- Speaker Notes Overlay -->
   <div id="speaker-notes-overlay" role="dialog" aria-label="Speaker Notes">
     <div class="notes-header">
       <div class="notes-title">
@@ -1821,7 +1820,6 @@
       const progressEl    = document.getElementById('progress-bar');
       const headerTitleEl = document.getElementById('header-slide-title');
 
-      
       const notesOverlay   = document.getElementById('speaker-notes-overlay');
       const notesBtn       = document.getElementById('btn-notes');
       const notesCloseBtn  = document.getElementById('btn-close-notes');
@@ -1901,13 +1899,6 @@
 
       document.getElementById('btn-prev').addEventListener('click', () => goTo(current - 1));
       document.getElementById('btn-next').addEventListener('click', () => goTo(current + 1));
-
-      let touchStartX = 0;
-      document.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; });
-      document.addEventListener('touchend', (e) => {
-        const diff = touchStartX - e.changedTouches[0].screenX;
-        if (Math.abs(diff) > 50) { diff > 0 ? goTo(current + 1) : goTo(current - 1); }
-      });
 
       updateUI();
     })();
