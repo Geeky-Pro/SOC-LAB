@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab 3 – Phishing Analysis (Part 2)</title>
+  <meta name="description" content="Incident Detection and Response — Lab 3 Phishing Analysis, Part 2." />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue-100: #c2d6ff;
+      --blue-200: #93b4fd;
+      --blue-300: #6b93f7;
+      --blue-400: #4a78f0;
+      --blue-500: #3563e9;
+      --blue-600: #2a4ec4;
+      --blue-700: #1e3a9e;
+      --blue-800: #152c78;
+      --blue-900: #0d1d52;
+      --purple-100: #dfc8ff;
+      --purple-200: #c5a0fc;
+      --purple-300: #a87bf5;
+      --purple-400: #8b5cf6;
+      --purple-500: #7c3aed;
+      --purple-600: #6626c9;
+      --purple-700: #4f1d96;
+      --purple-800: #3b1578;
+      --purple-900: #270f52;
+      --accent-green: #34d399;
+      --accent-red: #f87171;
+      --accent-amber: #fbbf24;
+      --bg: #03050a;
+      --bg-surface: #070a14;
+      --bg-card: rgba(8, 12, 24, 0.75);
+      --bg-card-hover: rgba(14, 20, 36, 0.9);
+      --text-primary: #e8ecf4;
+      --text-secondary: #a0aec4;
+      --text-muted: #5c6b84;
+      --text-dim: #3e4a62;
+      --border: rgba(99, 130, 241, 0.1);
+      --border-glow: rgba(99, 130, 241, 0.22);
+      --shadow-sm: 0 1px 4px rgba(0,0,0,0.25);
+      --shadow-md: 0 4px 20px rgba(0,0,0,0.35);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.4);
+      --gradient-main: linear-gradient(135deg, var(--blue-500), var(--purple-500));
+      --gradient-soft: linear-gradient(135deg, rgba(53,99,233,0.12), rgba(124,58,237,0.12));
+      --gradient-card: linear-gradient(160deg, rgba(16,22,42,0.8), rgba(30,20,70,0.35));
+      --font-heading: 'Space Grotesk', 'Outfit', system-ui, sans-serif;
+      --font-body: 'Outfit', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    html { font-size: 18px; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text-primary);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===== Static Background ===== */
+    .circuit-bg {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none; opacity: 0.03; overflow: hidden;
+    }
+
+    .orb {
+      position: fixed; border-radius: 50%; filter: blur(100px);
+      z-index: 0; pointer-events: none;
+    }
+    .orb--1 { width: 550px; height: 550px; top: -200px; right: -140px; background: radial-gradient(circle, rgba(53,99,233,0.12) 0%, rgba(124,58,237,0.06) 50%, transparent 70%); }
+    .orb--2 { width: 480px; height: 480px; bottom: -180px; left: -100px; background: radial-gradient(circle, rgba(124,58,237,0.09) 0%, rgba(53,99,233,0.04) 50%, transparent 70%); }
+    .orb--3 { width: 300px; height: 300px; top: 45%; left: 50%; background: radial-gradient(circle, rgba(53,99,233,0.06) 0%, transparent 65%); }
+
+    .shield-watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 0; pointer-events: none; opacity: 0.02; }
+
+    .side-accent { position: fixed; left: 0; top: 0; bottom: 0; width: 4px; background: var(--gradient-main); z-index: 10; }
+
+    /* ===== Top Header ===== */
+    .top-header {
+      position: fixed; top: 0; left: 4px; right: 0; height: 40px;
+      background: rgba(3, 5, 10, 0.85); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; z-index: 9;
+    }
+    .header-title {
+      font-family: var(--font-heading); font-size: 0.72rem; font-weight: 600;
+      color: var(--text-secondary); letter-spacing: 0.02em;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .header-title .title-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--blue-500); box-shadow: 0 0 8px rgba(53, 99, 233, 0.5); }
+    .header-title .title-sep { color: var(--text-dim); font-weight: 400; }
+    #header-slide-title { color: var(--text-muted); font-weight: 400; font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.04em; }
+    .header-right { display: flex; align-items: center; gap: 14px; }
+
+    /* ===== Lab Badge ===== */
+    .lab-badge {
+      font-family: var(--font-mono); font-size: 0.6rem; font-weight: 600;
+      padding: 0.2em 0.65em; border-radius: 5px; letter-spacing: 0.06em;
+      background: rgba(53,99,233,0.15); color: var(--blue-200);
+      border: 1px solid rgba(53,99,233,0.2);
+    }
+
+    /* ===== Progress Bar ===== */
+    #progress-bar {
+      position: fixed; top: 40px; left: 4px; height: 2px;
+      background: var(--gradient-main);
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 10; border-radius: 0 2px 2px 0;
+      box-shadow: 0 0 14px rgba(99, 102, 241, 0.25);
+    }
+
+    /* ===== Slide Container ===== */
+    #presentation { position: relative; width: 100%; height: 100%; z-index: 1; }
+
+    .slide {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 72px 100px 68px 100px;
+      opacity: 0; transform: translateY(16px);
+      transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+      overflow-y: auto; overflow-x: hidden;
+    }
+    .slide.active { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .slide-inner { max-width: 1060px; width: 100%; margin: auto 0; }
+
+    /* ===== Custom Scrollbar ===== */
+    .slide::-webkit-scrollbar { width: 8px; }
+    .slide::-webkit-scrollbar-track { background: rgba(8, 12, 24, 0.2); }
+    .slide::-webkit-scrollbar-thumb { background: rgba(99, 130, 241, 0.25); border-radius: 4px; }
+    .slide::-webkit-scrollbar-thumb:hover { background: rgba(99, 130, 241, 0.5); }
+
+    /* ===== URL Diagram ===== */
+    .url-diagram {
+      background: var(--bg-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 14px;
+      box-shadow: var(--shadow-sm); padding: 1.3em 1.6em 1.2em;
+      margin-top: 1.3em; overflow: hidden;
+    }
+    .url-diagram--flagged { border-color: rgba(248,113,113,0.22); }
+    .url-diagram-legend { display: none; }
+    .url-diagram-grid {
+      display: inline-grid; grid-template-columns: repeat(7, max-content);
+      column-gap: clamp(8px, 1.6vw, 20px); row-gap: 8px;
+      margin: 0 auto; max-width: 100%;
+    }
+    .url-bracket {
+      text-align: center; border-bottom: 2px solid var(--border-glow); padding-bottom: 6px;
+      font-family: var(--font-mono); font-size: 0.62rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-secondary);
+      white-space: nowrap;
+    }
+    .url-diagram--flagged .url-bracket--host { border-bottom-color: rgba(248,113,113,0.5); color: var(--accent-red); }
+    .url-token-value {
+      font-family: var(--font-mono); font-weight: 600;
+      font-size: clamp(0.78rem, 2.1vw, 1.15rem);
+      color: var(--text-primary); text-align: center; white-space: nowrap;
+    }
+    .url-token-value.dim { color: var(--text-dim); font-weight: 500; }
+    .url-token-value.host { color: var(--text-primary); }
+    .url-token-value.path { color: var(--text-secondary); font-weight: 500; }
+    .url-token-value.flag { color: var(--accent-red); font-weight: 700; }
+    .url-token-value.flag.flag--tag {
+      background: rgba(248,113,113,0.12); padding: 0.15em 0.5em;
+      border-radius: 5px; white-space: normal; word-break: break-all;
+      max-width: 230px; font-size: clamp(0.62rem, 1.6vw, 0.85rem);
+    }
+    .url-token-label {
+      font-family: var(--font-mono); font-size: 0.56rem; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--purple-300); font-weight: 600;
+      text-align: center; white-space: nowrap;
+    }
+    .url-token-label--flag { color: var(--accent-red); }
+
+    /* ===== Typography ===== */
+    h1 { font-family: var(--font-heading); font-size: 3rem; font-weight: 700; line-height: 1.1; margin-bottom: 0.4em; letter-spacing: -0.03em; }
+    h2 { font-family: var(--font-heading); font-size: 2.05rem; font-weight: 700; line-height: 1.18; margin-bottom: 0.5em; letter-spacing: -0.02em; }
+
+    .section-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: var(--font-mono); font-size: 0.66rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 0.9em;
+      padding: 0.35em 0.9em; border-radius: 6px;
+      background: var(--gradient-soft); border: 1px solid var(--border); color: var(--blue-300);
+    }
+    .section-label .label-icon { font-size: 0.8em; }
+
+    p, li { font-size: 1.08rem; line-height: 1.72; color: var(--text-secondary); }
+    ul { list-style: none; padding: 0; }
+    ul li { position: relative; padding-left: 1.8em; margin-bottom: 0.6em; }
+    ul li::before { content: ''; position: absolute; left: 0; top: 0.5em; width: 10px; height: 10px; border-radius: 3px; border: 2px solid var(--blue-600); background: transparent; transform: rotate(45deg); }
+    ul li::after { content: ''; position: absolute; left: 3px; top: calc(0.5em + 3px); width: 4px; height: 4px; border-radius: 1px; background: var(--gradient-main); transform: rotate(45deg); }
+
+    .gradient-text { background: var(--gradient-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .blue   { color: var(--blue-300); }
+    .purple { color: var(--purple-300); }
+    .green  { color: var(--accent-green); }
+    .red    { color: var(--accent-red); }
+    .amber  { color: var(--accent-amber); }
+    .mono   { font-family: var(--font-mono); font-size: 0.88em; }
+    .muted  { color: var(--text-muted); }
+    .dim    { color: var(--text-dim); }
+    .small  { font-size: 0.8rem; }
+
+    /* ===== Tags ===== */
+    .tag { display: inline-flex; align-items: center; gap: 5px; padding: 0.2em 0.7em; border-radius: 6px; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 600; letter-spacing: 0.04em; }
+    .tag--blue   { background: rgba(53,99,233,0.15);  color: var(--blue-200);   border: 1px solid rgba(53,99,233,0.2); }
+    .tag--purple { background: rgba(124,58,237,0.15); color: var(--purple-200); border: 1px solid rgba(124,58,237,0.2); }
+    .tag--red    { background: rgba(239,68,68,0.12);  color: #fca5a5;           border: 1px solid rgba(239,68,68,0.15); }
+    .tag--amber  { background: rgba(245,158,11,0.12); color: #fcd34d;           border: 1px solid rgba(245,158,11,0.15); }
+    .tag--green  { background: rgba(34,197,94,0.12);  color: #86efac;           border: 1px solid rgba(34,197,94,0.15); }
+    .tag-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+    /* ===== Cards ===== */
+    .card-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 1.1em; }
+    .card-row--2 { grid-template-columns: repeat(2, 1fr); }
+    .card-row--3 { grid-template-columns: repeat(3, 1fr); }
+    .card-row--4 { grid-template-columns: repeat(4, 1fr); }
+
+    .card {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.3em 1.35em; box-shadow: var(--shadow-sm);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative; overflow: hidden;
+    }
+    .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--gradient-main); opacity: 0; transition: opacity 0.35s ease; }
+    .card:hover { background: var(--bg-card-hover); box-shadow: var(--shadow-lg); transform: translateY(-3px); border-color: var(--border-glow); }
+    .card:hover::before { opacity: 1; }
+    .card h4 { font-family: var(--font-heading); font-size: 0.96rem; font-weight: 600; margin-bottom: 0.35em; color: var(--text-primary); }
+    .card p  { font-size: 0.86rem; color: var(--text-muted); line-height: 1.55; }
+    .card-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; margin-bottom: 0.75em; }
+    .card-icon--blue   { background: rgba(53,99,233,0.12);  border: 1px solid rgba(53,99,233,0.15); }
+    .card-icon--purple { background: rgba(124,58,237,0.12); border: 1px solid rgba(124,58,237,0.15); }
+    .card-icon--green  { background: rgba(52,211,153,0.12); border: 1px solid rgba(52,211,153,0.15); }
+    .card-icon--amber  { background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.15); }
+    .card-icon--red    { background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.15); }
+    .card-icon--mixed  { background: var(--gradient-soft); border: 1px solid var(--border); }
+
+    /* ===== Flow Diagram ===== */
+    .flow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 1.1em; }
+    .flow-step {
+      background: var(--bg-card); backdrop-filter: blur(8px);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 0.6em 1.1em; font-size: 0.88rem; font-weight: 500;
+      box-shadow: var(--shadow-sm); white-space: nowrap; transition: all 0.3s ease;
+    }
+    .flow-step:hover { box-shadow: var(--shadow-md); border-color: var(--border-glow); transform: translateY(-1px); }
+    .flow-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 6px; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600; margin-right: 6px; }
+    .flow-num--1 { background: rgba(53,99,233,0.18);  color: var(--blue-200); }
+    .flow-num--2 { background: rgba(124,58,237,0.18); color: var(--purple-200); }
+    .flow-num--3 { background: rgba(239,68,68,0.14);  color: #fca5a5; }
+    .flow-num--4 { background: rgba(245,158,11,0.14); color: #fcd34d; }
+    .flow-arrow { font-size: 1.1rem; color: var(--blue-600); }
+
+    /* ===== Title Slide ===== */
+    .slide--title { text-align: center; }
+    .slide--title h1 { font-size: 3.3rem; }
+    .slide--title .subtitle { font-size: 1.1rem; color: var(--text-muted); margin-top: 0.15em; max-width: 580px; margin-left: auto; margin-right: auto; }
+    .divider { width: 50px; height: 4px; background: var(--gradient-main); border-radius: 3px; margin: 1em auto; position: relative; }
+    .divider::after { content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 80px; height: 20px; background: var(--gradient-main); filter: blur(16px); opacity: 0.25; border-radius: 10px; }
+
+    /* ===== Instructor Line ===== */
+    .instructor-line {
+      margin-top: 1.6em;
+      font-size: 0.88rem; color: var(--text-muted);
+      font-family: var(--font-body); letter-spacing: 0.01em;
+    }
+    .instructor-line span { color: var(--text-secondary); font-weight: 500; }
+
+    /* ===== Info Box ===== */
+    .info-box {
+      display: flex; align-items: flex-start; gap: 1em;
+      background: var(--gradient-soft); border: 1px solid var(--border-glow);
+      border-radius: 12px; padding: 1em 1.3em; margin-top: 1.2em;
+    }
+    .info-box-icon { flex-shrink: 0; margin-top: 0.1em; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; }
+    .info-box-icon svg { width: 20px; height: 20px; }
+    .info-box p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
+    .info-box strong { color: var(--blue-300); }
+
+    /* ===== Warning Box (red variant of info-box) ===== */
+    .warn-box {
+      display: flex; align-items: flex-start; gap: 1em;
+      background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25);
+      border-radius: 12px; padding: 1em 1.3em; margin-top: 1.2em;
+    }
+    .warn-box .info-box-icon svg { stroke: var(--accent-red); }
+    .warn-box p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
+    .warn-box strong { color: var(--accent-red); }
+
+    /* ===== Cycle Row ===== */
+    .cycle-row {
+      display: flex; align-items: stretch; justify-content: center;
+      gap: 0; margin-top: 1.4em; border-radius: 14px; overflow: hidden;
+      border: 1px solid var(--border); box-shadow: var(--shadow-md);
+    }
+    .cycle-item {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 1.2em 0.8em; text-align: center;
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      position: relative; transition: background 0.3s ease;
+      border-right: 1px solid var(--border);
+    }
+    .cycle-item:last-child { border-right: none; }
+    .cycle-item:hover { background: var(--bg-card-hover); }
+    .cycle-item::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+    .cycle-item:hover::before { opacity: 1; }
+    .ci-1::before { background: linear-gradient(90deg, var(--blue-500), var(--blue-400)); }
+    .ci-2::before { background: linear-gradient(90deg, var(--blue-600), var(--blue-500)); }
+    .ci-3::before { background: linear-gradient(90deg, var(--purple-600), var(--purple-500)); }
+    .ci-4::before { background: linear-gradient(90deg, var(--accent-red), #fca5a5); }
+
+    .cycle-num {
+      width: 28px; height: 28px; border-radius: 8px; display: flex;
+      align-items: center; justify-content: center; font-family: var(--font-mono);
+      font-size: 0.7rem; font-weight: 700; margin-bottom: 0.6em;
+    }
+    .cycle-num--1 { background: rgba(53,99,233,0.2);  color: var(--blue-200); }
+    .cycle-num--2 { background: rgba(53,99,233,0.16); color: var(--blue-300); }
+    .cycle-num--3 { background: rgba(124,58,237,0.18); color: var(--purple-200); }
+    .cycle-num--4 { background: rgba(248,113,113,0.18); color: #fca5a5; }
+
+    .cycle-label {
+      font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700;
+      color: var(--text-primary); margin-bottom: 0.3em;
+    }
+    .cycle-desc { font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; }
+
+    /* ===== Two-column layout ===== */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 1em; }
+    .col-block {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.3em 1.4em; position: relative; overflow: hidden;
+    }
+    .col-block::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+    .col-block--blue::before   { background: linear-gradient(90deg, var(--blue-500), transparent); }
+    .col-block--purple::before { background: linear-gradient(90deg, var(--purple-500), transparent); }
+    .col-block--green::before  { background: linear-gradient(90deg, var(--accent-green), transparent); }
+    .col-block--red::before    { background: linear-gradient(90deg, var(--accent-red), transparent); }
+    .col-block h4 { font-family: var(--font-heading); font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.8em; }
+    .col-block ul { padding: 0; }
+    .col-block ul li { font-size: 0.88rem; margin-bottom: 0.45em; }
+
+    /* ===== Methodology Steps ===== */
+    .method-step { display: flex; align-items: flex-start; gap: 0.8em; margin-bottom: 1em; }
+    .method-step:last-child { margin-bottom: 0; }
+    .method-num {
+      flex-shrink: 0; width: 26px; height: 26px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700;
+      background: rgba(53,99,233,0.15); color: var(--blue-200);
+      border: 1px solid rgba(53,99,233,0.2); margin-top: 0.1em;
+    }
+    .method-step ul { margin-top: 0.2em; }
+    .method-step ul li { font-size: 0.84rem; margin-bottom: 0.3em; }
+
+    /* ===== Model / Profile Cards ===== */
+    .model-card {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 16px;
+      padding: 1.6em 1.5em; box-shadow: var(--shadow-md);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative; overflow: hidden;
+      display: flex; flex-direction: column; gap: 0.7em;
+    }
+    .model-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gradient-main); opacity: 0; transition: opacity 0.35s ease; }
+    .model-card:hover { background: var(--bg-card-hover); box-shadow: var(--shadow-lg); transform: translateY(-4px); border-color: var(--border-glow); }
+    .model-card:hover::before { opacity: 1; }
+    .model-card .model-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .model-card h4 { font-family: var(--font-heading); font-size: 1.0rem; font-weight: 700; color: var(--text-primary); }
+    .model-card p  { font-size: 0.86rem; color: var(--text-muted); line-height: 1.6; }
+    .model-card .model-tag { align-self: flex-start; }
+
+    /* ===== Case Study Card ===== */
+    .case-card {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 16px;
+      padding: 1.4em 1.5em; box-shadow: var(--shadow-md);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative; overflow: hidden; cursor: pointer;
+    }
+    .case-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gradient-main); opacity: 0.6; }
+    .case-card:hover { background: var(--bg-card-hover); box-shadow: var(--shadow-lg); transform: translateY(-4px); border-color: var(--border-glow); }
+    .case-card .case-year { font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: var(--blue-300); letter-spacing: 0.03em; margin-bottom: 0.5em; }
+    .case-card h4 { font-family: var(--font-heading); font-size: 1.05rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.5em; }
+    .case-card p { font-size: 0.84rem; color: var(--text-muted); line-height: 1.55; }
+    .case-card .case-impact { margin-top: 0.7em; padding-top: 0.7em; border-top: 1px solid var(--border); font-size: 0.78rem; color: var(--accent-red); font-weight: 600; }
+
+    /* ===== Case Study Detail Layout ===== */
+    .case-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 1em; flex-wrap: wrap; }
+    .case-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+    .case-stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 1.1em; }
+    .case-stat {
+      background: var(--gradient-card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1em 1.1em; text-align: center;
+    }
+    .case-stat .stat-value { font-family: var(--font-heading); font-size: 1.5rem; font-weight: 700; color: var(--text-primary); }
+    .case-stat .stat-value.red { color: var(--accent-red); }
+    .case-stat .stat-value.amber { color: var(--accent-amber); }
+    .case-stat .stat-value.blue { color: var(--blue-300); }
+    .case-stat .stat-label { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.3em; letter-spacing: 0.03em; }
+
+    .timeline-mini { display: flex; flex-direction: column; gap: 8px; margin-top: 1em; }
+    .tl-mini-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      background: var(--gradient-card); backdrop-filter: blur(12px);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 0.65em 1em; transition: all 0.3s ease;
+    }
+    .tl-mini-item:hover { border-color: var(--border-glow); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .tl-mini-time { font-family: var(--font-mono); font-size: 0.7rem; color: var(--blue-300); flex-shrink: 0; min-width: 88px; padding-top: 0.15em; }
+    .tl-mini-item p { font-size: 0.85rem; margin: 0; color: var(--text-secondary); }
+    .tl-mini-item strong { color: var(--text-primary); }
+
+    /* ===== Benefit grid (checklist) ===== */
+    .benefit-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 1em; }
+    .benefit-item {
+      background: var(--gradient-card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 0.8em 1em;
+      display: flex; align-items: center; gap: 10px;
+      transition: all 0.3s ease;
+    }
+    .benefit-item:hover { border-color: var(--border-glow); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .benefit-check {
+      width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0;
+      background: rgba(53,99,233,0.15); border: 1px solid rgba(53,99,233,0.2);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .benefit-check svg { width: 12px; height: 12px; }
+    .benefit-item span { font-size: 0.85rem; color: var(--text-secondary); }
+
+    /* ===== Bottom Bar ===== */
+    #bottom-bar {
+      position: fixed; bottom: 0; left: 4px; right: 0; height: 46px;
+      display: flex; align-items: center; justify-content: space-between; padding: 0 24px;
+      z-index: 10; background: rgba(3, 5, 10, 0.85); backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border);
+    }
+    .bottom-left { display: flex; align-items: center; gap: 14px; }
+    #slide-counter { font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-muted); letter-spacing: 0.04em; }
+    .nav-controls { display: flex; gap: 6px; }
+    .nav-btn {
+      background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary);
+      border-radius: 8px; width: 36px; height: 30px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 0.82rem; transition: all 0.25s ease; box-shadow: var(--shadow-sm);
+    }
+    .nav-btn:hover { background: var(--bg-card-hover); color: var(--blue-300); border-color: var(--border-glow); box-shadow: var(--shadow-md); }
+
+    /* ===== Slide element entrance animations ===== */
+    .slide.active li, .slide.active .card, .slide.active .flow-step, .slide.active .model-card,
+    .slide.active .cycle-item, .slide.active .col-block, .slide.active .case-card,
+    .slide.active .case-stat, .slide.active .tl-mini-item, .slide.active .benefit-item {
+      animation: fadeUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+    }
+    .slide.active li:nth-child(1), .slide.active .card:nth-child(1), .slide.active .flow-step:nth-child(1), .slide.active .model-card:nth-child(1), .slide.active .cycle-item:nth-child(1), .slide.active .col-block:nth-child(1), .slide.active .case-card:nth-child(1), .slide.active .case-stat:nth-child(1), .slide.active .tl-mini-item:nth-child(1), .slide.active .benefit-item:nth-child(1) { animation-delay: 0.06s; }
+    .slide.active li:nth-child(2), .slide.active .card:nth-child(2), .slide.active .flow-step:nth-child(2), .slide.active .model-card:nth-child(2), .slide.active .cycle-item:nth-child(2), .slide.active .col-block:nth-child(2), .slide.active .case-card:nth-child(2), .slide.active .case-stat:nth-child(2), .slide.active .tl-mini-item:nth-child(2), .slide.active .benefit-item:nth-child(2) { animation-delay: 0.12s; }
+    .slide.active li:nth-child(3), .slide.active .card:nth-child(3), .slide.active .flow-step:nth-child(3), .slide.active .model-card:nth-child(3), .slide.active .cycle-item:nth-child(3), .slide.active .col-block:nth-child(3), .slide.active .case-card:nth-child(3), .slide.active .case-stat:nth-child(3), .slide.active .tl-mini-item:nth-child(3), .slide.active .benefit-item:nth-child(3) { animation-delay: 0.18s; }
+    .slide.active li:nth-child(4), .slide.active .card:nth-child(4), .slide.active .flow-step:nth-child(4), .slide.active .cycle-item:nth-child(4), .slide.active .case-card:nth-child(4), .slide.active .tl-mini-item:nth-child(4), .slide.active .benefit-item:nth-child(4) { animation-delay: 0.24s; }
+    .slide.active li:nth-child(5), .slide.active .card:nth-child(5), .slide.active .flow-step:nth-child(5), .slide.active .tl-mini-item:nth-child(5), .slide.active .benefit-item:nth-child(5) { animation-delay: 0.30s; }
+    .slide.active li:nth-child(6), .slide.active .flow-step:nth-child(6), .slide.active .tl-mini-item:nth-child(6), .slide.active .benefit-item:nth-child(6) { animation-delay: 0.36s; }
+    .slide.active li:nth-child(7)  { animation-delay: 0.42s; }
+    .slide.active li:nth-child(8)  { animation-delay: 0.48s; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* =========================================================
+       MAIL AGENTS — Bob to Alice journey diagram
+       ========================================================= */
+    .mail-actor {
+      position: absolute;
+      display: flex; flex-direction: column; align-items: center;
+      width: 95px; text-align: center; z-index: 2;
+    }
+    .mail-actor-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 0.5em; box-shadow: var(--shadow-sm);
+    }
+    .mail-actor-icon--person { background: rgba(53,99,233,0.14); border: 1px solid rgba(53,99,233,0.22); }
+    .mail-actor-icon--server { background: rgba(124,58,237,0.14); border: 1px solid rgba(124,58,237,0.22); }
+    .mail-actor-label { font-family: var(--font-heading); font-size: 0.74rem; font-weight: 600; color: var(--text-primary); line-height: 1.35; }
+    .mail-actor-label .dim { font-family: var(--font-body); font-weight: 400; font-size: 0.92em; }
+    .mail-actor-tag { margin-top: 0.5em; }
+    .mail-proto-label {
+      position: absolute; font-family: var(--font-mono); font-size: 0.68rem;
+      color: var(--blue-300); white-space: nowrap; font-weight: 600; z-index: 2;
+    }
+    .mail-relay-label {
+      position: absolute; font-family: var(--font-mono); font-size: 0.62rem;
+      color: var(--text-dim); text-align: center; line-height: 1.4; z-index: 1; width: 140px;
+    }
+
+    /* =========================================================
+       ANIMATED ACTOR / PACKET WORKFLOW DIAGRAMS (Lab2 style)
+       ========================================================= */
+    .anim-container {
+      position: relative;
+      width: 100%; max-width: 900px;
+      margin: 1.2em auto 0;
+      background: rgba(8, 12, 24, 0.6);
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: inset 0 0 50px rgba(0,0,0,0.4);
+    }
+    .anim-actor {
+      position: absolute;
+      padding: 0.7rem 0.6rem;
+      background: rgba(14, 20, 36, 0.95);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+      width: 140px;
+      min-height: 70px;
+      z-index: 2;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      color: var(--text-primary);
+    }
+    .anim-actor.actor-client   { border-color: var(--blue-400); box-shadow: 0 0 18px rgba(74,120,240,0.15); }
+    .anim-actor.actor-smtp     { border-color: var(--purple-500); box-shadow: 0 0 18px rgba(124,58,237,0.15); }
+    .anim-actor.actor-dns      { border-color: var(--accent-amber); box-shadow: 0 0 18px rgba(251,191,36,0.15); }
+    .anim-actor.actor-recv     { border-color: var(--blue-500); box-shadow: 0 0 18px rgba(53,99,233,0.15); }
+    .anim-actor.actor-attacker { border-color: var(--accent-red); box-shadow: 0 0 18px rgba(248,113,113,0.15); }
+    .anim-actor.actor-victim   { border-color: var(--accent-green); box-shadow: 0 0 18px rgba(52,211,153,0.15); }
+    .anim-actor.actor-server   { border-color: var(--blue-400); box-shadow: 0 0 18px rgba(74,120,240,0.15); }
+
+    .anim-data-store {
+      min-height: 36px; display: flex; align-items: stretch; justify-content: center; width: 100%;
+    }
+    .anim-data-store::after {
+      content: attr(data-content);
+      display: flex; align-items: center; justify-content: center;
+      padding: 5px; border-radius: 4px; font-size: 0.62rem; font-weight: 500;
+      width: 100%; border: 1px dashed var(--text-dim);
+      background: rgba(1, 4, 9, 0.5); color: var(--text-muted);
+      transition: all 0.3s ease; white-space: pre-wrap; line-height: 1.4;
+    }
+
+    .anim-packet {
+      position: absolute; left: 0; top: 0;
+      padding: 0.4rem 0.8rem;
+      background: rgba(14, 20, 36, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      white-space: nowrap;
+      z-index: 3;
+      opacity: 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      display: flex; align-items: center; gap: 6px;
+      color: var(--text-primary);
+    }
+    .anim-packet::before { content: ""; width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .pkt-blue::before   { background: var(--blue-400); box-shadow: 0 0 8px var(--blue-400); }
+    .pkt-purple::before { background: var(--purple-400); box-shadow: 0 0 8px var(--purple-400); }
+    .pkt-green::before  { background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
+    .pkt-red::before    { background: var(--accent-red); box-shadow: 0 0 8px var(--accent-red); }
+    .pkt-amber::before  { background: var(--accent-amber); box-shadow: 0 0 8px var(--accent-amber); }
+
+    .slide:not(.active) .anim-packet,
+    .slide:not(.active) .anim-data-store::after { animation: none !important; }
+    .anim-packet { animation-iteration-count: infinite; animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+
+    /* ---- Email agent diagram (MUA/MTA/MDA) pulse ---- */
+    @keyframes agentPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(53,99,233,0.25); } 50% { box-shadow: 0 0 0 8px rgba(53,99,233,0); } }
+    .slide.active .agent-node { animation: agentPulse 2.2s ease-in-out infinite; }
+    .slide.active .agent-node:nth-child(1) { animation-delay: 0s; }
+    .slide.active .agent-node:nth-child(2) { animation-delay: 0.4s; }
+    .slide.active .agent-node:nth-child(3) { animation-delay: 0.8s; }
+
+    /* ===== Email Agent Flow Layout ===== */
+    .agent-flow { display: flex; align-items: center; justify-content: center; gap: 0; margin-top: 1.4em; flex-wrap: wrap; }
+    .agent-node {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.1em 1.3em; text-align: center; min-width: 150px;
+      box-shadow: var(--shadow-sm);
+    }
+    .agent-node .agent-icon { width: 40px; height: 40px; border-radius: 10px; margin: 0 auto 0.6em; display: flex; align-items: center; justify-content: center; }
+    .agent-node h5 { font-family: var(--font-heading); font-size: 0.92rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.2em; }
+    .agent-node .agent-full { font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-dim); letter-spacing: 0.02em; margin-bottom: 0.4em; }
+    .agent-node p { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; margin: 0; }
+    .agent-arrow { font-size: 1.4rem; color: var(--blue-600); padding: 0 0.5em; flex-shrink: 0; }
+
+    /* ===== Email Anatomy Diagram ===== */
+    .email-mockup {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 14px;
+      box-shadow: var(--shadow-md); margin-top: 1.2em; overflow: hidden;
+    }
+    .email-mockup-part {
+      padding: 0.85em 1.3em; border-bottom: 1px solid var(--border);
+      position: relative; transition: background 0.25s ease;
+    }
+    .email-mockup-part:last-child { border-bottom: none; }
+    .email-mockup-part:hover { background: rgba(53,99,233,0.06); }
+    .email-mockup-part .part-label {
+      position: absolute; top: 0.6em; right: 1.1em;
+      font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.06em;
+      padding: 0.15em 0.55em; border-radius: 5px;
+    }
+    .part-label--header { background: rgba(53,99,233,0.15); color: var(--blue-200); }
+    .part-label--body   { background: rgba(124,58,237,0.15); color: var(--purple-200); }
+    .part-label--url     { background: rgba(34,197,94,0.12); color: #86efac; }
+    .part-label--attach   { background: rgba(245,158,11,0.12); color: #fcd34d; }
+    .email-mockup-part .mock-line { font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 0.3em; }
+    .email-mockup-part .mock-line strong { color: var(--text-primary); }
+    .email-mockup-part .mock-body-text { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+    .email-mockup-part .mock-link { color: var(--blue-300); text-decoration: underline; font-family: var(--font-mono); font-size: 0.78rem; }
+    .email-mockup-part .mock-attach-chip {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.2);
+      border-radius: 8px; padding: 0.4em 0.8em; font-family: var(--font-mono); font-size: 0.72rem; color: #fcd34d;
+    }
+
+    /* ===== Address anatomy ===== */
+    .addr-anatomy { display: flex; justify-content: center; align-items: flex-end; gap: 4px; margin-top: 1.6em; flex-wrap: wrap; }
+    .addr-part { display: flex; flex-direction: column; align-items: center; gap: 0.5em; }
+    .addr-part .addr-chip {
+      font-family: var(--font-mono); font-size: 1.3rem; font-weight: 600;
+      padding: 0.3em 0.5em; border-radius: 8px;
+    }
+    .addr-chip--local { background: rgba(53,99,233,0.15); color: var(--blue-200); border: 1px solid rgba(53,99,233,0.25); }
+    .addr-chip--at     { background: transparent; color: var(--text-dim); font-size: 1.3rem; padding: 0; }
+    .addr-chip--domain { background: rgba(124,58,237,0.15); color: var(--purple-200); border: 1px solid rgba(124,58,237,0.25); }
+    .addr-chip--tld    { background: rgba(34,197,94,0.12); color: #86efac; border: 1px solid rgba(34,197,94,0.2); }
+    .addr-part .addr-tag { font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-muted); letter-spacing: 0.04em; }
+
+    /* ---- Image/Screenshot Placeholder ---- */
+    .screenshot-placeholder {
+      width: 100%; height: 260px;
+      border: 2px dashed var(--border-glow); border-radius: 12px;
+      background: rgba(8, 12, 24, 0.4);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 12px; padding: 20px; text-align: center;
+      color: var(--text-muted); transition: all 0.3s ease;
+      cursor: pointer; position: relative; overflow: hidden;
+    }
+    .screenshot-placeholder:hover { border-color: var(--blue-400); background: rgba(8, 12, 24, 0.6); color: var(--blue-300); }
+    .screenshot-placeholder-icon { color: var(--blue-500); opacity: 0.6; display: flex; align-items: center; justify-content: center; }
+    .screenshot-placeholder-icon svg { width: 34px; height: 34px; }
+    .screenshot-placeholder-text { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.04em; max-width: 280px; line-height: 1.45; }
+
+    /* ===== Icon inline ===== */
+    .icon-inline { display: inline-flex; align-items: center; justify-content: center; vertical-align: -3px; }
+    .icon-inline svg { width: 1em; height: 1em; }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 768px) {
+      .slide { padding: 60px 24px; }
+      h1 { font-size: 2rem; }
+      h2 { font-size: 1.4rem; }
+      .slide--title h1 { font-size: 2.2rem; }
+      .card-row, .card-row--2, .card-row--3, .card-row--4 { grid-template-columns: 1fr; }
+      .flow { flex-direction: column; align-items: flex-start; }
+      .flow-arrow { transform: rotate(90deg); }
+      .two-col { grid-template-columns: 1fr; }
+      .cycle-row { flex-direction: column; border-radius: 14px; }
+      .cycle-item { border-right: none; border-bottom: 1px solid var(--border); }
+      .cycle-item:last-child { border-bottom: none; }
+      .benefit-grid { grid-template-columns: 1fr; }
+      .case-stat-row { grid-template-columns: 1fr; }
+      .agent-flow { flex-direction: column; }
+      .agent-arrow { transform: rotate(90deg); }
+      .addr-anatomy { flex-direction: column; }
+    }
+  
+    /* ===== Speaker Notes Overlay ===== */
+    #speaker-notes-overlay {
+      position: fixed;
+      bottom: 58px;
+      right: 24px;
+      width: 480px;
+      max-width: calc(100vw - 48px);
+      max-height: 420px;
+      background: rgba(7, 10, 20, 0.96);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glow);
+      border-radius: 12px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65), 0 0 24px rgba(53, 99, 233, 0.2);
+      z-index: 99999 !important;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      animation: notesFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #speaker-notes-overlay.active { display: flex !important; }
+    @keyframes notesFadeIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .notes-header {
+      padding: 10px 14px;
+      background: linear-gradient(90deg, rgba(53, 99, 233, 0.18), rgba(124, 58, 237, 0.18));
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .notes-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--blue-200);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .notes-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.15rem;
+      padding: 0 4px;
+      transition: color 0.2s ease;
+      line-height: 1;
+    }
+    .notes-close:hover { color: var(--accent-red); }
+    .notes-body {
+      padding: 16px;
+      overflow-y: auto;
+      font-size: 0.95rem;
+      line-height: 1.65;
+      color: var(--text-primary);
+      font-family: var(--font-body);
+    }
+    .notes-empty { color: var(--text-muted); font-style: italic; }
+    .nav-btn--notes {
+      width: auto !important;
+      padding: 0 10px !important;
+      gap: 6px;
+      font-weight: 600;
+      font-size: 0.78rem !important;
+    }
+    .nav-btn--notes.active {
+      background: var(--blue-600) !important;
+      color: #fff !important;
+      border-color: var(--blue-400) !important;
+      box-shadow: 0 0 12px rgba(53, 99, 233, 0.5) !important;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ===== Background ===== -->
+  <div class="orb orb--1"></div>
+  <div class="orb orb--2"></div>
+  <div class="orb orb--3"></div>
+
+  <div class="circuit-bg">
+    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <pattern id="circuit" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse">
+        <path d="M0 100 h60 v-40 h30 v40 h20 v-60 h30" fill="none" stroke="#4a78f0" stroke-width="1"/>
+        <path d="M180 0 v50 h-40 v30 h40 v30" fill="none" stroke="#4a78f0" stroke-width="1"/>
+        <circle cx="60" cy="100" r="3" fill="#4a78f0"/>
+        <circle cx="90" cy="60"  r="2.5" fill="#7c3aed"/>
+        <circle cx="140" cy="100" r="3" fill="#4a78f0"/>
+        <circle cx="140" cy="50"  r="2.5" fill="#7c3aed"/>
+        <rect x="108" y="95" width="6" height="10" rx="1" fill="none" stroke="#4a78f0" stroke-width="0.8"/>
+      </pattern>
+      <rect width="100%" height="100%" fill="url(#circuit)" />
+    </svg>
+  </div>
+
+  <div class="shield-watermark">
+    <svg width="320" height="380" viewBox="0 0 100 120" fill="none">
+      <path d="M50 5 L90 25 L90 60 Q90 95 50 115 Q10 95 10 60 L10 25 Z" stroke="#4a78f0" stroke-width="1.5" fill="none"/>
+      <path d="M50 18 L78 33 L78 58 Q78 84 50 100 Q22 84 22 58 L22 33 Z" stroke="#7c3aed" stroke-width="0.8" fill="none"/>
+      <path d="M38 58 L48 68 L65 48" stroke="#4a78f0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <div class="side-accent"></div>
+
+  <!-- Top Header -->
+  <div class="top-header">
+    <div class="header-title">
+      <span class="title-dot"></span>
+      <span>Incident Detection &amp; Response</span>
+      <span class="title-sep">—</span>
+      <span id="header-slide-title">Lab 3</span>
+    </div>
+    <div class="header-right">
+      <span class="lab-badge">LAB 03</span>
+    </div>
+  </div>
+
+  <div id="progress-bar"></div>
+
+  <!-- ===== SLIDES ===== -->
+  <div id="presentation">
+
+    <!-- ==========================================
+         SLIDE 1 — Cover
+         ========================================== -->
+    <div class="slide slide--title active" data-slide="0" data-title="Introduction"
+         data-notes="Welcome students back for Part 2 of the phishing analysis lab. Lab 2 covered email fundamentals, attack techniques, and the header/content analysis steps of the methodology. This session picks up with URL and attachment analysis, the tools that automate them, defense measures, and reporting.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> INCIDENT DETECTION &amp; RESPONSE</div>
+        <h1>Phishing Analysis<br /><span class="gradient-text">Part II</span></h1>
+        <p class="subtitle">Continuing the methodology — dissecting URLs and attachments, applying automated tools, and closing the loop with defense and reporting.</p>
+        <div class="divider"></div>
+        <div class="instructor-line">Lab 03 — <span>Tools, Defense &amp; Reporting</span></div>
+        <div class="instructor-line">Instructor: <span>Hussein Al-Selwi</span></div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 2 — Recap & Today's Objectives
+         ========================================== -->
+    <div class="slide" data-slide="1" data-title="Recap & Objectives"
+         data-notes="Quickly recap the four methodology steps already covered in Lab 2 (Initial Triage, Header and Sender Examination, Content Examination, and Authentication Analysis), then introduce the four remaining steps this session will cover: URL Examination, Attachment Examination, Defense Measures, and Documentation and Reporting.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> LAB OVERVIEW</div>
+        <h2>Recap &amp; Today's Objectives</h2>
+        <p>Lab 2 walked through the first half of the phishing analysis methodology. Today completes the process — from clicking nothing, to full response and reporting.</p>
+
+        <div class="two-col" style="margin-top: 1.1em;">
+          <div class="col-block col-block--blue">
+            <h4>Already Covered — Lab 2</h4>
+            <ul>
+              <li>Initial Triage</li>
+              <li>Header &amp; Sender Examination</li>
+              <li>Content Examination</li>
+              <li>Authentication Analysis (SPF/DKIM/DMARC)</li>
+            </ul>
+          </div>
+          <div class="col-block col-block--purple">
+            <h4>Today — Lab 3</h4>
+            <ul>
+              <li>URL Examination &amp; tooling</li>
+              <li>Attachment Examination — static &amp; dynamic</li>
+              <li>Automated analysis tools</li>
+              <li>Defense Measures — reactive &amp; proactive</li>
+              <li>Documentation &amp; Reporting</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 3 — Anatomy of a URL
+         ========================================== -->
+    <div class="slide" data-slide="2" data-title="Anatomy of a URL"
+         data-notes="Before diving into analysis, make sure students can name every part of a URL: protocol, subdomain, domain, TLD, subdirectory, file, and parameters. Then show a real phishing URL and point out how each part has been abused — a look-alike subdomain, a dynamic-DNS domain, a meaningless random subdirectory, and a parameter carrying the victim's own email address."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> FOUNDATIONS</div>
+        <h2>Anatomy of a URL</h2>
+        <p>Before analyzing a suspicious link, an analyst needs to reliably name every part of it — attackers hide their tricks in specific pieces of this structure.</p>
+
+        <div class="url-diagram">
+          <div class="url-diagram-grid">
+            <div></div>
+            <div class="url-bracket url-bracket--host" style="grid-column: 2 / 5;">Hostname</div>
+            <div class="url-bracket url-bracket--path" style="grid-column: 5 / 7;">Path</div>
+            <div></div>
+
+            <div class="url-token-value dim">https://</div>
+            <div class="url-token-value host">academy.</div>
+            <div class="url-token-value host">tcm-sec.</div>
+            <div class="url-token-value host">com</div>
+            <div class="url-token-value path">/courses/</div>
+            <div class="url-token-value path">example.php</div>
+            <div class="url-token-value path">?t=129</div>
+
+            <div class="url-token-label">Protocol</div>
+            <div class="url-token-label">Subdomain</div>
+            <div class="url-token-label">Domain</div>
+            <div class="url-token-label">TLD</div>
+            <div class="url-token-label">Subdirectory</div>
+            <div class="url-token-label">File</div>
+            <div class="url-token-label">Parameter</div>
+          </div>
+        </div>
+
+        <p style="margin-top: 1.4em;">Now compare that to a real phishing URL — the same structure, but every piece is weaponized:</p>
+
+        <div class="url-diagram url-diagram--flagged">
+          <div class="url-diagram-grid">
+            <div></div>
+            <div class="url-bracket url-bracket--host" style="grid-column: 2 / 5;">Hostname — Spoofed</div>
+            <div class="url-bracket url-bracket--path" style="grid-column: 5 / 7;">Path</div>
+            <div></div>
+
+            <div class="url-token-value dim">http://</div>
+            <div class="url-token-value host">apple-login.</div>
+            <div class="url-token-value flag">dnsdyn.</div>
+            <div class="url-token-value flag">net</div>
+            <div class="url-token-value path">/ODFTY/</div>
+            <div class="url-token-value path">index.php</div>
+            <div class="url-token-value flag flag--tag">?email=asimpson@example.com</div>
+
+            <div class="url-token-label">Protocol</div>
+            <div class="url-token-label">Subdomain</div>
+            <div class="url-token-label url-token-label--flag">Real domain</div>
+            <div class="url-token-label">TLD</div>
+            <div class="url-token-label">Subdirectory</div>
+            <div class="url-token-label">File</div>
+            <div class="url-token-label url-token-label--flag">Victim's email</div>
+          </div>
+        </div>
+
+        <div class="warn-box" style="margin-top: 1.1em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div>
+          <p><strong>Read every piece:</strong> "apple-login" is just a subdomain label, not proof of Apple — the real domain is <span class="mono">dnsdyn.net</span>, a dynamic-DNS provider no legitimate company uses for login pages. "ODFTY" is a random, auto-generated subdirectory. And the highlighted parameter pre-fills the victim's own email into the fake login form, both to look more convincing and to let the attacker track exactly who clicked.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 4 — URL Analysis: Analyst Workflow
+         ========================================== -->
+    <div class="slide" data-slide="3" data-title="URL Analysis Workflow"
+         data-notes="Deep-dive into methodology step 4. Walk through the three-stage workflow: first extract every URL from the header and body, then check each one for spoofing attempts, shorteners, or encoding, and finally scan it with dedicated tools before rendering a verdict."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> METHOD DEEP DIVE</div>
+        <h2>URL Analysis — Analyst Workflow</h2>
+        <p>With the anatomy in hand, a suspicious URL is worked through in three stages — extract, inspect, then scan.</p>
+
+        <div class="two-col" style="margin-top: 1.1em; align-items: start;">
+          <div class="col-block col-block--blue">
+            <div class="method-step">
+              <span class="method-num">1</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;">Extract the URL</h4>
+                <ul>
+                  <li>Pull every link out of the header and body</li>
+                </ul>
+              </div>
+            </div>
+            <div class="method-step">
+              <span class="method-num">2</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;">Check for Red Flags</h4>
+                <ul>
+                  <li>Look for spoofing attempts — look-alike domains and subdomain abuse</li>
+                  <li>Watch for URL shorteners hiding the real destination</li>
+                  <li>Watch for encoding tricks masking the true link</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="col-block col-block--purple">
+            <div class="method-step">
+              <span class="method-num">3</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;">Scan With Tools</h4>
+                <ul>
+                  <li>Submit the URL <strong>in its original form</strong> — scanning tools need the real link, not a defanged one</li>
+                  <li>Cross-reference results to reach a verdict</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="warn-box" style="margin-top: 1.1em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div>
+          <p><strong>Never visit a suspicious URL directly.</strong> Always use an isolated analysis VM, a dedicated sandbox tool, or a URL-scanning service.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 5 — URL Analysis Tools
+         ========================================== -->
+    <div class="slide" data-slide="4" data-title="URL Analysis Tools"
+         data-notes="Introduce the four core tools used to scan a suspicious URL: URL2PNG for a safe visual screenshot without loading the page locally, urlscan.io for a full technical scan, VirusTotal for multi-engine reputation, and PhishTank for checking against and searching a community-reported phishing database."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> TOOLING</div>
+        <h2>URL Analysis Tools</h2>
+        <p>These services let an analyst safely inspect a URL without ever loading it in a real browser.</p>
+
+        <div class="card-row card-row--2" style="margin-top: 1.1em;">
+          <div class="card">
+            <span class="tag tag--blue"><span class="tag-dot"></span>SCREENSHOT</span>
+            <h4 style="margin-top:0.5em;">URL2PNG</h4>
+            <p>Renders a safe screenshot of the destination page without ever loading it in the analyst's own browser — a quick, low-risk first look at what a link leads to.</p>
+          </div>
+          <div class="card">
+            <span class="tag tag--purple"><span class="tag-dot"></span>FULL SCAN</span>
+            <h4 style="margin-top:0.5em;">urlscan.io</h4>
+            <p>Loads the page in an isolated sandbox and captures a screenshot, the full DOM, every network request, and the redirect chain.</p>
+          </div>
+          <div class="card">
+            <span class="tag tag--green"><span class="tag-dot"></span>REPUTATION</span>
+            <h4 style="margin-top:0.5em;">VirusTotal</h4>
+            <p>Submits the URL to dozens of antivirus and blocklist engines at once and returns a consolidated malicious / suspicious / clean verdict.</p>
+          </div>
+          <div class="card">
+            <span class="tag tag--amber"><span class="tag-dot"></span>PHISHING DB</span>
+            <h4 style="margin-top:0.5em;">PhishTank</h4>
+            <p>A community-driven database of confirmed phishing addresses — search it to check if a URL is already reported, and to see newly submitted phishing sites as they're verified.</p>
+          </div>
+        </div>
+
+        <div class="info-box" style="margin-top: 1.1em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>Analyst's tip:</strong> A "clean" result from one tool is not proof of safety — brand-new malicious domains are often not yet indexed anywhere. Cross-reference at least two independent sources before clearing a URL.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 6 — Attachment Analysis: Static vs Dynamic
+         ========================================== -->
+    <div class="slide" data-slide="5" data-title="Static vs Dynamic Analysis"
+         data-notes="Deep-dive into methodology step 5, attachment examination. Extract the attachment, hash it, and search that hash's reputation first. From there: static analysis (format-specific tools, no execution) versus dynamic analysis (detonating in a sandbox to observe behavior). Note that full malware reverse engineering is out of scope for this course — the goal is triage."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> METHOD DEEP DIVE</div>
+        <h2>Attachment Analysis — Static vs Dynamic</h2>
+        <p>Once an attachment is securely extracted, hash it and search that hash's reputation first — a known-bad hit alone can be enough for a verdict. From there, an analyst has two complementary approaches to dig deeper.</p>
+
+        <div class="two-col" style="margin-top: 1.1em;">
+          <div class="col-block col-block--blue">
+            <h4>Static Analysis</h4>
+            <ul>
+              <li>Examines the file <strong class="blue">without running it</strong></li>
+              <li>Safe, fast, and repeatable at scale</li>
+              <li>PDF: <span class="mono">pdfid</span> / <span class="mono">pdf-parser</span> to pull out embedded URLs and objects</li>
+              <li>Office doc: <span class="mono">oledump</span> to find and extract macros</li>
+            </ul>
+          </div>
+          <div class="col-block col-block--purple">
+            <h4>Dynamic Analysis</h4>
+            <ul>
+              <li>Executes the file in an <strong class="purple">isolated sandbox</strong></li>
+              <li>Reveals real runtime behavior and intent</li>
+              <li>Process, file system, registry, network activity</li>
+              <li>Slower, and some malware detects and evades sandboxes</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="info-box" style="margin-top: 1.1em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>Scope note:</strong> Full malware analysis process is outside this course. The goal here is triage — pull out embedded URLs, objects, and macros to confirm intent, or hand the file to a sandbox and read its report.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 6 — Static Analysis Techniques
+         ========================================== -->
+    <div class="slide" data-slide="6" data-title="Static Analysis Techniques"
+         data-notes="Cover the practical static triage workflow: hash the file and search reputation databases first for every file type. Then split by format — pdfid and pdf-parser for malicious PDFs (triage keywords, then extract embedded URLs/objects), and oledump plus manual extraction for Office documents (detect and pull VBA macros). Emphasize this is triage, not full reverse engineering, which is out of scope for this course."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> STATIC ANALYSIS</div>
+        <h2>Static Analysis Techniques</h2>
+        <p>Start every file the same way — hash it and search that hash's reputation. If it comes back unknown, the next tools depend on the file type.</p>
+
+        <div class="info-box" style="margin-top: 1.1em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>Hash &amp; Search:</strong> Compute the file's MD5 / SHA-1 / SHA-256 and search it on VirusTotal and other reputation sources — the fastest check, and often enough to reach a verdict on its own.</p>
+        </div>
+
+        <div class="two-col" style="margin-top: 1.1em; align-items: start;">
+          <div class="col-block col-block--blue">
+            <h4 style="margin-bottom:0.6em;">PDF Files</h4>
+            <div class="method-step">
+              <span class="method-num">1</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;"><span class="mono">pdfid</span></h4>
+                <ul><li>Quick triage count of risky keywords — JavaScript, embedded files, launch actions</li></ul>
+              </div>
+            </div>
+            <div class="method-step">
+              <span class="method-num">2</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;"><span class="mono">pdf-parser</span></h4>
+                <ul><li>Digs into the flagged objects to pull out embedded URLs and payloads</li></ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-block col-block--purple">
+            <h4 style="margin-bottom:0.6em;">Office Documents</h4>
+            <div class="method-step">
+              <span class="method-num">1</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;"><span class="mono">oledump</span></h4>
+                <ul><li>Inspects the OLE structure of Word/Excel files to detect embedded VBA macros</li></ul>
+              </div>
+            </div>
+            <div class="method-step">
+              <span class="method-num">2</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;">Extract &amp; Review</h4>
+                <ul><li>Pull out the macro code and read it without ever letting it run</li></ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="warn-box" style="margin-top: 1.1em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div>
+          <p><strong>Scope note:</strong> The goal is triage, not full reverse engineering — extract the indicator (a URL, an object, a macro), then decide whether it's worth escalating to a sandbox.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 7 — Dynamic Analysis / Sandboxing
+         ========================================== -->
+    <div class="slide" data-slide="7" data-title="Dynamic Analysis & Sandboxing"
+         data-notes="Explain dynamic analysis: detonating the file in an isolated sandbox and observing what it actually does — process creation, file system and registry changes, and network traffic. Mention that this is essential when static analysis is inconclusive, e.g. against packed or obfuscated malware."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> DYNAMIC ANALYSIS</div>
+        <h2>Dynamic Analysis &amp; Sandboxing</h2>
+        <p>The file is detonated inside an isolated, monitored environment — an analyst watches what it actually does, rather than guessing from its code alone.</p>
+
+        <div class="card-row card-row--2" style="margin-top: 1.1em;">
+          <div class="card">
+            <div class="card-icon card-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 18v3"/></svg></div>
+            <h4>Process Behavior</h4>
+            <p>Which child processes spawn, what commands run, and whether the sample tries to inject into or hollow out other processes.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a87bf5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16"/><path d="M6 16V8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8"/></svg></div>
+            <h4>File System &amp; Registry Changes</h4>
+            <p>New or modified files, dropped payloads, and registry keys added for persistence across reboots.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/></svg></div>
+            <h4>Network Traffic</h4>
+            <p>Command-and-control callbacks, DNS requests, and any second-stage payload downloads captured with full packet detail.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a87bf5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg></div>
+            <h4>Sandbox-Evasion Checks</h4>
+            <p>Some malware detects it's being watched — checking for a mouse, a real user, or specific VM artifacts — and stays dormant to avoid analysis.</p>
+          </div>
+        </div>
+
+        <div class="card-row card-row--3" style="margin-top: 1.1em;">
+          <div class="card">
+            <span class="tag tag--blue"><span class="tag-dot"></span>SANDBOX</span>
+            <h4 style="margin-top:0.5em;">Any.Run</h4>
+            <p>Interactive, browser-based sandbox with live process, network, and screen visibility during detonation.</p>
+          </div>
+          <div class="card">
+            <span class="tag tag--purple"><span class="tag-dot"></span>SANDBOX</span>
+            <h4 style="margin-top:0.5em;">Joe Sandbox</h4>
+            <p>Deep behavioral reports covering process trees, network activity, and MITRE ATT&amp;CK technique mapping.</p>
+          </div>
+          <div class="card">
+            <span class="tag tag--green"><span class="tag-dot"></span>SANDBOX</span>
+            <h4 style="margin-top:0.5em;">Hybrid Analysis / Cuckoo</h4>
+            <p>Free and open-source options for automated detonation with detailed behavioral reports.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 8 — Automated Phishing Analysis Tools
+         ========================================== -->
+    <div class="slide" data-slide="8" data-title="Automated Analysis Tools"
+         data-notes="Introduce the two main automated tools used in this course: eioc.py, a script that extracts every IOC from an email in one pass, and PhishTool, a web-based platform that runs a full triage workflow on an uploaded email."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> TOOLING</div>
+        <h2>Automated Analysis Tools</h2>
+        <p>Manual analysis doesn't scale to hundreds of reported emails a day — these two tools automate the repetitive parts of the process.</p>
+
+        <div class="card-row card-row--2" style="margin-top: 1.1em;">
+          <div class="card">
+            <span class="tag tag--blue"><span class="tag-dot"></span>SCRIPT</span>
+            <h4 style="margin-top:0.5em;">eioc.py</h4>
+            <p>Parses a raw email file and extracts every IOC in one pass — sender and reply-to addresses, URLs, IPs, and attachment hashes — turning what would be several manual steps into a single command.</p>
+          </div>
+          <div class="card">
+            <span class="tag tag--purple"><span class="tag-dot"></span>WEBSITE</span>
+            <h4 style="margin-top:0.5em;">PhishTool</h4>
+            <p>A web-based triage platform — upload the email and it pulls header, URL, and attachment analysis into one case, with a verdict and case management built in.</p>
+          </div>
+        </div>
+
+        <div class="info-box" style="margin-top: 1.1em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>Analyst's tip:</strong> Automation accelerates triage but doesn't replace judgment — a tool's verdict is one input into the analyst's own conclusion, not a substitute for it.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 9 — Defense Measures: Reactive vs Proactive
+         ========================================== -->
+    <div class="slide" data-slide="9" data-title="Defense Measures Overview"
+         data-notes="Deep-dive into methodology step 6, defense measures. Introduce the two categories: reactive defense, taken after a phishing email has already been identified in the environment, and proactive defense, put in place ahead of time to reduce the likelihood and impact of future attacks."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> METHOD DEEP DIVE</div>
+        <h2>Defense Measures — Reactive vs Proactive</h2>
+        <p>Once a phishing email is confirmed malicious, the response splits into two tracks: contain what already happened, and reduce the chance it happens again.</p>
+
+        <div class="two-col" style="margin-top: 1.1em;">
+          <div class="col-block col-block--red">
+            <h4>Reactive Defense</h4>
+            <ul>
+              <li>Taken <strong class="red">after</strong> a confirmed threat is found</li>
+              <li>Focused on containment and eradication</li>
+              <li>Time-sensitive — every minute counts</li>
+              <li>e.g. blocking, quarantining, resetting credentials</li>
+            </ul>
+          </div>
+          <div class="col-block col-block--green">
+            <h4>Proactive Defense</h4>
+            <ul>
+              <li>Put in place <strong class="green">before</strong> an attack occurs</li>
+              <li>Focused on reducing likelihood and blast radius</li>
+              <li>Ongoing, not tied to a single incident</li>
+              <li>e.g. DMARC enforcement, training, threat intel</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="info-box" style="margin-top: 1.1em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>Analyst's tip:</strong> A mature security program treats every reactive response as an input to the proactive program — each incident should improve the defenses that prevent the next one.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 10 — Reactive Defense Actions
+         ========================================== -->
+    <div class="slide" data-slide="10" data-title="Reactive Defense Actions"
+         data-notes="Cover the five phases of reactive phishing defense: containment (determine scope, quarantine, block sender/web/file artifacts), eradication (remove malicious emails and files, including content search and eDiscovery, plus abuse form submissions, credential changes, and reimaging), recovery (restore systems), communication (notify affected users, update stakeholders), and user education (end-user training)."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> REACTIVE DEFENSE</div>
+        <h2>Reactive Phishing Defense</h2>
+        <p>Once a phishing email is confirmed, response moves through five phases — from stopping the spread to closing the loop with training.</p>
+
+        <div class="two-col" style="margin-top: 1.1em; align-items: start;">
+          <div class="col-block col-block--red">
+            <div class="method-step">
+              <span class="method-num">1</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;">Containment</h4>
+                <ul>
+                  <li>Determine scope</li>
+                  <li>Quarantine</li>
+                  <li>Block sender artifacts</li>
+                  <li>Block web artifacts</li>
+                  <li>Block file artifacts</li>
+                </ul>
+              </div>
+            </div>
+            <div class="method-step">
+              <span class="method-num">2</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;">Eradication</h4>
+                <ul>
+                  <li>Remove malicious emails
+                    <ul style="margin-top: 0.3em;"><li>Content search and eDiscovery</li></ul>
+                  </li>
+                  <li>Remove malicious files</li>
+                  <li>Abuse form submissions</li>
+                  <li>Credential changes</li>
+                  <li>Reimaging</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-block col-block--green">
+            <div class="method-step">
+              <span class="method-num">3</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;">Recovery</h4>
+                <ul>
+                  <li>Restore systems</li>
+                </ul>
+              </div>
+            </div>
+            <div class="method-step">
+              <span class="method-num">4</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;">Communication</h4>
+                <ul>
+                  <li>Notify affected users</li>
+                  <li>Update stakeholders</li>
+                </ul>
+              </div>
+            </div>
+            <div class="method-step">
+              <span class="method-num">5</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;">User Education</h4>
+                <ul>
+                  <li>End-user training</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 11 — Proactive Defense Measures
+         ========================================== -->
+    <div class="slide" data-slide="11" data-title="Proactive Defense Measures"
+         data-notes="Cover the five pillars of proactive phishing defense: email filtering (security appliances and marking external mail), URL scanning and blocking (real-time inspection and blocking recently registered domains), attachment filtering (extension blocks and sandboxing), email authentication (SPF, DKIM, DMARC), and user training (awareness training, phishing simulations, and reporting functionality)."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> PROACTIVE DEFENSE</div>
+        <h2>Proactive Phishing Defense</h2>
+        <p>Standing controls maintained continuously across five layers to reduce both the likelihood and the impact of the next phishing attempt.</p>
+
+        <div class="two-col" style="margin-top: 1.1em; align-items: start;">
+          <div class="col-block col-block--blue">
+            <div class="method-step">
+              <span class="method-num">1</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;">Email Filtering</h4>
+                <ul>
+                  <li>Email security appliances</li>
+                  <li>Marking external emails</li>
+                </ul>
+              </div>
+            </div>
+            <div class="method-step">
+              <span class="method-num">2</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;">URL Scanning &amp; Blocking</h4>
+                <ul>
+                  <li>Real-time URL inspection</li>
+                  <li>Block recently registered domains</li>
+                </ul>
+              </div>
+            </div>
+            <div class="method-step">
+              <span class="method-num">3</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;">Attachment Filtering</h4>
+                <ul>
+                  <li>File extension blocks</li>
+                  <li>Attachment sandboxing</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-block col-block--purple">
+            <div class="method-step">
+              <span class="method-num">4</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;">Email Authentication Methods</h4>
+                <ul>
+                  <li>SPF</li>
+                  <li>DKIM</li>
+                  <li>DMARC</li>
+                </ul>
+              </div>
+            </div>
+            <div class="method-step">
+              <span class="method-num">5</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;">User Training</h4>
+                <ul>
+                  <li>Security awareness training</li>
+                  <li>Phishing simulation exercises</li>
+                  <li>Reporting functionality</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-box" style="margin-top: 1.1em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>Analyst's tip:</strong> No single layer is enough on its own — these five work together, so a phish that slips past filtering can still be stopped by authentication checks, sandboxing, or a trained user reporting it.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 12 — Documentation & Reporting
+         ========================================== -->
+    <div class="slide" data-slide="12" data-title="Documentation & Reporting"
+         data-notes="Deep-dive into the final methodology step. Explain why documentation matters even after the threat is contained: institutional memory, compliance, metrics, handoff, and — importantly — justifying why each action was taken, not just listing what was done."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> METHOD DEEP DIVE</div>
+        <h2>Documentation &amp; Reporting</h2>
+        <p>An incident isn't closed until it's written down — the report turns a one-off response into knowledge the whole team can use.</p>
+
+        <div class="card-row card-row--2" style="margin-top: 1.1em;">
+          <div class="card">
+            <h4>Institutional Memory</h4>
+            <p>The next analyst may not have handled this incident. A good report lets them spot the same attack instantly.</p>
+          </div>
+          <div class="card">
+            <h4>Compliance &amp; Accountability</h4>
+            <p>Audits, insurance, and regulators often require proof of what was detected, and how it was handled.</p>
+          </div>
+          <div class="card">
+            <h4>Metrics &amp; Trends</h4>
+            <p>Reports add up over time — showing which departments are targeted most, and whether training is working.</p>
+          </div>
+          <div class="card">
+            <h4>Handoff &amp; Escalation</h4>
+            <p>A clear report lets you pass the incident to another team, or up to management, without re-explaining it.</p>
+          </div>
+          <div class="card">
+            <h4>Justify the Response</h4>
+            <p>Don't just list what was done — explain why. State the reasoning behind each action, so anyone reviewing it later understands the decision, not just the outcome.</p>
+          </div>
+        </div>
+
+        <div class="info-box" style="margin-top: 1.1em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>Analyst's tip:</strong> Write for a reader who knows nothing about this incident — spell out acronyms, give a clear timeline, and don't rely on memory only you have.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 13 — Incident Report Structure
+         ========================================== -->
+    <div class="slide" data-slide="13" data-title="Incident Report Structure"
+         data-notes="Walk through the actual report template students will fill in: Headers, URLs, Attachments, Description, Artifact Analysis (sender/URL/attachment), Verdict, and Defense Actions. Emphasize the best practice of defanging every URL and IP in the written report, even though they weren't defanged during scanning."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> REPORT TEMPLATE</div>
+        <h2>Incident Report Structure</h2>
+        <p>A consistent structure makes every report easy to skim under pressure and easy to compare against past incidents.</p>
+
+        <div class="two-col" style="margin-top: 1.1em; align-items: start;">
+          <div class="col-block col-block--blue">
+            <div class="method-step">
+              <span class="method-num">1</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;">Description</h4>
+                <ul><li>Plain-language summary of what the email does and why it's suspicious</li></ul>
+              </div>
+            </div>
+            <div class="method-step">
+              <span class="method-num">2</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;">Headers</h4>
+                <ul><li>Date, Subject, To, From, Reply-To, Return-Path, Sender IP, Resolved Host, Message-ID</li></ul>
+              </div>
+            </div>
+            <div class="method-step">
+              <span class="method-num">3</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;">URLs</h4>
+                <ul><li>Every link extracted from the header and body</li></ul>
+              </div>
+            </div>
+            <div class="method-step">
+              <span class="method-num">4</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;">Attachments</h4>
+                <ul><li>Attachment name, MD5, SHA1, and SHA256 for each file</li></ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-block col-block--purple">
+            <div class="method-step">
+              <span class="method-num">5</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;">Artifact Analysis</h4>
+                <ul><li>Sender Analysis, URL Analysis, and Attachment Analysis — findings from each</li></ul>
+              </div>
+            </div>
+            <div class="method-step">
+              <span class="method-num">6</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;">Verdict</h4>
+                <ul><li>Final classification — malicious, suspicious, or benign</li></ul>
+              </div>
+            </div>
+            <div class="method-step">
+              <span class="method-num">7</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;">Defense Actions</h4>
+                <ul><li>Every reactive step taken in response</li></ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="warn-box" style="margin-top: 1.1em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div>
+          <p><strong>Best practice:</strong> Defang every URL and IP written into the report — <span class="mono">hxxp[://]evil[.]com</span>, <span class="mono">1.2.3[.]4</span> — so nothing in the document is clickable or gets auto-parsed as a live indicator by whoever reads it next.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 14 — Closing: Full Methodology Recap
+         ========================================== -->
+    <div class="slide" data-slide="14" data-title="Full Methodology Recap"
+         data-notes="Close the lab by walking through the complete seven-step methodology end to end, spanning both Lab 2 and Lab 3, to reinforce how every piece fits together into one repeatable process."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> WRAP-UP</div>
+        <h2>The Full Methodology, End to End</h2>
+        <p>Seven steps, one repeatable process — from the first suspicious email in the inbox to a closed, documented case.</p>
+
+        <div class="card-row card-row--4" style="margin-top: 1.2em;">
+          <div class="card">
+            <span class="tag tag--blue">STEP 1</span>
+            <h4 style="margin-top:0.5em;">Initial Triage</h4>
+          </div>
+          <div class="card">
+            <span class="tag tag--blue">STEP 2</span>
+            <h4 style="margin-top:0.5em;">Header &amp; Sender Examination</h4>
+          </div>
+          <div class="card">
+            <span class="tag tag--blue">STEP 3</span>
+            <h4 style="margin-top:0.5em;">Content Examination</h4>
+          </div>
+          <div class="card">
+            <span class="tag tag--purple">STEP 4</span>
+            <h4 style="margin-top:0.5em;">URL Examination</h4>
+          </div>
+          <div class="card">
+            <span class="tag tag--purple">STEP 5</span>
+            <h4 style="margin-top:0.5em;">Attachment Examination</h4>
+          </div>
+          <div class="card">
+            <span class="tag tag--green">STEP 6</span>
+            <h4 style="margin-top:0.5em;">Defense Measures</h4>
+          </div>
+          <div class="card">
+            <span class="tag tag--amber">STEP 7</span>
+            <h4 style="margin-top:0.5em;">Documentation &amp; Reporting</h4>
+          </div>
+        </div>
+
+        <div class="info-box" style="margin-top: 1.2em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>You now have the complete methodology.</strong> The hands-on exercise will apply all seven steps to a real suspicious email — from first glance to a fully documented, defensible report.</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /presentation -->
+
+  <!-- Bottom Bar -->
+  <div id="bottom-bar">
+    <div class="bottom-left">
+      <span id="slide-counter">01 / 21</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <div class="nav-controls">
+        <button class="nav-btn nav-btn--notes" id="btn-notes" title="Speaker Notes (Key: N)">📝 Notes</button>
+        <button class="nav-btn" id="btn-prev" aria-label="Previous slide">←</button>
+        <button class="nav-btn" id="btn-next" aria-label="Next slide">→</button>
+      </div>
+    </div>
+  </div>
+
+  
+  <!-- Speaker Notes Overlay -->
+  <!-- Speaker Notes Overlay -->
+  <div id="speaker-notes-overlay" role="dialog" aria-label="Speaker Notes">
+    <div class="notes-header">
+      <div class="notes-title">
+        <span>📝</span> Speaker Notes
+        <span id="notes-slide-num" style="font-size:0.75rem; color:var(--text-muted); font-weight:normal; margin-left:6px;"></span>
+      </div>
+      <button class="notes-close" id="btn-close-notes" aria-label="Close notes">&times;</button>
+    </div>
+    <div class="notes-body" id="notes-content"></div>
+  </div>
+
+  <script>
+    (() => {
+      const slides = document.querySelectorAll('.slide');
+      const total = slides.length;
+      let current = 0;
+
+      const counterEl     = document.getElementById('slide-counter');
+      const progressEl    = document.getElementById('progress-bar');
+      const headerTitleEl = document.getElementById('header-slide-title');
+
+      
+      const notesOverlay   = document.getElementById('speaker-notes-overlay');
+      const notesBtn       = document.getElementById('btn-notes');
+      const notesCloseBtn  = document.getElementById('btn-close-notes');
+      const notesContent   = document.getElementById('notes-content');
+      const notesSlideNum  = document.getElementById('notes-slide-num');
+
+      function updateNotes() {
+        if (!notesOverlay) return;
+        const note = slides[current].getAttribute('data-notes');
+        const title = slides[current].getAttribute('data-title') || `Slide ${current + 1}`;
+        if (notesSlideNum) notesSlideNum.textContent = `(${String(current + 1).padStart(2, '0')}/${String(total).padStart(2, '0')} - ${title})`;
+        if (note && note.trim().length > 0) {
+          notesContent.innerHTML = `<p>${note.replace(/\n/g, '<br>')}</p>`;
+        } else {
+          notesContent.innerHTML = `<span class="notes-empty">No speaker notes recorded for this slide.</span>`;
+        }
+      }
+
+      function toggleNotes() {
+        const overlay = document.getElementById('speaker-notes-overlay');
+        const btn = document.getElementById('btn-notes');
+        if (!overlay) return;
+        const isActive = overlay.classList.toggle('active');
+        if (btn) btn.classList.toggle('active', isActive);
+        if (isActive) updateNotes();
+      }
+
+      if (notesBtn) notesBtn.addEventListener('click', toggleNotes);
+      if (notesCloseBtn) notesCloseBtn.addEventListener('click', () => {
+        notesOverlay.classList.remove('active');
+        if (notesBtn) notesBtn.classList.remove('active');
+      });
+
+      function goTo(index) {
+        if (index < 0 || index >= total || index === current) return;
+        slides[current].classList.remove('active');
+        slides[current].scrollTop = 0;
+        slides[index].classList.add('active');
+        slides[index].scrollTop = 0;
+        current = index;
+        updateUI();
+      }
+
+      function updateUI() {
+        counterEl.textContent = `${String(current + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`;
+        progressEl.style.width = `${((current + 1) / total) * 100}%`;
+        headerTitleEl.textContent = slides[current].getAttribute('data-title') || '';
+        if (notesOverlay && notesOverlay.classList.contains('active')) updateNotes();
+      }
+
+      document.addEventListener('keydown', (e) => {
+        if (e.code === 'KeyN' || e.key === 'n' || e.key === 'N' || e.key === 'ى') { e.preventDefault(); toggleNotes(); }
+        else if (e.key === 'Escape') {
+          if (notesOverlay && notesOverlay.classList.contains('active')) {
+            e.preventDefault();
+            notesOverlay.classList.remove('active');
+            if (notesBtn) notesBtn.classList.remove('active');
+          }
+        }
+        else if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); goTo(current + 1); }
+        else if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(current - 1); }
+        else if (e.key === 'ArrowDown') {
+          const s = slides[current];
+          if (s && s.scrollHeight > s.clientHeight && s.scrollTop + s.clientHeight < s.scrollHeight - 5) {
+            e.preventDefault(); s.scrollBy({ top: 100, behavior: 'smooth' });
+          } else { e.preventDefault(); goTo(current + 1); }
+        }
+        else if (e.key === 'ArrowUp') {
+          const s = slides[current];
+          if (s && s.scrollHeight > s.clientHeight && s.scrollTop > 5) {
+            e.preventDefault(); s.scrollBy({ top: -100, behavior: 'smooth' });
+          } else { e.preventDefault(); goTo(current - 1); }
+        }
+        else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+        else if (e.key === 'End')  { e.preventDefault(); goTo(total - 1); }
+      });
+
+      document.getElementById('btn-prev').addEventListener('click', () => goTo(current - 1));
+      document.getElementById('btn-next').addEventListener('click', () => goTo(current + 1));
+
+      let touchStartX = 0;
+      document.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; });
+      document.addEventListener('touchend', (e) => {
+        const diff = touchStartX - e.changedTouches[0].screenX;
+        if (Math.abs(diff) > 50) { diff > 0 ? goTo(current + 1) : goTo(current - 1); }
+      });
+
+      updateUI();
+    })();
+  </script>
+
+</body>
+</html>

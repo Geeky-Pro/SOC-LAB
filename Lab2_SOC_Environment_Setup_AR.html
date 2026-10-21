@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>المعمل 2 – تجهيز وتثبيت بيئة معمل الـ SOC وحزمة أدوات التحقيق الأمني</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-primary: #070a14;
+      --bg-surface: #0e1326;
+      --bg-card: rgba(18, 26, 51, 0.7);
+      --bg-card-hover: rgba(28, 40, 77, 0.85);
+      --border: rgba(99, 130, 255, 0.15);
+      --border-glow: rgba(99, 130, 255, 0.35);
+      --blue-500: #3563e9;
+      --blue-400: #60a5fa;
+      --blue-300: #93c5fd;
+      --blue-600: #2563eb;
+      --purple-500: #7c3aed;
+      --purple-400: #a78bfa;
+      --cyan-400: #22d3ee;
+      --green-400: #4ade80;
+      --yellow-400: #facc15;
+      --red-400: #f87171;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --gradient-main: linear-gradient(135deg, #3563e9 0%, #7c3aed 100%);
+      --gradient-blue: linear-gradient(135deg, #60a5fa 0%, #3563e9 100%);
+      --gradient-card: linear-gradient(145deg, rgba(18, 26, 51, 0.8) 0%, rgba(10, 15, 30, 0.95) 100%);
+      --font-heading: 'Cairo', 'Space Grotesk', system-ui, sans-serif;
+      --font-body: 'Cairo', 'Outfit', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+    .ambient-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .ambient-glow { position: absolute; border-radius: 50%; filter: blur(120px); pointer-events: none; }
+    .ambient-glow-1 { width: 500px; height: 500px; background: rgba(53, 99, 233, 0.12); top: -150px; left: -100px; }
+    .ambient-glow-2 { width: 600px; height: 600px; background: rgba(124, 58, 237, 0.1); bottom: -150px; right: -150px; }
+    
+    .top-bar {
+      position: relative;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 10;
+      border-bottom: 1px solid var(--border);
+      background: rgba(7, 10, 20, 0.8);
+      backdrop-filter: blur(12px);
+    }
+    .progress-bar { position: absolute; top: 0; left: 0; height: 3px; background: var(--gradient-main); z-index: 11; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .header-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--blue-400); }
+    .header-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--blue-400); box-shadow: 0 0 8px var(--blue-400); }
+    .header-slide-title { font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; }
+
+    .deck { position: relative; flex: 1; width: 100%; height: calc(100vh - 108px); overflow: hidden; }
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: 40px 60px;
+      display: none;
+      flex-direction: column;
+      justify-content: flex-start;
+      overflow-y: auto;
+      z-index: 1;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    .slide.active { display: flex; opacity: 1; transform: translateY(0); z-index: 2; }
+    .slide-inner { max-width: 1100px; width: 100%; margin: 0 auto; }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--blue-400);
+      margin-bottom: 8px;
+    }
+    .label-icon { font-size: 0.6rem; }
+    
+    h1 { font-family: var(--font-heading); font-size: 2.5rem; font-weight: 800; line-height: 1.2; margin-bottom: 12px; }
+    h2 { font-family: var(--font-heading); font-size: 1.85rem; font-weight: 700; line-height: 1.25; margin-bottom: 12px; }
+    h3 { font-family: var(--font-heading); font-size: 1.25rem; font-weight: 600; margin-bottom: 8px; }
+    h4 { font-family: var(--font-heading); font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
+    p { font-size: 0.95rem; line-height: 1.6; color: var(--text-secondary); margin-bottom: 12px; }
+    
+    .gradient-text { background: var(--gradient-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .blue { color: var(--blue-400); }
+    .purple { color: var(--purple-400); }
+    .yellow { color: var(--yellow-400); }
+    .green { color: var(--green-400); }
+    .red { color: var(--red-400); }
+    .mono { font-family: var(--font-mono); }
+
+    .card-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin: 16px 0; }
+    .card-row--2 { grid-template-columns: repeat(2, 1fr); }
+    .card-row--3 { grid-template-columns: repeat(3, 1fr); }
+    .card-row--4 { grid-template-columns: repeat(4, 1fr); }
+    .card {
+      background: var(--gradient-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .card:hover { transform: translateY(-3px); border-color: var(--border-glow); }
+    .card h4 { color: var(--text-primary); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .card p { font-size: 0.85rem; margin-bottom: 0; }
+
+    .tag { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; font-family: var(--font-mono); text-transform: uppercase; }
+    .tag--blue { background: rgba(53, 99, 233, 0.2); color: var(--blue-300); border: 1px solid rgba(53, 99, 233, 0.4); }
+    .tag--purple { background: rgba(124, 58, 237, 0.2); color: var(--purple-400); border: 1px solid rgba(124, 58, 237, 0.4); }
+    .tag--green { background: rgba(74, 222, 128, 0.15); color: var(--green-400); border: 1px solid rgba(74, 222, 128, 0.3); }
+    .tag--yellow { background: rgba(250, 204, 21, 0.15); color: var(--yellow-400); border: 1px solid rgba(250, 204, 21, 0.3); }
+    .tag--red { background: rgba(248, 113, 113, 0.15); color: var(--red-400); border: 1px solid rgba(248, 113, 113, 0.3); }
+
+    .terminal {
+      background: #030712;
+      border: 1px solid rgba(99, 130, 255, 0.25);
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 14px 0;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    .terminal-bar {
+      background: #0b1120;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+    .terminal-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .terminal-dot--red { background: #ef4444; }
+    .terminal-dot--yellow { background: #f59e0b; }
+    .terminal-dot--green { background: #10b981; }
+    .terminal-body {
+      padding: 12px 16px;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.55;
+      color: #e2e8f0;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .table-wrap { margin: 16px 0; overflow-x: auto; }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      background: var(--bg-card);
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    table.data-table th {
+      background: rgba(37, 99, 235, 0.15);
+      color: var(--blue-300);
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+    }
+    table.data-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+    }
+    table.data-table tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+    .callout-box {
+      background: rgba(37, 99, 235, 0.08);
+      border-left: 4px solid var(--blue-500);
+      border-radius: 0 8px 8px 0;
+      padding: 12px 18px;
+      margin: 14px 0;
+    }
+    .callout-box--warn { background: rgba(245, 158, 11, 0.08); border-left-color: var(--yellow-400); }
+    .callout-box--red { background: rgba(239, 68, 68, 0.08); border-left-color: var(--red-400); }
+    .callout-box h4 { font-size: 0.9rem; margin-bottom: 4px; }
+    .callout-box p { font-size: 0.85rem; margin-bottom: 0; color: var(--text-primary); }
+
+    .bottom-bar {
+      position: relative;
+      height: 56px;
+      background: rgba(7, 10, 20, 0.95);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 10;
+    }
+    .nav-controls { display: flex; align-items: center; gap: 8px; }
+    .nav-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      height: 32px;
+      padding: 0 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    }
+    .nav-btn:hover { background: rgba(255, 255, 255, 0.12); border-color: var(--blue-400); }
+    .nav-btn:active { transform: scale(0.97); }
+    .nav-btn--notes { background: rgba(53, 99, 233, 0.2); border-color: var(--blue-500); color: var(--blue-300); }
+    .nav-btn--notes.active { background: var(--blue-600) !important; color: #fff !important; box-shadow: 0 0 12px rgba(37, 99, 235, 0.5); }
+    .slide-counter { font-family: var(--font-mono); font-size: 0.82rem; color: var(--text-muted); }
+
+    /* Speaker Notes Overlay */
+    #speaker-notes-overlay {
+      position: fixed;
+      bottom: 68px;
+      right: 24px;
+      width: 480px;
+      max-width: calc(100vw - 48px);
+      max-height: 420px;
+      background: rgba(7, 10, 20, 0.96);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--blue-500);
+      border-radius: 12px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65), 0 0 24px rgba(53, 99, 233, 0.25);
+      z-index: 99999 !important;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      animation: notesFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #speaker-notes-overlay.active { display: flex !important; }
+    @keyframes notesFadeIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .notes-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .notes-title { font-size: 0.85rem; font-weight: 700; color: var(--blue-400); display: flex; align-items: center; gap: 6px; }
+    .notes-close { background: none; border: none; color: var(--text-muted); font-size: 1.25rem; cursor: pointer; padding: 0 4px; line-height: 1; border-radius: 4px; }
+    .notes-close:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
+    .notes-body { padding: 16px; overflow-y: auto; font-size: 0.95rem; line-height: 1.65; color: var(--text-primary); font-family: var(--font-body); }
+    .notes-empty { color: var(--text-muted); font-style: italic; }
+
+    
+    body { direction: rtl; text-align: right; }
+    pre, code, .mono, .cmd-line, .terminal-window, .code-snippet, .terminal-body { direction: ltr; text-align: left; display: inline-block; font-family: var(--font-mono); width: 100%; box-sizing: border-box; }
+    .section-label { letter-spacing: normal; }
+    #speaker-notes-overlay { left: 24px !important; right: auto !important; text-align: right !important; direction: rtl !important; }
+    .notes-header { direction: rtl; }
+    .notes-close { margin-right: auto; margin-left: 0; }
+        
+  </style>
+</head>
+<body>
+  <div class="ambient-bg">
+    <div class="ambient-glow ambient-glow-1"></div>
+    <div class="ambient-glow ambient-glow-2"></div>
+  </div>
+
+  <div class="top-bar">
+    <div class="progress-bar" id="progress-bar"></div>
+    <div class="header-badge">المعمل 2 – تجهيز وتثبيت بيئة معمل الـ SOC وحزمة أدوات التحقيق الأمني</div>
+    <div class="header-slide-title" id="header-slide-title"></div>
+  </div>
+
+  <div class="deck" id="deck">
+
+    <div class="slide" data-slide="0" data-title="المقدمة: تجهيز وتثبيت بيئة معمل الـ SOC" data-notes="رحب بالطلاب في المعمل الثاني. وضح لهم أن جلسة اليوم هي معمل هندسي تطبيقي بامتياز: سنقوم بتحويل أجهزتهم المحمولة (Laptops) إلى محطات عمل متكاملة لمحللي مركز العمليات (SOC Analyst Workstations). كل أداة سنثبتها اليوم ستكون رفيقتهم طوال الأسابيع العشرة القادمة.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> إعداد وتجهيز محطة عمل المحلل</div>
+        
+        <h1>تجهيز وتثبيت بيئة معمل الـ SOC و<br /><span class="gradient-text">حزمة أدوات التحقيق الأمني (Toolchain Deployment)</span></h1>
+        <p style="font-size: 1.15rem; margin-top: 10px;">دليل عملي خطوة بخطوة لتثبيت وتجهيز Wireshark وحزمة Sysinternals وأدوات التحقيق ونظام Splunk Enterprise Free على أجهزة الطلاب.</p>
+        <div style="margin-top: 24px; padding: 12px 18px; background: rgba(53,99,233,0.1); border: 1px solid var(--border-glow); border-radius: 8px; display: inline-block;">
+          <span style="color: var(--blue-300); font-weight: 600;">المعمل 2 — الإعداد والتجهيز العملي للمعمل وأدوات التحليل</span><br>
+          <span style="color: var(--text-muted); font-size: 0.85rem;">إعداد وتقديم المحاضر: <strong style="color: var(--text-primary);">Hussein Al-Selwi</strong></span>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="1" data-title="أهداف المعمل الثاني ومخرجاته" data-notes="استعرض أهداف الجلسة. بنهاية هاتين الساعتين، يجب أن يمتلك كل طالب في قاعة المعمل برنامج Wireshark قادراً على التقاط الحزم، وحزمة Sysinternals لفحص العمليات، ونظام Splunk يعمل محلياً على أجهزتهم ويستقبل السجلات الحية.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> أهداف الجلسة العملية</div>
+        
+        <h2>أهداف ومخرجات الجلسة العملية اليوم</h2>
+        <p>بنهاية معمل اليوم، ستكون أجهزة الطلاب مجهزة بالكامل بالطبقات الأربع الأساسية للتحقيق الدفاعي:</p>
+        <div class="card-row card-row--2">
+          <div class="card">
+            <h4><span class="blue">1. طبقة مراقبة الشبكة (Network Visibility)</span></h4>
+            <p>تثبيت برنامج Wireshark مع برنامج تشغيل Npcap، ضبط محولات الشبكة، واختبار فلاتر التقاط الحزم الحية.</p>
+          </div>
+          <div class="card">
+            <h4><span class="purple">2. طبقة فحص النظام والعمليات (Host Inspection)</span></h4>
+            <p>تثبيت حزمة Sysinternals (Process Explorer و Process Hacker و Autoruns) وربطها التلقائي بفحص VirusTotal.</p>
+          </div>
+          <div class="card">
+            <h4><span class="cyan">3. طبقة الـ SIEM والبحث المركزي (Central SIEM)</span></h4>
+            <p>تثبيت نظام Splunk Enterprise Free محلياً على المنفذ 8000، ربط سجلات ويندوز الحية، وكتابة أول استعلام SPL.</p>
+          </div>
+          <div class="card">
+            <h4><span class="yellow">4. أدوات فرز وتحليل التصيد (Triage Utilities)</span></h4>
+            <p>تجهيز أداة CyberChef للعمل دون إنترنت، أدوات تفكيك ترويسات البريد، وأدوات تحييد الروابط المشبوهة (Defanging).</p>
+          </div>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="2" data-title="متطلبات أجهزة الطلاب ومعمارية المعمل" data-notes="ناقش مواصفات أجهزة الطلاب. طمئن الطلاب أن خطتنا مصممة لتعمل بسلاسة وخفة تامة حتى على أجهزة 8GB RAM دون إرهاق المعالج بتشغيل عدة أجهزة افتراضية ثقيلة تستهلك الذاكرة وتتسبب في بطء الأجهزة.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> المواصفات الفنية ونظام التشغيل</div>
+        
+        <h2>متطلبات التشغيل ومعمارية بيئة المعمل</h2>
+        <p>صُممت أدوات المعمل لتكون خفيفة وعالية الكفاءة ومتوافقة مع مختلف أجهزة ومواصفات الطلاب المحمولة:</p>
+        
+        <div class="card-row card-row--3">
+          <div class="card">
+            <h4>مواصفات العتاد (Hardware)</h4>
+            <p><strong>الذاكرة (RAM):</strong> 8 جيجابايت كحد أدنى (16 جيجابايت مستحسن).<br><strong>المساحة:</strong> 10 جيجابايت شاغرة (SSD مستحسن).<br><strong>المعالج:</strong> معالج ثنائي النواة 64-bit فأعلى.</p>
+          </div>
+          <div class="card">
+            <h4>أنظمة التشغيل المدعومة</h4>
+            <p><strong>الأساسي:</strong> ويندوز 10 أو 11 (64-bit).<br><strong>أجهزة Mac:</strong> معالجات Intel أو M1/M2/M3 مدعومة بالكامل.<br><strong>أنظمة Linux:</strong> Ubuntu / Kali / Fedora مدعومة.</p>
+          </div>
+          <div class="card">
+            <h4>صلاحيات المستخدم</h4>
+            <p><strong>صلاحيات المسؤول (Admin):</strong> يجب أن يمتلك الطالب صلاحيات Administrator على جهازه لتثبيت برامج التشغيل وقراءة السجلات الأمنية.</p>
+          </div>
+        </div>
+
+        <div class="callout-box" style="margin-top: 14px;">
+          <h4>💡 لماذا اخترنا التثبيت المباشر على النظام (Native Host)؟</h4>
+          <p>تشغيل 3 أجهزة وهمية في وقت واحد (سيرفر + كالي + سيرفر لوجز) يؤدي لجمود وانهيار أجهزة الطلاب ذات 8GB رام. التثبيت المباشر يمنحنا استجابة فورية فائقة السرعة، واستهلاكاً ضئيلاً للرام، ووصولاً حقيقياً لسجلات النظام الحية!</p>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="3" data-title="المخطط الهيكلي لمحطة عمل طالب الـ SOC" data-notes="اشرح المخطط للطلاب. جهاز الطالب يتحول إلى بيئة أمنية مصغرة متكاملة: Wireshark يراقب كرت الشبكة، Sysinternals تراقب الذاكرة والعمليات، و Splunk يجمع سجلات ويندوز ويعرضها على المنفذ 8000.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> المعمارية التقنية للمعمل</div>
+        
+        <h2>المخطط المعماري لمحطة عمل طالب الـ SOC</h2>
+        <p>كيف تترابط الأدوات على جهاز الطالب لمحاكاة بيئة مركز عمليات أمنية مؤسسية مصغرة:</p>
+        
+        <div class="card-row card-row--3" style="margin-top: 16px;">
+          <div class="card">
+            <h4>1. طبقة الشبكة (Network)</h4>
+            <p><strong>Wireshark + Npcap</strong> يرتبط بكرت الشبكة (Wi-Fi أو Ethernet) لالتقاط الحزم وفحص تفاصيل بروتوكولات الاتصال.</p>
+          </div>
+          <div class="card">
+            <h4>2. طبقة النظام (Endpoint)</h4>
+            <p><strong>Process Hacker و Autoruns</strong> يراقبان شجرة العمليات في الذاكرة ومفاتيح التشغيل التلقائي في الريجستري.</p>
+          </div>
+          <div class="card">
+            <h4>3. طبقة الـ SIEM والتحليل</h4>
+            <p><strong>Splunk Enterprise Free</strong> يعمل كخدمة خلفية لتجميع السجلات ويوفر واجهة ويب احترافية على الرابط <code>localhost:8000</code>.</p>
+          </div>
+        </div>
+
+        <div class="terminal" style="margin-top: 14px;">
+          <div class="terminal-bar"><span class="terminal-dot terminal-dot--green"></span> المنافذ والخدمات المحلية المفعلة على الجهاز</div>
+          <div class="terminal-body">http://127.0.0.1:8000       --> واجهة الـ SIEM التحليلية (Splunk Web GUI)
+splunkd.exe:8089             --> واجهة إدارة وخوادم Splunk الخلفية
+Npcap Packet Driver          --> برنامج التقاط الحزم من نواة النظام (Kernel)
+Sysinternals Procexp64       --> فحص العمليات والذاكرة الحية بصلاحيات المسؤول</div>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="4" data-title="الخطوة 1: تثبيت برنامج Wireshark ومشغل Npcap" data-notes="وجه الطلاب لتثبيت برنامج Wireshark. أكد أن Npcap هو المكون الجوهري الذي بدونه لا يستطيع Wireshark التقاط أي حزم في ويندوز. تأكد من تحديد خيار تثبيت Npcap أثناء معالج التثبيت.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> الخطوة 1: مراقبة الشبكة</div>
+        
+        <h2>الخطوة 1: تثبيت برنامج Wireshark ومشغل الحزم Npcap</h2>
+        <p>برنامج Wireshark هو الأداة القياسية العالمية الأولى لتحليل بروتوكولات الشبكة وفحص حزم البيانات:</p>
+        
+        <div class="cycle-row" style="margin-top: 14px;">
+          <div class="cycle-item">
+            <div class="cycle-num">1</div>
+            <h4>تحميل ملف التثبيت</h4>
+            <p>الدخول إلى <code>wireshark.org/download.html</code> وتحميل نسخة <strong>Windows Installer (64-bit)</strong>.</p>
+          </div>
+          <div class="cycle-item">
+            <div class="cycle-num">2</div>
+            <h4>اختيار المكونات</h4>
+            <p>الإبقاء على الخيارات الافتراضية محددة: برنامج Wireshark، وأداة سطر الأوامر TShark، والإضافات.</p>
+          </div>
+          <div class="cycle-item">
+            <div class="cycle-num">3</div>
+            <h4>تثبيت مشغل Npcap</h4>
+            <p><strong>خطوة جوهرية!</strong> تأكد من الموافقة على تثبيت Npcap. في نافذة Npcap حدد خيار حصر صلاحيات المشغل على المسؤولين.</p>
+          </div>
+          <div class="cycle-item">
+            <div class="cycle-num">4</div>
+            <h4>إكمال التثبيت</h4>
+            <p>إنهاء التثبيت وتشغيل البرنامج. في حال طلب المعالج إعادة التشغيل، قم بإعادة تشغيل الجهاز لربط المشغل.</p>
+          </div>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="5" data-title="اختبار تشغيل Wireshark والتقاط أول حزمة شبكية" data-notes="اطلب من الطلاب فتح Wireshark وملاحظة حركة البيانات في محولات الشبكة. النقر المزدوج على كرت Wi-Fi. تطبيق فلتر بسيط مثل dns أو http وفتح المتصفح لمشاهدة الحزم وهي تتدفق حية أمامهم.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> التحقق العملي والاختبار</div>
+        
+        <h2>التحقق من عمل Wireshark والتقاط أول حزمة حية</h2>
+        <p>التأكد من أن كرت الشبكة يلتقط البيانات بشكل سليم وأن فلاتر العرض تعمل بكفاءة:</p>
+        
+        <div class="card-row card-row--2">
+          <div class="card">
+            <h4>1. اختيار محول الشبكة النشط</h4>
+            <p>افتح Wireshark. ابحث عن المحول الذي يظهر بجانبه خط بياني يتحرك بحركة المرور (غالباً <strong>Wi-Fi</strong> أو <strong>Ethernet</strong>) وانقر عليه نقراً مزدوجاً.</p>
+          </div>
+          <div class="card">
+            <h4>2. توليد حركة مرور تجريبية</h4>
+            <p>افتح المتصفح وادخل على أي موقع، أو افتح موجه الأوامر وجرب عمل اختبار اتصال: <br><code>ping 8.8.8.8</code>.</p>
+          </div>
+        </div>
+
+        <h4>تجربة فلاتر العرض الأساسية في شريط الفلاتر العلوي (Display Filters):</h4>
+        <div class="terminal">
+          <div class="terminal-bar"><span class="terminal-dot terminal-dot--green"></span> فلاتر Wireshark الأساسية للاختبار</div>
+          <div class="terminal-body"># الفلتر 1: عرض استعلامات وردود الـ DNS فقط
+dns
+
+# الفلتر 2: عرض طلبات الويب الصادرة فقط
+http.request.method == "GET" || http.request.method == "POST"
+
+# الفلتر 3: تتبع محاولات بدء اتصال TCP جديدة (SYN Packets)
+tcp.flags.syn == 1 && tcp.flags.ack == 0</div>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="6" data-title="الخطوة 2: تثبيت وتجهيز حزمة أدوات Sysinternals" data-notes="وجه الطلاب لتثبيت حزمة Sysinternals. إنها حزمة أدوات محمولة رسمية من مايكروسوفت (Mark Russinovich). اطلب من الطلاب إنشاء مجلد C:\Tools\Sysinternals وفك ضغط الملفات داخله وإضافته لمتغيرات النظام PATH.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> الخطوة 2: فحص النقاط الطرفية</div>
+        
+        <h2>الخطوة 2: تجهيز حزمة أدوات Sysinternals على الجهاز</h2>
+        <p>تُعد حزمة <strong class="blue">Microsoft Sysinternals</strong> الترسانة القياسية المعترف بها دولياً لفحص نظام ويندوز وكشف البرمجيات الخبيثة:</p>
+        
+        <div class="cycle-row" style="margin-top: 14px;">
+          <div class="cycle-item">
+            <div class="cycle-num">1</div>
+            <h4>تحميل الحزمة المضغوطة</h4>
+            <p>الدخول إلى موقع مايكروسوفت الرسمي وتحميل ملف <strong>SysinternalsSuite.zip</strong> (حجمه ~50 ميجابايت فقط).</p>
+          </div>
+          <div class="cycle-item">
+            <div class="cycle-num">2</div>
+            <h4>فك الضغط في مجلد مخصص</h4>
+            <p>إنشاء مجلد نظيف على مسار: <code>C:\Tools\Sysinternals</code> وفك ضغط كافة الملفات بداخله.</p>
+          </div>
+          <div class="cycle-item">
+            <div class="cycle-num">3</div>
+            <h4>الإضافة لمتغيرات النظام (PATH)</h4>
+            <p>إضافة مسار المجلد إلى متغير PATH في ويندوز لتشغيل أي أداة منها فوراً من موجه الأوامر.</p>
+          </div>
+          <div class="cycle-item">
+            <div class="cycle-num">4</div>
+            <h4>تخطي شروط الاستخدام تلقائياً</h4>
+            <p>تشغيل أمر الريجستري لتخطي نوافذ الموافقة على رخصة الاستخدام لكل أداة: <br><code>reg add HKCU\Software\Sysinternals /v EulaAccepted /t REG_DWORD /d 1 /f</code></p>
+          </div>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="7" data-title="إعداد Process Explorer وربطه التلقائي مع VirusTotal" data-notes="اشرح للطلاب كيفية تشغيل Process Explorer كمسؤول. الخطوة الذهبية: تفعيل فحص VirusTotal التلقائي من قائمة Options. هذا الخيار يحسب قيمة الهاش لكل برنامج يعمل في الذاكرة ويفحصه فورياً ضد 75 مضاد فيروسات!">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> إعداد فحص العمليات</div>
+        
+        <h2>تحويل Process Explorer إلى منصة صيد خبيثة حية</h2>
+        <p>ترقية أداة فحص العمليات البسيطة لتصبح شاشة كشف مبكر عن البرمجيات الخبيثة عبر الربط مع VirusTotal:</p>
+        
+        <div class="card-row card-row--2">
+          <div class="card">
+            <h4>1. التشغيل بصلاحيات المسؤول</h4>
+            <p>النقر بالزر الأيمن على <code>procexp64.exe</code> واختيار <strong>"Run as administrator"</strong> للتمكن من قراءة عمليات النظام والخدمات الحساسة.</p>
+          </div>
+          <div class="card">
+            <h4>2. تفعيل فحص VirusTotal التلقائي</h4>
+            <p>من القائمة العلوية: <strong>Options ⬅️ VirusTotal.com ⬅️ Check VirusTotal.com</strong> والموافقة على الشروط. ستقوم الأداة بحساب الهاش لجميع العمليات وفحصها فورياً!</p>
+          </div>
+        </div>
+
+        <div class="callout-box" style="margin-top: 14px;">
+          <h4>🎯 كيفية قراءة عمود نتائج VirusTotal داخل الأداة</h4>
+          <p><strong>0 / 75 (بالأخضر):</strong> ملف سليم ومعروف لكافة محركات مكافحة الفيروسات العالمية.<br><strong>رقم مرتفع (بالأحمر مثل 52/75):</strong> برمجية خبيثة مؤكدة صنفتها 52 شركة حماية كفيروس/تروجان — تتطلب عزلاً فورياً!<br><strong>Unknown / غير موجود:</strong> ملف جديد لم يُسجل من قبل في قواعد البيانات العالمية — يستلزم تحليلاً دقيقاً!</p>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="8" data-title="إعداد أداة Autoruns لكشف آليات استدامة المهاجمين" data-notes="اشرح كيفية استخدام Autoruns. اطلب تشغيل Autoruns64.exe كمسؤول. الخيار الأكثر أهمية: Options -> Scan Options -> Hide Microsoft Entries. هذا الخيار يحجب آلاف العمليات الطبيعية لويندوز ليتبقى فقط البرامج الخارجية وآليات البقاء المشبوهة!">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> إعداد فحص العمليات</div>
+        
+        <h2>إعداد أداة Autoruns لصيد برمجيات البقاء (Persistence)</h2>
+        <p>تُظهر أداة Autoruns كافة البرامج والخدمات والتعريفات والمهام المجدولة المبرمجة لتعمل تلقائياً مع بدء التشغيل:</p>
+        
+        <div class="card-row card-row--2">
+          <div class="card">
+            <h4>1. التشغيل بصلاحيات المسؤول</h4>
+            <p>تشغيل <code>Autoruns64.exe</code> كمسؤول لفحص مفاتيح النظام الشاملة في <code>HKLM</code> وملفات التعريفات الحساسة.</p>
+          </div>
+          <div class="card">
+            <h4>2. ضبط الفلتر الذهبي لحجب الإزعاج</h4>
+            <p>من القائمة العلوية: <strong>Options ⬅️ Scan Options</strong> ثم تحديد الخيارات التالية:<br>✅ <strong>Hide Microsoft Entries</strong> (إخفاء مدخلات مايكروسوفت)<br>✅ <strong>Hide Windows Entries</strong> (إخفاء مدخلات ويندوز)<br>✅ <strong>Verify Code Signatures</strong> (التحقق من التواقيع الرقمية)</p>
+          </div>
+        </div>
+
+        <div class="callout-box callout-box--warn" style="margin-top: 14px;">
+          <h4>⚡ الأثر السحري لحجب مدخلات النظام الافتراضية</h4>
+          <p>بتفعيل خيار إخفاء مدخلات مايكروسوفت، تتقلص القائمة من أكثر من 2,500 مدخل مزعج إلى نحو 20 تطبيقاً خارجياً فقط! وبذلك تظهر أي أداة خبيثة زرعها المهاجم للاستدامة (كخدمة أو مفتاح تشغيل تلقائي) بشكل فوري وفاضح!</p>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="9" data-title="اختيار نظام الـ SIEM: لماذا Splunk Enterprise Free؟" data-notes="اشرح للطلاب سبب اختيار نسخة Splunk Enterprise المجانية لأجهزتهم. إنها المنصة الأكثر انتشاراً في سوق العمل العالمي. رخصتها المجانية تمنح 500 ميجابايت يومياً مدى الحياة، وتثبت كبرنامج عادي في دقائق دون الحاجة لجهاز وهمي.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> الخطوة 3: منصة الـ SIEM</div>
+        
+        <h2>لماذا اخترنا نظام Splunk Enterprise Free لمعملنا العملي؟</h2>
+        <p>اختيار منصة الـ SIEM المناسبة لأجهزة الطلاب يتطلب الموازنة الدقيقة بين الواقعية المهنية وكفاءة استهلاك موارد الأجهزة:</p>
+        
+        <div class="card-row card-row--3">
+          <div class="card">
+            <h4>1. المنصة الأكثر طلباً في سوق العمل</h4>
+            <p>تستخدم منصة Splunk في أكثر من 85% من كبرى الشركات العالمية ومراكز الـ SOC. إتقان لغة SPL يمنح الطالب ميزة تنافسية فورية في التوظيف.</p>
+          </div>
+          <div class="card">
+            <h4>2. رخصة مجانية سخية ومستمرة</h4>
+            <p>تمنح النسخة المجانية رخصة دائمة تتيح جمع وفهرسة <strong>500 ميجابايت يومياً</strong> من السجلات — وهي كافية وزيادة لجميع لابات المقرر.</p>
+          </div>
+          <div class="card">
+            <h4>3. خفيفة جداً وبدون أجهزة وهمية</h4>
+            <p>تثبت كبرنامج وخدمة عادية على ويندوز وماك وتستهلك أقل من 400 ميجابايت رام عند الخمول، مقارنة بـ 8 جيجابايت تتطلبها الأنظمة الوهمية!</p>
+          </div>
+        </div>
+
+        <div class="callout-box" style="margin-top: 14px;">
+          <h4>🔄 الخيارات البديلة المتاحة للتطبيق</h4>
+          <p>للطلاب المهتمين بالحلول مفتوحة المصدر بالكامل: يمكن تجربة <strong>Wazuh</strong> عبر السحابة. ولأنظمة الـ EDR السحابية: نستخدم منصة <strong>LimaCharlie</strong> في المعمل 10 بدون أي متطلبات تثبيت لسيرفر محلي.</p>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="10" data-title="خطوات تثبيت نظام Splunk Enterprise خطوة بخطوة" data-notes="وجه الطلاب لتثبيت Splunk: تحميل ملف MSI، تشغيل المعالج، تحديد اسم مستخدم وكلمة مرور (تأكيد حفظها!)، والإبقاء على المنفذ الافتراضي 8000، والانتظار نحو 3 دقائق حتى اكتمال التثبيت.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> تثبيت الـ SIEM</div>
+        
+        <h2>خطوات تثبيت خادم Splunk Enterprise على أجهزة الطلاب</h2>
+        <p>اتبع هذه الخطوات الدقيقة لتثبيت بيئة الـ SIEM المحلية الخاصة بك بنجاح:</p>
+        
+        <div class="cycle-row" style="margin-top: 14px;">
+          <div class="cycle-item">
+            <div class="cycle-num">1</div>
+            <h4>تحميل ملف التثبيت</h4>
+            <p>الدخول إلى <code>splunk.com/download</code> ⬅️ اختيار Splunk Enterprise ⬅️ تحميل نسخة ويندوز 64-bit (ملف MSI حجمه ~480MB).</p>
+          </div>
+          <div class="cycle-item">
+            <div class="cycle-num">2</div>
+            <h4>تشغيل معالج التثبيت</h4>
+            <p>تشغيل الملف والموافقة على الشروط. الإبقاء على مسار التثبيت الافتراضي: <br><code>C:\Program Files\Splunk</code>.</p>
+          </div>
+          <div class="cycle-item">
+            <div class="cycle-num">3</div>
+            <h4>إنشاء بيانات حساب المسؤول</h4>
+            <p><strong>تنبيه هام!</strong> قم بتعيين اسم المستخدم وكلمة المرور واحفظها:<br>المستخدم: <code>admin</code><br>كلمة المرور: <code>SOCLab2026!</code></p>
+          </div>
+          <div class="cycle-item">
+            <div class="cycle-num">4</div>
+            <h4>اكتمال التثبيت وتشغيل الواجهة</h4>
+            <p>الضغط على Install. بعد انتهاء التثبيت، اضغط Finish وسيفتح المتصفح تلقائياً على واجهة الويب على المنفذ 8000.</p>
+          </div>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="11" data-title="تسجيل الدخول إلى واجهة Splunk واستكشافها" data-notes="اشرح للطلاب كيفية فتح الرابط http://127.0.0.1:8000 في المتصفح. تسجيل الدخول بحساب admin. الإشارة إلى تطبيق 'Search & Reporting' الأخضر في اللوحة الجانبية، وهو المكان الذي يقضي فيه المحلل وقته لكتابة الاستعلامات.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> استخدام واجهة الـ SIEM</div>
+        
+        <h2>الدخول إلى واجهة Splunk Web واستكشاف الواجهة</h2>
+        <p>يشغل خادم Splunk المحلي واجهة ويب متطورة تمنحك تحكماً كاملاً في محرك البحث والتحليل الجنائي:</p>
+        
+        <div class="card-row card-row--2">
+          <div class="card">
+            <h4>1. فتح المتصفح والدخول للرابط</h4>
+            <p>افتح متصفحك (Chrome أو Edge) وادخل على الرابط المحلي: <br><strong class="blue"><a href="http://127.0.0.1:8000" target="_blank" style="color:var(--blue-300);">http://127.0.0.1:8000</a></strong> (أو <code>http://localhost:8000</code>).</p>
+          </div>
+          <div class="card">
+            <h4>2. تسجيل الدخول بالنظام</h4>
+            <p>أدخل بيانات الحساب التي أنشأتها أثناء عملية التثبيت: <br><strong>اسم المستخدم:</strong> <code>admin</code> <br><strong>كلمة المرور:</strong> <code>SOCLab2026!</code></p>
+          </div>
+        </div>
+
+        <div class="callout-box" style="margin-top: 14px;">
+          <h4>🧭 البوابة الرئيسية للمحلل: تطبيق (Search &amp; Reporting)</h4>
+          <p>في اللوحة الجانبية اليسرى، انقر على التطبيق ذي الأيقونة الخضراء <strong>"Search &amp; Reporting"</strong>. هذه هي شاشة العمل الأساسية التي ستكتب فيها استعلامات لغة SPL لفلترة السجلات وكشف التهديدات وإنشاء لوحات المراقبة.</p>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="12" data-title="ربط وجلب سجلات أمان ويندوز الحية إلى Splunk" data-notes="وجه الطلاب لجلب أول مصدر سجلات حقيقي إلى Splunk: من القائمة Settings -> Data Inputs -> Local event log collection -> اختيار سجلات Security و System و Application. خلال 60 ثانية ستبدأ أحداث ويندوز الحية بالتدفق داخل الـ SIEM!">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> جلب وتغذية السجلات (Ingestion)</div>
+        
+        <h2>ربط أول مصدر بيانات: سجلات أمان ويندوز الحية</h2>
+        <p>ضبط منصة Splunk لجمع وفهرسة سجلات ويندوز الحية مباشرة من جهاز الطالب المحمول:</p>
+        
+        <div class="cycle-row" style="margin-top: 14px;">
+          <div class="cycle-item">
+            <div class="cycle-num">1</div>
+            <h4>الدخول لقائمة مصادر البيانات</h4>
+            <p>من الشريط العلوي: انقر على <strong>Settings</strong> ⬅️ ومن قسم Data اختر <strong>Data Inputs</strong>.</p>
+          </div>
+          <div class="cycle-item">
+            <div class="cycle-num">2</div>
+            <h4>اختيار سجلات ويندوز المحلية</h4>
+            <p>ابحث عن خيار <strong>"Local event log collection"</strong> واضغط على <strong>"Add New"</strong>.</p>
+          </div>
+          <div class="cycle-item">
+            <div class="cycle-num">3</div>
+            <h4>تحديد قنوات السجلات المطلوبة</h4>
+            <p>من قائمة السجلات المتاحة، حدد القنوات الثلاث الأساسية:<br>✅ <strong>Security</strong> (سجل الأمان)<br>✅ <strong>System</strong> (سجل النظام)<br>✅ <strong>Application</strong> (سجل التطبيقات)</p>
+          </div>
+          <div class="cycle-item">
+            <div class="cycle-num">4</div>
+            <h4>الحفظ وبدء الجمع</h4>
+            <p>اضغط على Review ثم Submit. فوراً سيبدأ خادم Splunk في سحب وفهرسة آلاف السجلات الحية من جهازك!</p>
+          </div>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="13" data-title="كتابة وتنفيذ أول استعلامات بلغة SPL في Splunk" data-notes="اطلب من الطلاب فتح Search & Reporting وكتابة أول استعلام حقيقي. اشرح لهم كيفية فلترة أحداث نجاح الدخول (EventCode=4624) وأحداث الفشل (4625). استعرض استخدام الفاصل (|) وأمر stats لتلخيص النتائج. هذه أول تجربة عملية حقيقية لهم كمحللين!">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> تطبيق عملي: لغة الاستعلامات SPL</div>
+        
+        <h2>كتابة وتنفيذ أول استعلامات بلغة SPL داخل Splunk</h2>
+        <p>ادخل إلى <strong>Search &amp; Reporting</strong>. اختر النطاق الزمني "Last 24 hours" ونفذ هذه الاستعلامات الجوهرية:</p>
+        
+        <h4>الاستعلام 1: جلب كافة تسجيلات الدخول الناجحة (حدث 4624) مع نوع الدخول</h4>
+        <div class="terminal">
+          <div class="terminal-bar"><span class="terminal-dot terminal-dot--green"></span> استعلام SPL 1 — إحصاء تسجيلات الدخول حسب المستخدم</div>
+          <div class="terminal-body">source="WinEventLog:Security" EventCode=4624
+| stats count by user, Logon_Type
+| sort - count</div>
+        </div>
+
+        <h4>الاستعلام 2: تتبع محاولات تسجيل الدخول الفاشلة (حدث 4625) مع كود الخطأ والـ IP</h4>
+        <div class="terminal">
+          <div class="terminal-bar"><span class="terminal-dot terminal-dot--red"></span> استعلام SPL 2 — فرز محاولات الدخول الفاشلة</div>
+          <div class="terminal-body">source="WinEventLog:Security" EventCode=4625
+| table _time, user, Sub_Status, Source_Network_Address
+| sort - _time</div>
+        </div>
+
+        <h4>الاستعلام 3: كشف البرامج والعمليات المنشأة في النظام (حدث 4688)</h4>
+        <div class="terminal">
+          <div class="terminal-bar"><span class="terminal-dot terminal-dot--blue"></span> استعلام SPL 3 — صيد العمليات المنفذة</div>
+          <div class="terminal-body">source="WinEventLog:Security" EventCode=4688
+| stats count by New_Process_Name
+| sort - count</div>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="14" data-title="الخطوة 4: تجهيز أداة CyberChef وأدوات فرز التصيد" data-notes="عرّف الطلاب بأداة CyberChef (السكين السويسري السيبراني من وكالة GCHQ). اطلب منهم حفظ نسخة الـ HTML التي تعمل بدون إنترنت لفحص أكواد Base64 وتحييد الروابط بأمان دون إرسال البيانات لخوادم خارجية.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> الخطوة 4: أدوات فرز البريد والروابط</div>
+        
+        <h2>الخطوة 4: تجهيز أداة CyberChef وأدوات فرز رسائل التصيد</h2>
+        <p>يتعامل محلل الـ SOC يومياً مع نصوص مشفرة وروابط احتيالية. نعتمد على حزمة أدوات محلية آمنة للتحليل:</p>
+        
+        <div class="card-row card-row--3">
+          <div class="card">
+            <h4><span class="blue">أداة CyberChef (GCHQ)</span></h4>
+            <p>"السكين السويسري السيبراني". أداة فك تشفير مفتوحة المصدر تعمل بالكامل أوفلاين في المتصفح لفك تشفير Base64 والـ Hex والـ URL Encoding.</p>
+          </div>
+          <div class="card">
+            <h4><span class="purple">أدوات تحييد الروابط (Defanging)</span></h4>
+            <p>تحويل الروابط الخبيثة الحية إلى صيغة غير قابلة للنقر لحفظها في تذاكر الحوادث بأمان: <br><code>http://evil.com</code> ⬅️ <code>hxxp://evil[.]com</code>.</p>
+          </div>
+          <div class="card">
+            <h4><span class="yellow">أدوات تحليل الترويسات</span></h4>
+            <p>حفظ روابط أدوات فحص البريد: <strong>Microsoft Message Header Analyzer</strong> وأداة <strong>MXToolbox</strong> لفحص سجلات SPF و DKIM و DMARC.</p>
+          </div>
+        </div>
+
+        <div class="callout-box" style="margin-top: 14px;">
+          <h4>🔒 القاعدة الصارمة لمحلل الـ SOC في فرز التصيد</h4>
+          <p><strong>إياك والنقر المباشر على أي رابط مشبوه في متصفحك العادي!</strong> قم دائماً بتحييد الرابط (Defanging) قبل إرساله في التذاكر، وافحص الترويسات والروابط المشفرة داخل أدوات آمنة معزولة مثل CyberChef.</p>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="15" data-title="الخيارات السحابية البديلة للأجهزة ذات المواصفات المحدودة" data-notes="وضح الخيارات السحابية البديلة للطلاب الذين قد يمتلكون أجهزة بمواصفات ضعيفة أو أجهزة مقيدة بصلاحيات الشركة. أشر إلى منصة LimaCharlie (المعتمدة في المعمل 10) ومنصة Wazuh السحابية.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> الخيارات السحابية البديلة</div>
+        
+        <h2>الخيارات السحابية البديلة للأجهزة ذات القيود التقنية</h2>
+        <p>في حال كان جهاز الطالب يمتلك قيوداً تمنع التثبيت المحلي، تتوفر بدائل سحابية مجانية بالكامل:</p>
+        
+        <div class="card-row card-row--2">
+          <div class="card">
+            <h4><span class="blue">منصة LimaCharlie السحابية (EDR)</span></h4>
+            <p><strong>المنصة المعتمدة في المعمل 10.</strong> توفر باقة مجانية دائمة تدعم مستشعرين مجاناً. تدار 100% عبر متصفح الويب وتتطلب فقط تثبيت مستشعر صغير (15MB) دون الحاجة لأي خادم محلي!</p>
+          </div>
+          <div class="card">
+            <h4><span class="purple">بيئة Wazuh Cloud التجريبية</span></h4>
+            <p>منصة SIEM و XDR مفتوحة المصدر بالكامل، توفر بيئة اختبار سحابية مجانية تحوي سيناريوهات هجمات محاكاة جاهزة دون استهلاك موارد الجهاز.</p>
+          </div>
+        </div>
+
+        <div class="callout-box" style="margin-top: 14px;">
+          <h4>💡 المسار التعليمي المعتمد لمقررنا</h4>
+          <p>سنعتمد بشكل أساسي على <strong>حزمة الأدوات المحلية (Wireshark + Sysinternals + Splunk Free)</strong> لضمان الاستقلالية التامة، وسرعة التطبيق في المعمل، والتعامل الحي مع السجلات الحقيقية!</p>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="16" data-title="قائمة التحقق السداسية للتأكد من جاهزية محطة العمل" data-notes="قبل انتهاء المعمل الثاني، اطلب من كل طالب التأكد من البنود الستة في قائمة التحقق. عند اكتمال العلامات الست، يصبح جهاز الطالب معتمداً ومؤهلاً رسمياً كمحطة عمل لمحلل SOC لبقية الفصل.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> التدقيق النهائي للجاهزية</div>
+        
+        <h2>قائمة التحقق السداسية لجاهزية معمل الطالب (Checklist)</h2>
+        <p>قبل مغادرة معمل اليوم، تحقق من عمل كافة المكونات الستة الأساسية على جهازك المحمول بنجاح:</p>
+        
+        <div class="card-row card-row--3">
+          <div class="card">
+            <h4>✅ 1. التقاط Wireshark</h4>
+            <p>برنامج Wireshark يعمل بنجاح ويلتقط حزم الشبكة الحية دون ظهور أي أخطاء في مشغل Npcap.</p>
+          </div>
+          <div class="card">
+            <h4>✅ 2. أداة Process Explorer</h4>
+            <p>الأداة تعمل بصلاحيات المسؤول (Administrator) وتعرض عمود تقييمات VirusTotal للعمليات الحية.</p>
+          </div>
+          <div class="card">
+            <h4>✅ 3. أداة Autoruns</h4>
+            <p>أداة Autoruns مفعلة بنجاح وتطبق فلتر إخفاء مدخلات مايكروسوفت لحصر البرامج الخارجية.</p>
+          </div>
+          <div class="card">
+            <h4>✅ 4. واجهة Splunk Web</h4>
+            <p>الرابط <code>http://127.0.0.1:8000</code> يفتح بسلاسة ويقبل تسجيل دخولك بحساب admin وكلمة المرور.</p>
+          </div>
+          <div class="card">
+            <h4>✅ 5. تدفق السجلات الحية</h4>
+            <p>كتابة استعلام <code>source="WinEventLog:Security"</code> في Splunk ترجع سجلات الأمان الحية من جهازك.</p>
+          </div>
+          <div class="card">
+            <h4>✅ 6. أداة CyberChef</h4>
+            <p>أداة CyberChef تعمل بكفاءة أوفلاين في المتصفح وتنجح في فك تشفير نص تجريبي مشفر بـ Base64.</p>
+          </div>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="17" data-title="الخلاصة والتحضير لمعمل الأسبوع الثالث (تحليل التصيد)" data-notes="هنئ الطلاب على اكتمال التجهيز. أجهزتهم الآن محطات عمل أمنية متكاملة. قدم لمحة عن الأسبوع الثالث: تحليل هجمات التصيد الاحتيالي 1، حيث سنقوم بفحص الترويسات الحقيقية وكشف حيل الهندسة الاجتماعية.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> خاتمة والخطوات القادمة</div>
+        
+        <h2>خلاصة المعمل: أجهزتكم جاهزة للعمليات الأمنية التطبيقية</h2>
+        <p>مبارك للجميع! لقد تحول جهازك المحمول اليوم رسمياً إلى محطة عمل دفاعية متكاملة لمحلل مركز عمليات الأمن:</p>
+        <div class="card-row card-row--2" style="margin-top: 16px;">
+          <div class="card">
+            <h4>الإنجاز المتحقق اليوم</h4>
+            <p>أصبح لديك حزمة فرز وتحقيق متكاملة: مراقبة حزم الشبكة (Wireshark)، فحص العمليات والبقاء (Sysinternals)، وتجميع السجلات المركزية (Splunk SIEM).</p>
+          </div>
+          <div class="card">
+            <h4>الوجهة القادمة: الأسبوع 3 — تحليل التصيد الاحتيالي 1</h4>
+            <p>في الأسبوع القادم، سننطلق في التحليل العملي للتهديدات الحقيقية: تشريح رسائل البريد الاحتيالية، فحص ترويسات المصادقة (SPF/DKIM/DMARC)، وكشف الروابط الملغومة!</p>
+          </div>
+        </div>
+        <div class="callout-box" style="margin-top: 16px;">
+          <h4>مهمة تجهيزية للأسبوع القادم</h4>
+          <p>اترك خدمة Splunk مفعلة على جهازك أثناء استخدامك العادي ليتجمع لديك رصيد من السجلات الطبيعية لجهازك، مما يسهل علينا مقارنة النشاط الطبيعي بالنشاط المشبوه في اللابات القادمة.</p>
+        </div>
+            
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Navigation Bar -->
+  <div class="bottom-bar">
+    <div class="slide-counter" id="slide-counter">-- / --</div>
+    <div class="nav-controls">
+      <button class="nav-btn nav-btn--notes" id="btn-notes" title="ملاحظات المحاضر (Key: N)">📝 ملاحظات</button>
+      <button class="nav-btn" id="btn-prev" aria-label="الشريحة السابقة">→</button>
+      <button class="nav-btn" id="btn-next" aria-label="الشريحة التالية">←</button>
+    </div>
+  </div>
+
+  <!-- Speaker Notes Overlay -->
+  <div id="speaker-notes-overlay" role="dialog" aria-label="ملاحظات المحاضر">
+    <div class="notes-header">
+      <div class="notes-title">
+        <span>📝</span> ملاحظات المحاضر
+        <span id="notes-slide-num" style="font-size:0.75rem; color:var(--text-muted); font-weight:normal; margin-left:6px; margin-right:6px;"></span>
+      </div>
+      <button class="notes-close" id="btn-close-notes" aria-label="إغلاق الملاحظات">&times;</button>
+    </div>
+    <div class="notes-body" id="notes-content">
+      <span class="notes-empty">لا توجد ملاحظات مسجلة لهذه الشريحة.</span>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const slides = document.querySelectorAll('.slide');
+      const total = slides.length;
+      let current = 0;
+
+      const progressBar = document.getElementById('progress-bar');
+      const slideCounter = document.getElementById('slide-counter');
+      const headerTitle = document.getElementById('header-slide-title');
+
+      function getOverlay() { return document.getElementById('speaker-notes-overlay'); }
+      function getNotesBtn() { return document.getElementById('btn-notes'); }
+
+      function updateNotes() {
+        const overlay = getOverlay();
+        if (!overlay) return;
+        const notesContent = document.getElementById('notes-content');
+        const notesSlideNum = document.getElementById('notes-slide-num');
+        const slide = slides[current];
+        if (!slide) return;
+        const note = slide.getAttribute('data-notes');
+        const title = slide.getAttribute('data-title') || `Slide ${current + 1}`;
+        if (notesSlideNum) {
+          notesSlideNum.textContent = `(${String(current + 1).padStart(2, '0')}/${String(total).padStart(2, '0')} - ${title})`;
+        }
+        if (notesContent) {
+          if (note && note.trim().length > 0) {
+            notesContent.innerHTML = `<p>${note.replace(/\n/g, '<br>')}</p>`;
+          } else {
+            const isAr = document.documentElement.lang === 'ar' || document.documentElement.dir === 'rtl';
+            notesContent.innerHTML = `<span class="notes-empty">${isAr ? 'لا توجد ملاحظات مسجلة لهذه الشريحة.' : 'No speaker notes recorded for this slide.'}</span>`;
+          }
+        }
+      }
+
+      function toggleNotes() {
+        const overlay = getOverlay();
+        const btn = getNotesBtn();
+        if (!overlay) return;
+        const isActive = overlay.classList.toggle('active');
+        if (btn) btn.classList.toggle('active', isActive);
+        if (isActive) updateNotes();
+      }
+
+      function updateUI() {
+        slides.forEach((s, idx) => {
+          s.classList.toggle('active', idx === current);
+        });
+        if (progressBar) progressBar.style.width = `${((current + 1) / total) * 100}%`;
+        if (slideCounter) slideCounter.textContent = `${String(current + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`;
+        const title = slides[current].getAttribute('data-title') || '';
+        if (headerTitle) headerTitle.textContent = title;
+        
+        const overlay = getOverlay();
+        if (overlay && overlay.classList.contains('active')) {
+          updateNotes();
+        }
+      }
+
+      function goTo(index) {
+        if (index < 0 || index >= total) return;
+        current = index;
+        updateUI();
+      }
+
+      const notesBtn = document.getElementById('btn-notes');
+      if (notesBtn) notesBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleNotes(); });
+
+      const notesCloseBtn = document.getElementById('btn-close-notes');
+      if (notesCloseBtn) notesCloseBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const overlay = getOverlay();
+        const btn = getNotesBtn();
+        if (overlay) overlay.classList.remove('active');
+        if (btn) btn.classList.remove('active');
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.code === 'KeyN' || e.key === 'n' || e.key === 'N' || e.key === 'ى') {
+          e.preventDefault();
+          toggleNotes();
+          return;
+        }
+        if (e.key === 'Escape' || e.code === 'Escape') {
+          const overlay = getOverlay();
+          const btn = getNotesBtn();
+          if (overlay && overlay.classList.contains('active')) {
+            overlay.classList.remove('active');
+            if (btn) btn.classList.remove('active');
+          }
+          return;
+        }
+        if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ' || e.code === 'Space') {
+          e.preventDefault();
+          goTo(current + 1);
+        } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+          e.preventDefault();
+          goTo(current - 1);
+        } else if (e.key === 'Home') {
+          e.preventDefault();
+          goTo(0);
+        } else if (e.key === 'End') {
+          e.preventDefault();
+          goTo(total - 1);
+        }
+      });
+
+      document.getElementById('btn-prev').addEventListener('click', () => goTo(current - 1));
+      document.getElementById('btn-next').addEventListener('click', () => goTo(current + 1));
+
+      updateUI();
+    })();
+  </script>
+</body>
+</html>

