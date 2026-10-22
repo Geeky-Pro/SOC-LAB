@@ -1,569 +1,613 @@
-# المعمل 01: أساسيات عمليات مركز الأمن السيبراني والاستجابة للحوادث (SOC / IR Fundamentals)
+# المختبر 01: أساسيات عمليات الأمن والاستجابة للحوادث
 
-> **المقرر:** عمليات الأمن السيبراني (مختبر الـ SOC - Cybersecurity Operations)  
-> **المحاضر:** Hussein Al-Selwi  
-> **إجمالي عدد الشرائح:** 30 شريحة  
-> **العرض التقديمي المصدري:** `lab1_IDR_AR.html`  
+المقرر: عمليات الأمن السيبراني (مختبر SOC)
+المدرّب: حسين الصلوي
+إجمالي الشرائح: 30 شريحة
+العرض الأصلي: lab1_IDR.html
 
-### 📋 نبذة عامة وأهداف الوحدة التدريبية
-دليل تأسيسي وتطبيقي شامل يغطي المعمارية التشغيلية لمركز الـ SOC، حماية ثالوث أمن المعلومات (CIA Triad)، دورة حياة عمل المحلل الدفاعي، التدرج الهرمي (السجلات -> الأحداث -> التنبيهات -> الحوادث)، وأهم الأنظمة والتقنيات الدفاعية (SIEM, SOAR, EDR, IDS/IPS, Firewalls).
+📋 نظرة عامة
 
----
-
-## 📑 جدول المحتويات
-
-- [الشريحة 01: المقدمة](#slide-01-المقدمة)
-- [الشريحة 02: أهداف المعمل](#slide-02-أهداف-المعمل)
-- [الشريحة 03: ما هو مركز عمليات الأمن (SOC)؟](#slide-03-ما-هو-مركز-عمليات-الأمن-soc-؟)
-- [الشريحة 04: الدورة التشغيلية الأساسية للـ SOC](#slide-04-الدورة-التشغيلية-الأساسية-للـ-soc)
-- [الشريحة 05: SOC Models & Structures](#slide-05-soc-models-structures)
-- [الشريحة 06: People, Process & Technology](#slide-06-people-process-technology)
-- [الشريحة 07: حماية ثالوث أمن المعلومات (CIA Triad)](#slide-07-حماية-ثالوث-أمن-المعلومات-cia-triad)
-- [الشريحة 08: العمليات الأمنية التفاعلية (Reactive)](#slide-08-العمليات-الأمنية-التفاعلية-reactive)
-- [الشريحة 09: العمليات الأمنية الاستباقية (Proactive)](#slide-09-العمليات-الأمنية-الاستباقية-proactive)
-- [الشريحة 10: يوم في حياة محلل الـ SOC](#slide-10-يوم-في-حياة-محلل-الـ-soc)
-- [الشريحة 11: أدوار ومستويات فريق الـ SOC](#slide-11-أدوار-ومستويات-فريق-الـ-soc)
-- [الشريحة 12: سيناريو تطبيقي: تسريب بيانات داخلية](#slide-12-سيناريو-تطبيقي-تسريب-بيانات-داخلية)
-- [الشريحة 13: Logs, Events, Alerts, and Incidents](#slide-13-logs-events-alerts-and-incidents)
-- [الشريحة 14: نظام إدارة المعلومات والأحداث الأمنية (SIEM)](#slide-14-نظام-إدارة-المعلومات-والأحداث-الأمنية-siem)
-- [الشريحة 15: الأتمتة وتنسيق الاستجابة الأمنية (SOAR)](#slide-15-الأتمتة-وتنسيق-الاستجابة-الأمنية-soar)
-- [الشريحة 16: أنظمة إدارة وتوثيق الحوادث](#slide-16-أنظمة-إدارة-وتوثيق-الحوادث)
-- [الشريحة 17: مراقبة أمن الشبكات (NSM)](#slide-17-مراقبة-أمن-الشبكات-nsm)
-- [الشريحة 18: جدران الحماية: الشبكية و NGFW و WAF](#slide-18-جدران-الحماية-الشبكية-و-ngfw-و-waf)
-- [الشريحة 19: نظام كشف التطفل (IDS)](#slide-19-نظام-كشف-التطفل-ids)
-- [الشريحة 20: نظام منع التطفل (IPS)](#slide-20-نظام-منع-التطفل-ips)
-- [الشريحة 21: أنظمة كشف واستجابة الأجهزة (EDR)](#slide-21-أنظمة-كشف-واستجابة-الأجهزة-edr)
-- [الشريحة 22: 2. استخبارات التهديدات (Threat Intelligence) Platform (TIP)](#slide-22-2-استخبارات-التهديدات-threat-intelligence-platform-tip)
-- [الشريحة 23: أدوات التحقيق الجنائي الرقمي (Forensics)](#slide-23-أدوات-التحقيق-الجنائي-الرقمي-forensics)
-- [الشريحة 24: أدوات فحص وتحليل البرمجيات الخبيثة](#slide-24-أدوات-فحص-وتحليل-البرمجيات-الخبيثة)
-- [الشريحة 25: مقاييس أداء مركز العمليات (Metrics)](#slide-25-مقاييس-أداء-مركز-العمليات-metrics)
-- [الشريحة 26: Common Threats: Social & Software-Based](#slide-26-common-threats-social-software-based)
-- [الشريحة 27: Common Threats: Identity & Insider Risk](#slide-27-common-threats-identity-insider-risk)
-- [الشريحة 28: مجموعات التهديد المتقدمة المستمرة (APTs)](#slide-28-مجموعات-التهديد-المتقدمة-المستمرة-apts)
-- [الشريحة 29: Common Threats: Network, Data & Supply Chain](#slide-29-common-threats-network-data-supply-chain)
-- [الشريحة 30: الخلاصة والدروس المستفادة](#slide-30-الخلاصة-والدروس-المستفادة)
+دليل تأسيسي حول بنية مركز عمليات الأمن (SOC) الحديثة، وثلاثية CIA، ودورة حياة عمل المحلل، والفرق بين السجلات والأحداث والتنبيهات والحوادث، وأدوات الأمن الدفاعي (SIEM، SOAR، EDR، IDS/IPS، الجدران النارية).
 
 ---
 
-## الشريحة 01: المقدمة
+## 📑 فهرس المحتويات
 
-> **التصنيف / الفئة:** `عمليات الأمن السيبراني والاستجابة للحوادث · SOC / IR`
-
-### Introduction to Security Operations and Incident Response
-
-المعمل 1 — أساسيات عمليات مركز الأمن (SOC Fundamentals)
-
-المحاضر: Hussein Al-Selwi
-
-> [!NOTE] 🎙️ **ملاحظات وتوجيهات المحاضر (Instructor Lecture Notes)**
-> رحب بالطلاب في بداية المقرر العملي. وضح لهم أن عمليات الأمن السيبراني (Security Operations) والاستجابة للحوادث (Incident Response) هما الركيزتان الأهم في الأمن الدفاعي (Blue Team). سيزودهم هذا المقرر بالمعرفة والمهارات العملية الحقيقية لكشف التهديدات والتحقيق فيها والاستجابة للحوادث الأمنية.
-
----
-
-## الشريحة 02: أهداف المعمل
-
-> **التصنيف / الفئة:** `أهداف المعمل`
-
-### الأهداف التعليمية للمعمل
-
-- Understand the core functions of a SOC and its role.
-- استكشاف المهام والمسؤوليات اليومية لمحلل مركز العمليات (SOC Analyst)
-- Familiarize with different SOC models, roles, and organizational structures .
-- Learn metrics which evaluate the effectiveness of security operations.
-- Understand various tools used within SOCs for monitoring, detection, analysis, and response.
-- Identify and understand common threats faced by organizations.
-
-> [!NOTE] 🎙️ **ملاحظات وتوجيهات المحاضر (Instructor Lecture Notes)**
-> استعرض أهداف المعمل ليعرف الطلاب ما سيكتسبونه بنهاية الجلسة: فهم دور الـ SOC، مهام المحلل اليومية، الهياكل والنماذج، المفاهيم الأساسية، مقاييس الأداء، والأدوات الشائعة.
-
----
-
-## الشريحة 03: ما هو مركز عمليات الأمن (SOC)؟
-
-> **التصنيف / الفئة:** `FOUNDATIONS`
-
-### ما هو مركز عمليات الأمن (Security Operations Center — SOC)؟
-
-A Security Operations Center (SOC) is a centralized unit responsible for monitoring, detecting, analyzing, and responding to cybersecurity threats.
-
-- **Primary Responsibilities**: المراقبة المستمرة، اكتشاف الأنشطة المشبوهة، التحقيق في التنبيهات، وتنسيق الاستجابة للحوادث.
-- **Asset Protection**: حماية بيانات المؤسسة وأنظمتها وبنيتها التحتية الحيوية من التهديدات الداخلية والخارجية.
-- **Key Goal**: Reduce organizational risk through continuous monitoring and rapid response.
-
-> [!IMPORTANT]
-> Cybersecurity is not a one-time activity — a SOC runs 24/7 and operates in two modes: proactive (threat hunting, hardening) and reactive (triage, investigation, response).
-
-> [!NOTE] 🎙️ **ملاحظات وتوجيهات المحاضر (Instructor Lecture Notes)**
-> أكد على أن مركز العمليات (SOC) ليس مجرد غرفة مادية بشاشات ضخمة، بل هو منظومة متكاملة وفريق متخصص (قد يعمل حضورياً أو عن بُعد) لحماية المؤسسة على مدار الساعة 24/7 من التهديدات الداخلية والخارجية.
+· الشريحة 01: مقدمة
+· الشريحة 02: أهداف المجال
+· الشريحة 03: ما هو SOC؟
+· الشريحة 04: الدور الأساسي لمركز SOC
+· الشريحة 05: نماذج وهياكل SOC
+· الشريحة 06: الأشخاص والعمليات والتقنية
+· الشريحة 07: حماية ثلاثية CIA
+· الشريحة 08: العمليات التفاعلية
+· الشريحة 09: العمليات الاستباقية
+· الشريحة 10: يوم في حياة محلل SOC
+· الشريحة 11: أدوار ومسؤوليات SOC
+· الشريحة 12: سيناريو: تسريب بيانات من الداخل
+· الشريحة 13: السجلات والأحداث والتنبيهات والحوادث
+· الشريحة 14: إدارة معلومات وأحداث الأمن (SIEM)
+· الشريحة 15: التنسيق والأتمتة والاستجابة الأمنية (SOAR)
+· الشريحة 16: أدوات إدارة الحوادث
+· الشريحة 17: مراقبة أمن الشبكة (NSM)
+· الشريحة 18: الجدران النارية: الجدار التقليدي وNGFW وWAF
+· الشريحة 19: نظام كشف التسلل (IDS)
+· الشريحة 20: نظام منع التسلل (IPS)
+· الشريحة 21: كشف واستجابة نقطة النهاية (EDR)
+· الشريحة 22: منصة استخبارات التهديدات (TIP)
+· الشريحة 23: أدوات التحليل الجنائي
+· الشريحة 24: أدوات تحليل البرمجيات الخبيثة
+· الشريحة 25: قياس أداء مركز SOC
+· الشريحة 26: التهديدات الشائعة: الاجتماعية والبرمجية
+· الشريحة 27: التهديدات الشائعة: الهوية والمخاطر الداخلية
+· الشريحة 28: التهديدات الشائعة: التهديدات المتقدمة المستمرة (APTs)
+· الشريحة 29: التهديدات الشائعة: الشبكة والبيانات وسلسلة التوريد
+· الشريحة 30: الخلاصات الرئيسية
 
 ---
 
-## الشريحة 04: الدورة التشغيلية الأساسية للـ SOC
+## الشريحة 01: مقدمة
 
-> **التصنيف / الفئة:** `MISSION`
+الفئة: عمليات الأمن والاستجابة للحوادث
 
-### الدورة التشغيلية الأساسية لمركز عمليات الأمن (The SOC Lifecycle)
+مقدمة في عمليات الأمن والاستجابة للحوادث
+
+المختبر 1 — أساسيات عمليات الأمن
+
+المدرّب: حسين الصلوي
+
+[!NOTE] 🎙️ ملاحظات المحاضرة للمدرّب
+رحّب بالطلاب في الدورة. اشرح أن عمليات الأمن والاستجابة للحوادث من أهم تخصصات الأمن السيبراني الدفاعي. وستوفّر هذه الدورة المعرفة والمهارات العملية اللازمة للكشف عن الحوادث الأمنية والتحقيق فيها والاستجابة لها.
+
+---
+
+## الشريحة 02: أهداف المجال
+
+الفئة: أهداف المجال
+
+· فهم الوظائف الأساسية لمركز عمليات الأمن (SOC) ودوره.
+· استكشاف المهام اليومية والمسؤوليات لمحلل SOC.
+· التعرّف على نماذج SOC المختلفة وأدوارها وهياكلها التنظيمية.
+· تعلّم المقاييس التي تُقيّم فعالية عمليات الأمن.
+· فهم الأدوات المتنوعة المستخدمة داخل مراكز SOC للمراقبة والكشف والتحليل والاستجابة.
+· تحديد التهديدات الشائعة التي تواجهها المؤسسات وفهمها.
+
+[!NOTE] 🎙️ ملاحظات المحاضرة للمدرّب
+استعرض كل هدف حتى يعرف الطلاب ما المتوقع منهم تحقيقه بنهاية جلسة المختبر.
+
+---
+
+## الشريحة 03: ما هو SOC؟
+
+الفئة: الأساسيات
+
+ما هو مركز عمليات الأمن (SOC)؟
+
+مركز عمليات الأمن (SOC) هو وحدة مركزية مسؤولة عن مراقبة التهديدات السيبرانية والكشف عنها وتحليلها والاستجابة لها.
+
+· المسؤوليات الأساسية: المراقبة المستمرة، وكشف النشاط المشبوه، والتحقيق في التنبيهات، وتنسيق الاستجابة للحوادث.
+· حماية الأصول: صون بيانات المؤسسة وأنظمتها وبنيتها التحتية من التهديدات الداخلية والخارجية.
+· الهدف الرئيسي: تقليل مخاطر المؤسسة من خلال المراقبة المستمرة والاستجابة السريعة.
+
+[!IMPORTANT]
+الأمن السيبراني ليس نشاطًا لمرة واحدة — فمركز SOC يعمل على مدار الساعة 24/7 في نمطين: استباقي (اصطياد التهديدات، التحصين) وتفاعلي (الفرز، التحقيق، الاستجابة).
+
+[!NOTE] 🎙️ ملاحظات المحاضرة للمدرّب
+أكّد أن مركز عمليات الأمن ليس بالضرورة غرفة مادية، بل يمكن أن يكون فريقًا موزّعًا يعمل معًا للدفاع عن المؤسسة ضد التهديدات السيبرانية.
+
+---
+
+## الشريحة 04: الدور الأساسي لمركز SOC
+
+الفئة: المهمة
 
 ```mermaid
 flowchart LR
-    M["1. المراقبة (Monitor)<br/>رؤية شاملة ومستمرة"] --> D["2. الكشف (Detect)<br/>قواعد المطابقة والأنماط الشاذة"]
-    D --> A["3. التحليل (Analyze)<br/>التحقيق الجنائي والسياق"]
-    A --> R["4. الاستجابة (Respond)<br/>الاحتواء والاستئصال"]
-    R -. "تغذية راجعة وتحسين مستمر" .-> M
+    M["1. المراقبة<br/>(رؤية مستمرة)"] --> D["2. الكشف<br/>(قواعد الشذوذ والتوقيع)"]
+    D --> A["3. التحليل<br/>(التحليل الجنائي والسياق)"]
+    A --> R["4. الاستجابة<br/>(الاحتواء والاستئصال)"]
+    R -. "حلقة التغذية الراجعة" .-> M
 ```
 
-The SOC operational cycle is the fundamental mission of every Security Operations Center and the foundation of all SOC activities.
+دورة عمليات SOC هي المهمة الأساسية لكل مركز عمليات أمن والأساس الذي ترتكز عليه جميع أنشطته.
 
-01. **Monitor**: Observe systems, endpoints, networks, and logs 24/7
-02. **Detect**: Identify suspicious or malicious activity
-03. **Analyze**: Investigate alerts and determine their significance
-04. **Respond**: Contain, mitigate, and recover from threats
+1. المراقبة: مراقبة الأنظمة والأجهزة والشبكات والسجلات على مدار الساعة 24/7
+2. الكشف: تحديد النشاط المشبوه أو الخبيث
+3. التحليل: التحقيق في التنبيهات وتحديد مدى أهميتها
+4. الاستجابة: احتواء التهديدات وتخفيفها والتعافي منها
+5. الخطوة 1: المراقبة
+6. الخطوة 2: الكشف
+7. الخطوة 3: التحليل
+8. الخطوة 4: الاستجابة
 
-1. **خطوة 1**: Monitor
-2. **خطوة 2**: Detect
-3. **خطوة 3**: Analyze
-4. **خطوة 4**: Respond
-
-> [!NOTE] 🎙️ **ملاحظات وتوجيهات المحاضر (Instructor Lecture Notes)**
-> تمثل هذه الدورة الرباعية (المراقبة -> الكشف -> التحليل -> الاستجابة) المهمة الأساسية والجوهرية لكل مركز عمليات أمن في العالم، وهي الأساس الذي تنبثق منه كافة إجراءات العمل.
-
----
-
-## الشريحة 05: SOC Models & Structures
-
-> **التصنيف / الفئة:** `ORGANIZATIONAL STRUCTURES`
-
-### نماذج وهياكل تنظيم مراكز عمليات الأمن
-
-Organizations choose different SOC structures based on budget , expertise , and operational requirements .
-
-- **Internal SOC** `[IN-HOUSE]`: Security operations managed entirely by the organization . Full control, direct integration with internal teams and systems.
-- **Managed Security Service Provider** `[MSSP]`: Security monitoring and operations outsourced to a third-party provider . Cost-effective with access to specialized expertise.
-- **Hybrid SOC** `[HYBRID]`: Combines internal security teams with external security services . Balances control with scalability and cost efficiency.
-
-> [!IMPORTANT]
-> The choice of SOC model depends on an organization's size, budget, regulatory requirements , and the maturity of its internal security capabilities.
-
-> [!NOTE] 🎙️ **ملاحظات وتوجيهات المحاضر (Instructor Lecture Notes)**
-> ناقش مزايا وتحديات كل نموذج تشغيلي: الـ SOC الداخلي (Internal) لتحكم كامل ولكنه عالي التكلفة، الـ SOC الخارجي المدار (MSSP) لتوفير التكاليف مع تغطية 24/7، والنموذج الهجين (Hybrid) الذي يجمع بين ميزات النموذجين.
+[!NOTE] 🎙️ ملاحظات المحاضرة للمدرّب
+تمثّل هذه الدورة المهمة الأساسية لكل مركز عمليات أمن، وهي أساس كثير من أنشطة SOC.
 
 ---
 
-## الشريحة 06: People, Process & Technology
+## الشريحة 05: نماذج وهياكل SOC
 
-> **التصنيف / الفئة:** `THREE PILLARS`
+الفئة: الهياكل التنظيمية
 
-### الأركان الثلاثة لنجاح مركز عمليات الأمن
+نماذج SOC والهياكل التنظيمية
 
-يعتمد نجاح أي مركز عمليات أمن على تناغم ثلاثة مكونات أساسية لا غنى عنها:
+تختار المؤسسات هياكل SOC مختلفة بناءً على **الميزانية**، **والخبرة**، **والاحتياجات التشغيلية**.
 
-PEOPLE PROCESS TECHNOLOGY SOC SUCCESS
+· SOC الداخلي [داخلي]: تُدار عمليات الأمن بالكامل من قِبل المؤسسة. تحكّم كامل، وتكامل مباشر مع الفرق والأنظمة الداخلية.
+· مزود خدمات أمنية مُدارة [MSSP]: تُستَعهَد المراقبة وعمليات الأمن لطرف ثالث. فعال من حيث التكلفة مع إتاحة الوصول إلى خبرة متخصصة.
+· SOC الهجين [هجين]: يجمع بين فرق الأمن الداخلية والخدمات الأمنية الخارجية. يوازن بين التحكّم والقابلية للتوسّع وكفاءة التكلفة.
 
-- **الكوادر البشرية (People)**: محللو SOC · مستجيبو الحوادث · صائدو التهديدات · مهندسو الأمان · مديرو المركز
-- **الإجراءات والعمليات (Process)**: إجراءات المراقبة · فرز التنبيهات · مسارات الاستجابة · آليات التصعيد · معايير إعداد التقارير
-- **التقنيات والأدوات (Technology)**: منصات SIEM · حلول EDR · أنظمة IDS/IPS · منصات Threat Intel · أدوات التحقيق الجنائي
+[!IMPORTANT]
+يعتمد اختيار نموذج SOC على حجم المؤسسة وميزانيتها والمتطلبات التنظيمية ومستوى نضج قدراتها الأمنية الداخلية.
 
-> [!NOTE] 🎙️ **ملاحظات وتوجيهات المحاضر (Instructor Lecture Notes)**
-> أكد بشدة على أن الأدوات وحدها لا تحمي أي مؤسسة! العمليات الأمنية الناجحة تقوم على ثالوث متوازن: الكوادر البشرية المؤهلة (People)، الإجراءات وسياسات العمل الواضحة (Process)، والتقنيات والأدوات الداعمة (Technology). نقص أي ركن يؤدي لفشل المنظومة.
+[!NOTE] 🎙️ ملاحظات المحاضرة للمدرّب
+ناقش مزايا وتحديات كل نموذج، واشرح لماذا تختار المؤسسات هياكل SOC مختلفة بناءً على الميزانية والخبرة والاحتياجات التشغيلية.
 
 ---
 
-## الشريحة 07: حماية ثالوث أمن المعلومات (CIA Triad)
+## الشريحة 06: الأشخاص والعمليات والتقنية
 
-> **التصنيف / الفئة:** `المبادئ الأمنية`
+الفئة: الركائز الثلاث
 
-### كيف يحمي مركز العمليات ثالوث أمن المعلومات (CIA)؟
+الركائز الثلاث لمركز عمليات الأمن
+
+يعتمد مركز SOC الناجح على ثلاثة مكوّنات أساسية تعمل بتناغم.
+
+الأشخاص — العمليات — التقنية — نجاح SOC
+
+· الأشخاص: محللو SOC · المستجيبون للحوادث · صائدو التهديدات · مهندسو الأمن · مديرو SOC
+· العمليات: إجراءات المراقبة · فرز التنبيهات · سير عمل الاستجابة للحوادث · إجراءات التصعيد · معايير التقارير
+· التقنية: منصات SIEM · حلول EDR · أنظمة IDS/IPS · منصات استخبارات التهديدات · أدوات التحليل الجنائي
+
+[!NOTE] 🎙️ ملاحظات المحاضرة للمدرّب
+أكّد أن التقنية وحدها لا تحمي المؤسسة. فعمليات الأمن الفعّالة تتطلب كوادر ماهرة وإجراءات واضحة وأدوات مناسبة تعمل معًا.
+
+---
+
+الشريحة 07: حماية ثلاثية CIA
+
+الفئة: مبادئ الأمن
+
+كيف يحمي مركز SOC ثلاثية CIA
 
 ```mermaid
 flowchart TD
-    CIA["ثالوث أمن المعلومات (The CIA Triad)"]
-    C["🔒 السرية (Confidentiality)<br/>حماية البيانات من الاطلاع غير المصرح به<br/><i>أدوات: التشفير، التحكم بالوصول IAM، منع تسريب البيانات DLP</i>"]
-    I["🛡️ السلامة والتكامل (Integrity)<br/>حماية البيانات من التعديل أو التلاعب غير المصرح به<br/><i>أدوات: دوال التجزئة Hashing، التواقيع الرقمية، مراقبة سلامة الملفات FIM</i>"]
-    A["⚡ التوافر والجاهزية (Availability)<br/>ضمان استمرار وصول المستخدمين المصرح لهم للخدمات<br/><i>أدوات: النسخ الاحتياطية، الأنظمة المكررة Redundancy، صد هجمات DDoS</i>"]
+    CIA["ثلاثية CIA (نموذج الدفاع الجوهري)"]
+    C["🔒 السرية<br/>حماية البيانات من الكشف غير المصرح به<br/><i>الأدوات: التشفير، IAM، DLP</i>"]
+    I["🛡️ السلامة<br/>حماية البيانات من التعديل غير المصرح به<br/><i>الأدوات: التجزئة، التوقيعات الرقمية، مراقبة سلامة الملفات</i>"]
+    A["⚡ التوفر<br/>ضمان الوصول في الوقت المناسب للمستخدمين المصرح لهم<br/><i>الأدوات: التكرار، النسخ الاحتياطي، تخفيف DDoS</i>"]
     CIA --> C
     CIA --> I
     CIA --> A
 ```
 
-الهدف الأسمى لمركز العمليات هو حماية الأركان الثلاثة لأمن المعلومات: السرية، السلامة، والتوافر:
+الهدف الأساسي لمركز SOC هو حماية ثلاثة مبادئ جوهرية لأمن المعلومات.
 
-مثال تطبيقي: كيف يتعامل الـ SOC مع هجوم الفدية لحماية الـ CIA؟ Ransomware encrypts files and demands payment — it primarily attacks توافر وجاهزية الخدمات (Availability) (data and systems become unusable). If the attacker also exfiltrates data before encrypting, السرية (Confidentiality) is compromised too. How People, Process & Technology Respond الكوادر البشرية (People) الكوادر: يرصد المحلل نشاط التشفير، يعزل الجهاز فوراً، ويخطر فريق الاستجابة والإدارة. الإجراءات والعمليات (Process) الإجراءات: تفعيل سيناريو الاستجابة الخاص ببرمجيات الفدية: الاحتواء، التطهير، والاستعادة وفق دليل معتمد. التقنيات والأدوات (Technology) التقنيات: يقوم نظام EDR بعزل الجهاز، ويربط الـ SIEM الأحداث، وتستعيد النسخ الاحتياطية الملفات لإنقاذ التوافر. Outcome توافر وجاهزية الخدمات (Availability) is restored from backups
+مثال: هجوم برامج الفدية — تقوم برامج الفدية بتشفير الملفات وطلب الفدية، وهي تستهدف أساسًا التوفر (تصبح البيانات والأنظمة غير قابلة للاستخدام). وإذا سُرّبت البيانات قبل التشفير تُصبح السرية أيضًا منتهكة. كيف يستجيب الأشخاص والعمليات والتقنية — الأشخاص: يكشف محللو SOC نشاط التشفير، ويعزلون المضيف المصاب، ويُبلغون فريق الاستجابة للحوادث والإدارة. العمليات: يتم تشغيل دليل الاستجابة للحوادث: الاحتواء والاستئصال والاستعادة من نسخ احتياطية سليمة بحسب إجراءات محددة مسبقًا. التقنية: يعزل EDR الطرفية، ويربط SIEM التنبيه، وتُعيد أنظمة النسخ الاحتياطي الملفات المشفّرة لاستعادة التوفر. النتيجة: يُستعاد التوفر من النسخ الاحتياطية.
 
-> [!NOTE] 🎙️ **ملاحظات وتوجيهات المحاضر (Instructor Lecture Notes)**
-> استخدم مثال هجوم برمجيات الفدية (Ransomware) لتوضيح كيف يهدد الهجوم ثالوث أمن المعلومات CIA (يضرب التوافر بالتشفير، والسرية بالابتزاز). ثم وضح دور الأركان الثلاثة (People, Process, Technology) في التصدي له واستعادة البيانات من النسخ الاحتياطية.
-
----
-
-## الشريحة 08: العمليات الأمنية التفاعلية (Reactive)
-
-> **التصنيف / الفئة:** `REACTIVE OPS`
-
-### العمليات الأمنية التفاعلية (رد الفعل بعد وقوع التنبيه)
-
-Reactive activities occur after suspicious activity or an alert has been identified.
-
-Security Monitoring مراقبة ومتابعة حركة الأنظمة والشبكات لاكتشاف أي شذوذ. Threat Detection التعرف على الأنشطة الخبيثة عبر التنبيهات وقواعد الارتباط. Incident Response Contain and mitigate security incidents to limit damage. Digital Forensics Collect and analyze evidence to determine what happened. Malware Analysis Analyze malicious software to understand its behavior and impact. INCIDENT TIMELINE 1 Alert Triggered ↓ 2 Investigation ↓ 3 Response ↓ ✓ Recovery Goal: Respond quickly and effectively to security incidents.
-
-> [!NOTE] 🎙️ **ملاحظات وتوجيهات المحاضر (Instructor Lecture Notes)**
-> اشرح العمليات التفاعلية (Reactive Operations): العمليات التي تبدأ بعد وقوع الحدث أو إطلاق التنبيه — المراقبة المستمرة، الكشف، الفرز الأولي، التحقيق، الاستجابة السريعة، والتطهير.
+[!NOTE] 🎙️ ملاحظات المحاضرة للمدرّب
+استخدم مثال برامج الفدية لتوضيح أنها تهاجم أساسًا التوفر (وغالبًا السرية عبر سرقة البيانات)، ثم اشرح كيف يسهم الأشخاص والعمليات والتقنية في الاستجابة.
 
 ---
 
-## الشريحة 09: العمليات الأمنية الاستباقية (Proactive)
+الشريحة 08: العمليات التفاعلية
 
-> **التصنيف / الفئة:** `PROACTIVE OPS`
+الفئة: العمليات التفاعلية
 
-### العمليات الأمنية الاستباقية (المبادرة قبل وقوع الهجوم)
+عمليات الأمن التفاعلية
 
-Proactive activities help identify and reduce threats before incidents occur.
+تحدث الأنشطة التفاعلية بعد تحديد نشاط مشبوه أو تنبيه.
 
-THREAT INTEL HUNTING VULN MGMT INTEL 2. استخبارات التهديدات (Threat Intelligence) Collect and analyze information about current and emerging threats to stay ahead of adversaries. HUNT 1. صيد التهديدات النشط (Threat Hunting) Actively search for hidden threats within the environment that evade automated detection. VULN 3. إدارة ومعالجة الثغرات (Vulnerability Mgmt) Identify, assess, and remediate security weaknesses before they can be exploited. Improved visibility Earlier threat detection Reduced attack surface Stronger security posture
+المراقبة الأمنية — المراقبة المستمرة للأنظمة والشبكات بحثًا عن الحالات الشاذة. كشف التهديدات — تحديد النشاط المشبوه أو الخبيث عبر التنبيهات والربط. الاستجابة للحوادث — احتواء الحوادث الأمنية وتخفيفها للحد من الأضرار. التحليل الجنائي الرقمي — جمع الأدلة وتحليلها لتحديد ما حدث. تحليل البرمجيات الخبيثة — تحليل البرمجيات الخبيثة لفهم سلوكها وتأثيرها. الجدول الزمني للحادث 1 إطلاق تنبيه ↓ 2 التحقيق ↓ 3 الاستجابة ↓ ✓ التعافي — الهدف: الاستجابة السريعة والفعالة للحوادث الأمنية.
 
-> [!NOTE] 🎙️ **ملاحظات وتوجيهات المحاضر (Instructor Lecture Notes)**
-> Explain that mature SOCs spend significant effort on proactive security because preventing incidents is often more effective than responding to them.
-
----
-
-## الشريحة 10: يوم في حياة محلل الـ SOC
-
-> **التصنيف / الفئة:** `A DAY IN THE SOC`
-
-### يوم في حياة محلل مركز عمليات الأمن (SOC Analyst)
-
-A typical day involves balancing continuous vigilance with deep technical investigation.
-
-Typical Daily Activities Review security dashboards Monitor incoming alerts Perform alert triage Investigate suspicious activities Escalate confirmed incidents Document findings Collaborate with security teams SOC analysts prioritize incoming alerts, resolving low-risk alerts quickly while dedicating deeper time to complex threats. EXAMPLE WORKFLOW TIMELINE 01 Review Alerts Start of shift: Triage alerts on SIEM/dashboard. 02 Investigate Query endpoint logs, network packet data, and threat intel. 03 Determine Impact Assess if systems are compromised and estimate blast radius. 04 Escalate or Close Pass critical incidents to Tier 2/Incident Response or close false positives. 05 Document Findings Write triage logs, update tickets, and share recommendations.
-
-> [!NOTE] 🎙️ **ملاحظات وتوجيهات المحاضر (Instructor Lecture Notes)**
-> Explain that analysts spend much more time investigating and documenting than simply watching dashboards.
+[!NOTE] 🎙️ ملاحظات المحاضرة للمدرّب
+اشرح أن العمليات التفاعلية تركّز على التحقيق والاستجابة للأحداث التي وقعت فعلاً أو تم كشفها.
 
 ---
 
-## الشريحة 11: أدوار ومستويات فريق الـ SOC
+الشريحة 09: العمليات الاستباقية
 
-> **التصنيف / الفئة:** `TEAMS & ROLES`
+الفئة: العمليات الاستباقية
 
-### المستويات الوظيفية ومسؤوليات فريق الـ SOC
+عمليات الأمن الاستباقية
 
-A structured tier system ensures high efficiency and ensures expert focus is applied where it is needed most.
+تساعد الأنشطة الاستباقية على تحديد التهديدات وتقليلها قبل وقوع الحوادث.
 
-ESCALATION FLOW TIER 1 — TRIAGE TIER 2 — INVESTIGATE TIER 3 — HUNT T1 Tier 1 Analyst (Triage) Initial alert review · Alert triage · Basic investigations · Escalation of confirmed threats T2 Tier 2 Analyst (Incident Analysis) Advanced investigations · Incident analysis · Root cause analysis · Threat validation T3 Tier 3 Analyst (Expert / Hunt) Expert-level investigations · Detection engineering · Threat hunting · Malware analysis Other Specialized SOC Roles Incident Responder Threat Intel Analyst Security Engineer مدير مركز عمليات الأمن (SOC Manager)
+استخبارات التهديدات · الاصطياد · إدارة الثغرات
 
-> [!NOTE] 🎙️ **ملاحظات وتوجيهات المحاضر (Instructor Lecture Notes)**
-> Explain that escalation between tiers allows organizations to handle large volumes of alerts efficiently.
+· استخبارات التهديدات (INTEL): جمع وتحليل المعلومات حول التهديدات الحالية والناشئة للبقاء في المقدمة.
+· اصطياد التهديدات (HUNT): البحث النشط عن تهديدات خفية داخل البيئة تتفادى الكشف الآلي.
+· إدارة الثغرات (VULN): تحديد نقاط الضعف الأمنية وتقييمها ومعالجتها قبل استغلالها.
 
----
+✔ رؤية مُحسّنة · ✔ كشف تهديدات أبكر · ✔ سطح هجوم أصغر · ✔ وضع أمني أقوى
 
-## الشريحة 12: سيناريو تطبيقي: تسريب بيانات داخلية
-
-> **التصنيف / الفئة:** `ROLES IN ACTION`
-
-### سيناريو حادثة أمنية: كشف تسريب بيانات بواسطة موظف داخلي
-
-A walkthrough of how a single alert moves through the SOC tier structure — and what each role contributes along the way.
-
-> [!IMPORTANT]
-> Setup: An employee in the finance department uploads several gigabytes of customer records to a personal cloud storage account late on a Friday night, shortly after submitting their resignation.
-
-1. **Tier 1 Analyst — Triage**: A DLP alert fires for an unusually large outbound data transfer. The Tier 1 analyst confirms the alert isn't a false positive, checks the user and data volume, and escalates since it involves sensitive customer data.
-2. **Tier 2 Analyst — Investigation**: Correlates the alert with HR records (recent resignation), reviews endpoint and identity logs for the account, and confirms this is a credible insider threat rather than routine business activity. Opens a formal incident.
-3. **Tier 3 Analyst — Deep Dive & Hunt**: Performs forensic analysis of the workstation, reconstructs the full timeline of file access, and threat-hunts for similar exfiltration patterns across other accounts to rule out a broader campaign.
-4. **مدير مركز عمليات الأمن (SOC Manager) — Coordination & Decision**: Coordinates with HR, Legal, and IT to revoke account access immediately, decides whether law enforcement or regulatory notification is required, and ensures the incident is documented for the post-incident review.
-
-> [!NOTE] 🎙️ **ملاحظات وتوجيهات المحاضر (Instructor Lecture Notes)**
-> Walk through this scenario tier by tier. Emphasize how each tier adds context the previous tier couldn't see, and how the مدير مركز عمليات الأمن (SOC Manager)'s role is coordination and decision-making rather than hands-on investigation.
+[!NOTE] 🎙️ ملاحظات المحاضرة للمدرّب
+اشرح أن مراكز SOC الناضجة تخصص جهدًا كبيرًا للأمن الاستباقي لأن الوقاية من الحوادث غالبًا أكثر فاعلية من الاستجابة لها.
 
 ---
 
-## الشريحة 13: Logs, Events, Alerts, and Incidents
+الشريحة 10: يوم في حياة محلل SOC
 
-> **التصنيف / الفئة:** `SEC FLOWS`
+الفئة: يوم في SOC
 
-### التدرج الهرمي: السجلات، الأحداث، التنبيهات، والحوادث
+يتضمّن اليوم النموذجي موازنة بين اليقظة المستمرة والتحقيق التقني العميق.
+
+الأنشطة اليومية النموذجية — مراجعة لوحات التحكم الأمنية · مراقبة التنبيهات الواردة · إجراء فرز التنبيهات · التحقيق في الأنشطة المشبوهة · تصعيد الحوادث المؤكدة · توثيق النتائج · التعاون مع الفرق الأمنية. يرتب محللو SOC أولويات التنبيهات، فيحلّون التنبيهات منخفضة الخطورة بسرعة، ويمنحون التهديدات المعقدة وقتًا أعمق. مثال على سير العمل اليومي 01 مراجعة التنبيهات — بداية الوردية: فرز التنبيهات على SIEM/لوحة التحكم. 02 التحقيق — استعلام سجلات الأجهزة، بيانات حزم الشبكة، واستخبارات التهديدات. 03 تحديد التأثير — تقييم ما إذا كانت الأنظمة قد اختُرقت وتقدير نطاق التأثير. 04 التصعيد أو الإغلاق — تصعيد الحوادث الحرجة إلى المستوى الثاني/الاستجابة، أو إغلاق الإنذارات الكاذبة. 05 توثيق النتائج — كتابة سجلات الفرز، تحديث التذاكر، ومشاركة التوصيات.
+
+[!NOTE] 🎙️ ملاحظات المحاضرة للمدرّب
+اشرح أن المحللين يقضون وقتًا أطول بكثير في التحقيق والتوثيق مما يقضونه في مشاهدة لوحات المعلومات.
+
+---
+
+الشريحة 11: أدوار ومسؤوليات SOC
+
+الفئة: الفرق والأدوار
+
+يضمن نظام المستويات المنظم كفاءة عالية وتركيز الخبراء حيث تشتد الحاجة إليهم.
+
+مسار التصعيد — المستوى 1 — الفرز · المستوى 2 — التحقيق · المستوى 3 — الاصطياد
+
+· T1 — محلل المستوى الأول (الفرز): مراجعة أولية للتنبيهات · فرز التنبيهات · تحقيقات أساسية · تصعيد التهديدات المؤكدة
+· T2 — محلل المستوى الثاني (تحليل الحوادث): تحقيقات متقدمة · تحليل الحوادث · تحليل السبب الجذري · التحقق من التهديدات
+· T3 — محلل المستوى الثالث (خبير/اصطياد): تحقيقات على مستوى الخبراء · هندسة الكشف · اصطياد التهديدات · تحليل البرمجيات الخبيثة
+
+أدوار SOC المتخصصة الأخرى: مستجيب الحوادث · محلل استخبارات التهديدات · مهندس الأمن · مدير SOC
+
+[!NOTE] 🎙️ ملاحظات المحاضرة للمدرّب
+اشرح أن التصعيد بين المستويات يسمح للمؤسسات بالتعامل مع أحجام كبيرة من التنبيهات بكفاءة.
+
+---
+
+الشريحة 12: سيناريو: تسريب بيانات من الداخل
+
+الفئة: الأدوار أثناء العمل
+
+جولة على انتقال تنبيه واحد عبر هيكل مستويات SOC — وما يسهم به كل دور خلال ذلك.
+
+[!IMPORTANT]
+السيناريو: يقوم موظف في قسم المالية برفع عدة جيجابايت من سجلات العملاء إلى حساب تخزين سحابي شخصي في وقت متأخر من ليلة الجمعة، بعد فترة وجيزة من تقديم استقالته.
+
+1. محلل المستوى الأول — الفرز: يُطلق تنبيه DLP بسبب نقل بيانات خارجي كبير غير معتاد. يتأكد المحلل من أن التنبيه ليس إنذارًا كاذبًا، ويتحقق من المستخدم وحجم البيانات، ثم يصعّده لأنه يتعلق ببيانات عملاء حساسة.
+2. محلل المستوى الثاني — التحقيق: يربط التنبيه بسجلات الموارد البشرية (استقالة حديثة)، ويراجع سجلات الجهاز والهوية للحساب، ويؤكد أنه تهديد داخلي موثوق وليس نشاطًا تجاريًا روتينيًا. يفتح حادثة رسمية.
+3. محلل المستوى الثالث — تعميق واصطياد: يجري تحليلًا جنائيًا لمحطة العمل، ويعيد بناء الخط الزمني الكامل للوصول إلى الملفات، ويصطاد أنماط تسريب مماثلة عبر الحسابات الأخرى لاستبعاد حملة أوسع.
+4. مدير SOC — التنسيق والقرار: ينسّق مع الموارد البشرية والقانونية وتقنية المعلومات لإلغاء صلاحية الحساب فورًا، ويقرر ما إذا كان الإبلاغ عن الجريمة أو الجهة التنظيمية مطلوبًا، ويضمن توثيق الحادثة للمراجعة اللاحقة.
+
+[!NOTE] 🎙️ ملاحظات المحاضرة للمدرّب
+تنقّل في السيناريو مستوى بمستوى، وأبرز كيف يضيف كل مستوى سياقًا لم يستطع المستوى الأدنى رؤيته، وكيف يتمثّل دور مدير SOC في التنسيق واتخاذ القرار لا في التحقيق الميداني.
+
+---
+
+الشريحة 13: السجلات والأحداث والتنبيهات والحوادث
+
+الفئة: تدفقات الأمن
+
+فهم السجلات والأحداث والتنبيهات والحوادث
 
 ```mermaid
 flowchart TD
-    L["📋 السجلات الخام (Raw Logs)<br/>ملايين السجلات غير المفلترة يومياً من الأنظمة والشبكات والتطبيقات"] --> E["🔍 الأحداث الأمنية (Events)<br/>آلاف الأحداث المسجلة ذات المغزى والملاحظة الأمنية"]
-    E --> A["⚠️ التنبيهات المشبوهة (Alerts)<br/>عشرات التنبيهات التي طابقت قواعد الكشف وتستلزم مراجعة بشرية"]
-    A --> I["🚨 الحوادث الأمنية المؤكدة (Incidents)<br/>عدد محدود من الاختراقات المؤكدة التي تتطلب استجابة رسمية فورية"]
+    L["📋 سجلات خام (ملايين/يوم)<br/>أحداث غير مُفلترة ومُوقَّتة من الأنظمة والشبكات والتطبيقات"] --> E["🔍 أحداث (آلاف/يوم)<br/>وقائع محدَّدة ذات أهمية أمنية ملحوظة"]
+    E --> A["⚠️ تنبيهات (عشرات/يوم)<br/>قواعد كشف مطابقة أو عتبات شذوذ تتطلب مراجعة المحلل"]
+    A --> I["🚨 حوادث (قليلة/شهر)<br/>اختراقات أمنية مؤكدة تتطلب استجابة رسمية واحتواء"]
 ```
 
-Security teams differentiate between these four terms to triage and respond to threats efficiently.
+تفرّق الفرق الأمنية بين هذه المصطلحات الأربعة لفرز التهديدات والاستجابة لها بكفاءة.
 
-LOG السجل الخام (Log) A record generated by a system, application, or device documenting an activity. Example: User login recorded in Windows Event Logs. EVENT الحدث الأمني (Security Event) Any observable occurrence that may have security significance. Example: Multiple failed login attempts. ALERT Alert A notification generated when suspicious activity matches a predefined rule or condition. Example: Brute-force attack detected. INCIDENT Incident A confirmed security event that requires investigation and response. Example: Successful account compromise. LOG EVENT ALERT INCIDENT Action Required
+السجل (LOG) — سجل يُنشئه نظام أو تطبيق أو جهاز يوثّق نشاطًا ما. مثال: تسجيل دخول مستخدم في سجلات أحداث Windows.
+الحدث الأمني (EVENT) — أي واقعة قابلة للملاحظة قد تكون لها أهمية أمنية. مثال: محاولات دخول متكررة فاشلة.
+التنبيه (ALERT) — إشعار يُطلَق عندما يطابق نشاط مشبوه قاعدة أو شرطًا محددًا مسبقًا. مثال: كشف هجوم القوة الغاشمة.
+الحادثة (INCIDENT) — حدث أمني مؤكد يتطلب التحقيق والاستجابة. مثال: اختراق ناجح لحساب.
 
-> [!NOTE] 🎙️ **ملاحظات وتوجيهات المحاضر (Instructor Lecture Notes)**
-> Students often confuse these terms. Emphasize that not every log becomes an event, not every event generates an alert, and not every alert becomes an incident.
+سجل → حدث → تنبيه → حادثة — يتطلب إجراء
+
+[!NOTE] 🎙️ ملاحظات المحاضرة للمدرّب
+يخلط الطلاب غالبًا بين هذه المصطلحات. أكّد أن ليس كل سجل يُصبح حدثًا، وليس كل حدث يُولّد تنبيهًا، وليس كل تنبيه يُصبح حادثة.
 
 ---
 
-## الشريحة 14: نظام إدارة المعلومات والأحداث الأمنية (SIEM)
+الشريحة 14: إدارة معلومات وأحداث الأمن (SIEM)
 
-> **التصنيف / الفئة:** `SIEM`
+الفئة: SIEM
 
 ```mermaid
 flowchart LR
-    Sources["مصادر السجلات<br/>(الجدران النارية، الـ EDR، الخوادم، السحابة)"] --> Collector["استقبال السجلات وتوحيدها (Normalization)<br/>تحويل الصياغات المختلفة إلى هيكل موحد"]
-    Collector --> Engine["محرك ربط الأحداث (Correlation Engine)<br/>مطابقة القواعد عبر مصادر متعددة بالتزامن"]
-    Engine --> Dashboard["شاشة محلل مركز العمليات (SOC Console)<br/>طابور التنبيهات والتحقيق الأولي"]
+    Sources["مصادر السجلات<br/>(الجدران النارية، EDR، الخوادم، السحابة)"] --> Collector["استقبال وتطبيع SIEM<br/>(مخطط أحداث موحد)"]
+    Collector --> Engine["محرك الربط<br/>(مطابقة قواعد متعددة المصادر)"]
+    Engine --> Dashboard["وحدة تحكم محلل SOC<br/>(قائمة التنبيهات والفرز)"]
 ```
 
-A SIEM is a centralized platform that collects, stores, correlates, and analyzes security logs from multiple systems and devices across an organization, giving analysts a single pane of glass to detect and investigate threats.
+منصة SIEM منصة مركزية تجمع سجلات الأمن من أنظمة وأجهزة متعددة في المؤسسة وتخزنها وتربطها وتحللها، لتوفّر للمحللين "زجاجاً واحداً" للكشف عن التهديدات والتحقيق فيها.
 
-Common Uses Log collection & aggregation Event correlation Alert generation Threat detection Popular Industry Products Splunk Enterprise Security Microsoft Sentinel IBM QRadar Elastic Security ArcSight DASHBOARD SCREENSHOT
+الاستخدامات الشائعة — جمع السجلات وتجميعها · ربط الأحداث · توليد التنبيهات · كشف التهديدات
+أشهر المنتجات في الصناعة: Splunk Enterprise Security · Microsoft Sentinel · IBM QRadar · Elastic Security · ArcSight
+لقطة شاشة للوحة التحكم
 
-> [!NOTE] 🎙️ **ملاحظات وتوجيهات المحاضر (Instructor Lecture Notes)**
-> نظام إدارة المعلومات والأحداث الأمنية (SIEM) — explain the purpose of this tool category, its core function within the SOC, and how it fits into the detection and response lifecycle.
-
----
-
-## الشريحة 15: الأتمتة وتنسيق الاستجابة الأمنية (SOAR)
-
-> **التصنيف / الفئة:** `SOAR`
-
-### منصات تنسيق وأتمتة الاستجابة الأمنية (SOAR)
-
-A SOAR platform connects security tools together and uses automated playbooks to enrich alerts, orchestrate workflows across systems, and execute repetitive response actions — freeing analysts to focus on higher-value investigation work.
-
-Common Uses Playbook automation Response automation Tool integration Reducing analyst workload Popular Industry Products Palo Alto Cortex XSOAR Splunk SOAR Microsoft Sentinel SOAR IBM Resilient SOAR Swimlane PLAYBOOK SCREENSHOT
-
-> [!NOTE] 🎙️ **ملاحظات وتوجيهات المحاضر (Instructor Lecture Notes)**
-> منصات تنسيق وأتمتة الاستجابة الأمنية (SOAR) — explain the purpose of this tool category, its core function within the SOC, and how it fits into the detection and response lifecycle.
+[!NOTE] 🎙️ ملاحظات المحاضرة للمدرّب
+إدارة معلومات وأحداث الأمن (SIEM) — اشرح الغرض من هذه الفئة من الأدوات، وظيفتها الجوهرية في SOC، وكيف تتكامل مع دورة الكشف والاستجابة.
 
 ---
 
-## الشريحة 16: أنظمة إدارة وتوثيق الحوادث
+الشريحة 15: التنسيق والأتمتة والاستجابة الأمنية (SOAR)
 
-> **التصنيف / الفئة:** `INCIDENT MANAGEMENT`
+الفئة: SOAR
 
-### أنظمة إدارة وتوثيق تذاكر الحوادث الأمنية
+تربط منصة SOAR الأدوات الأمنية ببعضها وتستخدم سيناريوهات مؤتمتة لإثراء التنبيهات، وتنسيق سير العمل عبر الأنظمة، وتنفيذ إجراءات استجابة متكررة — مما يتيح للمحللين التركيز على أعمال التحقيق ذات القيمة الأعلى.
 
-An Incident Management (case management/ticketing) tool helps SOC teams document investigations, track incidents from detection to closure, assign tasks, and coordinate response activities across the team.
+الاستخدامات الشائعة — أتمتة سيناريوهات الاستجابة · أتمتة الاستجابة · تكامل الأدوات · تقليل عبء المحللين
+أشهر المنتجات في الصناعة: Palo Alto Cortex XSOAR · Splunk SOAR · Microsoft Sentinel SOAR · IBM Resilient SOAR · Swimlane
+لقطة شاشة لكتاب اللعب
 
-Common Uses Incident tracking Workflow management Escalation management Collaboration Popular Industry Products TheHive ServiceNow SecOps Jira Service Management IBM Resilient Cortex XSOAR INVESTIGATION CASE SCREENSHOT
-
-> [!NOTE] 🎙️ **ملاحظات وتوجيهات المحاضر (Instructor Lecture Notes)**
-> أنظمة إدارة وتوثيق تذاكر الحوادث الأمنية — explain the purpose of this tool category, its core function within the SOC, and how it fits into the detection and response lifecycle.
-
----
-
-## الشريحة 17: مراقبة أمن الشبكات (NSM)
-
-> **التصنيف / الفئة:** `NSM`
-
-### أنظمة مراقبة أمن الشبكات (Network Security Monitoring)
-
-Network Security Monitoring tools capture and analyze network traffic and metadata to detect malicious activity, reconstruct sessions, and provide the visibility needed for network-based threat hunting and forensics.
-
-Common Uses Full packet capture Traffic analysis Protocol & metadata logging Network forensics Popular Industry Products Zeek (Bro) Wireshark Security Onion Corelight Darktrace NETWORK TRAFFIC SCREENSHOT
-
-> [!NOTE] 🎙️ **ملاحظات وتوجيهات المحاضر (Instructor Lecture Notes)**
-> أنظمة مراقبة أمن الشبكات (Network Security Monitoring) — explain the purpose of this tool category, its core function within the SOC, and how it fits into the detection and response lifecycle.
+[!NOTE] 🎙️ ملاحظات المحاضرة للمدرّب
+التنسيق والأتمتة والاستجابة الأمنية (SOAR) — اشرح الغرض من هذه الفئة من الأدوات، وظيفتها الجوهرية في SOC، وكيف تتكامل مع دورة الكشف والاستجابة.
 
 ---
 
-## الشريحة 18: جدران الحماية: الشبكية و NGFW و WAF
+الشريحة 16: أدوات إدارة الحوادث
 
-> **التصنيف / الفئة:** `FIREWALL`
+الفئة: إدارة الحوادث
 
-### أنواع جدران الحماية الثلاثة ووظيفة كل منها
+تساعد أداة إدارة الحوادث (إدارة الحالات/التذاكر) فرق SOC على توثيق التحقيقات، وتتبع الحوادث من الكشف إلى الإغلاق، وإسناد المهام، وتنسيق أنشطة الاستجابة عبر الفريق.
 
-A firewall enforces rules to allow or block traffic between network segments. A 2. جدار الحماية من الجيل القادم (NGFW) extends this with application awareness, identity-based policies, and built-in intrusion prevention, while a 3. جدار حماية تطبيقات الويب (WAF) protects web applications by filtering and monitoring HTTP/HTTPS traffic for attacks like SQL injection and XSS.
+الاستخدامات الشائعة — تتبع الحوادث · إدارة سير العمل · إدارة التصعيد · التعاون
+أشهر المنتجات في الصناعة: TheHive · ServiceNow SecOps · Jira Service Management · IBM Resilient · Cortex XSOAR
+لقطة شاشة لحالة تحقيق
 
-Network Firewall Filters traffic by IP, port, and protocol rules. NGFW Adds app awareness, IPS, and identity-based control. WAF Protects web apps from OWASP Top 10 attacks. Common Uses Traffic filtering Access control Application visibility Web app protection Popular Industry Products Palo Alto NGFW Fortinet FortiGate Cisco Secure Firewall Cloudflare WAF AWS WAF FIREWALL CONSOLE SCREENSHOT
-
-> [!NOTE] 🎙️ **ملاحظات وتوجيهات المحاضر (Instructor Lecture Notes)**
-> Firewalls: Network Firewall, NGFW & WAF — explain the purpose of this tool category, its core function within the SOC, and how it fits into the detection and response lifecycle.
-
----
-
-## الشريحة 19: نظام كشف التطفل (IDS)
-
-> **التصنيف / الفئة:** `IDS`
-
-### نظام كشف التطفل الشبكي (Intrusion Detection System — IDS)
-
-An IDS passively monitors network or host traffic for signatures of known attacks and anomalous behavior, generating alerts for analysts to review — but it does not block traffic itself.
-
-Common Uses Network monitoring Signature & anomaly detection Alert generation Passive visibility Popular Industry Products Snort Suricata Zeek Cisco Secure IDS IDS ALERTS SCREENSHOT
-
-> [!NOTE] 🎙️ **ملاحظات وتوجيهات المحاضر (Instructor Lecture Notes)**
-> نظام كشف التطفل الشبكي (Intrusion Detection System — IDS) — explain the purpose of this tool category, its core function within the SOC, and how it fits into the detection and response lifecycle.
+[!NOTE] 🎙️ ملاحظات المحاضرة للمدرّب
+أدوات إدارة الحوادث — اشرح الغرض من هذه الفئة من الأدوات، وظيفتها الجوهرية في SOC، وكيف تتكامل مع دورة الكشف والاستجابة.
 
 ---
 
-## الشريحة 20: نظام منع التطفل (IPS)
+الشريحة 17: مراقبة أمن الشبكة (NSM)
 
-> **التصنيف / الفئة:** `IPS`
+الفئة: NSM
 
-### نظام منع التطفل الشبكي (Intrusion Prevention System — IPS)
+تلتقط أدوات مراقبة أمن الشبكة حركة الشبكة والبيانات الوصفية (Metadata) وتحللها لكشف النشاط الخبيث، وإعادة بناء الجلسات، وتوفير الرؤية اللازمة لاصطياد التهديدات الشبكية والتحليل الجنائي.
 
-An IPS sits inline with network traffic and actively blocks malicious activity in real time as it detects it, going a step beyond an IDS by preventing the attack rather than only alerting on it.
+الاستخدامات الشائعة — التقاط كامل للحزم · تحليل حركة المرور · تسجيل البروتوكولات والبيانات الوصفية · التحليل الجنائي الشبكي
+أشهر المنتجات في الصناعة: Zeek (Bro) · Wireshark · Security Onion · Corelight · Darktrace
+لقطة شاشة لحركة مرور الشبكة
 
-Common Uses Inline traffic inspection Real-time blocking Signature matching Popular Industry Products Cisco Secure IPS Palo Alto Threat Prevention Suricata (IPS mode) Trend Micro TippingPoint IPS BLOCKING SCREENSHOT
-
-> [!NOTE] 🎙️ **ملاحظات وتوجيهات المحاضر (Instructor Lecture Notes)**
-> نظام منع التطفل الشبكي (Intrusion Prevention System — IPS) — explain the purpose of this tool category, its core function within the SOC, and how it fits into the detection and response lifecycle.
-
----
-
-## الشريحة 21: أنظمة كشف واستجابة الأجهزة (EDR)
-
-> **التصنيف / الفئة:** `EDR`
-
-### أنظمة كشف واستجابة الأجهزة الطرفية (EDR)
-
-An EDR platform continuously monitors endpoint devices, recording process, file, registry, and network activity to detect and respond to threats directly on the host.
-
-Common Uses Endpoint monitoring Malware detection Threat hunting Incident investigation Remote containment Many EDR platforms include UEBA (User and Entity Behavior Analytics) as part of their detection capability — baselining normal behavior and flagging deviations that may indicate compromise or insider threats. Popular Industry Products CrowdStrike Falcon Microsoft Defender for Endpoint SentinelOne VMware Carbon Black EDR CONSOLE SCREENSHOT
-
-> [!NOTE] 🎙️ **ملاحظات وتوجيهات المحاضر (Instructor Lecture Notes)**
-> أنظمة كشف واستجابة الأجهزة الطرفية (EDR) — explain the purpose of this tool category, its core function within the SOC, and how it fits into the detection and response lifecycle. Mention that EDR platforms commonly include UEBA as part of their detection capability, rather than treating UEBA as a separate category.
+[!NOTE] 🎙️ ملاحظات المحاضرة للمدرّب
+مراقبة أمن الشبكة (NSM) — اشرح الغرض من هذه الفئة من الأدوات، وظيفتها الجوهرية في SOC، وكيف تتكامل مع دورة الكشف والاستجابة.
 
 ---
 
-## الشريحة 22: 2. استخبارات التهديدات (Threat Intelligence) Platform (TIP)
+الشريحة 18: الجدران النارية: الجدار التقليدي وNGFW وWAF
 
-> **التصنيف / الفئة:** `TIP`
+الفئة: الجدار الناري
 
-A 2. استخبارات التهديدات (Threat Intelligence) Platform collects, organizes, enriches, and distributes threat intelligence — such as IOCs, TTPs, and threat actor profiles — from internal and external sources so analysts can add context to alerts and anticipate emerging threats.
+يفرض الجدار الناري قواعد للسماح أو حجب حركة المرور بين مقاطع الشبكة. ويوسّع الجدار الناري من الجيل التالي (NGFW) هذا النطاق عبر الوعي بالتطبيقات، والسياسات القائمة على الهوية، والمنع المدمج للتسلل، بينما يحمي جدار حماية تطبيقات الويب (WAF) تطبيقات الويب عبر ترشيح حركة HTTP/HTTPS ومراقبتها بحثًا عن هجمات مثل حقن SQL وXSS.
 
-Common Uses IOC management Threat enrichment Threat actor tracking Intelligence sharing Campaign analysis Popular Industry Products MISP OpenCTI Recorded Future Anomali ThreatConnect THREAT FEEDS SCREENSHOT
+· الجدار الناري الشبكي: يرشّح حركة المرور وفق قواعد IP والمنفذ والبروتوكول.
+· NGFW: يضيف الوعي بالتطبيقات، ومنع التسلل (IPS)، والتحكم القائم على الهوية.
+· WAF: يحمي تطبيقات الويب من هجمات OWASP Top 10.
 
-> [!NOTE] 🎙️ **ملاحظات وتوجيهات المحاضر (Instructor Lecture Notes)**
-> 2. استخبارات التهديدات (Threat Intelligence) Platform (TIP) — explain the purpose of this tool category, its core function within the SOC, and how it fits into the detection and response lifecycle.
+الاستخدامات الشائعة — ترشيح حركة المرور · التحكم في الوصول · وضوح التطبيقات · حماية تطبيقات الويب
+أشهر المنتجات في الصناعة: Palo Alto NGFW · Fortinet FortiGate · Cisco Secure Firewall · Cloudflare WAF · AWS WAF
+لقطة شاشة لوحدة تحكم الجدار الناري
 
----
-
-## الشريحة 23: أدوات التحقيق الجنائي الرقمي (Forensics)
-
-> **التصنيف / الفئة:** `FORENSICS`
-
-### Forensics Tools
-
-Digital forensics tools allow analysts to acquire, preserve, and analyze evidence from disks, memory, and devices in a forensically sound manner — reconstructing what happened during an incident while maintaining chain of custody for legal or HR proceedings.
-
-Common Uses Disk & memory imaging Artifact recovery Timeline reconstruction Chain of custody Evidence analysis Popular Industry Products Autopsy EnCase Forensic FTK (Forensic Toolkit) Volatility (memory) Magnet AXIOM FORENSIC ANALYSIS SCREENSHOT
-
-> [!NOTE] 🎙️ **ملاحظات وتوجيهات المحاضر (Instructor Lecture Notes)**
-> Forensics Tools — explain the purpose of this tool category, its core function within the SOC, and how it fits into the detection and response lifecycle.
+[!NOTE] 🎙️ ملاحظات المحاضرة للمدرّب
+الجدران النارية: التقليدي وNGFW وWAF — اشرح الغرض من هذه الفئة من الأدوات، وظيفتها الجوهرية في SOC، وكيف تتكامل مع دورة الكشف والاستجابة.
 
 ---
 
-## الشريحة 24: أدوات فحص وتحليل البرمجيات الخبيثة
+الشريحة 19: نظام كشف التسلل (IDS)
 
-> **التصنيف / الفئة:** `MALWARE ANALYSIS`
+الفئة: IDS
 
-### أدوات فحص وتحليل البرمجيات الخبيثة (Malware Analysis)
+يراقب نظام كشف التسلل (IDS) بشكل سلبي حركة الشبكة أو المضيف بحثًا عن توقيعات الهجمات المعروفة والسلوك الشاذ، ويولّد تنبيهات للمحللين لمراجعتها — لكنه لا يحجب حركة المرور بنفسه.
 
-Malware analysis tools let analysts safely examine suspicious files and binaries — through static inspection or dynamic execution in a sandbox — to determine their behavior, capabilities, and indicators of compromise without risking production systems.
+الاستخدامات الشائعة — مراقبة الشبكة · كشف التوقيعات والشذوذ · توليد التنبيهات · رؤية سلبية
+أشهر المنتجات في الصناعة: Snort · Suricata · Zeek · Cisco Secure IDS
+لقطة شاشة تنبيهات IDS
 
-Common Uses Static analysis Dynamic/behavioral analysis Sandboxing Reverse engineering IOC extraction Popular Industry Products VirusTotal Any.Run Cuckoo Sandbox IDA Pro Ghidra MALWARE REPORT SCREENSHOT
-
-> [!NOTE] 🎙️ **ملاحظات وتوجيهات المحاضر (Instructor Lecture Notes)**
-> أدوات فحص وتحليل البرمجيات الخبيثة (Malware Analysis) — explain the purpose of this tool category, its core function within the SOC, and how it fits into the detection and response lifecycle.
-
----
-
-## الشريحة 25: مقاييس أداء مركز العمليات (Metrics)
-
-> **التصنيف / الفئة:** `مقاييس الأداء التشغيلي`
-
-### كيف نقيس كفاءة ونجاح مركز عمليات الأمن؟ (SOC Metrics)
-
-Security Operations Centers use key performance metrics to measure and improve response capabilities.
-
-MTTD Mean Time to Detect Average time to identify a threat. MTTR Mean Time to Respond Average time to contain and resolve threats. Why Metrics Matter Measure SOC effectiveness Identify bottlenecks Improve response capacity Support decisions SOC LIVE PERFORMANCE METRICS SYSTEM ACTIVE MTTD (Time to Detect) 12m ▼ 74% MTTR (Time to Respond) 48m ▼ 81% Alert vs. Incident Volume (Monthly Trend) OCT NOV DEC Alert Vol (45K) Incident Vol (18) F/P Rate (4.2%)
-
-> [!NOTE] 🎙️ **ملاحظات وتوجيهات المحاضر (Instructor Lecture Notes)**
-> Explain that metrics help SOC managers understand whether the SOC is improving over time and where resources should be allocated.
+[!NOTE] 🎙️ ملاحظات المحاضرة للمدرّب
+نظام كشف التسلل (IDS) — اشرح الغرض من هذه الفئة من الأدوات، وظيفتها الجوهرية في SOC، وكيف تتكامل مع دورة الكشف والاستجابة.
 
 ---
 
-## الشريحة 26: Common Threats: Social & Software-Based
+الشريحة 20: نظام منع التسلل (IPS)
 
-> **التصنيف / الفئة:** `مشهد التهديدات · الجزء 1`
+الفئة: IPS
 
-### التهديدات السيبرانية الشائعة: الهندسة الاجتماعية والبرمجيات الخبيثة
+يجلس نظام منع التسلل (IPS) على مسار حركة المرور بشكل مضمّن ويحجب النشاط الخبيث فورًا لحظة اكتشافه، فيتجاوز IDS بمنع الهجوم لا بمجرد التنبيه عليه.
 
-تراقب فرق الـ SOC وتتصدى لطيف واسع من التهديدات. نبدأ بالهجمات التي تستهدف البشر مباشرة والبرمجيات الخبيثة التي تصيب الأجهزة:
+الاستخدامات الشائعة — فحص حركة المرور المضمّنة · الحجب الفوري · مطابقة التوقيعات
+أشهر المنتجات في الصناعة: Cisco Secure IPS · Palo Alto Threat Prevention · Suricata (وضع IPS) · Trend Micro TippingPoint
+لقطة شاشة الحجب
 
-Social Engineering التلاعب النفسي لدفع الضحايا للإفصاح عن معلومات سرية أو منح صلاحيات أو تنفيذ إجراءات تقوض الأمان. Includes: Phishing — fraudulent emails, messages, or sites designed to steal credentials or deliver malware — along with pretexting, baiting, and vishing. Malware برمجيات ضارة — تشمل الفيروسات، الديدان، وأحصنة طروادة — صُممت لتخريب الأنظمة أو سرقة البيانات. Includes: Ransomware — malware that encrypts files or systems and demands payment for their recovery, one of the most disruptive threats SOC teams face today. 3. البرمجيات الخبيثة في الذاكرة (Fileless Malware) أنشطة خبيثة تعمل مباشرة داخل الذاكرة (RAM) دون كتابة ملفات على القرص، وتستغل أدوات النظام الشرعية (مثل PowerShell و WMI) لتجاوز مكافحات الفيروسات.
-
-> [!NOTE] 🎙️ **ملاحظات وتوجيهات المحاضر (Instructor Lecture Notes)**
-> استعرض التهديدات السيبرانية الشائعة: هجمات الهندسة الاجتماعية (وعلى رأسها التصيد الاحتيالي)، والبرمجيات الخبيثة (الفيروسات، التروجانات، وبرمجيات الفدية)، والبرمجيات الخبيثة التي تعمل في الذاكرة دون ملفات (3. البرمجيات الخبيثة في الذاكرة (Fileless Malware)).
-
----
-
-## الشريحة 27: Common Threats: Identity & Insider Risk
-
-> **التصنيف / الفئة:** `مشهد التهديدات · الجزء 2`
-
-### التهديدات الشائعة: اختراق الهوية والمخاطر الداخلية
-
-تستغل هذه التهديدات الثقة والصلاحيات المشروعة بدلاً من الثغرات التقنية وحدها، مما يجعل رصدها أصعب بأدوات الحماية التقليدية:
-
-Identity and Account Compromise الوصول غير المصرح به لحسابات المستخدمين عبر سرقة كلمات المرور، هجمات Password Spraying، أو اختطاف الجلسات والتوكنز. 2. التهديدات والمخاطر الداخلية (Insider Threats) تهديدات تنشأ من موظفين أو متعاقدين يمتلكون صلاحيات دخول شرعية — سواء بدافع خبيث، أو إهمال غير مقصود، أو لاختراق حساباتهم.
-
-> [!IMPORTANT]
-> Both threats are typically detected through identity and access monitoring — abnormal logins, privilege escalation, and UEBA-driven behavioral baselines rather than signature-based tools.
-
-> [!NOTE] 🎙️ **ملاحظات وتوجيهات المحاضر (Instructor Lecture Notes)**
-> أكد على أن هجمات الهوية والتهديدات الداخلية تتجاوز جدران الحماية الخارجية بالكامل، لأنها تستغل صلاحيات وحسابات موثوقة بالفعل بدلاً من استغلال ثغرة برمجية، مما يجعل اكتشافها معتمداً على مراقبة السلوك.
+[!NOTE] 🎙️ ملاحظات المحاضرة للمدرّب
+نظام منع التسلل (IPS) — اشرح الغرض من هذه الفئة من الأدوات، وظيفتها الجوهرية في SOC، وكيف تتكامل مع دورة الكشف والاستجابة.
 
 ---
 
-## الشريحة 28: مجموعات التهديد المتقدمة المستمرة (APTs)
+الشريحة 21: كشف واستجابة نقطة النهاية (EDR)
 
-> **التصنيف / الفئة:** `مشهد التهديدات · الجزء 3`
+الفئة: EDR
 
-مجموعات APT هي جهات تهديد سيبرانية بالغة التطور وعالية التمويل — ترعاها دول في الغالب — تحافظ على وصول سري طويل الأمد داخل شبكة الضحية للتجسس أو التخريب عبر شهور أو سنوات:
+تراقب منصة EDR أجهزة نقاط النهاية بشكل مستمر، وتسجّل نشاط العمليات والملفات والسجل (Registry) والشبكة للكشف عن التهديدات والاستجابة لها مباشرة على المضيف.
 
-Defining Characteristics Advanced — custom tooling, zero-days, and skilled operators Persistent — long-term footholds, sometimes undetected for years Threat — deliberate, targeted, and well-funded, often nation-state backed تدمج عدة أساليب: الهندسة الاجتماعية، البرمجيات الخبيثة، واختراق الهوية في حملة هجومية موحدة. Why SOC Analysts Track Them Recognize known group TTPs (tactics, techniques, and procedures) Map detections to frameworks like MITRE ATT&CK توقع أهداف الهجوم واستباق تحركات المهاجمين بناءً على بصمات المجموعات المعروفة عالمياً.
+الاستخدامات الشائعة — مراقبة نقاط النهاية · كشف البرمجيات الخبيثة · اصطياد التهديدات · التحقيق في الحوادث · الاحتواء عن بُعد
 
-APT Reference & Tracking Resources CrowdStrike Adversary Universe · Google Cloud Threat Intel · Rapid7 InsightIDR · MITRE ATT&CK Groups
+تتضمّن كثير من منصات EDR قدرة UEBA (تحليل سلوك المستخدم والكيانات) كجزء من قدرة الكشف لديها — عبر بناء خط أساس للسلوك الطبيعي وتمييز الانحرافات التي قد تشير إلى اختراق أو تهديدات داخلية.
+أشهر المنتجات في الصناعة: CrowdStrike Falcon · Microsoft Defender for Endpoint · SentinelOne · VMware Carbon Black
+لقطة شاشة لوحدة تحكم EDR
 
-> [!NOTE] 🎙️ **ملاحظات وتوجيهات المحاضر (Instructor Lecture Notes)**
-> تستحق مجموعات التهديد المتقدمة المستمرة (APTs) اهتماماً خاصاً: فهي تجمع تقنيات متعددة (تصيد، برمجيات مخصصة، اختراق حسابات) ضمن حملات تجسس طويلة الأمد ترعاها دول غالباً. يتابعها مجتمع الاستخبارات السيبراني عبر تصنيفات دقيقة ومصفوفة MITRE ATT&CK.
-
----
-
-## الشريحة 29: Common Threats: Network, Data & Supply Chain
-
-> **التصنيف / الفئة:** `مشهد التهديدات · الجزء 4`
-
-### التهديدات الشائعة: هجمات الشبكة والبيانات وسلاسل الإمداد
-
-تغطي هذه المجموعة التهديدات التي تستهدف التوافر، وسرية البيانات، والثغرات غير المعروفة، والموردين الموثوقين:
-
-Distributed Denial of Service (DDoS) محاولات منسقة لإغراق الخوادم أو الشبكات بسيل هائل من البيانات المزيفة، لتعطيلها وحرمان المستخدمين الشرعيين منها. Data Breach الوصول غير المصرح به وسرقة أو تسريب البيانات الحساسة أو المالية — مما يسبب خسائر مادية وقانونية فادحة. 3. ثغرات اليوم الصفر (Zero-Day Exploits) هجمات تستغل ثغرات برمجية مجهولة لم يكتشفها المطورون بعد، ولا تتوفر لها ترقيعات أو تواقيع مسبقة لحظرها. 4. هجمات سلاسل الإمداد (Supply Chain Attacks) اختراق مزود برمجيات أو مورد موثوق واستغلال تحديثاته الرسمية للتسلل إلى شبكات آلاف الشركات العملاقة بشكل غير مباشر.
-
-Which Tool Catches What? DDoS → NSM / Firewall / IPS Data Breach → SIEM / UEBA / DLP Zero-Day → EDR / TIP / Forensics Supply Chain → TIP / SOAR / Forensics
-
-> [!NOTE] 🎙️ **ملاحظات وتوجيهات المحاضر (Instructor Lecture Notes)**
-> اختم مشهد التهديدات بربط هذه الأنماط بأدوات الـ SOC التي شرحناها: هجمات حجب الخدمة DDoS (تصدها الفايروول ومزودو الخدمة)، تسريب البيانات (يرصده DLP و SIEM)، ثغرات اليوم الصفر Zero-Day (يكشفها EDR سلوكياً)، وهجمات سلاسل الإمداد (تتطلب مراقبة مشددة للتحديثات والموردين).
+[!NOTE] 🎙️ ملاحظات المحاضرة للمدرّب
+كشف واستجابة نقطة النهاية (EDR) — اشرح الغرض من هذه الفئة من الأدوات، وظيفتها الجوهرية في SOC، وكيف تتكامل مع دورة الكشف والاستجابة. اذكر أن منصات EDR تتضمن عادةً UEBA كجزء من قدرة الكشف لديها، بدلاً من اعتبار UEBA فئة منفصلة.
 
 ---
 
-## الشريحة 30: الخلاصة والدروس المستفادة
+الشريحة 22: منصة استخبارات التهديدات (TIP)
 
-> **التصنيف / الفئة:** `خلاصة المعمل`
+الفئة: TIP
 
-### الخلاصة وأهم الدروس المستفادة من المعمل الأول
+تجمع منصة استخبارات التهديدات (TIP) استخبارات التهديدات وتنظمها وتُثريها وتوزعها — مثل مؤشرات الاختراق (IOCs) والتكتيكات والتقنيات والإجراءات (TTPs) وملفات الفاعلين — من مصادر داخلية وخارجية ليتمكن المحللون من إضافة السياق إلى التنبيهات واستباق التهديدات الناشئة.
 
-بنهاية هذا المعمل التأسيسي، أصبحت تمتلك الفهم الراسخ للمفاهيم التالية:
+الاستخدامات الشائعة — إدارة مؤشرات الاختراق · إثراء التهديدات · تتبع فاعلي التهديدات · تبادل الاستخبارات · تحليل الحملات
+أشهر المنتجات في الصناعة: MISP · OpenCTI · Recorded Future · Anomali · ThreatConnect
+لقطة شاشة موجزات التهديدات
 
-الهدف والدور الحيوي لمركز عمليات الأمن (SOC) في المؤسسات دورة الحياة التشغيلية: المراقبة ← الكشف ← التحليل ← الاستجابة النماذج التنظيمية للـ SOC (داخلي، خارجي MSSP، وهجين) أهمية التناغم بين الكوادر البشرية والإجراءات والتقنيات الفرق بين العمليات الدفاعية التفاعلية والاستباقية (Threat Hunting) التدرج الهرمي الدقيق: السجلات، الأحداث، التنبيهات، والحوادث المسؤوليات والمهام اليومية لمحلل مركز العمليات بمختلف مستوياته الأدوات والتقنيات الكبرى: SIEM, SOAR, EDR, IDS/IPS, Firewalls طيف التهديدات السيبرانية المعاصرة — من التصيد والبرمجيات الخبيثة وحتى مجموعات APT وسلاسل الإمداد
-
-> [!NOTE] 🎙️ **ملاحظات وتوجيهات المحاضر (Instructor Lecture Notes)**
-> لخص المحاضرة التأسيسية الأولى وراجع النقاط الرئيسية مع الطلاب. أكد على أن كل مفهوم وأداة تم شرحها اليوم ستكون الأساس الصلب الذي سنبني عليه كل المعامل والتطبيقات العملية في الأسابيع القادمة.
+[!NOTE] 🎙️ ملاحظات المحاضرة للمدرّب
+منصة استخبارات التهديدات (TIP) — اشرح الغرض من هذه الفئة من الأدوات، وظيفتها الجوهرية في SOC، وكيف تتكامل مع دورة الكشف والاستجابة.
 
 ---
 
-## 🎯 الخلاصة ومخرجات التعلم
+الشريحة 23: أدوات التحليل الجنائي
 
-- **الوحدة التدريبية:** المعمل 01: أساسيات عمليات مركز الأمن السيبراني والاستجابة للحوادث (SOC / IR Fundamentals)
+الفئة: التحليل الجنائي
 
-- **المهارات المكتسبة:** فهم عملي وتطبيقي عميق لكيفية الكشف، التحقيق، الاستجابة، وإدارة التهديدات الأمنية باحترافية داخل بيئة العمليات.
+تتيح أدوات التحليل الجنائي الرقمي للمحللين الحصول على الأدلة من الأقراص والذاكرة والأجهزة والحفاظ عليها وتحليلها بطريقة سليمة جنائيًا — لإعادة بناء ما حدث أثناء الحادثة مع الحفاظ على سلسلة الحفظ للإجراءات القانونية أو إجراءات الموارد البشرية.
 
-- **مرجع التدريب:** مختبر عمليات الأمن السيبراني العملي — إعداد وتقديم: **Hussein Al-Selwi**.
+الاستخدامات الشائعة — استنساخ الأقراص والذاكرة · استعادة الآثار · إعادة بناء الخط الزمني · سلسلة الحفظ · تحليل الأدلة
+أشهر المنتجات في الصناعة: Autopsy · EnCase Forensic · FTK (Forensic Toolkit) · Volatility (ذاكرة) · Magnet AXIOM
+لقطة شاشة التحليل الجنائي
+
+[!NOTE] 🎙️ ملاحظات المحاضرة للمدرّب
+أدوات التحليل الجنائي — اشرح الغرض من هذه الفئة من الأدوات، وظيفتها الجوهرية في SOC، وكيف تتكامل مع دورة الكشف والاستجابة.
+
+---
+
+الشريحة 24: أدوات تحليل البرمجيات الخبيثة
+
+الفئة: تحليل البرمجيات الخبيثة
+
+تتيح أدوات تحليل البرمجيات الخبيثة للمحللين فحص الملفات والثنائيات المشبوهة بأمان — عبر الفحص الساكن أو التنفيذ الديناميكي في صندوق رمل (Sandbox) — لتحديد سلوكها وقدراتها ومؤشرات اختراقها دون تعريض أنظمة الإنتاج للخطر.
+
+الاستخدامات الشائعة — التحليل الساكن · التحليل الديناميكي/السلوكي · الصندوق الرملي · الهندسة العكسية · استخراج مؤشرات الاختراق
+أشهر المنتجات في الصناعة: VirusTotal · Any.Run · Cuckoo Sandbox · IDA Pro · Ghidra
+لقطة شاشة تقرير البرمجيات الخبيثة
+
+[!NOTE] 🎙️ ملاحظات المحاضرة للمدرّب
+أدوات تحليل البرمجيات الخبيثة — اشرح الغرض من هذه الفئة من الأدوات، وظيفتها الجوهرية في SOC، وكيف تتكامل مع دورة الكشف والاستجابة.
+
+---
+
+الشريحة 25: قياس أداء مركز SOC
+
+الفئة: مقاييس SOC
+
+تستخدم مراكز عمليات الأمن مقاييس الأداء الرئيسية لقياس قدرات الاستجابة وتحسينها.
+
+· MTTD — متوسط الوقت للكشف: متوسط الوقت لتحديد تهديد ما.
+· MTTR — متوسط الوقت للاستجابة: متوسط الوقت لاحتواء التهديدات وحلّها.
+
+لماذا تُهمّ المقاييس: قياس فعالية SOC · تحديد نقاط الاختناق · تحسين قدرة الاستجابة · دعم القرارات
+
+مقاييس الأداء الحية — النظام نشط
+
+· MTTD (الوقت للكشف): 12 دقيقة ▼ 74%
+· MTTR (الوقت للاستجابة): 48 دقيقة ▼ 81%
+· حجم التنبيهات مقابل الحوادث (اتجاه شهري): أكتوبر — نوفمبر — ديسمبر
+  · حجم التنبيهات (45 ألف) · حجم الحوادث (18) · معدل الإنذارات الكاذبة (4.2%)
+
+[!NOTE] 🎙️ ملاحظات المحاضرة للمدرّب
+اشرح أن المقاييس تساعد مديري SOC على فهم ما إذا كان المركز يتحسّن مع مرور الوقت وأين ينبغي توجيه الموارد.
+
+---
+
+الشريحة 26: التهديدات الشائعة: الاجتماعية والبرمجية
+
+الفئة: مشهد التهديدات · 1 من 4
+
+تراقب فرق SOC وتستجيب لمجموعة واسعة من التهديدات السيبرانية. نبدأ بالهجمات التي تستهدف الأشخاص مباشرة والبرمجيات الخبيثة التي تعمل على أنظمة الضحايا.
+
+· الهندسة الاجتماعية: تلاعب نفسي يخدع الأشخاص للكشف عن معلومات حساسة أو منح وصول أو القيام بإجراءات تخترق الأمن. يتضمن: التصيّد (Phishing) — رسائل بريد أو رسائل أو مواقع احتيالية مصممة لسرقة بيانات الاعتماد أو إيصال برمجيات خبيثة — إلى جانب الاستمالة المسبقة (Pretexting) والإغراء (Baiting) والتصيّد الصوتي (Vishing).
+· البرمجيات الخبيثة (Malware): برمجيات ضارة — تشمل الفيروسات والديدان وأحصنة طروادة — مصممة لتعطيل الأنظمة أو إتلافها أو الحصول على وصول غير مصرح به. يتضمن: برامج الفدية (Ransomware) — برمجيات تشفّر الملفات أو الأنظمة وتطلب دفع فدية لاستعادتها، وهي من أخطر التهديدات التي تواجه فرق SOC اليوم.
+· البرمجيات الخبيثة عديمة الملفات (Fileless Malware): نشاط خبيث يعمل في الذاكرة بدلاً من كتابة ملفات على القرص، ويستغل غالبًا أدوات مشروعة (مثل PowerShell وWMI) لتفادي الكشف التقليدي القائم على التوقيعات.
+
+[!NOTE] 🎙️ ملاحظات المحاضرة للمدرّب
+اشرح أن هذه التهديدات ستُستكشف عبر الدورة، وأن محللي SOC يجب أن يكونوا قادرين على تحديد المؤشرات المرتبطة بكل نوع هجوم. التصيّد هو أكثر نواقل الهندسة الاجتماعية شيوعًا؛ وبرامج الفدية هي أخطر أشكال البرمجيات الخبيثة — أبرز كليهما صراحةً.
+
+---
+
+الشريحة 27: التهديدات الشائعة: الهوية والمخاطر الداخلية
+
+الفئة: مشهد التهديدات · 2 من 4
+
+تستغل هذه التهديدات الثقة والوصول المشروع بدلاً من الثغرات التقنية وحدها، مما يجعل من الصعب كشفها بأدوات المحيط التقليدية.
+
+· اختراق الهوية والحساب: وصول غير مصرح به إلى حسابات المستخدمين أو الأنظمة عبر بيانات اعتماد مسروقة، أو رشّ كلمات المرور، أو اختطاف الجلسات، أو سرقة الرموز — وغالبًا يكون نقطة الدخول لهجمات أكبر.
+· التهديدات الداخلية (Insider Threats): تهديدات تنشأ من الموظفين أو المتعاقدين أو المستخدمين الموثوقين — سواء كانت خبيثة أو إهمالية أو مخترقة — ممن لديهم بالفعل وصول مشروع إلى الأنظمة والبيانات.
+
+[!IMPORTANT]
+يُكشف كلا التهديدين عادةً عبر مراقبة الهوية والوصول — تسجيلات دخول غير طبيعية، وتصعيد الامتيازات، وخطوط أساس سلوكية مدعومة بـ UEBA بدلاً من الأدوات القائمة على التوقيعات.
+
+[!NOTE] 🎙️ ملاحظات المحاضرة للمدرّب
+أكّد أن التهديدات القائمة على الهوية والداخلية غالبًا ما تتجاوز دفاعات المحيط تمامًا لأنها تستغل وصولاً موثوقًا بدلاً من ثغرة تقنية.
+
+---
+
+الشريحة 28: التهديدات الشائعة: التهديدات المتقدمة المستمرة (APTs)
+
+الفئة: مشهد التهديدات · 3 من 4
+
+التهديدات المتقدمة المستمرة (APTs)
+
+الـ APTs فاعلو تهديد متطورون وذوو موارد كبيرة — وغالبًا مدعومون من دول — يحافظون على وصول خفي طويل الأمد داخل الشبكة لإجراء التجسس أو التخريب أو سرقة البيانات على مدى أشهر أو سنوات.
+
+السمات المميزة
+
+· متقدم (Advanced) — أدوات مخصصة، ثغرات يوم الصفر، ومشغلون ماهرون.
+· مستمر (Persistent) — موطئ قدم طويل الأمد، قد يبقى دون اكتشاف لسنوات.
+· تهديد (Threat) — متعمّد وموجّه وجيد التمويل، وغالبًا بدعم من دولة.
+· يجمع بين تقنيات متعددة: الهندسة الاجتماعية، والبرمجيات الخبيثة، واختراق الهوية في حملة واحدة.
+
+لماذا يتتبع محللو SOC هذه التهديدات؟ التعرّف على TTPs المجموعات المعروفة · ربط عمليات الكشف بأطر مثل MITRE ATT&CK · توقّع أهداف الحملات بناءً على الفاعلين المنسوبين.
+
+موارد مرجعية وتتبّع APTs: CrowdStrike Adversary Universe · Google Cloud Threat Intel · Rapid7 InsightIDR · MITRE ATT&CK Groups
+
+[!NOTE] 🎙️ ملاحظات المحاضرة للمدرّب
+تستحق APTs شريحة خاصة بها لأنها تجمع عدة أنواع تهديدات أخرى (الهندسة الاجتماعية، البرمجيات الخبيثة، اختراق الهوية) في حملة طويلة الأمد. تتتبع بائعات استخبارات التهديدات الكبرى مجموعات APTs وتفهرسها — وجّه الطلاب إلى قائمة المراجع لمزيد من البحث وشجّعهم على البحث عن مجموعة محددة بالاسم.
+
+---
+
+الشريحة 29: التهديدات الشائعة: الشبكة والبيانات وسلسلة التوريد
+
+الفئة: مشهد التهديدات · 4 من 4
+
+تغطي المجموعة الأخيرة تهديدات تستهدف التوفر، وسرية البيانات، والثغرات غير المعروفة، والأطراف الثالثة الموثوقة.
+
+· هجمات الحرمان الموزع من الخدمة (DDoS): محاولات منسقة لإغراق الأنظمة أو الشبكات أو الخدمات بحركة المرور، مما يجعلها غير متاحة للمستخدمين الشرعيين.
+· اختراق البيانات (Data Breach): وصول غير مصرح به أو تسريب أو كشف بيانات حساسة أو سرية أو منظمة — مما ينتج عنه تأثير مالي وقانوني وسمعي.
+· استغلال ثغرات يوم الصفر (Zero-Day): هجمات تستغل ثغرات برمجية غير معروفة سابقًا قبل توفر تصحيح أو إصلاح، مما يترك للمدافعين أي توقيع مسبق للكشف عنها.
+· هجمات سلسلة التوريد (Supply Chain): اختراق مورّد طرف ثالث موثوق، أو تحديث برمجي، أو مكوّن عتادي للوصول غير المباشر إلى بيئة المؤسسة.
+
+أي أداة تكشف أي تهديد؟
+
+التهديد الأداة
+DDoS NSM / الجدار الناري / IPS
+اختراق البيانات SIEM / UEBA / DLP
+يوم الصفر EDR / TIP / التحليل الجنائي
+سلسلة التوريد TIP / SOAR / التحليل الجنائي
+
+[!NOTE] 🎙️ ملاحظات المحاضرة للمدرّب
+اختتم قسم مشهد التهديدات بربط أنواع الهجمات هذه بدورة حياة SOC والأدوات التي غطتها المحاضرة سابقًا — اسأل الطلاب أي أداة ستكشف كل تهديد قبل كشف المطابقة.
+
+---
+
+الشريحة 30: الخلاصات الرئيسية
+
+الفئة: ملخص المختبر
+
+بنهاية هذا المختبر، ينبغي أن تفهم:
+
+· الغرض من مركز عمليات الأمن (SOC) ودوره.
+· دورة الحياة: المراقبة → الكشف → التحليل → الاستجابة.
+· نماذج SOC المختلفة والهياكل التنظيمية.
+· أهمية الأشخاص والعمليات والتقنية.
+· الوظائف التفاعلية والاستباقية لمركز SOC.
+· الفرق بين السجلات والأحداث والتنبيهات والحوادث.
+· مسؤوليات محللي SOC.
+· الأدوات والتقنيات الشائعة في SOC.
+· التهديدات السيبرانية الرئيسية — من الهندسة الاجتماعية والبرمجيات الخبيثة إلى APTs وهجمات سلسلة التوريد.
+
+[!NOTE] 🎙️ ملاحظات المحاضرة للمدرّب
+راجع كل موضوع باختصار وأكّد أن هذه المفاهيم تشكّل الأساس لبقية الدورة.
+
+---
+
+🎯 الملخص والخلاصات الرئيسية
+
+· الوحدة: المختبر 01: أساسيات عمليات الأمن والاستجابة للحوادث
+· الكفاءات الأساسية المكتسبة: الفرز العملي، تحليل السجلات، اصطياد التهديدات، والاستجابة الدفاعية للحوادث.
+· المرجع الدراسي: مختبرات عمليات الأمن السيبراني العملية — حسين الصلوي.
