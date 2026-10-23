@@ -382,19 +382,19 @@
 
         <div class="grid grid--3col" style="max-width: 950px; margin: 16px auto 0 auto; text-align: left;">
           <div class="card card--cyan">
-            <div class="card-icon">&#x1F3DB;&#xFE0F;</div>
-            <div class="card-title">SOC Foundations</div>
-            <div class="card-text">Roles, workflows, CIA triad, and why organizations build modern 24/7 defense centers.</div>
+            <div class="card-icon">&#x1F50D;</div>
+            <div class="card-title">Telemetry &amp; Events</div>
+            <div class="card-text">Log taxonomy, forensic questions, and distinguishing logs, events, alerts, and incidents.</div>
           </div>
           <div class="card card--purple">
-            <div class="card-icon">&#x1F4CB;</div>
-            <div class="card-title">Telemetry &amp; Logs</div>
+            <div class="card-icon">&#x1F4BB;</div>
+            <div class="card-title">OS Telemetry &amp; Demos</div>
             <div class="card-text">Log anatomy, sources across Windows, Linux, and Web, with live hands-on terminal demos.</div>
           </div>
           <div class="card card--green">
             <div class="card-icon">&#x1F517;</div>
-            <div class="card-title">Centralization &amp; Tools</div>
-            <div class="card-text">Solving data fragmentation via SIEM, EDR, Sysmon, and multi-source event correlation.</div>
+            <div class="card-title">Centralization &amp; SIEM</div>
+            <div class="card-text">Solving log fragmentation via SIEM, EDR, Sysmon, and multi-source event correlation.</div>
           </div>
         </div>
       </div>
@@ -402,19 +402,19 @@
 
 
     <!-- ==================== SLIDE 02: OBJECTIVES ==================== -->
-    <div class="slide" data-title="Domain Objectives" data-notes="Walk through these core competencies. Make it clear that this lab balances high-level concepts with actual hands-on terminal commands. By the end of today, every student will be able to look at raw log records and pinpoint exactly who did what, when, and how.">
+    <div class="slide" data-title="Domain Objectives" data-notes="Walk through these core competencies. Make it clear that this lab balances deep telemetry understanding with actual hands-on terminal commands. By the end of today, every student will understand raw log records across Windows, Linux, and Web, and why centralizing them into a SIEM is essential.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">&#x1F3AF;</span> LEARNING OUTCOMES</div>
         <h2>What You Will Master Today</h2>
-        <p style="margin-bottom: 18px;">By the end of this 2-hour session, you will possess the foundational knowledge required for modern SOC analysis:</p>
+        <p style="margin-bottom: 18px;">By the end of this 2-hour session, you will possess the foundational knowledge required for security telemetry and log analysis:</p>
 
         <div class="grid grid--2col">
           <div class="card">
             <div class="card-title">
-              <span>1. SOC Mission &amp; Structure</span>
-              <span class="badge badge--blue">Concepts</span>
+              <span>1. Telemetry &amp; Log Foundations</span>
+              <span class="badge badge--blue">Core Concept</span>
             </div>
-            <p class="card-text">Understand the core 24/7 monitoring mission, the tier escalation model (Tier 1 Triage to Tier 3 Hunter), and the People-Process-Technology balance.</p>
+            <p class="card-text">Master the essential role of system, authentication, and network telemetry in establishing enterprise visibility and detecting modern adversary tactics.</p>
           </div>
           <div class="card">
             <div class="card-title">
@@ -428,7 +428,7 @@
               <span>3. Log vs Event vs Alert vs Incident</span>
               <span class="badge badge--amber">Terminology</span>
             </div>
-            <p class="card-text">Master the critical distinctions between raw logs, observable security events, automated detection alerts, and verified incidents with the True/False positive matrix.</p>
+            <p class="card-text">Master the critical distinctions between raw logs, observable security events, automated detection alerts, and verified security incidents.</p>
           </div>
           <div class="card">
             <div class="card-title">
@@ -456,222 +456,7 @@
     </div>
 
 
-    <!-- ==================== SLIDE 03: WHAT IS A SOC ==================== -->
-    <div class="slide" data-title="What is a SOC?" data-notes="Emphasize that a SOC is not just a room with big TV screens. It is an organizational capability. It operates 24/7/365 because attackers operate globally across all time zones. Explain the continuous dual posture: reacting to alerts while proactively hunting for hidden threats.">
-      <div class="slide-inner">
-        <div class="section-label"><span class="label-icon">&#x1F3DB;&#xFE0F;</span> SOC FOUNDATIONS</div>
-        <h2>What is a Security Operations Center (SOC)?</h2>
-        <p style="margin-bottom: 20px;">A <strong>Security Operations Center (SOC)</strong> is a centralized function within an organization responsible for monitoring, detecting, analyzing, and responding to cyber threats 24/7/365.</p>
-
-        <div class="grid grid--3col">
-          <div class="card card--cyan">
-            <div class="card-icon">&#x1F441;&#xFE0F;</div>
-            <div class="card-title">Continuous Visibility</div>
-            <p class="card-text">Maintains real-time awareness over all endpoints, servers, network perimeters, and cloud identities across the enterprise infrastructure.</p>
-          </div>
-          <div class="card card--purple">
-            <div class="card-icon">&#x26A1;</div>
-            <div class="card-title">Rapid Threat Containment</div>
-            <p class="card-text">Minimizes attacker dwell time (MTTD / MTTR) by detecting malicious activity early in the cyber kill chain and isolating compromised assets.</p>
-          </div>
-          <div class="card card--green">
-            <div class="card-icon">&#x1F6E1;&#xFE0F;</div>
-            <div class="card-title">Asset &amp; Risk Defense</div>
-            <p class="card-text">Protects critical intellectual property, customer data, and operational systems from disruption, exfiltration, and extortion (ransomware).</p>
-          </div>
-        </div>
-
-        <div class="terminal-box">
-          <div class="terminal-header">
-            <div class="terminal-dots"><span class="terminal-dot terminal-dot--red"></span><span class="terminal-dot terminal-dot--yellow"></span><span class="terminal-dot terminal-dot--green"></span></div>
-            <span>SOC Operational Postures</span>
-          </div>
-          <div class="terminal-body"><span class="comment"># A mature SOC operates continuously across two complementary postures:</span>
-<span class="cmd">[REACTIVE POSTURE]</span>   Alert Ingestion &rarr; Triage &amp; Verification &rarr; Threat Containment &rarr; Incident Remediation
-<span class="cmd">[PROACTIVE POSTURE]</span>  Threat Hunting &rarr; Detection Engineering &rarr; Vulnerability Management &rarr; System Hardening</div>
-        </div>
-      </div>
-    </div>
-
-
-    <!-- ==================== SLIDE 04: THE SOC OPERATIONAL CYCLE ==================== -->
-    <div class="slide" data-title="The SOC Operational Cycle" data-notes="Walk through the 4 steps left to right. Emphasize step 5: the Feedback Loop. When an analyst responds to a new attack technique, they don't just close the ticket; they create a new detection rule or tune existing alerts so the SOC detects it faster next time.">
-      <div class="slide-inner">
-        <div class="section-label"><span class="label-icon">&#x1F504;</span> OPERATIONAL LIFECYCLE</div>
-        <h2>The Core Operational Cycle</h2>
-        <p style="margin-bottom: 20px;">The fundamental mission of every SOC follows a continuous, iterative 4-stage lifecycle:</p>
-
-        <div class="flow-row">
-          <div class="flow-node">
-            <span class="node-num">STAGE 01</span>
-            <span class="node-title">1. MONITOR</span>
-            <span class="node-desc">Continuous ingestion of telemetry across endpoints, network traffic, authentications, and web services.</span>
-          </div>
-          <div class="flow-arrow">&rarr;</div>
-          <div class="flow-node">
-            <span class="node-num">STAGE 02</span>
-            <span class="node-title">2. DETECT</span>
-            <span class="node-desc">Rule correlation, threat intelligence matching, and anomaly engines flagging suspicious activity.</span>
-          </div>
-          <div class="flow-arrow">&rarr;</div>
-          <div class="flow-node">
-            <span class="node-num">STAGE 03</span>
-            <span class="node-title">3. ANALYZE</span>
-            <span class="node-desc">Analyst investigation: validating alerts, establishing blast radius, root cause, and timeline reconstruction.</span>
-          </div>
-          <div class="flow-arrow">&rarr;</div>
-          <div class="flow-node">
-            <span class="node-num">STAGE 04</span>
-            <span class="node-title">4. RESPOND</span>
-            <span class="node-desc">Containing compromised hosts, revoking stolen credentials, blocking malicious IPs, and system recovery.</span>
-          </div>
-        </div>
-
-        <div class="card card--highlight" style="margin-top: 18px;">
-          <div class="card-title">
-            <span>&#x1F501; The Crucial Feedback Loop (Detection Engineering)</span>
-            <span class="badge badge--green">Continuous Improvement</span>
-          </div>
-          <p class="card-text">Every resolved incident feeds directly back into Step 1 &amp; 2: writing new SIEM correlation rules, deploying custom Sysmon/EDR blocks, and tuning out false positives so the defense posture becomes harder to penetrate over time.</p>
-        </div>
-      </div>
-    </div>
-
-
-    <!-- ==================== SLIDE 05: PEOPLE, PROCESS, TECHNOLOGY ==================== -->
-    <div class="slide" data-title="The Three Pillars: PPT" data-notes="Explain the Golden Rule of Security: 'A million-dollar SIEM without trained analysts is just an expensive hard drive full of unread text.' Technology alerts you, but People make the critical decisions and Processes guarantee consistency under pressure.">
-      <div class="slide-inner">
-        <div class="section-label"><span class="label-icon">&#x1F3DB;&#xFE0F;</span> THE CORE PILLARS</div>
-        <h2>The Triad of SOC Success: People, Process &amp; Tech</h2>
-        <p style="margin-bottom: 20px;">A world-class SOC is never built on software alone. Defense requires three balanced pillars working in synchronization:</p>
-
-        <div class="grid grid--3col">
-          <div class="card card--cyan">
-            <div class="card-icon">&#x1F465;</div>
-            <div class="card-title">PEOPLE</div>
-            <div class="badge badge--blue" style="margin-bottom: 10px;">The Human Intellect</div>
-            <ul style="font-size: 0.9rem;">
-              <li><strong>Tier 1 Analysts:</strong> Frontline alert triage &amp; validation</li>
-              <li><strong>Tier 2 Responders:</strong> Deep investigation &amp; incident handling</li>
-              <li><strong>Tier 3 / Hunters:</strong> Advanced threat hunting &amp; detection rules</li>
-              <li><strong>SOC Engineers:</strong> Pipeline maintenance &amp; tool integration</li>
-            </ul>
-          </div>
-
-          <div class="card card--purple">
-            <div class="card-icon">&#x1F4DC;</div>
-            <div class="card-title">PROCESS</div>
-            <div class="badge badge--purple" style="margin-bottom: 10px;">The Repeatable Playbooks</div>
-            <ul style="font-size: 0.9rem;">
-              <li><strong>Standard Operating Procedures (SOPs):</strong> Step-by-step triage</li>
-              <li><strong>Incident Playbooks:</strong> Phishing, Ransomware, Brute-force runbooks</li>
-              <li><strong>Escalation Matrices:</strong> Who gets notified when Severity = Critical</li>
-              <li><strong>SLAs &amp; Metrics:</strong> MTTD (Detect) &amp; MTTR (Respond) targets</li>
-            </ul>
-          </div>
-
-          <div class="card card--green">
-            <div class="card-icon">&#x2699;&#xFE0F;</div>
-            <div class="card-title">TECHNOLOGY</div>
-            <div class="badge badge--green" style="margin-bottom: 10px;">The Enablers &amp; Sensors</div>
-            <ul style="font-size: 0.9rem;">
-              <li><strong>SIEM:</strong> Central log correlation &amp; search engine</li>
-              <li><strong>EDR &amp; Sysmon:</strong> Host-level kernel telemetry &amp; active kill</li>
-              <li><strong>Network Controls:</strong> NGFW, IDS/IPS, WAF, Zeek</li>
-              <li><strong>SOAR &amp; Case Mgmt:</strong> Automated enrichment &amp; ticketing</li>
-            </ul>
-          </div>
-        </div>
-
-        <div style="background: rgba(53,99,233,0.1); border: 1px solid rgba(53,99,233,0.3); border-radius: 8px; padding: 12px 20px; display: flex; align-items: center; gap: 14px;">
-          <span style="font-size: 1.5rem;">&#x1F4A1;</span>
-          <span style="font-size: 0.95rem; color: var(--blue-200);"><strong>The Defensive Law:</strong> Technology discovers anomalies, Process directs orderly execution, but skilled Analysts make the judgment call on true malicious intent.</span>
-        </div>
-      </div>
-    </div>
-
-
-    <!-- ==================== SLIDE 06: SOC TIERS & WORKFLOW ==================== -->
-    <div class="slide" data-title="SOC Tiers & Roles" data-notes="Explain the escalation path. Tier 1 handles the deluge of incoming alerts (often hundreds a day). When something is confirmed true positive, it is escalated to Tier 2 for full containment. Tier 3 does not handle routine alerts; they proactively search for threats that bypassed automated detections entirely.">
-      <div class="slide-inner">
-        <div class="section-label"><span class="label-icon">&#x1F4CA;</span> ORGANIZATIONAL STRUCTURE</div>
-        <h2>SOC Roles &amp; Tier Escalation Model</h2>
-        <p style="margin-bottom: 18px;">To handle thousands of daily alerts without burning out analysts, modern SOCs employ a structured tier system:</p>
-
-        <div class="grid grid--4col">
-          <div class="card card--cyan">
-            <span class="badge badge--blue" style="margin-bottom: 8px;">TIER 1 &middot; TRIAGE</span>
-            <div class="card-title">Alert Analyst</div>
-            <p class="card-text"><strong>Role:</strong> Monitors the SIEM console 24/7.<br><strong>Primary Task:</strong> Rapidly triage alerts, filter out False Positives, gather initial context, and escalate validated threats within 15 minutes.</p>
-          </div>
-
-          <div class="card card--purple">
-            <span class="badge badge--purple" style="margin-bottom: 8px;">TIER 2 &middot; HANDLER</span>
-            <div class="card-title">Incident Responder</div>
-            <p class="card-text"><strong>Role:</strong> Deep-dive investigation.<br><strong>Primary Task:</strong> Scopes the breach extent, reconstructs the attacker timeline, isolates infected hosts, revokes access, and coordinates eradication.</p>
-          </div>
-
-          <div class="card card--green">
-            <span class="badge badge--green" style="margin-bottom: 8px;">TIER 3 &middot; HUNTER</span>
-            <div class="card-title">Threat Hunter / Sr.</div>
-            <p class="card-text"><strong>Role:</strong> Proactive defense &amp; engineering.<br><strong>Primary Task:</strong> Assumes the network is already breached; hunts for stealthy APT activity, crafts detection rules, and evaluates advanced TTPs.</p>
-          </div>
-
-          <div class="card card--amber">
-            <span class="badge badge--amber" style="margin-bottom: 8px;">LEADERSHIP</span>
-            <div class="card-title">SOC Manager</div>
-            <p class="card-text"><strong>Role:</strong> Operations &amp; Governance.<br><strong>Primary Task:</strong> Oversees personnel, manages tool licensing and budget, reports breach status to C-suite/legal, and tracks performance metrics (MTTD/MTTR).</p>
-          </div>
-        </div>
-
-        <div class="terminal-box">
-          <div class="terminal-header"><span>Escalation Lifecycle in Practice</span></div>
-          <div class="terminal-body"><span class="comment"># Realistic Alert Flow:</span>
-SIEM Alert Fires &rarr; <span class="cmd">Tier 1:</span> Confirms malicious base64 PowerShell &rarr; Escalates to <span class="cmd">Tier 2:</span> Isolates host &amp; cleans malware &rarr; <span class="cmd">Tier 3:</span> Hunts across all 5,000 endpoints for identical parent processes!</div>
-        </div>
-      </div>
-    </div>
-
-
-    <!-- ==================== SLIDE 07: DEFENDING THE CIA TRIAD ==================== -->
-    <div class="slide" data-title="Defending the CIA Triad" data-notes="Connect abstract CIA security theory to concrete SOC operational defense. Walk through how ransomware attacks Availability first, but modern double-extortion ransomware also steals data first, violating Confidentiality as well.">
-      <div class="slide-inner">
-        <div class="section-label"><span class="label-icon">&#x1F512;</span> SECURITY PRINCIPLES</div>
-        <h2>How a SOC Defends the CIA Triad</h2>
-        <p style="margin-bottom: 20px;">Every security control, log search, and incident response action exists to safeguard one or more core tenets of information security:</p>
-
-        <div class="grid grid--3col">
-          <div class="card card--cyan">
-            <div class="card-icon">&#x1F510;</div>
-            <div class="card-title">Confidentiality</div>
-            <div class="badge badge--blue" style="margin-bottom: 8px;">Preventing Disclosure</div>
-            <p class="card-text"><strong>Threats:</strong> Data exfiltration, credential harvesting, insider leaks.<br><strong>SOC Defense:</strong> DLP alerts, monitoring unusual outbound bandwidth, detecting unauthorized access to HR/finance databases.</p>
-          </div>
-
-          <div class="card card--purple">
-            <div class="card-icon">&#x1F6E1;&#xFE0F;</div>
-            <div class="card-title">Integrity</div>
-            <div class="badge badge--purple" style="margin-bottom: 8px;">Preventing Alteration</div>
-            <p class="card-text"><strong>Threats:</strong> Unauthorized file tampering, registry modification, log deletion.<br><strong>SOC Defense:</strong> File Integrity Monitoring (FIM), Sysmon Event 11 (FileCreate), Event 1102 (Log Clearance Alert).</p>
-          </div>
-
-          <div class="card card--green">
-            <div class="card-icon">&#x26A1;</div>
-            <div class="card-title">Availability</div>
-            <div class="badge badge--green" style="margin-bottom: 8px;">Ensuring Authorized Access</div>
-            <p class="card-text"><strong>Threats:</strong> DDoS floods, Ransomware encryption, service termination.<br><strong>SOC Defense:</strong> Network traffic thresholds, WAF rate limiting, early detection of mass file renaming/encryption processes.</p>
-          </div>
-        </div>
-
-        <div class="card card--highlight" style="margin-top: 15px;">
-          <div class="card-title"><span>Real-World Scenario: Double Extortion Ransomware</span></div>
-          <p class="card-text">Attackers first exfiltrate confidential customer records (violating <strong>Confidentiality</strong>), then encrypt virtual machines to shut down production (destroying <strong>Availability</strong>), and threaten to publish modified fake records if uncooperative (threatening <strong>Integrity</strong>). The SOC must defend all three simultaneously!</p>
-        </div>
-      </div>
-    </div>
-
-
-    <!-- ==================== SLIDE 08: THE VISIBILITY IMPERATIVE ==================== -->
+    <!-- ==================== SLIDE 03: THE VISIBILITY IMPERATIVE ==================== -->
     <div class="slide" data-title="The Visibility Imperative" data-notes="This is the philosophical heart of the lecture. Explain that an analyst is essentially a detective. When a burglary occurs, detectives look for fingerprint evidence, timestamps, and witness accounts. In cybersecurity, logs are the only digital witness testimony we have. Without logs, an attack is completely invisible.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">&#x1F441;&#xFE0F;</span> PHILOSOPHY OF DEFENSE</div>
@@ -712,7 +497,7 @@ SIEM Alert Fires &rarr; <span class="cmd">Tier 1:</span> Confirms malicious base
     </div>
 
 
-    <!-- ==================== SLIDE 09: LOG vs EVENT vs ALERT vs INCIDENT ==================== -->
+    <!-- ==================== SLIDE 04: LOG vs EVENT vs ALERT vs INCIDENT ==================== -->
     <div class="slide" data-title="Terminology: Log vs Event vs Alert vs Incident" data-notes="Students often mix these terms up. Emphasize the funnel: Millions of raw logs reduce down to thousands of observable events. Detection rules turn some events into dozens of alerts. When an analyst confirms true malicious impact, it becomes an official Incident.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">&#x1F50D;</span> CORE TERMINOLOGY</div>
@@ -754,61 +539,7 @@ SIEM Alert Fires &rarr; <span class="cmd">Tier 1:</span> Confirms malicious base
     </div>
 
 
-    <!-- ==================== SLIDE 10: TRIAGE TRUTH MATRIX ==================== -->
-    <div class="slide" data-title="Triage Truth Matrix: TP / FP / TN / FN" data-notes="Explain the four quadrants. Highlight that False Positives waste precious analyst time and cause 'alert fatigue'. But False Negatives are the true nightmare &mdash; an attacker is actively inside your network and not a single alarm fired.">
-      <div class="slide-inner">
-        <div class="section-label"><span class="label-icon">&#x2696;&#xFE0F;</span> DETECTION METRICS</div>
-        <h2>The Triage Truth Matrix: Evaluating Detections</h2>
-        <p style="margin-bottom: 18px;">Whenever an alert fires (or fails to fire), it falls into one of four statistical quadrants:</p>
-
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th style="width: 20%;">Quadrant</th>
-                <th style="width: 25%;">Alert Fired?</th>
-                <th style="width: 25%;">Actually Malicious?</th>
-                <th style="width: 30%;">Operational Impact &amp; Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><span class="badge badge--green">TRUE POSITIVE (TP)</span></td>
-                <td><strong style="color:var(--accent-green)">YES (Alert)</strong></td>
-                <td><strong style="color:var(--accent-green)">YES (Attack)</strong></td>
-                <td><strong>Success!</strong> Threat detected. Escalate immediately to Tier 2 for containment.</td>
-              </tr>
-              <tr>
-                <td><span class="badge badge--amber">FALSE POSITIVE (FP)</span></td>
-                <td><strong style="color:var(--accent-amber)">YES (Alert)</strong></td>
-                <td><strong style="color:var(--text-muted)">NO (Benign)</strong></td>
-                <td><strong>Alert Fatigue.</strong> Benign backup script flagged as ransomware. Requires rule tuning.</td>
-              </tr>
-              <tr>
-                <td><span class="badge badge--blue">TRUE NEGATIVE (TN)</span></td>
-                <td><strong style="color:var(--text-muted)">NO (Quiet)</strong></td>
-                <td><strong style="color:var(--text-muted)">NO (Benign)</strong></td>
-                <td><strong>Normal Operations.</strong> Regular employee traffic correctly ignored by detection rules.</td>
-              </tr>
-              <tr>
-                <td><span class="badge badge--red">FALSE NEGATIVE (FN)</span></td>
-                <td><strong style="color:var(--accent-red)">NO (Quiet)</strong></td>
-                <td><strong style="color:var(--accent-red)">YES (Attack)</strong></td>
-                <td><strong>The Worst Nightmare!</strong> Stealthy adversary penetrated network undetected. Blind spot!</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="card card--highlight" style="margin-top: 15px;">
-          <div class="card-title"><span>SOC Analyst's Golden Rule for Tuning</span></div>
-          <p class="card-text">Every SOC must continuously tune rules to minimize <strong>False Positives</strong> (which burn out analysts) without opening blind spots that produce <strong>False Negatives</strong> (which let attackers breach undetected).</p>
-        </div>
-      </div>
-    </div>
-
-
-    <!-- ==================== SLIDE 11: ANATOMY OF A LOG ENTRY ==================== -->
+    <!-- ==================== SLIDE 05: ANATOMY OF A LOG ENTRY ==================== -->
     <div class="slide" data-title="Anatomy of a Log Entry" data-notes="Show the anatomy breakdown. Highlight the difference between legacy unstructured text lines and modern structured JSON/Key-Value pairs. Explain that modern SIEM correlation relies heavily on normalized fields (like src_ip and dest_port).">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">&#x1F9EC;</span> LOG ANATOMY</div>
@@ -866,7 +597,7 @@ Oct 20 03:15:22 srv01 sshd[12345]: Failed password for root from 185.220.101.42 
     </div>
 
 
-    <!-- ==================== SLIDE 12: ENTERPRISE LOG LANDSCAPE ==================== -->
+    <!-- ==================== SLIDE 06: ENTERPRISE LOG LANDSCAPE ==================== -->
     <div class="slide" data-title="Enterprise Log Landscape" data-notes="Provide an aerial view of an enterprise. Show that logs don't just come from Windows laptops. They come from firewalls, web servers, identity providers, switches, and SaaS cloud tenants. An analyst must be comfortable reading telemetry from all layers.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">&#x1F310;</span> TELEMETRY SOURCES</div>
@@ -915,7 +646,7 @@ Oct 20 03:15:22 srv01 sshd[12345]: Failed password for root from 185.220.101.42 
     </div>
 
 
-    <!-- ==================== SLIDE 13: WINDOWS LOGGING ARCHITECTURE ==================== -->
+    <!-- ==================== SLIDE 07: WINDOWS LOGGING ARCHITECTURE ==================== -->
     <div class="slide" data-title="Windows Logging Architecture" data-notes="Deconstruct Windows Event Logging (.evtx). Mention that it's a structured binary format located in C:\Windows\System32\winevt\Logs\. Walk through the essential Event IDs: 4624 (logon), 4625 (failed logon), 4688 (process created), 7045 (new service), and 1102 (audit log cleared).">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">&#x1FA9F;</span> ENDPOINT TELEMETRY</div>
@@ -982,7 +713,7 @@ Oct 20 03:15:22 srv01 sshd[12345]: Failed password for root from 185.220.101.42 
     </div>
 
 
-    <!-- ==================== SLIDE 14: WHY WE NEED SYSMON ==================== -->
+    <!-- ==================== SLIDE 08: WHY WE NEED SYSMON ==================== -->
     <div class="slide" data-title="Sysmon: Advanced Endpoint Telemetry" data-notes="Explain why default Windows logs leave massive blind spots. Default Windows logs don't calculate file hashes, don't show network connections tied to PIDs, and don't log DNS queries. Microsoft Sysmon fills these exact gaps for free with a kernel-level driver.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">&#x2699;&#xFE0F;</span> ADVANCED TELEMETRY</div>
@@ -1032,7 +763,7 @@ Oct 20 03:15:22 srv01 sshd[12345]: Failed password for root from 185.220.101.42 
     </div>
 
 
-    <!-- ==================== SLIDE 15: LINUX LOGGING ARCHITECTURE ==================== -->
+    <!-- ==================== SLIDE 09: LINUX LOGGING ARCHITECTURE ==================== -->
     <div class="slide" data-title="Linux Logging Architecture" data-notes="Explain the Linux logging philosophy: everything in Unix is a file! Show where authentication lives (/var/log/auth.log or /var/log/secure), explain syslog facilities and priorities, and introduce systemd-journald and auditd.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">&#x1F427;</span> LINUX TELEMETRY</div>
@@ -1082,7 +813,7 @@ Oct 20 03:15:22 srv01 sshd[12345]: Failed password for root from 185.220.101.42 
     </div>
 
 
-    <!-- ==================== SLIDE 16: NETWORK TELEMETRY ==================== -->
+    <!-- ==================== SLIDE 10: NETWORK TELEMETRY ==================== -->
     <div class="slide" data-title="Network & Perimeter Telemetry" data-notes="Explain what network traffic sees that endpoints might hide. If malware disables local endpoint logging, network traffic cannot be erased because the packets literally crossed the wire. Introduce Firewalls, IDS/IPS (Snort/Suricata), and DNS logs.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">&#x1F310;</span> NETWORK VISIBILITY</div>
@@ -1120,7 +851,7 @@ Oct 20 03:15:22 srv01 sshd[12345]: Failed password for root from 185.220.101.42 
     </div>
 
 
-    <!-- ==================== SLIDE 17: WEB APP & CLOUD LOGGING ==================== -->
+    <!-- ==================== SLIDE 11: WEB APP & CLOUD LOGGING ==================== -->
     <div class="slide" data-title="Web App & Cloud Telemetry" data-notes="Explain that Web applications are the primary public-facing door into an organization. Deconstruct the Combined Log Format and show how web application firewalls (WAF) and CloudTrail/Entra ID logs complete modern enterprise visibility.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">&#x2601;&#xFE0F;</span> WEB &amp; CLOUD ACCESS</div>
@@ -1168,7 +899,7 @@ Oct 20 03:15:22 srv01 sshd[12345]: Failed password for root from 185.220.101.42 
     </div>
 
 
-    <!-- ==================== SLIDE 18: HANDS-ON DEMO 1 (WINDOWS AUTH) ==================== -->
+    <!-- ==================== SLIDE 12: HANDS-ON DEMO 1 (WINDOWS AUTH) ==================== -->
     <div class="slide" data-title="Demo 1: Windows Authentication Analysis" data-notes="Perform this live or explain it step-by-step. Have students open PowerShell as Administrator and run the Get-WinEvent command. Explain Logon Types: Type 2 is interactive (hands on keyboard), Type 3 is network (file share access), and Type 10 is Remote Desktop (RDP).">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">&#x1F4BB;</span> HANDS-ON DEMO &middot; WINDOWS</div>
@@ -1235,7 +966,7 @@ Oct 20 03:15:22 srv01 sshd[12345]: Failed password for root from 185.220.101.42 
     </div>
 
 
-    <!-- ==================== SLIDE 19: HANDS-ON DEMO 2 (WINDOWS PROCESS EXECUTION) ==================== -->
+    <!-- ==================== SLIDE 13: HANDS-ON DEMO 2 (WINDOWS PROCESS EXECUTION) ==================== -->
     <div class="slide" data-title="Demo 2: Process Auditing & Sysmon" data-notes="Demonstrate how command lines reveal attacker intent. When an attacker runs 'powershell.exe -enc ...' or 'whoami', Event 4688 records it. Point out the crucial field: ParentProcessName. If Word or Excel spawns PowerShell, that is a 99% malicious macro execution!">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">&#x1F4BB;</span> HANDS-ON DEMO &middot; WINDOWS</div>
@@ -1278,7 +1009,7 @@ Oct 20 03:15:22 srv01 sshd[12345]: Failed password for root from 185.220.101.42 
     </div>
 
 
-    <!-- ==================== SLIDE 20: HANDS-ON DEMO 3 (LINUX LOGS) ==================== -->
+    <!-- ==================== SLIDE 14: HANDS-ON DEMO 3 (LINUX LOGS) ==================== -->
     <div class="slide" data-title="Demo 3: Linux Authentication Telemetry" data-notes="Demonstrate Linux terminal commands. Show how a failed sudo command immediately registers in /var/log/auth.log with the keyword 'authentication failure'. Show how analysts use grep and awk to quickly find brute-force attacker IPs.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">&#x1F4BB;</span> HANDS-ON DEMO &middot; LINUX</div>
@@ -1326,7 +1057,7 @@ Oct 20 14:10:02 debian-srv sudo[2419]: user : <span class="highlight">1 incorrec
     </div>
 
 
-    <!-- ==================== SLIDE 21: HANDS-ON DEMO 4 (WEB ACCESS LOGS) ==================== -->
+    <!-- ==================== SLIDE 15: HANDS-ON DEMO 4 (WEB ACCESS LOGS) ==================== -->
     <div class="slide" data-title="Demo 4: Spotting Attacks in Web Logs" data-notes="Demonstrate how web server logs catch attacks. Show students that an attacker's SQL injection payload or directory traversal is recorded in plain text in the web server access log. Point out the single quotes, UNION SELECT, and ../ in the URI.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">&#x1F4BB;</span> HANDS-ON DEMO &middot; WEB</div>
@@ -1366,7 +1097,7 @@ Oct 20 14:10:02 debian-srv sudo[2419]: user : <span class="highlight">1 incorrec
     </div>
 
 
-    <!-- ==================== SLIDE 22: THE CENTRALIZATION DILEMMA ==================== -->
+    <!-- ==================== SLIDE 16: THE CENTRALIZATION DILEMMA ==================== -->
     <div class="slide" data-title="The Centralization Dilemma" data-notes="Explain the nightmare of 'islands of data'. Ask the class: 'If a bank has 2,000 servers, can an analyst log into each server one by one to investigate a breach?' Obviously not. Furthermore, if a hacker gets root on a server, what's the first thing they do? They clear the logs. If logs are stored only locally, the evidence is gone forever.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">&#x1F3DD;&#xFE0F;</span> ARCHITECTURAL CHALLENGE</div>
@@ -1402,7 +1133,7 @@ Oct 20 14:10:02 debian-srv sudo[2419]: user : <span class="highlight">1 incorrec
     </div>
 
 
-    <!-- ==================== SLIDE 23: THE CENTRALIZATION SOLUTION & NTP ==================== -->
+    <!-- ==================== SLIDE 17: THE CENTRALIZATION SOLUTION & NTP ==================== -->
     <div class="slide" data-title="Centralization & Time Synchronization" data-notes="Explain the solution: logs must be shipped off the endpoint the instant they are generated to a tamper-proof central store. Stress the critical role of NTP. If clock skew is off by even 3 minutes, correlation rules fail and court-admissible evidence is compromised.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">&#x1F6E1;&#xFE0F;</span> CENTRALIZATION SOLUTION</div>
@@ -1436,7 +1167,7 @@ Analyst sees a firewall drop at 10:00:00, but Server A's exploit log is stamped 
     </div>
 
 
-    <!-- ==================== SLIDE 24: LOG SHIPPING METHODS ==================== -->
+    <!-- ==================== SLIDE 18: LOG SHIPPING METHODS ==================== -->
     <div class="slide" data-title="Log Shipping: Agents vs Agentless" data-notes="Explain how logs physically get from the endpoint to the SIEM. Compare Agent-based (Splunk Universal Forwarder, Elastic Agent, Wazuh) with Agentless (Syslog UDP/TCP, WEF, API pull). Explain trade-offs: agents give local caching and compression, but network appliances only speak Syslog.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">&#x1F69A;</span> DATA INGESTION</div>
@@ -1474,7 +1205,7 @@ Analyst sees a firewall drop at 10:00:00, but Server A's exploit log is stamped 
     </div>
 
 
-    <!-- ==================== SLIDE 25: THE 6-STAGE SIEM PIPELINE ==================== -->
+    <!-- ==================== SLIDE 19: THE 6-STAGE SIEM PIPELINE ==================== -->
     <div class="slide" data-title="The 6-Stage SIEM Pipeline" data-notes="Walk through the 6 stages left to right. Explain Parsing & Normalization: turning vendor-specific text into standard fields. Explain Enrichment: looking up an IP in GeoIP or Threat Intel. Explain Correlation: matching multiple events across time windows to trigger an Alert.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">&#x2699;&#xFE0F;</span> PROCESSING ENGINE</div>
@@ -1529,7 +1260,7 @@ Analyst sees a firewall drop at 10:00:00, but Server A's exploit log is stamped 
     </div>
 
 
-    <!-- ==================== SLIDE 26: INTEGRATED DEFENSIVE ARCHITECTURE ==================== -->
+    <!-- ==================== SLIDE 20: INTEGRATED DEFENSIVE ARCHITECTURE ==================== -->
     <div class="slide" data-title="Integrated SOC Architecture" data-notes="This architectural diagram pulls everything together into one unified picture. Show how Endpoints, Networks, Applications, and Cloud streams flow through forwarders into the central SIEM. Show how TIP feeds threat intel into SIEM, and how SIEM triggers SOAR playbooks and case management for the analyst.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">&#x1F3DB;&#xFE0F;</span> DEFENSIVE ECOSYSTEM</div>
@@ -1584,7 +1315,7 @@ Analyst sees a firewall drop at 10:00:00, but Server A's exploit log is stamped 
     </div>
 
 
-    <!-- ==================== SLIDE 27: SIEM DEEP DIVE ==================== -->
+    <!-- ==================== SLIDE 21: SIEM DEEP DIVE ==================== -->
     <div class="slide" data-title="SIEM: Central Brain" data-notes="Explain that SIEM is the heart of the SOC analyst's daily workflow. An analyst spends 80% of their shift inside the SIEM search bar. Mention market leaders: Splunk (which we deploy in Lab 2 and use throughout the course), Microsoft Sentinel, IBM QRadar, and Elastic Security.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">&#x1F9E0;</span> SIEM PLATFORMS</div>
@@ -1622,7 +1353,7 @@ Analyst sees a firewall drop at 10:00:00, but Server A's exploit log is stamped 
     </div>
 
 
-    <!-- ==================== SLIDE 28: EDR & SYSMON ==================== -->
+    <!-- ==================== SLIDE 22: EDR & SYSMON ==================== -->
     <div class="slide" data-title="EDR & Host Defense" data-notes="Distinguish between traditional Antivirus and modern EDR. AV looks only for known file hashes (signatures). If malware is fileless or executes in memory, AV misses it completely. EDR records all process behaviors and allows the analyst to remotely isolate the computer from the network with one click.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">&#x1F4BB;</span> HOST DEFENSE</div>
@@ -1671,7 +1402,7 @@ Analyst sees a firewall drop at 10:00:00, but Server A's exploit log is stamped 
     </div>
 
 
-    <!-- ==================== SLIDE 29: NETWORK DEFENSES ==================== -->
+    <!-- ==================== SLIDE 23: NETWORK DEFENSES ==================== -->
     <div class="slide" data-title="Network Defenses: FW, IDS/IPS & NSM" data-notes="Review network controls. A firewall is a gatekeeper. An IDS is an alarm bell (passive). An IPS is an active guard standing at the gate resetting malicious TCP streams. NSM tools like Zeek and Wireshark capture full conversations for packet forensics.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">&#x1F6E1;&#xFE0F;</span> NETWORK DEFENSE</div>
@@ -1712,7 +1443,7 @@ Analyst sees a firewall drop at 10:00:00, but Server A's exploit log is stamped 
     </div>
 
 
-    <!-- ==================== SLIDE 30: SOAR, CASE MGMT & THREAT INTEL ==================== -->
+    <!-- ==================== SLIDE 24: SOAR, CASE MGMT & THREAT INTEL ==================== -->
     <div class="slide" data-title="SOAR, Case Management & TIP" data-notes="Explain the remaining parts of the SOC toolkit. SOAR automates repetitive tasks (like looking up an IP on VirusTotal). Case management tracks evidence for legal and regulatory compliance. Threat Intelligence Platforms (TIP) provide known attacker IOCs to enrich alerts.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">&#x26A1;</span> AUTOMATION &amp; ENRICHMENT</div>
@@ -1752,7 +1483,7 @@ Trigger &rarr; Employee reports email &rarr; <span class="cmd">Extract Attachmen
     </div>
 
 
-    <!-- ==================== SLIDE 31: CORRELATED ATTACK SCENARIO ==================== -->
+    <!-- ==================== SLIDE 25: CORRELATED ATTACK SCENARIO ==================== -->
     <div class="slide" data-title="Walkthrough: Correlated Attack Scenario" data-notes="This slide connects every single concept taught today. Walk through the 4 steps. Emphasize: Look at log 1 alone (just a port scan). Look at log 2 alone (just an error). Look at log 3 alone (just PowerShell). None of them scream 'massive breach' on their own. But when the SIEM correlates all 4 across the 30-minute window, it reveals the complete attack kill chain!">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">&#x1F3AF;</span> SYNTHESIS WALKTHROUGH</div>
@@ -1801,7 +1532,7 @@ Trigger &rarr; Employee reports email &rarr; <span class="cmd">Extract Attachmen
     </div>
 
 
-    <!-- ==================== SLIDE 32: ROADMAP & LAB 2 PREVIEW ==================== -->
+    <!-- ==================== SLIDE 26: ROADMAP & LAB 2 PREVIEW ==================== -->
     <div class="slide" data-title="Course Roadmap & Week 2 Lab Preview" data-notes="Walk students through the semester roadmap. Then explain next week's lab: Lab 2 is our hands-on Workstation Setup. Emphasize that we use native Windows host tooling (Splunk Enterprise Free, Wireshark, Sysinternals) because it runs blazingly fast without requiring heavy virtual machines. Give them the prep homework.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">&#x1F5FA;&#xFE0F;</span> COURSE ROADMAP</div>
@@ -1843,7 +1574,7 @@ Trigger &rarr; Employee reports email &rarr; <span class="cmd">Extract Attachmen
     </div>
 
 
-    <!-- ==================== SLIDE 33: INTERACTIVE CHALLENGE ==================== -->
+    <!-- ==================== SLIDE 27: INTERACTIVE CHALLENGE ==================== -->
     <div class="slide" data-title="Class Challenge: Analyst Triage Quiz" data-notes="Engage the classroom! Ask individual students to classify each of the 4 rapid-fire scenarios. Then have them inspect the raw log box and identify the Attacker IP, Target User, and what kind of attack was taking place.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">&#x1F9E0;</span> KNOWLEDGE CHECK</div>
@@ -1883,7 +1614,7 @@ Trigger &rarr; Employee reports email &rarr; <span class="cmd">Extract Attachmen
     </div>
 
 
-    <!-- ==================== SLIDE 34: WRAP-UP & HOMEWORK ==================== -->
+    <!-- ==================== SLIDE 28: WRAP-UP & HOMEWORK ==================== -->
     <div class="slide" data-title="Key Takeaways & Homework" data-notes="Congratulate the students on completing their first SOC Lab session! Review the key takeaways and assign the homework. The homework involves querying their own machine using PowerShell and optionally completing the recommended free TryHackMe rooms to build confidence before next week's installation lab.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">&#x1F3C1;</span> SESSION CONCLUSION</div>
