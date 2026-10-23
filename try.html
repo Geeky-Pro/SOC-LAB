@@ -1,0 +1,2926 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lab 1 (Part 2) – Log Analysis, Telemetry Architecture & SIEM Foundations</title>
+    <meta name="description"
+        content="Log Taxonomy, OS & Web Telemetry, Traditional Log Tools, Centralization & SIEM Pipeline — Lab 1 v2." />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --blue-100: #c2d6ff;
+            --blue-200: #93b4fd;
+            --blue-300: #6b93f7;
+            --blue-400: #4a78f0;
+            --blue-500: #3563e9;
+            --blue-600: #2a4ec4;
+            --blue-700: #1e3a9e;
+            --blue-800: #152c78;
+            --blue-900: #0d1d52;
+            --purple-100: #dfc8ff;
+            --purple-200: #c5a0fc;
+            --purple-300: #a87bf5;
+            --purple-400: #8b5cf6;
+            --purple-500: #7c3aed;
+            --purple-600: #6626c9;
+            --purple-700: #4f1d96;
+            --purple-800: #3b1578;
+            --purple-900: #270f52;
+            --cyan-400: #22d3ee;
+            --cyan-500: #06b6d4;
+            --accent-green: #34d399;
+            --accent-red: #f87171;
+            --accent-amber: #fbbf24;
+            --bg: #03050a;
+            --bg-surface: #070a14;
+            --bg-card: rgba(8, 12, 24, 0.78);
+            --bg-card-hover: rgba(14, 20, 36, 0.92);
+            --text-primary: #e8ecf4;
+            --text-secondary: #a0aec4;
+            --text-muted: #5c6b84;
+            --text-dim: #3e4a62;
+            --border: rgba(99, 130, 241, 0.12);
+            --border-glow: rgba(99, 130, 241, 0.28);
+            --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);
+            --gradient-main: linear-gradient(135deg, var(--blue-500), var(--purple-500));
+            --gradient-cyan: linear-gradient(135deg, var(--cyan-500), var(--blue-500));
+            --gradient-soft: linear-gradient(135deg, rgba(53, 99, 233, 0.12), rgba(124, 58, 237, 0.12));
+            --gradient-card: linear-gradient(160deg, rgba(16, 22, 42, 0.85), rgba(30, 20, 70, 0.4));
+            --font-heading: 'Space Grotesk', 'Outfit', system-ui, sans-serif;
+            --font-body: 'Outfit', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        html {
+            font-size: 18px;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            user-select: none;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .circuit-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.035;
+            overflow: hidden;
+        }
+
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(110px);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .orb--1 {
+            width: 580px;
+            height: 580px;
+            top: -200px;
+            right: -120px;
+            background: radial-gradient(circle, rgba(53, 99, 233, 0.14) 0%, rgba(124, 58, 237, 0.07) 50%, transparent 70%);
+        }
+
+        .orb--2 {
+            width: 500px;
+            height: 500px;
+            bottom: -180px;
+            left: -100px;
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.11) 0%, rgba(53, 99, 233, 0.05) 50%, transparent 70%);
+        }
+
+        .orb--3 {
+            width: 340px;
+            height: 340px;
+            top: 40%;
+            left: 45%;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.06) 0%, transparent 65%);
+        }
+
+        .side-accent {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--gradient-main);
+            z-index: 10;
+        }
+
+        .top-header {
+            position: fixed;
+            top: 0;
+            left: 4px;
+            right: 0;
+            height: 42px;
+            background: rgba(3, 5, 10, 0.88);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 9;
+        }
+
+        .header-title {
+            font-family: var(--font-heading);
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: 0.02em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-title .title-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--blue-500);
+            box-shadow: 0 0 8px rgba(53, 99, 233, 0.6);
+        }
+
+        .header-title .title-sep {
+            color: var(--text-dim);
+            font-weight: 400;
+        }
+
+        #header-slide-title {
+            color: var(--text-muted);
+            font-weight: 400;
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            letter-spacing: 0.04em;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .lab-badge {
+            font-family: var(--font-mono);
+            font-size: 0.62rem;
+            font-weight: 600;
+            padding: 0.22em 0.7em;
+            border-radius: 5px;
+            letter-spacing: 0.06em;
+            background: rgba(53, 99, 233, 0.15);
+            color: var(--blue-200);
+            border: 1px solid rgba(53, 99, 233, 0.25);
+        }
+
+        #progress-bar {
+            position: fixed;
+            top: 42px;
+            left: 4px;
+            height: 3px;
+            background: var(--gradient-main);
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+            border-radius: 0 2px 2px 0;
+            box-shadow: 0 0 14px rgba(99, 102, 241, 0.35);
+        }
+
+        #presentation {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 64px 76px 60px 76px;
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .slide-inner {
+            max-width: 1120px;
+            width: 100%;
+            margin: auto 0;
+        }
+
+        .slide::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .slide::-webkit-scrollbar-track {
+            background: rgba(8, 12, 24, 0.25);
+        }
+
+        .slide::-webkit-scrollbar-thumb {
+            background: rgba(99, 130, 241, 0.3);
+            border-radius: 4px;
+        }
+
+        .slide::-webkit-scrollbar-thumb:hover {
+            background: rgba(99, 130, 241, 0.55);
+        }
+
+        h1 {
+            font-family: var(--font-heading);
+            font-size: 2.75rem;
+            font-weight: 700;
+            line-height: 1.15;
+            margin-bottom: 0.3em;
+            letter-spacing: -0.03em;
+        }
+
+        h2 {
+            font-family: var(--font-heading);
+            font-size: 1.85rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 0.4em;
+            letter-spacing: -0.02em;
+        }
+
+        h3 {
+            font-family: var(--font-heading);
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--blue-200);
+            margin-bottom: 0.35em;
+        }
+
+        .section-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            margin-bottom: 0.75em;
+            padding: 0.32em 0.85em;
+            border-radius: 6px;
+            background: var(--gradient-soft);
+            border: 1px solid var(--border);
+            color: var(--blue-300);
+        }
+
+        .section-label .label-icon {
+            font-size: 0.85em;
+        }
+
+        p,
+        li {
+            font-size: 0.96rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul li {
+            position: relative;
+            padding-left: 1.5em;
+            margin-bottom: 0.45em;
+        }
+
+        ul li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.55em;
+            width: 7px;
+            height: 7px;
+            border-radius: 2px;
+            border: 2px solid var(--blue-500);
+            background: transparent;
+            transform: rotate(45deg);
+        }
+
+        .grid {
+            display: grid;
+            gap: 14px;
+            margin: 14px 0;
+        }
+
+        .grid--2col {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .grid--3col {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .grid--4col {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            backdrop-filter: blur(12px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-glow);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .card--highlight {
+            border-color: rgba(99, 130, 241, 0.4);
+            background: var(--gradient-card);
+        }
+
+        .card--cyan {
+            border-top: 3px solid var(--cyan-400);
+        }
+
+        .card--purple {
+            border-top: 3px solid var(--purple-400);
+        }
+
+        .card--green {
+            border-top: 3px solid var(--accent-green);
+        }
+
+        .card--red {
+            border-top: 3px solid var(--accent-red);
+        }
+
+        .card--amber {
+            border-top: 3px solid var(--accent-amber);
+        }
+
+        .card-icon {
+            font-size: 1.45rem;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+
+        .card-title {
+            font-family: var(--font-heading);
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .card-text {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .badge {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-size: 0.62rem;
+            font-weight: 600;
+            padding: 0.2em 0.55em;
+            border-radius: 4px;
+            letter-spacing: 0.04em;
+            white-space: nowrap;
+        }
+
+        .badge--blue {
+            background: rgba(53, 99, 233, 0.2);
+            color: var(--blue-200);
+            border: 1px solid rgba(53, 99, 233, 0.3);
+        }
+
+        .badge--purple {
+            background: rgba(124, 58, 237, 0.2);
+            color: var(--purple-200);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+        }
+
+        .badge--green {
+            background: rgba(52, 211, 153, 0.2);
+            color: #6ee7b7;
+            border: 1px solid rgba(52, 211, 153, 0.3);
+        }
+
+        .badge--red {
+            background: rgba(248, 113, 113, 0.2);
+            color: #fca5a5;
+            border: 1px solid rgba(248, 113, 113, 0.3);
+        }
+
+        .badge--amber {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fde68a;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        .badge--cyan {
+            background: rgba(6, 182, 212, 0.2);
+            color: #67e8f9;
+            border: 1px solid rgba(6, 182, 212, 0.3);
+        }
+
+        .terminal-box {
+            background: #060913;
+            border: 1px solid rgba(99, 130, 241, 0.22);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 12px 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .terminal-header {
+            background: rgba(14, 20, 38, 0.95);
+            padding: 6px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(99, 130, 241, 0.15);
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .terminal-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .terminal-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+        }
+
+        .terminal-dot--red {
+            background: #ef4444;
+        }
+
+        .terminal-dot--yellow {
+            background: #f59e0b;
+        }
+
+        .terminal-dot--green {
+            background: #10b981;
+        }
+
+        .terminal-body {
+            padding: 12px 16px;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            line-height: 1.55;
+            color: #cbd5e1;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .terminal-body .cmd {
+            color: #67e8f9;
+            font-weight: 600;
+        }
+
+        .terminal-body .comment {
+            color: #64748b;
+            font-style: italic;
+        }
+
+        .terminal-body .highlight {
+            color: #fca5a5;
+            font-weight: 600;
+        }
+
+        .terminal-body .success {
+            color: #86efac;
+            font-weight: 600;
+        }
+
+        .terminal-body .param {
+            color: #fde047;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            margin: 12px 0;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.86rem;
+        }
+
+        th {
+            background: rgba(14, 22, 44, 0.92);
+            padding: 10px 14px;
+            font-family: var(--font-heading);
+            color: var(--blue-200);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+            letter-spacing: 0.02em;
+        }
+
+        td {
+            padding: 9px 14px;
+            border-bottom: 1px solid rgba(99, 130, 241, 0.08);
+            color: var(--text-secondary);
+            background: rgba(8, 12, 24, 0.65);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(18, 26, 52, 0.65);
+        }
+
+        .funnel-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 14px 0;
+        }
+
+        .funnel-step {
+            display: flex;
+            align-items: center;
+            border-radius: 8px;
+            padding: 10px 16px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            transition: transform 0.2s ease;
+        }
+
+        .funnel-step:hover {
+            transform: translateX(6px);
+        }
+
+        .funnel-step--1 {
+            width: 100%;
+            background: linear-gradient(90deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.85));
+            border-left: 5px solid #64748b;
+        }
+
+        .funnel-step--2 {
+            width: 88%;
+            margin-left: 20px;
+            background: linear-gradient(90deg, rgba(37, 99, 235, 0.25), rgba(30, 58, 138, 0.25));
+            border-left: 5px solid var(--blue-500);
+        }
+
+        .funnel-step--3 {
+            width: 74%;
+            margin-left: 45px;
+            background: linear-gradient(90deg, rgba(217, 119, 6, 0.25), rgba(180, 83, 9, 0.25));
+            border-left: 5px solid var(--accent-amber);
+        }
+
+        .funnel-step--4 {
+            width: 60%;
+            margin-left: 75px;
+            background: linear-gradient(90deg, rgba(220, 38, 38, 0.3), rgba(153, 27, 27, 0.3));
+            border-left: 5px solid var(--accent-red);
+        }
+
+        .funnel-title {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 0.95rem;
+            width: 135px;
+        }
+
+        .funnel-count {
+            font-family: var(--font-mono);
+            font-size: 0.76rem;
+            color: var(--blue-300);
+            width: 125px;
+        }
+
+        .funnel-desc {
+            font-size: 0.86rem;
+            color: var(--text-secondary);
+            flex: 1;
+        }
+
+        .flow-row {
+            display: flex;
+            align-items: stretch;
+            gap: 8px;
+            margin: 14px 0;
+            flex-wrap: wrap;
+        }
+
+        .flow-node {
+            flex: 1;
+            min-width: 125px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 10px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .flow-node:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-3px);
+        }
+
+        .flow-node .node-num {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            color: var(--blue-400);
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+
+        .flow-node .node-title {
+            font-family: var(--font-heading);
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .flow-node .node-desc {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            line-height: 1.35;
+        }
+
+        .flow-arrow {
+            display: flex;
+            align-items: center;
+            color: var(--blue-400);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        #bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 4px;
+            right: 0;
+            height: 48px;
+            background: rgba(3, 5, 10, 0.92);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 9;
+        }
+
+        #slide-counter {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn {
+            background: rgba(14, 20, 38, 0.85);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            border-radius: 6px;
+            padding: 5px 14px;
+            font-family: var(--font-heading);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-btn:hover {
+            background: var(--blue-600);
+            border-color: var(--blue-400);
+            color: #fff;
+        }
+
+        .nav-btn--notes.active {
+            background: var(--purple-600);
+            border-color: var(--purple-400);
+            color: #fff;
+        }
+
+        #speaker-notes-overlay {
+            position: fixed;
+            right: 24px;
+            bottom: 60px;
+            width: 450px;
+            max-height: 460px;
+            background: rgba(8, 12, 26, 0.97);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            animation: popUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        #speaker-notes-overlay.active {
+            display: flex;
+        }
+
+        @keyframes popUp {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .notes-header {
+            padding: 12px 18px;
+            background: rgba(14, 22, 46, 0.92);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .notes-title {
+            font-family: var(--font-heading);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--blue-200);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .notes-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .notes-close:hover {
+            color: #fff;
+        }
+
+        .notes-body {
+            padding: 16px 18px;
+            overflow-y: auto;
+            font-size: 0.88rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        .notes-body p {
+            margin-bottom: 10px;
+            font-size: 0.88rem;
+        }
+
+        .notes-empty {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        @media (max-width: 900px) {
+            .slide {
+                padding: 56px 24px;
+            }
+
+            .grid--2col,
+            .grid--3col,
+            .grid--4col {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="side-accent"></div>
+    <div class="circuit-bg"></div>
+    <div class="orb orb--1"></div>
+    <div class="orb orb--2"></div>
+    <div class="orb orb--3"></div>
+
+    <div class="top-header">
+        <div class="header-title">
+            <div class="title-dot"></div>
+            <span>SECURITY OPERATIONS &amp; LOG ANALYSIS</span>
+            <span class="title-sep">/</span>
+            <span id="header-slide-title">Section 1: The Anatomy &amp; Taxonomy</span>
+        </div>
+        <div class="header-right">
+            <span class="lab-badge">LAB 01 · PART 2</span>
+        </div>
+    </div>
+
+    <div id="progress-bar"></div>
+
+    <div id="presentation">
+
+        <!-- =========================================================================
+         SECTION 1: THE ANATOMY & TAXONOMY OF LOGS (SLIDES 1 - 8)
+         ========================================================================= -->
+
+        <!-- SLIDE 01: COVER SLIDE -->
+        <div class="slide active" data-title="Cover: Log Analysis & SIEM Foundations"
+            data-notes="Welcome students to Part 2 of Lab 1! Now that we understand what a SOC is and how the analyst tiers work, we dive into the raw fuel of every Security Operations Center: Logs, Events, Telemetry, and Centralization. Everything an analyst detects, investigates, or proves starts with a log record.">
+            <div class="slide-inner" style="text-align: center; padding: 20px 0;">
+                <div class="section-label" style="margin-bottom: 1.1em;">
+                    <span class="label-icon">&#x1F4DC;</span> SECTION 1 &middot; THE ANATOMY &amp; TAXONOMY OF TELEMETRY
+                </div>
+                <h1 style="font-size: 3rem; margin-bottom: 0.25em;">
+                    Enterprise <span
+                        style="background: var(--gradient-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Log
+                        Analysis</span> &amp; Telemetry
+                </h1>
+                <h2 style="font-size: 1.4rem; color: var(--blue-200); font-weight: 500; margin-bottom: 1.3em;">
+                    Log Taxonomy, Multi-OS Sources, Traditional Analysis Tools &amp; The SIEM Pipeline
+                </h2>
+
+                <div
+                    style="display: inline-flex; align-items: center; gap: 22px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 50px; padding: 10px 26px; margin-bottom: 24px;">
+                    <div><strong style="color:var(--text-primary)">Module:</strong> Log Analysis &amp; SIEM Foundations
+                    </div>
+                    <div style="color:var(--text-dim)">&bull;</div>
+                    <div><strong style="color:var(--text-primary)">Instructor:</strong> Hussein Al-Selwi</div>
+                    <div style="color:var(--text-dim)">&bull;</div>
+                    <div><strong style="color:var(--cyan-400)">Session:</strong> Lab 01 (v2)</div>
+                </div>
+
+                <div class="grid grid--4col" style="text-align: left; margin-top: 10px;">
+                    <div class="card card--cyan">
+                        <div class="card-icon">&#x1F9EC;</div>
+                        <div class="card-title">1. Taxonomy</div>
+                        <div class="card-text">Visibility imperative, 8 log types, log anatomy, and structured formats.
+                        </div>
+                    </div>
+                    <div class="card card--purple">
+                        <div class="card-icon">&#x1F4BB;</div>
+                        <div class="card-title">2. OS &amp; Web</div>
+                        <div class="card-text">Windows EVTX, Sysmon, Linux rsyslog, Web access logs, and Firewall demos.
+                        </div>
+                    </div>
+                    <div class="card card--amber">
+                        <div class="card-icon">&#x1F6E0;&#xFE0F;</div>
+                        <div class="card-title">3. Tools &amp; Silos</div>
+                        <div class="card-text">Traditional log viewers, Windows triage scenarios, Islands of Logs, and
+                            NTP sync.</div>
+                    </div>
+                    <div class="card card--green">
+                        <div class="card-icon">&#x1F9E0;</div>
+                        <div class="card-title">4. SIEM Pipeline</div>
+                        <div class="card-text">6-stage SIEM pipeline, Enrichment, EDR vs SIEM, SOAR, and multi-source
+                            correlation.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 02: DOMAIN OBJECTIVES -->
+        <div class="slide" data-title="Domain Objectives: Log Analysis"
+            data-notes="Walk through the updated objectives specifically tailored for log analysis and SIEM preparation. Emphasize that students will not just memorize definitions—they will dissect log formats, use CLI and GUI log tools, and understand why manual log analysis breaks at enterprise scale.">
+            <div class="slide-inner">
+                <div class="section-label"><span class="label-icon">&#x1F3AF;</span> SECTION 1 &middot; DOMAIN
+                    OBJECTIVES</div>
+                <h2>Updated Learning Objectives: Log Analysis &amp; SIEM Prep</h2>
+                <p>By the end of this module, you will be able to:</p>
+
+                <div class="grid grid--2col">
+                    <div class="card card--cyan">
+                        <div class="card-title">
+                            <span>1. Master Log Taxonomy &amp; Formats</span>
+                            <span class="badge badge--cyan">Taxonomy</span>
+                        </div>
+                        <p class="card-text">Distinguish between Logs, Events, Alerts, and Incidents, classify the 8
+                            core log types, and parse structured (JSON, CEF, EVTX) vs unstructured log formats.</p>
+                    </div>
+                    <div class="card card--purple">
+                        <div class="card-title">
+                            <span>2. Analyze Cross-Platform Telemetry</span>
+                            <span class="badge badge--purple">Multi-OS</span>
+                        </div>
+                        <p class="card-text">Extract forensic evidence from Windows Event Channels, Sysmon (Events 1
+                            &amp; 3), Linux <code>rsyslog</code>/<code>auth.log</code>, Web Server logs, and Firewall
+                            traffic logs.</p>
+                    </div>
+                    <div class="card card--amber">
+                        <div class="card-title">
+                            <span>3. Operate Traditional Log Analysis Tools</span>
+                            <span class="badge badge--amber">Tooling</span>
+                        </div>
+                        <p class="card-text">Investigate host incidents using Windows Event Viewer, Timeline Explorer,
+                            Log2Timeline (Plaso), Chainsaw/Hayabusa, and command-line utilities.</p>
+                    </div>
+                    <div class="card card--green">
+                        <div class="card-title">
+                            <span>4. Architect Centralization &amp; SIEM Pipelines</span>
+                            <span class="badge badge--green">SIEM Prep</span>
+                        </div>
+                        <p class="card-text">Explain why decentralized logs fail, enforce NTP time synchronization,
+                            compare Agent vs Agentless shipping, and trace the 6-stage SIEM pipeline.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 03: THE VISIBILITY IMPERATIVE -->
+        <div class="slide" data-title="The Visibility Imperative & 6 Forensic Questions"
+            data-notes="Explain the Visibility Imperative: In cybersecurity, if an action is not logged, it never happened from a forensic standpoint. Every investigation requires answering these 6 fundamental questions using timestamped digital artifacts.">
+            <div class="slide-inner">
+                <div class="section-label"><span class="label-icon">&#x1F441;&#xFE0F;</span> SECTION 1 &middot;
+                    PHILOSOPHY OF DEFENSE</div>
+                <h2>The Visibility Imperative &amp; The 6 Forensic Questions</h2>
+                <div
+                    style="font-size: 1.15rem; color: var(--blue-200); font-family: var(--font-heading); margin-bottom: 14px; border-left: 4px solid var(--blue-500); padding-left: 14px;">
+                    &ldquo;You cannot defend what you cannot see, and you cannot investigate what was never
+                    recorded.&rdquo;
+                </div>
+                <p>When a security incident occurs, gut feelings are useless. Analysts rely strictly on telemetry to
+                    reconstruct the truth by answering the <strong>6 Forensic Questions</strong>:</p>
+
+                <div class="grid grid--3col">
+                    <div class="card card--cyan">
+                        <div class="card-title"><span>1. WHO? (Identity)</span><span
+                                class="badge badge--cyan">Actor</span></div>
+                        <p class="card-text">Which user account, Security Identifier (SID), service account, or API
+                            token initiated the request? Were privileges elevated?</p>
+                    </div>
+                    <div class="card card--cyan">
+                        <div class="card-title"><span>2. WHAT? (Action)</span><span
+                                class="badge badge--blue">Activity</span></div>
+                        <p class="card-text">What specific operation occurred? Process execution, user creation,
+                            registry modification, file deletion, or database query?</p>
+                    </div>
+                    <div class="card card--purple">
+                        <div class="card-title"><span>3. WHEN? (Timeline)</span><span
+                                class="badge badge--purple">Timestamp</span></div>
+                        <p class="card-text">What was the exact UTC timestamp? Establishing an accurate chronological
+                            sequence of events is the backbone of incident reconstruction.</p>
+                    </div>
+                    <div class="card card--purple">
+                        <div class="card-title"><span>4. WHERE? (Location)</span><span
+                                class="badge badge--purple">Asset</span></div>
+                        <p class="card-text">Which source IP, workstation hostname, destination server, port, or cloud
+                            region generated and received the activity?</p>
+                    </div>
+                    <div class="card card--amber">
+                        <div class="card-title"><span>5. HOW? (Mechanism)</span><span
+                                class="badge badge--amber">Vector</span></div>
+                        <p class="card-text">Which parent process spawned the binary? What command-line arguments,
+                            protocol (SSH/RDP/HTTP), or logon type was used?</p>
+                    </div>
+                    <div class="card card--green">
+                        <div class="card-title"><span>6. OUTCOME? (Result)</span><span
+                                class="badge badge--green">Status</span></div>
+                        <p class="card-text">Did the action succeed or fail? (e.g., Windows Event 4624 Success vs 4625
+                            Failure; HTTP 200 OK vs 403 Forbidden).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 04: LOG vs EVENT vs ALERT vs INCIDENT -->
+        <div class="slide" data-title="Log vs Event vs Alert vs Incident"
+            data-notes="Clarify the exact progression. First define what a Log is and why we need it (audit trail, troubleshooting, compliance, threat detection, forensics). Then walk down the funnel from Raw Log to Event, Alert, and Incident.">
+            <div class="slide-inner">
+                <div class="section-label"><span class="label-icon">&#x1F50D;</span> SECTION 1 &middot; CORE TERMINOLOGY
+                </div>
+                <h2>What is a Log? &amp; The Security Escalation Funnel</h2>
+                <p><strong>What is a Log?</strong> A log is an immutable, timestamped digital record generated by an OS,
+                    application, or network device to document an activity or state change. <strong>Why do we need
+                        logs?</strong> Without logs, we have zero visibility into system health, regulatory compliance,
+                    threat detection, or post-breach root-cause forensics.</p>
+
+                <div class="funnel-container">
+                    <div class="funnel-step funnel-step--1">
+                        <div class="funnel-title">1. RAW LOG</div>
+                        <div class="funnel-count">Millions / day</div>
+                        <div class="funnel-desc">The raw text or binary line written to disk documenting any routine or
+                            security action (e.g., a line in <code>access.log</code> or <code>Security.evtx</code>).
+                        </div>
+                    </div>
+                    <div class="funnel-step funnel-step--2">
+                        <div class="funnel-title">2. EVENT</div>
+                        <div class="funnel-count">Thousands / day</div>
+                        <div class="funnel-desc">A parsed, observable occurrence extracted from logs that carries
+                            operational or security meaning (e.g., "User login attempt via RDP").</div>
+                    </div>
+                    <div class="funnel-step funnel-step--3">
+                        <div class="funnel-title">3. ALERT</div>
+                        <div class="funnel-count">Dozens / day</div>
+                        <div class="funnel-desc">A notification triggered when an event (or correlated sequence of
+                            events) matches a detection rule or anomaly threshold, requiring analyst triage.</div>
+                    </div>
+                    <div class="funnel-step funnel-step--4">
+                        <div class="funnel-title">4. INCIDENT</div>
+                        <div class="funnel-count">Few / month</div>
+                        <div class="funnel-desc">A verified True Positive security breach confirmed after analyst triage
+                            that threatens Confidentiality, Integrity, or Availability (CIA) and demands response.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 05: THE 8 CORE TYPES OF LOGS -->
+        <div class="slide" data-title="The 8 Core Types of Logs"
+            data-notes="Walk through all 8 distinct categories of logs found in an enterprise. Emphasize how each log type serves a different operational, compliance, or security purpose, and why a SOC analyst must understand what data lives inside each category.">
+            <div class="slide-inner">
+                <div class="section-label"><span class="label-icon">&#x1F4C2;</span> SECTION 1 &middot; LOG TAXONOMY
+                </div>
+                <h2>The 8 Core Types of Enterprise Logs</h2>
+                <p>Across modern IT infrastructures, telemetry is categorized into eight primary functional log types:
+                </p>
+
+                <div class="grid grid--4col">
+                    <div class="card card--cyan">
+                        <div class="card-title" style="font-size: 0.92rem;"><span>1. Application Logs</span><span
+                                class="badge badge--cyan">App</span></div>
+                        <p class="card-text" style="font-size: 0.8rem;">Messages about specific software applications,
+                            including runtime status, exceptions, errors, warnings, and custom app transactions.</p>
+                    </div>
+                    <div class="card card--purple">
+                        <div class="card-title" style="font-size: 0.92rem;"><span>2. Audit Logs</span><span
+                                class="badge badge--purple">Compliance</span></div>
+                        <p class="card-text" style="font-size: 0.8rem;">Chronological records of activities related to
+                            operational procedures, administrative changes, and data access crucial for regulatory
+                            compliance.</p>
+                    </div>
+                    <div class="card card--red">
+                        <div class="card-title" style="font-size: 0.92rem;"><span>3. Security Logs</span><span
+                                class="badge badge--red">SecOps</span></div>
+                        <p class="card-text" style="font-size: 0.8rem;">Dedicated security events such as user logins,
+                            failed authentications, permission/ACL changes, privilege escalations, and firewall
+                            activity.</p>
+                    </div>
+                    <div class="card card--blue">
+                        <div class="card-title" style="font-size: 0.92rem;"><span>4. Server Logs</span><span
+                                class="badge badge--blue">Host</span></div>
+                        <p class="card-text" style="font-size: 0.8rem;">Various operational logs a server generates
+                            across its services, including daemon status, event, error, and resource access logs.</p>
+                    </div>
+                    <div class="card card--green">
+                        <div class="card-title" style="font-size: 0.92rem;"><span>5. System Logs</span><span
+                                class="badge badge--green">OS/Kernel</span></div>
+                        <p class="card-text" style="font-size: 0.8rem;">Operating system kernel activities, driver
+                            loading, system errors, boot sequences, service crashes, and hardware health status.</p>
+                    </div>
+                    <div class="card card--amber">
+                        <div class="card-title" style="font-size: 0.92rem;"><span>6. Network Logs</span><span
+                                class="badge badge--amber">Wire</span></div>
+                        <p class="card-text" style="font-size: 0.8rem;">Records of network traffic, socket connections,
+                            bandwidth flows (NetFlow), DNS lookups, VPN sessions, and routing events.</p>
+                    </div>
+                    <div class="card card--purple">
+                        <div class="card-title" style="font-size: 0.92rem;"><span>7. Database Logs</span><span
+                                class="badge badge--purple">Data</span></div>
+                        <p class="card-text" style="font-size: 0.8rem;">Activities within a database management system
+                            (SQL/NoSQL), such as queries, table updates, schema alterations, and bulk data exports.</p>
+                    </div>
+                    <div class="card card--cyan">
+                        <div class="card-title" style="font-size: 0.92rem;"><span>8. Web Server Logs</span><span
+                                class="badge badge--cyan">HTTP/S</span></div>
+                        <p class="card-text" style="font-size: 0.8rem;">HTTP/HTTPS requests processed by a web server
+                            (Apache, Nginx, IIS), including client IPs, requested URLs, User-Agents, and response codes.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 06: ENTERPRISE TELEMETRY LANDSCAPE -->
+        <div class="slide" data-title="Enterprise Telemetry Landscape"
+            data-notes="Map out the 5 architectural domains where these logs originate: Endpoints, Network, Identity, Applications, and Cloud. Stress that an attack usually traverses multiple domains.">
+            <div class="slide-inner">
+                <div class="section-label"><span class="label-icon">&#x1F310;</span> SECTION 1 &middot; TELEMETRY
+                    DOMAINS</div>
+                <h2>Enterprise Telemetry Landscape: The 5 Domains</h2>
+                <p>To achieve complete attack surface visibility, a SOC collects and correlates telemetry across five
+                    core domains:</p>
+
+                <div class="grid grid--3col">
+                    <div class="card card--cyan">
+                        <div class="card-title"><span>1. Endpoints &amp; Hosts</span><span
+                                class="badge badge--blue">Workstations/Servers</span></div>
+                        <p class="card-text">Windows EVTX, Sysmon kernel telemetry, Linux <code>/var/log</code> &amp;
+                            <code>auditd</code>, macOS Unified Logs, and EDR behavioral telemetry.</p>
+                    </div>
+                    <div class="card card--purple">
+                        <div class="card-title"><span>2. Network Perimeter</span><span
+                                class="badge badge--purple">Switches/Firewalls</span></div>
+                        <p class="card-text">Next-Gen Firewalls (Palo Alto, Fortinet), NIDS/NIPS (Suricata, Snort), Zeek
+                            metadata, DNS query logs, and Proxy/VPN gateways.</p>
+                    </div>
+                    <div class="card card--amber">
+                        <div class="card-title"><span>3. Identity &amp; Access</span><span
+                                class="badge badge--amber">IAM / Directory</span></div>
+                        <p class="card-text">Active Directory Domain Controllers (Kerberos/NTLM), Microsoft Entra ID
+                            (Azure AD), Okta SSO, MFA logs, and PAM vaults.</p>
+                    </div>
+                    <div class="card card--green">
+                        <div class="card-title"><span>4. Applications &amp; DBs</span><span
+                                class="badge badge--green">Business Logic</span></div>
+                        <p class="card-text">Web servers (Apache, Nginx, IIS), Web Application Firewalls (WAF),
+                            SQL/Oracle audit trails, and ERP/CRM application logs.</p>
+                    </div>
+                    <div class="card card--red">
+                        <div class="card-title"><span>5. Cloud &amp; SaaS</span><span class="badge badge--red">Control
+                                Plane</span></div>
+                        <p class="card-text">AWS CloudTrail &amp; GuardDuty, Azure Activity Logs, Google Cloud Audit
+                            Logs, Kubernetes API logs, and M365 Unified Audit Logs.</p>
+                    </div>
+                    <div class="card card--highlight">
+                        <div class="card-title"><span>Why Multi-Domain Matters</span></div>
+                        <p class="card-text">Adversaries move across domains: Phishing (Email) &rarr; Execution
+                            (Endpoint) &rarr; Token Theft (Identity) &rarr; Lateral Movement (Network) &rarr;
+                            Exfiltration (Cloud).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 07: ANATOMY OF A LOG ENTRY -->
+        <div class="slide" data-title="Anatomy of a Log Entry"
+            data-notes="Compare Unstructured flat text logs with Structured JSON logs. Point out why computers and SIEM engines prefer structured JSON: fields are explicitly named (key-value pairs), eliminating brittle regular expression parsing.">
+            <div class="slide-inner">
+                <div class="section-label"><span class="label-icon">&#x1F9EC;</span> SECTION 1 &middot; STRUCTURAL
+                    ANATOMY</div>
+                <h2>Anatomy of a Log Entry: Unstructured vs Structured</h2>
+                <p>A log entry is composed of specific forensic fields (Header + Payload). How those fields are
+                    organized determines how easily a SIEM can parse them:</p>
+
+                <div class="grid grid--2col">
+                    <div class="terminal-box" style="margin: 0;">
+                        <div class="terminal-header"><span>1. Unstructured Text Log (Requires Regex Parsing)</span>
+                        </div>
+                        <div class="terminal-body" style="font-size: 0.78rem;"><span class="comment"># Classic Linux
+                                Syslog Entry:</span>
+                            <span class="param">Oct 23 08:42:19</span> <span class="cmd">prod-db01</span> sshd[1842]:
+                            <span class="highlight">Failed password for invalid user admin</span> from <span
+                                class="highlight">185.220.101.7</span> port <span class="param">54122</span> ssh2
+
+                            <span class="comment"># Pros:</span> Human-readable, compact on disk.
+                            <span class="comment"># Cons:</span> Field positions shift per application; requires complex
+                            Regular Expressions (Regex) to extract fields.
+                        </div>
+                    </div>
+
+                    <div class="terminal-box" style="margin: 0;">
+                        <div class="terminal-header"><span>2. Structured JSON Log (Machine-Ready Key-Value)</span></div>
+                        <div class="terminal-body" style="font-size: 0.78rem;">{
+                            <span class="param">"@timestamp"</span>: <span
+                                class="success">"2026-10-23T08:42:19.104Z"</span>,
+                            <span class="param">"host.hostname"</span>: <span class="cmd">"prod-db01"</span>,
+                            <span class="param">"process.name"</span>: <span class="cmd">"sshd"</span>,
+                            <span class="param">"process.pid"</span>: 1842,
+                            <span class="param">"event.outcome"</span>: <span class="highlight">"failure"</span>,
+                            <span class="param">"user.name"</span>: <span class="highlight">"admin"</span>,
+                            <span class="param">"source.ip"</span>: <span class="highlight">"185.220.101.7"</span>,
+                            <span class="param">"source.port"</span>: 54122
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid--4col" style="margin-top: 12px;">
+                    <div class="card card--cyan">
+                        <div class="card-title" style="font-size: 0.9rem;">Timestamp &amp; Zone</div>
+                        <p class="card-text" style="font-size: 0.78rem;">Exact time of occurrence, ideally in ISO-8601
+                            UTC format.</p>
+                    </div>
+                    <div class="card card--purple">
+                        <div class="card-title" style="font-size: 0.9rem;">Source Identifier</div>
+                        <p class="card-text" style="font-size: 0.78rem;">Hostname, IP address, and application/daemon
+                            name + PID.</p>
+                    </div>
+                    <div class="card card--amber">
+                        <div class="card-title" style="font-size: 0.9rem;">Severity / Priority</div>
+                        <p class="card-text" style="font-size: 0.78rem;">Urgency level (Emergency, Alert, Error,
+                            Warning, Info).</p>
+                    </div>
+                    <div class="card card--green">
+                        <div class="card-title" style="font-size: 0.9rem;">Event Message</div>
+                        <p class="card-text" style="font-size: 0.78rem;">The payload detailing actor, target object,
+                            action, and status.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 08: LOG FORMATS DEEP DIVE -->
+        <div class="slide" data-title="Standard Enterprise Log Formats"
+            data-notes="Walk through the major log formats used across security appliances and operating systems: Syslog (RFC 3164/5424), CEF (ArcSight/Palo Alto), LEEF (IBM QRadar), Windows EVTX XML, and W3C/Combined Log Format.">
+            <div class="slide-inner">
+                <div class="section-label"><span class="label-icon">&#x1F4DD;</span> SECTION 1 &middot; LOG STANDARDS
+                </div>
+                <h2>Standard Log Formats Dissected</h2>
+                <p>Security tools and operating systems output logs in several standardized industry formats:</p>
+
+                <div class="terminal-box" style="margin: 10px 0;">
+                    <div class="terminal-header"><span>Side-by-Side Comparison of Industry Log Formats</span></div>
+                    <div class="terminal-body" style="font-size: 0.75rem;"><span class="comment"># 1. Syslog (RFC 5424)
+                            - Standard for Linux, Routers &amp; Firewalls:</span>
+                        &lt;34&gt;1 2026-10-23T08:15:00Z fw-edge01 sshd 4120 - - Failed password for root from
+                        198.51.100.22 port 49122
+
+                        <span class="comment"># 2. CEF (Common Event Format) - Used by Palo Alto, Fortinet, ArcSight,
+                            Sentinel:</span>
+                        CEF:0|PaloAlto|PAN-OS|10.2|THREAT|Spyware-C2|8|src=10.0.0.45 dst=198.51.100.99 spt=51422 dpt=443
+                        act=blocked
+
+                        <span class="comment"># 3. LEEF (Log Event Extended Format) - Used by IBM QRadar &amp; Security
+                            Appliances:</span>
+                        LEEF:2.0|Vendor|Product|1.0|AuthFailed|src=192.168.1.50 dst=10.0.0.10 usrName=jdoe proto=TCP
+
+                        <span class="comment"># 4. Windows EVTX (Binary XML) - Native Windows Event Log Schema:</span>
+                        &lt;Event xmlns="..."&gt;&lt;System&gt;&lt;EventID&gt;<span
+                            class="highlight">4625</span>&lt;/EventID&gt;&lt;/System&gt;&lt;EventData&gt;&lt;Data
+                        Name="TargetUserName"&gt;<span
+                            class="param">admin</span>&lt;/Data&gt;&lt;/EventData&gt;&lt;/Event&gt;
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Format</th>
+                                <th>Structure Type</th>
+                                <th>Primary Ecosystem</th>
+                                <th>Key Parsing Advantage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Syslog (RFC 3164 / 5424)</strong></td>
+                                <td>Header + Free-text</td>
+                                <td>Linux/Unix, Network Switches, Firewalls</td>
+                                <td>Universal lightweight network transport protocol.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CEF / LEEF</strong></td>
+                                <td>Pipe/Tab Delimited Key=Value</td>
+                                <td>Firewalls, IDS/IPS, Enterprise SIEMs</td>
+                                <td>Standardized vendor-neutral key-value keys (<code>src=</code>, <code>dst=</code>).
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>JSON / NDJSON</strong></td>
+                                <td>Hierarchical Key-Value</td>
+                                <td>Cloud (AWS/Azure), Modern EDR, Docker</td>
+                                <td>Zero regex needed; natively parsed by Elastic, Splunk, and jq.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>EVTX (Binary XML)</strong></td>
+                                <td>Structured XML</td>
+                                <td>Microsoft Windows &amp; Sysmon</td>
+                                <td>Strict schema with EventID, Provider, and named Data elements.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- =========================================================================
+         SECTION 2: TELEMETRY SOURCES & HANDS-ON DEMOS (SLIDES 9 - 16)
+         ========================================================================= -->
+
+        <!-- SLIDE 09: WINDOWS LOGGING ARCHITECTURE -->
+        <div class="slide" data-title="Windows Logging Architecture"
+            data-notes="Introduce Section 2! Explain how Windows Eventing works: Event Tracing for Windows (ETW) and the Windows Event Log service write binary .evtx files into C:\Windows\System32\winevt\Logs\. Explain the core channels and the most important Security Event IDs.">
+            <div class="slide-inner">
+                <div class="section-label"><span class="label-icon">&#x1FA9F;</span> SECTION 2 &middot; WINDOWS
+                    TELEMETRY</div>
+                <h2>Windows Logging Architecture &amp; Channels (.evtx)</h2>
+                <p>Windows records telemetry via the <strong>Windows Event Log Service</strong> (`svchost.exe -k
+                    LocalServiceNetworkRestricted`) into binary XML `.evtx` files stored at
+                    <code>C:\Windows\System32\winevt\Logs\</code>:</p>
+
+                <div class="grid grid--4col" style="margin: 10px 0;">
+                    <div class="card card--red" style="padding: 12px;">
+                        <div class="card-title" style="font-size: 0.92rem;">1. Security Channel</div>
+                        <p class="card-text" style="font-size: 0.78rem;">Controlled by Local Security Authority
+                            (`lsass.exe`). Logons, privileges, process audit, account changes.</p>
+                    </div>
+                    <div class="card card--cyan" style="padding: 12px;">
+                        <div class="card-title" style="font-size: 0.92rem;">2. System Channel</div>
+                        <p class="card-text" style="font-size: 0.78rem;">OS services, kernel drivers, boot/shutdown
+                            events, and new service installations (Event 7045).</p>
+                    </div>
+                    <div class="card card--purple" style="padding: 12px;">
+                        <div class="card-title" style="font-size: 0.92rem;">3. Application Channel</div>
+                        <p class="card-text" style="font-size: 0.78rem;">Events logged by user-mode software (SQL
+                            Server, Exchange, Antivirus, application crashes).</p>
+                    </div>
+                    <div class="card card--green" style="padding: 12px;">
+                        <div class="card-title" style="font-size: 0.92rem;">4. App &amp; Services Logs</div>
+                        <p class="card-text" style="font-size: 0.78rem;">Granular feature channels: PowerShell
+                            Operational (4104), Task Scheduler, RDP, Windows Defender, and Sysmon.</p>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Event ID</th>
+                                <th>Channel</th>
+                                <th>Event Meaning</th>
+                                <th>SOC Analyst Investigation Focus</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge badge--green">4624</span> / <span
+                                        class="badge badge--red">4625</span></td>
+                                <td>Security</td>
+                                <td>Successful Logon / Failed Logon</td>
+                                <td>Check <strong>Logon Type</strong> (2=Local, 3=SMB/Net, 10=RDP), Source IP, and
+                                    Failure Status code.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge badge--blue">4688</span></td>
+                                <td>Security</td>
+                                <td>A new process has been created</td>
+                                <td>Inspect <code>Process Command Line</code> and <code>Creator Process Name</code>
+                                    (Parent).</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge badge--purple">4720</span> / <span
+                                        class="badge badge--amber">4732</span></td>
+                                <td>Security</td>
+                                <td>User Created / Added to Local Admins</td>
+                                <td>Detect unauthorized backdoor accounts and privilege escalation.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge badge--cyan">4698</span> / <span
+                                        class="badge badge--cyan">7045</span></td>
+                                <td>Security / System</td>
+                                <td>Scheduled Task Created / Service Installed</td>
+                                <td>Primary persistence mechanisms used by malware to survive reboots.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge badge--red">1102</span> / <span
+                                        class="badge badge--red">4104</span></td>
+                                <td>Security / PowerShell</td>
+                                <td>Audit Log Cleared / Script Block Logged</td>
+                                <td>1102 = Anti-forensic cover-up; 4104 = Captures de-obfuscated PowerShell script
+                                    blocks.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 10: SYSMON TELEMETRY -->
+        <div class="slide" data-title="Sysmon: Bridging Windows Visibility Gaps"
+            data-notes="Explain why standard Windows Security logs aren't enough for threat hunting. Standard Event 4688 doesn't record file hashes (MD5/SHA256), doesn't log network connections per process, and doesn't log DNS queries. Sysmon solves all of these.">
+            <div class="slide-inner">
+                <div class="section-label"><span class="label-icon">&#x2699;&#xFE0F;</span> SECTION 2 &middot; ADVANCED
+                    WINDOWS TELEMETRY</div>
+                <h2>Sysmon: Bridging Windows Visibility Gaps</h2>
+                <p>Standard Windows logs lack file hashes, process-to-network mapping, and DNS query visibility.
+                    <strong>Microsoft Sysmon (System Monitor)</strong> installs as a kernel driver and logs deep
+                    telemetry to <code>Microsoft-Windows-Sysmon/Operational</code>:</p>
+
+                <div class="grid grid--2col">
+                    <div class="card card--cyan">
+                        <div class="card-title">
+                            <span>Sysmon Event ID 1: Process Creation</span>
+                            <span class="badge badge--blue">Execution &amp; Lineage</span>
+                        </div>
+                        <p class="card-text">Records every newly spawned process with cryptographic hashes (SHA256,
+                            IMPHASH), full CommandLine, ParentProcessId, ParentImage, and ParentCommandLine.</p>
+                        <div class="terminal-box" style="margin: 8px 0 0 0;">
+                            <div class="terminal-body" style="font-size: 0.74rem;"><span class="param">EventID:</span>
+                                <span class="highlight">1 (Process Create)</span>
+                                <span class="param">Image:</span>
+                                C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+                                <span class="param">CommandLine:</span> powershell.exe -nop -w hidden -c "..."
+                                <span class="param">ParentImage:</span> <span class="highlight">C:\Program
+                                    Files\Microsoft Office\root\Office16\WINWORD.EXE</span>
+                                <span class="param">Hashes:</span> SHA256=A1B2C3D4E5F6...
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card card--purple">
+                        <div class="card-title">
+                            <span>Sysmon Event ID 3: Network Connection</span>
+                            <span class="badge badge--purple">C2 &amp; Exfiltration</span>
+                        </div>
+                        <p class="card-text">Windows Firewall logs don't tell you which process opened a socket. Sysmon
+                            Event 3 binds TCP/UDP network connections directly to the exact Process ID, Image, and User!
+                        </p>
+                        <div class="terminal-box" style="margin: 8px 0 0 0;">
+                            <div class="terminal-body" style="font-size: 0.74rem;"><span class="param">EventID:</span>
+                                <span class="highlight">3 (Network Connection detected)</span>
+                                <span class="param">Image:</span> <span
+                                    class="highlight">C:\Users\Public\svchost_update.exe</span>
+                                <span class="param">User:</span> CORP\jdoe
+                                <span class="param">Protocol:</span> tcp | <span class="param">SourceIp:</span>
+                                10.0.0.15 | <span class="param">SourcePort:</span> 53210
+                                <span class="param">DestinationIp:</span> <span class="highlight">185.220.101.45</span>
+                                | <span class="param">DestinationPort:</span> <span class="highlight">4444</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid--3col" style="margin-top: 10px;">
+                    <div class="card card--green" style="padding: 12px;">
+                        <div class="card-title" style="font-size: 0.9rem;"><span>Event ID 11: FileCreate</span><span
+                                class="badge badge--green">Dropper</span></div>
+                        <p class="card-text" style="font-size: 0.78rem;">Detects malware dropping executables or scripts
+                            into <code>%TEMP%</code>, <code>AppData</code>, or Startup folders.</p>
+                    </div>
+                    <div class="card card--amber" style="padding: 12px;">
+                        <div class="card-title" style="font-size: 0.9rem;"><span>Event ID 12/13: Registry</span><span
+                                class="badge badge--amber">Persistence</span></div>
+                        <p class="card-text" style="font-size: 0.78rem;">Monitors Run/RunOnce registry key creations and
+                            modifications used for persistence.</p>
+                    </div>
+                    <div class="card card--red" style="padding: 12px;">
+                        <div class="card-title" style="font-size: 0.9rem;"><span>Event ID 22: DNSEvent</span><span
+                                class="badge badge--red">C2 Lookup</span></div>
+                        <p class="card-text" style="font-size: 0.78rem;">Records every domain name resolved and the
+                            exact process executable that requested it.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 11: [DEMO 1] WINDOWS & SYSMON ANALYSIS -->
+        <div class="slide" data-title="[Demo 1] Windows & Sysmon PowerShell Analysis"
+            data-notes="Run through this practical PowerShell demonstration. Show students how to query Windows Security logs (4624/4625) and Sysmon logs (Event 1 and Event 3) directly from PowerShell using Get-WinEvent and XPath/Hashtable filters.">
+            <div class="slide-inner">
+                <div class="section-label"><span class="label-icon">&#x1F4BB;</span> SECTION 2 &middot; HANDS-ON DEMO 1
+                </div>
+                <h2>[Demo 1] Windows &amp; Sysmon Analysis via PowerShell</h2>
+                <p>Analysts use <code>Get-WinEvent</code> in PowerShell to rapidly triage authentication events and
+                    suspicious process activity:</p>
+
+                <div class="terminal-box">
+                    <div class="terminal-header">
+                        <div class="terminal-dots"><span class="terminal-dot terminal-dot--red"></span><span
+                                class="terminal-dot terminal-dot--yellow"></span><span
+                                class="terminal-dot terminal-dot--green"></span></div>
+                        <span>PowerShell (Run as Administrator) — Live Telemetry Triage</span>
+                    </div>
+                    <div class="terminal-body" style="font-size: 0.77rem;"><span class="comment"># 1. Query Failed
+                            Logons (Event ID 4625) and extract Account, Source IP, and Logon Type:</span>
+                        <span class="cmd">Get-WinEvent</span> -FilterHashtable @{LogName=<span
+                            class="param">'Security'</span>; Id=<span class="highlight">4625</span>} -MaxEvents 5 |
+                        ForEach-Object {
+                        $xml = [xml]$_.ToXml()
+                        [PSCustomObject]@{
+                        Time = $_.TimeCreated
+                        User = ($xml.Event.EventData.Data | Where-Object Name -eq 'TargetUserName').'#text'
+                        LogonType = ($xml.Event.EventData.Data | Where-Object Name -eq 'LogonType').'#text'
+                        SourceIP = ($xml.Event.EventData.Data | Where-Object Name -eq 'IpAddress').'#text'
+                        }
+                        } | <span class="cmd">Format-Table</span> -AutoSize
+
+                        <span class="comment"># 2. Query Sysmon Event ID 1 (Process Creation) for suspicious
+                            parent-child chains:</span>
+                        <span class="cmd">Get-WinEvent</span> -FilterHashtable @{LogName=<span
+                            class="param">'Microsoft-Windows-Sysmon/Operational'</span>; Id=<span
+                            class="highlight">1</span>} -MaxEvents 10 |
+                        Where-Object { $_.Message -match <span class="highlight">"powershell|cmd|whoami"</span> } |
+                        <span class="cmd">Select-Object</span> TimeCreated, Id, Message | <span
+                            class="cmd">Format-List</span>
+
+                        <span class="comment"># 3. Query Sysmon Event ID 3 (Network Connections initiated by non-browser
+                            processes):</span>
+                        <span class="cmd">Get-WinEvent</span> -FilterHashtable @{LogName=<span
+                            class="param">'Microsoft-Windows-Sysmon/Operational'</span>; Id=<span
+                            class="highlight">3</span>} -MaxEvents 5
+                    </div>
+                </div>
+
+                <div class="card card--highlight">
+                    <div class="card-title"><span>Key Logon Types Every Analyst Must Memorize</span></div>
+                    <p class="card-text">
+                        &bull; <strong>Type 2 (Interactive):</strong> Physical console keyboard login. &nbsp;&bull;
+                        <strong>Type 3 (Network):</strong> SMB share / RPC / PsExec lateral movement.<br>
+                        &bull; <strong>Type 7 (Unlock):</strong> Workstation unlocked. &nbsp;&bull; <strong>Type 10
+                            (RemoteInteractive):</strong> RDP graphical remote desktop session.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 12: LINUX LOGGING & RSYSLOG -->
+        <div class="slide" data-title="Linux Logging & rsyslog Architecture"
+            data-notes="Explain how Linux handles logging. Everything in Linux is stored under /var/log. Introduce rsyslog (which uses Facility + Severity rules in /etc/rsyslog.conf) and systemd-journald (binary logs queried with journalctl).">
+            <div class="slide-inner">
+                <div class="section-label"><span class="label-icon">&#x1F427;</span> SECTION 2 &middot; LINUX TELEMETRY
+                </div>
+                <h2>Linux Logging Architecture &amp; <code>rsyslog</code></h2>
+                <p>Linux centralizes host logging through two primary services: <strong>systemd-journald</strong>
+                    (collects kernel/service logs) and <strong>rsyslog</strong> (routes logs by
+                    <em>Facility.Severity</em> to files in <code>/var/log/</code> or remote SIEM servers):</p>
+
+                <div class="grid grid--2col">
+                    <div class="table-container" style="margin: 0;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Linux Log File Path</th>
+                                    <th>Purpose &amp; Security Evidence</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>/var/log/auth.log</code> <span
+                                            class="badge badge--blue">Debian/Ubuntu</span><br><code>/var/log/secure</code>
+                                        <span class="badge badge--purple">RHEL/CentOS</span></td>
+                                    <td>SSH logins, <code>sudo</code> command executions, PAM authentication failures,
+                                        user/group creation (<code>useradd</code>).</td>
+                                </tr>
+                                <tr>
+                                    <td><code>/var/log/syslog</code> / <code>messages</code></td>
+                                    <td>General system daemon logs, cron jobs, systemd service starts/stops, network
+                                        errors.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>/var/log/audit/audit.log</code></td>
+                                    <td>Linux Kernel Audit daemon (<code>auditd</code>) tracking syscalls, file
+                                        integrity, and SELinux violations.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>/var/log/wtmp</code> &amp; <code>btmp</code></td>
+                                    <td>Binary logs of historical logins (read via <code>last</code>) and failed login
+                                        attempts (read via <code>lastb</code>).</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="card card--cyan"
+                        style="display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <div class="card-title"><span>How <code>rsyslog</code> Routes Telemetry</span><span
+                                    class="badge badge--cyan">/etc/rsyslog.conf</span></div>
+                            <p class="card-text">Every syslog message is tagged with a <strong>Facility</strong> (who
+                                generated it: <code>authpriv</code>, <code>kern</code>, <code>daemon</code>,
+                                <code>mail</code>) and a <strong>Severity Level</strong> (0=Emergency to 7=Debug).</p>
+                        </div>
+                        <div class="terminal-box" style="margin: 8px 0 0 0;">
+                            <div class="terminal-header"><span>/etc/rsyslog.conf — Local &amp; Remote SIEM
+                                    Forwarding</span></div>
+                            <div class="terminal-body" style="font-size: 0.74rem;"><span class="comment"># Store all
+                                    auth/security events locally:</span>
+                                auth,authpriv.* /var/log/auth.log
+
+                                <span class="comment"># Forward ALL logs over TCP (@@) port 514 to central SIEM:</span>
+                                *.* <span class="highlight">@@10.0.0.100:514</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 13: [DEMO 2] LINUX AUTHENTICATION TELEMETRY -->
+        <div class="slide" data-title="[Demo 2] Linux Authentication Telemetry"
+            data-notes="Walk through this practical Linux CLI demonstration. Show how to detect SSH brute-force attacks, identify compromised accounts that logged in after brute-forcing, and audit unauthorized sudo usage using grep, awk, and journalctl.">
+            <div class="slide-inner">
+                <div class="section-label"><span class="label-icon">&#x1F4BB;</span> SECTION 2 &middot; HANDS-ON DEMO 2
+                </div>
+                <h2>[Demo 2] Linux Authentication &amp; SSH Brute-Force Triage</h2>
+                <p>Using native Linux CLI tools (<code>grep</code>, <code>awk</code>, <code>sort</code>,
+                    <code>uniq</code>, and <code>journalctl</code>) to hunt for SSH attacks and privilege escalation:
+                </p>
+
+                <div class="terminal-box">
+                    <div class="terminal-header">
+                        <div class="terminal-dots"><span class="terminal-dot terminal-dot--red"></span><span
+                                class="terminal-dot terminal-dot--yellow"></span><span
+                                class="terminal-dot terminal-dot--green"></span></div>
+                        <span>bash — Hunting SSH Brute-Force &amp; Sudo Abuse in /var/log/auth.log</span>
+                    </div>
+                    <div class="terminal-body" style="font-size: 0.76rem;"><span class="comment"># 1. View raw SSH
+                            failed password attempts:</span>
+                        <span class="cmd">$ sudo grep</span> <span class="param">"Failed password"</span>
+                        /var/log/auth.log | <span class="cmd">tail -n 3</span>
+                        Oct 23 09:12:01 web-prod01 sshd[9102]: Failed password for invalid user admin from <span
+                            class="highlight">45.142.122.18</span> port 38192 ssh2
+                        Oct 23 09:12:03 web-prod01 sshd[9104]: Failed password for root from <span
+                            class="highlight">45.142.122.18</span> port 38198 ssh2
+
+                        <span class="comment"># 2. Extract and count top attacking IP addresses (Brute-Force
+                            Leaderboard):</span>
+                        <span class="cmd">$ sudo grep</span> <span class="param">"Failed password"</span>
+                        /var/log/auth.log | <span class="cmd">grep -oE</span> <span
+                            class="param">"([0-9]{1,3}\.){3}[0-9]{1,3}"</span> | <span class="cmd">sort</span> | <span
+                            class="cmd">uniq -c</span> | <span class="cmd">sort -nr</span> | <span class="cmd">head -n
+                            3</span>
+                        <span class="highlight">1842 45.142.122.18</span> <span class="comment">&larr; Active SSH
+                            Brute-Force Attacker!</span>
+                        <span class="highlight">310 185.220.101.7</span>
+
+                        <span class="comment"># 3. Check if the attacker IP ever succeeded in logging in (Accepted
+                            password):</span>
+                        <span class="cmd">$ sudo grep</span> <span class="param">"Accepted"</span> /var/log/auth.log |
+                        <span class="cmd">grep</span> <span class="highlight">"45.142.122.18"</span>
+                        Oct 23 09:18:44 web-prod01 sshd[9890]: <span class="highlight">Accepted password for devuser
+                            from 45.142.122.18</span> port 41002 ssh2
+
+                        <span class="comment"># 4. Query systemd journal for all sudo commands executed by the
+                            compromised user:</span>
+                        <span class="cmd">$ sudo journalctl</span> _COMM=sudo | <span class="cmd">grep</span> <span
+                            class="param">"devuser"</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 14: WEB SERVER LOGGING (APACHE / NGINX) -->
+        <div class="slide" data-title="Web Server Logging (Apache / Nginx)"
+            data-notes="Deconstruct the Combined Log Format used by Apache and Nginx. Show every single field in the access log line and explain how analysts use HTTP status codes, URI query strings, and User-Agent headers to detect web attacks.">
+            <div class="slide-inner">
+                <div class="section-label"><span class="label-icon">&#x1F30D;</span> SECTION 2 &middot; WEB TELEMETRY
+                </div>
+                <h2>Web Server Logging: Combined Log Format Dissected</h2>
+                <p>Web servers (<strong>Apache</strong> in <code>/var/log/apache2/access.log</code> and
+                    <strong>Nginx</strong> in <code>/var/log/nginx/access.log</code>) use the standardized <strong>NCSA
+                        Combined Log Format</strong>:</p>
+
+                <div class="terminal-box">
+                    <div class="terminal-header"><span>Anatomy of a Combined Log Format Entry</span></div>
+                    <div class="terminal-body" style="font-size: 0.8rem;"><span class="highlight">198.51.100.42</span> -
+                        <span class="param">frank</span> <span class="cmd">[23/Oct/2026:11:20:05 +0000]</span> <span
+                            class="success">"GET /admin/config.php?id=1 HTTP/1.1"</span> <span
+                            class="highlight">403</span> 1420 <span
+                            class="param">"https://portal.corp.local/login"</span> <span class="cmd">"Mozilla/5.0 (X11;
+                            Linux x86_64) sqlmap/1.7"</span></div>
+                </div>
+
+                <div class="grid grid--4col" style="margin-top: 10px;">
+                    <div class="card card--cyan" style="padding: 12px;">
+                        <div class="card-title" style="font-size: 0.88rem;">1. Client IP &amp; User</div>
+                        <p class="card-text" style="font-size: 0.78rem;"><code>198.51.100.42</code> (Source IP) and
+                            <code>frank</code> (HTTP Basic Auth user, or <code>-</code> if anonymous).</p>
+                    </div>
+                    <div class="card card--purple" style="padding: 12px;">
+                        <div class="card-title" style="font-size: 0.88rem;">2. Method &amp; URI</div>
+                        <p class="card-text" style="font-size: 0.78rem;">HTTP Verb (<code>GET</code>, <code>POST</code>)
+                            and exact URL path + query string parameters.</p>
+                    </div>
+                    <div class="card card--amber" style="padding: 12px;">
+                        <div class="card-title" style="font-size: 0.88rem;">3. Status &amp; Bytes</div>
+                        <p class="card-text" style="font-size: 0.78rem;"><code>403</code> (Forbidden) and
+                            <code>1420</code> (Response size in bytes; huge spikes indicate data dump).</p>
+                    </div>
+                    <div class="card card--red" style="padding: 12px;">
+                        <div class="card-title" style="font-size: 0.88rem;">4. Referer &amp; Agent</div>
+                        <p class="card-text" style="font-size: 0.78rem;">Originating page and <code>User-Agent</code>
+                            string (often reveals scanners like <code>sqlmap</code>, <code>nikto</code>,
+                            <code>nmap</code>).</p>
+                    </div>
+                </div>
+
+                <div class="card card--highlight" style="margin-top: 10px; padding: 12px 16px;">
+                    <div class="card-title" style="font-size: 0.95rem;"><span>Forensic Meaning of HTTP Status
+                            Codes</span></div>
+                    <p class="card-text" style="font-size: 0.82rem;">
+                        &bull; <strong style="color:var(--accent-green)">200 OK:</strong> Request succeeded (Dangerous
+                        if seen on an exploit URI or webshell!). &nbsp;&bull; <strong
+                            style="color:var(--accent-amber)">401 / 403:</strong> Auth failure / Directory access
+                        denied.<br>
+                        &bull; <strong style="color:var(--blue-300)">404 Not Found:</strong> High volume of 404s from
+                        one IP = Directory/File fuzzing scan (Gobuster/Dirb). &nbsp;&bull; <strong
+                            style="color:var(--accent-red)">500 Internal Error:</strong> Backend database/script crashed
+                        (Strong indicator of active SQLi probing!).
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 15: [DEMO 3] WEB LOG ATTACK DETECTION -->
+        <div class="slide" data-title="[Demo 3] Web Log Attack Detection"
+            data-notes="Show students how to inspect an access.log file to spot Web Application attacks: SQL Injection, Directory Traversal (LFI), and Webshell execution.">
+            <div class="slide-inner">
+                <div class="section-label"><span class="label-icon">&#x1F4BB;</span> SECTION 2 &middot; HANDS-ON DEMO 3
+                </div>
+                <h2>[Demo 3] Hunting Web Attacks in <code>access.log</code></h2>
+                <p>Inspecting <code>/var/log/nginx/access.log</code> to detect SQL Injection, Path Traversal, and
+                    Webshell activity:</p>
+
+                <div class="terminal-box">
+                    <div class="terminal-header">
+                        <div class="terminal-dots"><span class="terminal-dot terminal-dot--red"></span><span
+                                class="terminal-dot terminal-dot--yellow"></span><span
+                                class="terminal-dot terminal-dot--green"></span></div>
+                        <span>bash — Analyzing /var/log/nginx/access.log for Exploitation Patterns</span>
+                    </div>
+                    <div class="terminal-body" style="font-size: 0.75rem;"><span class="comment"># 1. Detect Directory
+                            Traversal / Local File Inclusion (LFI) indicators:</span>
+                        <span class="cmd">$ grep -E</span> <span class="param">"\.\./|etc/passwd|win\.ini"</span>
+                        /var/log/nginx/access.log
+                        198.51.100.42 - - [23/Oct/2026:11:22:10 +0000] "GET /download.php?file=<span
+                            class="highlight">../../../../etc/passwd</span> HTTP/1.1" <span class="success">200</span>
+                        2840 "-" "curl/7.88.1"
+
+                        <span class="comment"># 2. Detect SQL Injection (SQLi) probing and data extraction:</span>
+                        <span class="cmd">$ grep -iE</span> <span
+                            class="param">"union.*select|select.*from|'%20or%20|%27"</span> /var/log/nginx/access.log
+                        198.51.100.42 - - [23/Oct/2026:11:24:02 +0000] "GET /item.php?id=10<span
+                            class="highlight">%27</span> HTTP/1.1" <span class="highlight">500</span> 612 "-"
+                        "Mozilla/5.0"
+                        198.51.100.42 - - [23/Oct/2026:11:24:18 +0000] "GET /item.php?id=10<span
+                            class="highlight">%20UNION%20SELECT%20username,password_hash%20FROM%20users--</span>
+                        HTTP/1.1" <span class="success">200</span> <span class="highlight">48920</span> "-"
+                        "Mozilla/5.0"
+
+                        <span class="comment"># 3. Detect automated vulnerability scanners by User-Agent or 404
+                            spikes:</span>
+                        <span class="cmd">$ awk</span> '$9 == 404 {print $1}' /var/log/nginx/access.log | <span
+                            class="cmd">sort</span> | <span class="cmd">uniq -c</span> | <span class="cmd">sort
+                            -nr</span> | <span class="cmd">head -n 3</span>
+                        <span class="highlight">2415 198.51.100.42</span> <span class="comment">&larr; Directory
+                            brute-forcing (2,415 Not Found errors)</span>
+                    </div>
+                </div>
+
+                <div class="grid grid--2col" style="margin-top: 10px;">
+                    <div class="card card--red" style="padding: 12px;">
+                        <div class="card-title" style="font-size: 0.9rem;">The 500 &rarr; 200 SQLi Transition</div>
+                        <p class="card-text" style="font-size: 0.8rem;">Notice how <code>%27</code> (single quote)
+                            triggered a <strong>500 error</strong> (syntax break), followed seconds later by a
+                            <code>UNION SELECT</code> returning <strong>200 OK</strong> with <strong>48,920
+                                bytes</strong> of stolen database records!</p>
+                    </div>
+                    <div class="card card--amber" style="padding: 12px;">
+                        <div class="card-title" style="font-size: 0.9rem;">LFI Status Verification</div>
+                        <p class="card-text" style="font-size: 0.8rem;">The <code>../../../../etc/passwd</code> request
+                            returned status <strong>200 OK</strong> instead of 403/404, proving the attacker
+                            successfully read the server's password file.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 16: [DEMO 4] FIREWALL LOGS DEMO -->
+        <div class="slide" data-title="[Demo 4] Firewall Logs Analysis"
+            data-notes="Walk through Firewall log analysis. Explain the 5-Tuple (Source IP, Source Port, Destination IP, Destination Port, Protocol) plus the Action (ALLOW/PERMIT vs DROP/DENY). Show how to spot port scanning and C2 beaconing.">
+            <div class="slide-inner">
+                <div class="section-label"><span class="label-icon">&#x1F9F1;</span> SECTION 2 &middot; HANDS-ON DEMO 4
+                </div>
+                <h2>[Demo 4] Firewall Log Telemetry &amp; Traffic Analysis</h2>
+                <p>Every network firewall log records the <strong>Network 5-Tuple</strong> (<code>SrcIP</code>,
+                    <code>SrcPort</code>, <code>DstIP</code>, <code>DstPort</code>, <code>Protocol</code>) alongside the
+                    policy <strong>Action</strong> (<code>ALLOW</code> vs <code>DROP/DENY</code>):</p>
+
+                <div class="terminal-box">
+                    <div class="terminal-header">
+                        <div class="terminal-dots"><span class="terminal-dot terminal-dot--red"></span><span
+                                class="terminal-dot terminal-dot--yellow"></span><span
+                                class="terminal-dot terminal-dot--green"></span></div>
+                        <span>Firewall Log Analysis — Detecting Port Scans &amp; Unauthorized Outbound C2</span>
+                    </div>
+                    <div class="terminal-body" style="font-size: 0.75rem;"><span class="comment"># Sample Perimeter
+                            Firewall Log (/var/log/ufw.log or pfSense/Fortinet Syslog):</span>
+                        Oct 23 10:05:01 gw-fw01 kernel: [UFW <span class="highlight">BLOCK</span>] IN=eth0 OUT=
+                        SRC=<span class="highlight">203.0.113.99</span> DST=10.0.0.20 PROTO=TCP SPT=51022 DPT=<span
+                            class="param">21</span> SYN
+                        Oct 23 10:05:01 gw-fw01 kernel: [UFW <span class="highlight">BLOCK</span>] IN=eth0 OUT=
+                        SRC=<span class="highlight">203.0.113.99</span> DST=10.0.0.20 PROTO=TCP SPT=51023 DPT=<span
+                            class="param">22</span> SYN
+                        Oct 23 10:05:02 gw-fw01 kernel: [UFW <span class="highlight">BLOCK</span>] IN=eth0 OUT=
+                        SRC=<span class="highlight">203.0.113.99</span> DST=10.0.0.20 PROTO=TCP SPT=51024 DPT=<span
+                            class="param">23</span> SYN
+                        Oct 23 10:05:02 gw-fw01 kernel: [UFW <span class="success">ALLOW</span>] IN=eth0 OUT=eth1
+                        SRC=<span class="highlight">203.0.113.99</span> DST=10.0.0.20 PROTO=TCP SPT=51025 DPT=<span
+                            class="success">443</span> SYN
+                        Oct 23 10:08:15 gw-fw01 kernel: [UFW <span class="success">ALLOW</span>] IN=eth1 OUT=eth0
+                        SRC=<span class="highlight">10.0.0.20</span> DST=<span class="highlight">185.220.101.45</span>
+                        PROTO=TCP SPT=49811 DPT=<span class="highlight">4444</span>
+
+                        <span class="comment"># CLI Triage Command — Count distinct destination ports hit by each
+                            external IP (Port Scan Detection):</span>
+                        <span class="cmd">$ grep</span> "UFW BLOCK" /var/log/ufw.log | <span class="cmd">awk</span>
+                        '{print $12, $16}' | <span class="cmd">sort -u</span> | <span class="cmd">awk</span> '{print
+                        $1}' | <span class="cmd">uniq -c</span> | <span class="cmd">sort -nr</span>
+                        <span class="highlight">1024 SRC=203.0.113.99</span> <span class="comment">&larr; Scanned 1,024
+                            distinct ports on our network!</span>
+                    </div>
+                </div>
+
+                <div class="grid grid--2col" style="margin-top: 10px;">
+                    <div class="card card--cyan" style="padding: 12px;">
+                        <div class="card-title" style="font-size: 0.9rem;">1. Inbound Reconnaissance Pattern</div>
+                        <p class="card-text" style="font-size: 0.8rem;">External IP <code>203.0.113.99</code>
+                            sequentially hit ports 21, 22, 23 (blocked) before finding port <strong>443 ALLOWED</strong>
+                            into server <code>10.0.0.20</code>.</p>
+                    </div>
+                    <div class="card card--red" style="padding: 12px;">
+                        <div class="card-title" style="font-size: 0.9rem;">2. Outbound Reverse Shell / Egress</div>
+                        <p class="card-text" style="font-size: 0.8rem;">Three minutes later, internal server
+                            <code>10.0.0.20</code> initiated an outbound connection to <code>185.220.101.45</code> on
+                            port <strong>4444</strong> (classic reverse shell port!).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- =========================================================================
+         SECTION 3: TRADITIONAL LOG TOOLS, SILOS & BRIDGE TO SIEM (SLIDES 17 - 22)
+         ========================================================================= -->
+
+        <!-- SLIDE 17: TRADITIONAL LOG ANALYSIS TOOLS -->
+        <div class="slide" data-title="Traditional Log Analysis Tools"
+            data-notes="Introduce Section 3! Before SIEMs existed (and during standalone host forensics today), analysts use specialized local tools to parse and timeline logs. Explain Event Viewer, Eric Zimmerman's EvtxECmd & Timeline Explorer, Log2Timeline (Plaso), and Chainsaw/Hayabusa.">
+            <div class="slide-inner">
+                <div class="section-label"><span class="label-icon">&#x1F6E0;&#xFE0F;</span> SECTION 3 &middot;
+                    STANDALONE LOG TOOLING</div>
+                <h2>Traditional Host Log Analysis Tools</h2>
+                <p>When investigating standalone machines or offline forensic images without a SIEM, analysts rely on
+                    five core local analysis tools:</p>
+
+                <div class="grid grid--3col">
+                    <div class="card card--cyan">
+                        <div class="card-title"><span>1. Windows Event Viewer</span><span
+                                class="badge badge--blue">Built-in GUI</span></div>
+                        <p class="card-text">Native Windows MMC snap-in (<code>eventvwr.msc</code>). Supports basic
+                            Event ID filtering and Custom XML XPath queries, but becomes slow when parsing large `.evtx`
+                            files (&gt;100MB).</p>
+                    </div>
+
+                    <div class="card card--purple">
+                        <div class="card-title"><span>2. EvtxECmd &amp; Timeline Explorer</span><span
+                                class="badge badge--purple">Eric Zimmerman</span></div>
+                        <p class="card-text"><strong>EvtxECmd</strong> parses millions of binary `.evtx` records into
+                            normalized CSV files in seconds. <strong>Timeline Explorer</strong> loads those CSVs into a
+                            blazing-fast filterable grid.</p>
+                    </div>
+
+                    <div class="card card--amber">
+                        <div class="card-title"><span>3. Log2Timeline / Plaso</span><span
+                                class="badge badge--amber">Super Timeline</span></div>
+                        <p class="card-text">The gold-standard DFIR tool that extracts timestamps from EVTX, Registry,
+                            Browser history, MFT, and Linux logs into one unified chronological <strong>Super
+                                Timeline</strong>.</p>
+                    </div>
+
+                    <div class="card card--green">
+                        <div class="card-title"><span>4. Chainsaw &amp; Hayabusa</span><span
+                                class="badge badge--green">Sigma Hunting</span></div>
+                        <p class="card-text">High-speed Rust-based CLI threat hunting tools that scan `.evtx` folders
+                            against thousands of community <strong>Sigma Detection Rules</strong> in seconds to flag
+                            attacks automatically.</p>
+                    </div>
+
+                    <div class="card card--red">
+                        <div class="card-title"><span>5. Microsoft Log Parser 2.2</span><span
+                                class="badge badge--red">SQL on Logs</span></div>
+                        <p class="card-text">Classic CLI utility allowing analysts to query EVTX, IIS Web Logs, and CSV
+                            files using standard <strong>SQL syntax</strong>
+                            (<code>SELECT IpAddress, COUNT(*) FROM Security.evtx GROUP BY IpAddress</code>).</p>
+                    </div>
+
+                    <div class="card card--highlight">
+                        <div class="card-title"><span>6. Native CLI Text Tools</span><span
+                                class="badge badge--cyan">PowerShell / Bash</span></div>
+                        <p class="card-text"><code>Get-WinEvent</code>, <code>wevtutil</code> on Windows, and
+                            <code>grep</code>, <code>awk</code>, <code>sed</code>, <code>jq</code> (for JSON logs) on
+                            Linux for rapid on-box triage.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 18: HANDS-ON WINDOWS SCENARIOS WITH TRADITIONAL TOOLS -->
+        <div class="slide" data-title="Analyzing Windows Scenarios with Traditional Tools"
+            data-notes="Walk through 3 practical Windows incident scenarios using the traditional tools we just covered: Scenario A (Event Viewer XML filter for Brute Force), Scenario B (EvtxECmd + Timeline Explorer for Service Persistence), and Scenario C (Chainsaw/Hayabusa Sigma scan for Log Clearing & lateral movement).">
+            <div class="slide-inner">
+                <div class="section-label"><span class="label-icon">&#x1F50E;</span> SECTION 3 &middot; PRACTICAL TRIAGE
+                    SCENARIOS</div>
+                <h2>Analyzing Windows Attack Scenarios with Traditional Tools</h2>
+                <p>How analysts combine standalone log tools to solve three classic Windows intrusion scenarios:</p>
+
+                <div class="grid grid--3col">
+                    <div class="card card--cyan">
+                        <div class="card-title" style="font-size: 0.92rem;"><span>Scenario A: RDP
+                                Brute-Force</span><span class="badge badge--blue">Event Viewer XPath</span></div>
+                        <p class="card-text" style="font-size: 0.78rem; margin-bottom: 8px;"><strong>Goal:</strong>
+                            Filter Security.evtx for failed RDP logons (Event 4625 + LogonType 10) without scrolling
+                            through thousands of local noise events.</p>
+                        <div class="terminal-box" style="margin: 0;">
+                            <div class="terminal-body" style="font-size: 0.7rem;"><span class="comment">&lt;!-- Event
+                                    Viewer Custom XML Query --&gt;</span>
+                                &lt;QueryList&gt;
+                                &lt;Query Id="0" Path="Security"&gt;
+                                &lt;Select Path="Security"&gt;
+                                *[System[(EventID=<span class="highlight">4625</span>)]] and
+                                *[EventData[Data[@Name='LogonType']='<span class="param">10</span>']]
+                                &lt;/Select&gt;
+                                &lt;/Query&gt;
+                                &lt;/QueryList&gt;</div>
+                        </div>
+                    </div>
+
+                    <div class="card card--purple">
+                        <div class="card-title" style="font-size: 0.92rem;"><span>Scenario B: Malicious
+                                Service</span><span class="badge badge--purple">EvtxECmd + Timeline</span></div>
+                        <p class="card-text" style="font-size: 0.78rem; margin-bottom: 8px;"><strong>Goal:</strong>
+                            Parse offline <code>System.evtx</code> &amp; <code>Security.evtx</code> into CSV and filter
+                            in Timeline Explorer for Event <strong>7045</strong> (New Service) &amp;
+                            <strong>4720</strong> (New User).</p>
+                        <div class="terminal-box" style="margin: 0;">
+                            <div class="terminal-body" style="font-size: 0.7rem;"><span class="comment"># Convert entire
+                                    Logs directory to CSV:</span>
+                                <span class="cmd">EvtxECmd.exe</span> -d "C:\Evidence\Logs" --csv "C:\Out" --csvf
+                                timeline.csv
+
+                                <span class="comment"># In Timeline Explorer:</span>
+                                Filter EventId = <span class="highlight">7045</span>
+                                <span class="param">Payload:</span> Service="WinDefendUpdater"
+                                <span class="highlight">Path="cmd.exe /c powershell -enc..."</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card card--green">
+                        <div class="card-title" style="font-size: 0.92rem;"><span>Scenario C: Automated Hunt</span><span
+                                class="badge badge--green">Chainsaw /Log2Timeline</span></div>
+                        <p class="card-text" style="font-size: 0.78rem; margin-bottom: 8px;"><strong>Goal:</strong> Run
+                            Sigma rules across all EVTX files to spot privilege escalation &amp; log wiping (Event
+                            1102), then build a Plaso super timeline.</p>
+                        <div class="terminal-box" style="margin: 0;">
+                            <div class="terminal-body" style="font-size: 0.7rem;"><span class="comment"># 1. Hunt with
+                                    Chainsaw &amp; Sigma rules:</span>
+                                <span class="cmd">chainsaw.exe</span> hunt C:\Evidence\Logs -s sigma/ --mapping
+                                mappings/sigma-event-logs-all.yml
+
+                                <span class="comment"># 2. Build Super Timeline with Plaso:</span>
+                                <span class="cmd">log2timeline.py</span> --storage-file case1.plaso C:\Evidence
+                                <span class="cmd">psort.py</span> -o l2tcsv -w timeline.csv case1.plaso
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 19: THE CENTRALIZATION DILEMMA (ISLANDS OF LOGS) -->
+        <div class="slide" data-title="The Centralization Dilemma: Islands of Logs"
+            data-notes="Now transition to the architectural problem! Traditional tools like Event Viewer and Timeline Explorer are great for 1 or 2 machines. What happens when you have 5,000 servers and 10,000 laptops? Manual investigation becomes mathematically impossible.">
+            <div class="slide-inner">
+                <div class="section-label"><span class="label-icon">&#x1F3DD;&#xFE0F;</span> SECTION 3 &middot; THE
+                    ARCHITECTURAL CRISIS</div>
+                <h2>The Centralization Dilemma: &ldquo;Islands of Logs&rdquo;</h2>
+                <p>Traditional tools (`eventvwr.msc`, `grep`, `Timeline Explorer`) work well on a single machine. In an
+                    enterprise with 5,000 hosts, keeping logs stored locally creates four fatal blind spots:</p>
+
+                <div class="grid grid--2col">
+                    <div class="card card--red">
+                        <div class="card-icon">&#x1F5D1;&#xFE0F;</div>
+                        <div class="card-title">1. Evidence Destruction (Anti-Forensics)</div>
+                        <p class="card-text">Once an attacker compromises a host and gains Admin/root privileges, their
+                            first command is <code>wevtutil cl Security</code> or <code>rm -rf /var/log/*</code>. If
+                            logs live only on the local disk, the crime scene is erased forever.</p>
+                    </div>
+
+                    <div class="card card--amber">
+                        <div class="card-icon">&#x23F3;</div>
+                        <div class="card-title">2. Mathematical Impossibility of Manual Triage</div>
+                        <p class="card-text">If an attacker pivots across 40 servers, an analyst cannot manually RDP/SSH
+                            into 5,000 machines to run `Get-WinEvent` or `EvtxECmd`. Investigating a single indicator
+                            would take weeks.</p>
+                    </div>
+
+                    <div class="card card--purple">
+                        <div class="card-icon">&#x1F9E9;</div>
+                        <div class="card-title">3. Isolated Silos &amp; Zero Correlation</div>
+                        <p class="card-text">The Firewall sits in one room, Active Directory in another, and Linux Web
+                            Servers in the cloud. No human can mentally cross-reference millions of lines across
+                            disconnected consoles in real time.</p>
+                    </div>
+
+                    <div class="card card--cyan">
+                        <div class="card-icon">&#x1F4BE;</div>
+                        <div class="card-title">4. Local Log Rollover (Circular Overwriting)</div>
+                        <p class="card-text">Local Windows `.evtx` files have a default maximum size (often 20MB–128MB).
+                            High-volume activity overwrites old events within hours, destroying historical breach
+                            evidence.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 20: TIME SYNCHRONIZATION (NTP) & INTEGRITY -->
+        <div class="slide" data-title="Time Synchronization (NTP) & Log Integrity"
+            data-notes="Explain why NTP time synchronization is critical. Imagine reconstructing a bank robbery where the street camera clock is 15 minutes ahead of the vault camera clock—the timeline makes no sense! In cybersecurity, all systems must sync via NTP to UTC.">
+            <div class="slide-inner">
+                <div class="section-label"><span class="label-icon">&#x23F0;</span> SECTION 3 &middot; CHRONOLOGICAL
+                    INTEGRITY</div>
+                <h2>Time Synchronization (NTP) &amp; Forensic Integrity</h2>
+                <p>When investigating an attack across multiple servers, <strong>time is the glue that binds evidence
+                        together</strong>. If server clocks drift apart, forensic reconstruction collapses:</p>
+
+                <div class="grid grid--2col">
+                    <div class="card card--red">
+                        <div class="card-title"><span>The Clock Skew Nightmare</span><span
+                                class="badge badge--red">Broken Timeline</span></div>
+                        <div class="terminal-box" style="margin: 8px 0;">
+                            <div class="terminal-body" style="font-size: 0.76rem;"><span class="comment"># Without NTP
+                                    Synchronization:</span>
+                                Firewall Log: <span class="param">14:00:05</span> &rarr; External IP connects to Web
+                                Server
+                                Web Server Log: <span class="highlight">13:52:10</span> &rarr; Webshell executed (Clock
+                                is 8 mins behind!)
+                                AD Server Log: <span class="param">14:01:20</span> &rarr; Kerberos ticket requested
+                            </div>
+                        </div>
+                        <p class="card-text" style="font-size: 0.84rem;"><strong>Result:</strong> In the timeline, the
+                            Webshell appears to execute <em>8 minutes before</em> the attacker even connected through
+                            the firewall! Automated correlation rules fail completely, and legal admissibility is
+                            ruined.</p>
+                    </div>
+
+                    <div class="card card--green">
+                        <div class="card-title"><span>The Solution: NTP + UTC + Integrity</span><span
+                                class="badge badge--green">Best Practice</span></div>
+                        <ul style="font-size: 0.86rem;">
+                            <li><strong>Network Time Protocol (NTP):</strong> Force all routers, firewalls, servers, and
+                                endpoints to sync continuously (UDP Port 123) to a Stratum-1/2 authoritative time
+                                server.</li>
+                            <li><strong>Standardize on UTC:</strong> Log all timestamps in <strong>Coordinated Universal
+                                    Time (UTC / ISO-8601)</strong> to eliminate daylight-saving and multi-timezone
+                                confusion.</li>
+                            <li><strong>Log Integrity (WORM &amp; Hashing):</strong> Ship logs immediately to a
+                                Read-Only central vault with cryptographic hashing so neither attackers nor rogue admins
+                                can alter historical records.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 21: WHY WE NEED CENTRALIZATION (THE BRIDGE TO SIEM) -->
+        <div class="slide" data-title="Why We Need Centralization: Bridge to SIEM"
+            data-notes="This slide is the conceptual bridge from Section 3 (traditional log problems) to Section 4 (the SIEM). Show how every problem of local log analysis directly dictates a requirement of a modern SIEM.">
+            <div class="slide-inner">
+                <div class="section-label"><span class="label-icon">&#x1F309;</span> SECTION 3 &middot; THE PARADIGM
+                    SHIFT</div>
+                <h2>Why We Need Centralization: The Bridge to SIEM</h2>
+                <p>Every limitation of traditional, local log analysis directly defines why the <strong>SIEM (Security
+                        Information and Event Management)</strong> was invented:</p>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 28%;">Local Log Problem</th>
+                                <th style="width: 36%;">Centralized Requirement</th>
+                                <th style="width: 36%;">How SIEM Solves It</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong style="color:var(--accent-red)">Attacker wipes local logs (`Event
+                                        1102`)</strong></td>
+                                <td>Real-time off-host streaming</td>
+                                <td>Logs are forwarded in milliseconds to a hardened central server before the attacker
+                                    can delete them.</td>
+                            </tr>
+                            <tr>
+                                <td><strong style="color:var(--accent-amber)">5,000 isolated servers to search</strong>
+                                </td>
+                                <td>Single unified search index</td>
+                                <td>One query searches billions of events across all 5,000 hosts in under 2 seconds.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong style="color:var(--purple-300)">Incompatible vendor formats (EVTX, CEF,
+                                        JSON)</strong></td>
+                                <td>Schema Normalization</td>
+                                <td>Translates all vendor fields into a single Common Information Model (e.g.,
+                                    <code>src_ip</code>, <code>user</code>).</td>
+                            </tr>
+                            <tr>
+                                <td><strong style="color:var(--blue-300)">Millions of noisy daily events</strong></td>
+                                <td>Automated Multi-Source Correlation</td>
+                                <td>Correlation engine links Firewall + Web + Endpoint + Identity events and alerts only
+                                    on true attack chains.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card card--highlight" style="margin-top: 12px;">
+                    <div class="card-title"><span>The Evolution of the Analyst</span></div>
+                    <p class="card-text">Instead of spending 95% of your time hunting for log files and converting
+                        formats, centralization lets the analyst spend 95% of their time <strong>investigating threats
+                            and defending the organization</strong>.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 22: LOG SHIPPING (AGENTS VS AGENTLESS) -->
+        <div class="slide" data-title="Log Shipping: Agents vs Agentless"
+            data-notes="Explain the two transport mechanisms used to move logs from endpoints/devices into the central collector: Agent-based forwarders vs Agentless protocols.">
+            <div class="slide-inner">
+                <div class="section-label"><span class="label-icon">&#x1F69A;</span> SECTION 3 &middot; TELEMETRY
+                    TRANSPORT</div>
+                <h2>Log Shipping Architecture: Agents vs Agentless</h2>
+                <p>To move logs from thousands of sources into a central repository in real time, engineers use two
+                    primary collection methods:</p>
+
+                <div class="grid grid--2col">
+                    <div class="card card--cyan">
+                        <div class="card-title">
+                            <span>1. Agent-Based Shipping</span>
+                            <span class="badge badge--blue">Workstations &amp; Servers</span>
+                        </div>
+                        <p class="card-text" style="margin-bottom: 10px;">A dedicated lightweight forwarder service
+                            installed on the OS (e.g., <strong>Splunk Universal Forwarder</strong>, <strong>Elastic
+                                Beats / Agent</strong>, <strong>Wazuh Agent</strong>, <strong>NxLog</strong>).</p>
+                        <ul style="font-size: 0.84rem;">
+                            <li><strong>Local Disk Queuing:</strong> Caches logs locally if the network link drops,
+                                ensuring zero data loss.</li>
+                            <li><strong>TLS Encryption &amp; Compression:</strong> Protects sensitive log data in
+                                transit and reduces bandwidth.</li>
+                            <li><strong>Granular Filtering:</strong> Can filter out noisy events at the source before
+                                shipping.</li>
+                        </ul>
+                    </div>
+
+                    <div class="card card--purple">
+                        <div class="card-title">
+                            <span>2. Agentless Shipping</span>
+                            <span class="badge badge--purple">Network Gear &amp; Cloud</span>
+                        </div>
+                        <p class="card-text" style="margin-bottom: 10px;">Used where installing software agents is
+                            impossible (routers, switches, firewalls, IoT, and SaaS cloud platforms).</p>
+                        <ul style="font-size: 0.84rem;">
+                            <li><strong>Syslog Push:</strong> Appliances stream Syslog over <code>UDP 514</code> (fast,
+                                connectionless) or <code>TCP/TLS 6514</code> (reliable, encrypted).</li>
+                            <li><strong>Windows Event Forwarding (WEF):</strong> Native agentless Windows push over
+                                WinRM/Kerberos to a Windows Event Collector (WEC).</li>
+                            <li><strong>Cloud REST APIs / Webhooks:</strong> SIEM polls AWS CloudTrail, M365, and Okta
+                                APIs directly.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- =========================================================================
+         SECTION 4: SIEM PIPELINE, INTEGRATED STACK & CHALLENGES (SLIDES 23 - 31)
+         ========================================================================= -->
+
+        <!-- SLIDE 23: THE 6-STAGE SIEM PIPELINE -->
+        <div class="slide" data-title="The 6-Stage SIEM Pipeline & Enrichment"
+            data-notes="Introduce Section 4! Walk through the exact 6-stage SIEM pipeline: Collection -> Parsing -> Normalization -> Enrichment -> Correlation -> Alerting. Highlight Enrichment specifically: adding GeoIP, Threat Intel reputation, and Asset/User context.">
+            <div class="slide-inner">
+                <div class="section-label"><span class="label-icon">&#x2699;&#xFE0F;</span> SECTION 4 &middot; SIEM
+                    ENGINEERING PIPELINE</div>
+                <h2>The 6-Stage SIEM Pipeline (With Context Enrichment)</h2>
+                <p>Once logs reach the SIEM, they pass through six sequential processing stages to transform raw text
+                    into actionable intelligence:</p>
+
+                <div class="flow-row">
+                    <div class="flow-node" style="border-top: 3px solid var(--cyan-400);">
+                        <span class="node-num">STAGE 01</span>
+                        <span class="node-title">Collection</span>
+                        <span class="node-desc">Ingesting raw streams via Agents, Syslog, WEF, and Cloud APIs.</span>
+                    </div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-node" style="border-top: 3px solid var(--blue-400);">
+                        <span class="node-num">STAGE 02</span>
+                        <span class="node-title">Parsing</span>
+                        <span class="node-desc">Breaking raw strings into discrete key-value tokens via Regex/JSON
+                            parsers.</span>
+                    </div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-node" style="border-top: 3px solid var(--purple-400);">
+                        <span class="node-num">STAGE 03</span>
+                        <span class="node-title">Normalization</span>
+                        <span class="node-desc">Mapping vendor fields to a unified schema (e.g., <code>src_ip</code>,
+                            <code>user.name</code>).</span>
+                    </div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-node"
+                        style="border-top: 3px solid var(--accent-amber); background: rgba(251,191,36,0.08);">
+                        <span class="node-num" style="color: var(--accent-amber);">STAGE 04 &#x2605;</span>
+                        <span class="node-title" style="color: var(--accent-amber);">Enrichment</span>
+                        <span class="node-desc">Appending GeoIP, Threat Intel (IOCs), Asset Criticality, and VIP User
+                            tags!</span>
+                    </div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-node" style="border-top: 3px solid var(--accent-green);">
+                        <span class="node-num">STAGE 05</span>
+                        <span class="node-title">Correlation</span>
+                        <span class="node-desc">Linking multi-source events across time windows to detect attack
+                            chains.</span>
+                    </div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-node" style="border-top: 3px solid var(--accent-red);">
+                        <span class="node-num">STAGE 06</span>
+                        <span class="node-title">Alerting</span>
+                        <span class="node-desc">Generating prioritized incident tickets and triggering SOAR
+                            playbooks.</span>
+                    </div>
+                </div>
+
+                <div class="terminal-box" style="margin-top: 10px;">
+                    <div class="terminal-header"><span>Spotlight on Stage 4 (Enrichment): Turning an IP into
+                            Context</span></div>
+                    <div class="terminal-body" style="font-size: 0.76rem;"><span class="comment"># Before Enrichment
+                            (Normalized Only):</span>
+                        src_ip="185.220.101.45" | dest_host="srv-fin-01" | user="cfo_smith" | action="login_success"
+
+                        <span class="comment"># After SIEM Enrichment (GeoIP + Threat Intel + CMDB Asset + AD
+                            Lookup):</span>
+                        src_ip="185.220.101.45" <span class="highlight">[Geo: Frankfurt, DE | ThreatIntel: Known
+                            CobaltStrike C2 / Tor Exit]</span> | dest_host="srv-fin-01" <span class="param">[Asset:
+                            Tier-1 Crown Jewel Finance DB]</span> | user="cfo_smith" <span class="highlight">[Role:
+                            Executive VIP]</span> &rarr; <span class="highlight">PRIORITY: CRITICAL P1!</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 24: INTEGRATED DEFENSIVE ARCHITECTURE -->
+        <div class="slide" data-title="Integrated SOC Defensive Architecture"
+            data-notes="Walk through the comprehensive architectural blueprint showing how Telemetry Sources, Log Shippers, SIEM, Threat Intel (TIP), EDR, Firewalls, and SOAR work together as one nervous system.">
+            <div class="slide-inner">
+                <div class="section-label"><span class="label-icon">&#x1F3DB;&#xFE0F;</span> SECTION 4 &middot;
+                    DEFENSIVE BLUEPRINT</div>
+                <h2>Integrated SOC Defensive Architecture</h2>
+                <p>In a modern SOC, the SIEM does not operate in isolation—it serves as the central nexus connecting
+                    visibility, threat intelligence, and active response:</p>
+
+                <div
+                    style="background: rgba(8,12,24,0.88); border: 1px solid var(--border-glow); border-radius: 12px; padding: 18px; margin: 12px 0;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: stretch; gap: 12px; text-align: center;">
+
+                        <div style="flex: 1.15; display: flex; flex-direction: column; gap: 7px;">
+                            <div
+                                style="font-family: var(--font-heading); font-size: 0.78rem; color: var(--blue-200); font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 4px;">
+                                1. TELEMETRY SOURCES</div>
+                            <div class="card" style="padding: 8px; font-size: 0.78rem;">&#x1FA9F;
+                                <strong>Windows:</strong> EVTX + Sysmon</div>
+                            <div class="card" style="padding: 8px; font-size: 0.78rem;">&#x1F427;
+                                <strong>Linux:</strong> rsyslog + auditd</div>
+                            <div class="card" style="padding: 8px; font-size: 0.78rem;">&#x1F9F1;
+                                <strong>Network:</strong> Firewall + IDS/Zeek</div>
+                            <div class="card" style="padding: 8px; font-size: 0.78rem;">&#x1F30D;
+                                <strong>Web/Cloud:</strong> Nginx + Entra ID</div>
+                        </div>
+
+                        <div style="display: flex; align-items: center; color: var(--blue-400); font-size: 1.3rem;">
+                            &rarr;</div>
+
+                        <div
+                            style="flex: 0.95; display: flex; flex-direction: column; justify-content: center; gap: 8px;">
+                            <div
+                                style="font-family: var(--font-heading); font-size: 0.78rem; color: var(--cyan-400); font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 4px;">
+                                2. COLLECTION</div>
+                            <div class="card card--cyan" style="padding: 12px 8px; font-size: 0.8rem;">
+                                <strong>Shippers</strong><br>
+                                <span style="font-size: 0.72rem; color: var(--text-muted);">Splunk UF<br>Wazuh
+                                    Agent<br>Elastic Beats<br>Syslog TLS</span>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; align-items: center; color: var(--blue-400); font-size: 1.3rem;">
+                            &rarr;</div>
+
+                        <div
+                            style="flex: 1.35; display: flex; flex-direction: column; justify-content: center; gap: 8px;">
+                            <div
+                                style="font-family: var(--font-heading); font-size: 0.78rem; color: var(--accent-green); font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 4px;">
+                                3. CENTRAL BRAIN &amp; INTEL</div>
+                            <div class="card card--green" style="padding: 12px 10px;">
+                                <div style="font-weight: 700; color: #fff; font-size: 0.98rem;">&#x1F9E0; SIEM ENGINE
+                                </div>
+                                <div style="font-size: 0.74rem; color: var(--blue-200);">Parse &bull; Normalize &bull;
+                                    Correlate</div>
+                            </div>
+                            <div class="card card--amber" style="padding: 8px 10px; font-size: 0.76rem;">
+                                &#x1F310; <strong>TIP (MISP / OpenCTI):</strong><br>Feeds IOCs to enrich SIEM logs
+                            </div>
+                        </div>
+
+                        <div style="display: flex; align-items: center; color: var(--blue-400); font-size: 1.3rem;">
+                            &rarr;</div>
+
+                        <div style="flex: 1.25; display: flex; flex-direction: column; gap: 7px;">
+                            <div
+                                style="font-family: var(--font-heading); font-size: 0.78rem; color: var(--purple-200); font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 4px;">
+                                4. RESPONSE &amp; ACTION</div>
+                            <div class="card card--purple" style="padding: 8px; font-size: 0.78rem;">&#x1F916;
+                                <strong>SOAR:</strong> Playbook Automation</div>
+                            <div class="card card--red" style="padding: 8px; font-size: 0.78rem;">&#x1F4BB;
+                                <strong>EDR:</strong> Isolate Host &amp; Kill PID</div>
+                            <div class="card card--cyan" style="padding: 8px; font-size: 0.78rem;">&#x1F9F1;
+                                <strong>Firewall:</strong> Auto-Block Attacker IP</div>
+                            <div class="card" style="padding: 8px; font-size: 0.78rem;">&#x1F4CB; <strong>Case
+                                    Mgmt:</strong> TheHive / Analyst Triage</div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 25: SIEM DEEP DIVE & CORRELATION RULES -->
+        <div class="slide" data-title="SIEM Deep Dive: Correlation Rules"
+            data-notes="Explain how the SIEM correlation engine thinks. Show an actual logical correlation rule: combining multiple low-confidence events across different sources within a specific time window to detect a sophisticated attack.">
+            <div class="slide-inner">
+                <div class="section-label"><span class="label-icon">&#x1F9E0;</span> SECTION 4 &middot; SIEM DEEP DIVE
+                </div>
+                <h2>SIEM Deep Dive: The Power of Correlation Rules</h2>
+                <p>A SIEM's greatest strength is <strong>stateful multi-source correlation</strong>—connecting weak
+                    signals across different layers into high-confidence detections:</p>
+
+                <div class="grid grid--2col">
+                    <div class="card card--cyan">
+                        <div class="card-title"><span>Core Capabilities of an Enterprise SIEM</span></div>
+                        <ul style="font-size: 0.85rem;">
+                            <li><strong>Sub-Second Search (SPL / KQL / EQL):</strong> Query billions of historical logs
+                                across months of retention during threat hunting.</li>
+                            <li><strong>Threshold &amp; Sequence Rules:</strong> Trigger alerts when <em>Event A</em> is
+                                followed by <em>Event B</em> within <em>X minutes</em> from the same entity.</li>
+                            <li><strong>Anomaly &amp; UEBA Baselining:</strong> Detect deviations from normal user
+                                behavior (e.g., first-time access to a domain controller at 3:00 AM).</li>
+                            <li><strong>Dashboards &amp; Compliance:</strong> Real-time SOC wallboards and audit
+                                reporting.</li>
+                        </ul>
+                    </div>
+
+                    <div class="terminal-box" style="margin: 0;">
+                        <div class="terminal-header"><span>Anatomy of a Multi-Stage Correlation Rule</span></div>
+                        <div class="terminal-body" style="font-size: 0.76rem;"><span class="comment"># Rule Name: "Brute
+                                Force Followed by Privileged Lateral Movement"</span>
+                            <span class="cmd">CONDITION 1:</span> Count(EventID=<span class="highlight">4625</span>)
+                            &gt;= 20
+                            GROUP BY <span class="param">Source_IP, Target_User</span> WITHIN <span
+                                class="param">5m</span>
+                            <span class="cmd">FOLLOWED BY</span>
+                            <span class="cmd">CONDITION 2:</span> EventID=<span class="success">4624</span> (LogonType=3
+                            or 10)
+                            WHERE <span class="param">Source_IP</span> == Condition1.Source_IP
+                            WITHIN <span class="param">2m</span>
+                            <span class="cmd">FOLLOWED BY</span>
+                            <span class="cmd">CONDITION 3:</span> Sysmon EventID=<span class="highlight">1</span>
+                            (Image="*\PsExec.exe" OR "*\powershell.exe")
+                            ON <span class="param">Target_Host</span> WITHIN <span class="param">5m</span>
+                            <span class="cmd">ACTION:</span> <span class="highlight">Trigger High-Severity Alert +
+                                Notify Tier 2!</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 26: EDR vs SIEM -->
+        <div class="slide" data-title="EDR vs SIEM: Complementary Titans"
+            data-notes="Students frequently ask: 'If we have an EDR like CrowdStrike or LimaCharlie, why do we need a SIEM? And if we have a SIEM, why do we need EDR?' Use this comparison table to show that SIEM is wide (all enterprise logs) while EDR is deep (endpoint memory, kernel hooks, and instant live isolation).">
+            <div class="slide-inner">
+                <div class="section-label"><span class="label-icon">&#x2694;&#xFE0F;</span> SECTION 4 &middot;
+                    ARCHITECTURAL COMPARISON</div>
+                <h2>EDR vs SIEM: Why the SOC Needs Both</h2>
+                <p>A common misconception is that EDR replaces SIEM (or vice versa). In reality, <strong>SIEM provides
+                        enterprise-wide breadth</strong>, while <strong>EDR provides deep endpoint surgical
+                        control</strong>:</p>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 22%;">Dimension</th>
+                                <th style="width: 39%;">SIEM (Splunk, Sentinel, Wazuh, QRadar)</th>
+                                <th style="width: 39%;">EDR (CrowdStrike, Defender, LimaCharlie)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Visibility Scope</strong></td>
+                                <td><strong>Enterprise-Wide (Macro):</strong> Firewalls, Cloud, AD, Databases, Web
+                                    Servers, switches, and endpoints.</td>
+                                <td><strong>Endpoint-Specific (Micro):</strong> Deep inside Windows/Linux/macOS kernel,
+                                    processes, RAM, and registry.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Primary Data</strong></td>
+                                <td>Normalized event logs, audit trails, NetFlow, and third-party security alerts.</td>
+                                <td>Real-time process trees, API/syscall hooks, memory injection telemetry, file hashes.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Active Response</strong></td>
+                                <td>Passive analytics engine (relies on SOAR or API integrations to take external
+                                    action).</td>
+                                <td><strong>Direct Live Intervention:</strong> Kill processes, quarantine files, and
+                                    <strong>isolate host from network</strong> in 1 click!</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Retention</strong></td>
+                                <td>Long-term compliance &amp; forensic storage (90 days to 7+ years).</td>
+                                <td>Short-term operational flight recorder (typically 7 to 30 days).</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card card--highlight" style="margin-top: 10px;">
+                    <div class="card-title"><span>How They Work Together</span></div>
+                    <p class="card-text">The <strong>EDR</strong> detects suspicious memory behavior on a laptop and
+                        forwards the alert to the <strong>SIEM</strong>. The <strong>SIEM</strong> correlates that EDR
+                        alert with Firewall and Cloud logs to see if the attacker also stole cloud tokens!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 27: SOAR & THREAT INTELLIGENCE (TIP) -->
+        <div class="slide" data-title="SOAR & Threat Intelligence (TIP)"
+            data-notes="Explain how Threat Intelligence Platforms (TIP) feed IOCs into the SIEM before an alert fires, and how SOAR executes automated response playbooks after an alert fires to reduce MTTR from hours to seconds.">
+            <div class="slide-inner">
+                <div class="section-label"><span class="label-icon">&#x1F916;</span> SECTION 4 &middot; AUTOMATION &amp;
+                    INTEL</div>
+                <h2>SOAR &amp; Threat Intelligence Platforms (TIP)</h2>
+                <p>To win against automated adversaries, the SOC pairs <strong>Threat Intelligence (proactive
+                        context)</strong> with <strong>SOAR (automated response)</strong>:</p>
+
+                <div class="grid grid--2col">
+                    <div class="card card--amber">
+                        <div class="card-title">
+                            <span>Threat Intelligence Platform (TIP)</span>
+                            <span class="badge badge--amber">MISP / OpenCTI</span>
+                        </div>
+                        <p class="card-text" style="margin-bottom: 8px;">Aggregates global adversary intelligence feeds
+                            to enrich SIEM logs automatically with known <strong>Indicators of Compromise
+                                (IOCs)</strong>:</p>
+                        <ul style="font-size: 0.84rem;">
+                            <li><strong>Network IOCs:</strong> Malicious C2 IP addresses, botnet domains, Tor exit
+                                nodes.</li>
+                            <li><strong>Host IOCs:</strong> Malware SHA256 file hashes, mutex names, registry paths.
+                            </li>
+                            <li><strong>Tactical Context:</strong> Maps alerts to <strong>MITRE ATT&amp;CK</strong>
+                                techniques and threat actor groups.</li>
+                        </ul>
+                    </div>
+
+                    <div class="card card--purple">
+                        <div class="card-title">
+                            <span>SOAR (Orchestration &amp; Automation)</span>
+                            <span class="badge badge--purple">Shuffle / XSOAR</span>
+                        </div>
+                        <p class="card-text" style="margin-bottom: 8px;">Executes automated <strong>Playbooks</strong>
+                            the moment a SIEM alert triggers, slashing Mean Time to Respond (MTTR) from hours to
+                            seconds:</p>
+                        <ul style="font-size: 0.84rem;">
+                            <li><strong>Auto-Enrichment:</strong> Queries VirusTotal, AbuseIPDB, and Whois
+                                automatically.</li>
+                            <li><strong>Auto-Containment:</strong> Instructs the Firewall to block the attacker IP and
+                                tells the EDR to isolate the infected host.</li>
+                            <li><strong>Ticketing:</strong> Opens a pre-populated case in TheHive/Jira and pages the
+                                analyst on Slack/Teams.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 28: CORRELATED MULTI-SOURCE SCENARIO -->
+        <div class="slide" data-title="Correlated Multi-Source Attack Scenario"
+            data-notes="Walk through this end-to-end attack scenario that unites all 4 log sources we studied today: Firewall Log -> Web Server Log -> Sysmon Log -> Windows Security Log.">
+            <div class="slide-inner">
+                <div class="section-label"><span class="label-icon">&#x1F3AF;</span> SECTION 4 &middot; END-TO-END
+                    SYNTHESIS</div>
+                <h2>Correlated Scenario: Tracing One Breach Across 4 Log Sources</h2>
+                <p>Observe how a single intrusion leaves a trail across four separate telemetry sources, and how the
+                    SIEM links them into one incident timeline:</p>
+
+                <div class="flow-row">
+                    <div class="flow-node"
+                        style="border-top: 3px solid var(--cyan-400); text-align: left; align-items: flex-start;">
+                        <span class="node-num">10:01:12 UTC &middot; FIREWALL</span>
+                        <span class="node-title">1. Perimeter Probe</span>
+                        <span class="node-desc" style="font-family: var(--font-mono); font-size: 0.72rem;">SrcIP
+                            <code>198.51.100.42</code> scans ports 21-80 (DROP), then connects to
+                            <code>10.0.0.20:443</code> (ALLOW).</span>
+                    </div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-node"
+                        style="border-top: 3px solid var(--purple-400); text-align: left; align-items: flex-start;">
+                        <span class="node-num">10:02:45 UTC &middot; WEB LOG</span>
+                        <span class="node-title">2. Web Exploitation</span>
+                        <span class="node-desc"
+                            style="font-family: var(--font-mono); font-size: 0.72rem;"><code>access.log</code> records
+                            <code>POST /upload.php</code> from <code>198.51.100.42</code> followed by
+                            <code>GET /uploads/shell.aspx</code> (200 OK).</span>
+                    </div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-node"
+                        style="border-top: 3px solid var(--accent-amber); text-align: left; align-items: flex-start;">
+                        <span class="node-num">10:03:02 UTC &middot; SYSMON</span>
+                        <span class="node-title">3. Process &amp; C2</span>
+                        <span class="node-desc" style="font-family: var(--font-mono); font-size: 0.72rem;"><strong>Event
+                                1:</strong> <code>w3wp.exe</code> spawns <code>powershell.exe</code>.<br><strong>Event
+                                3:</strong> PowerShell connects out to <code>198.51.100.42:4444</code>.</span>
+                    </div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-node"
+                        style="border-top: 3px solid var(--accent-red); text-align: left; align-items: flex-start;">
+                        <span class="node-num">10:04:19 UTC &middot; WIN SEC</span>
+                        <span class="node-title">4. Persistence</span>
+                        <span class="node-desc" style="font-family: var(--font-mono); font-size: 0.72rem;"><strong>Event
+                                4720:</strong> Account <code>svc_support</code> created.<br><strong>Event 4732:</strong>
+                            Added to local <code>Administrators</code> group!</span>
+                    </div>
+                </div>
+
+                <div class="card card--highlight" style="margin-top: 10px;">
+                    <div class="card-title"><span>&#x1F9E0; Automated SIEM + SOAR Outcome</span><span
+                            class="badge badge--red">P1 Incident Contained</span></div>
+                    <p class="card-text">The SIEM correlates all four logs via the shared IP
+                        (<code>198.51.100.42</code>) and host (<code>10.0.0.20</code>). Within 5 seconds, SOAR blocks
+                        <code>198.51.100.42</code> at the Firewall, EDR isolates <code>10.0.0.20</code>, and Active
+                        Directory disables <code>svc_support</code>!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 29: CLASSROOM CHALLENGE: TRIAGE & LOG QUIZ -->
+        <div class="slide" data-title="Classroom Challenge: Triage & Log Quiz"
+            data-notes="Run this interactive quiz with the students! Have them classify the 4 log types/states on the left, and answer the 3 forensic questions about the multi-line log snippet on the right.">
+            <div class="slide-inner">
+                <div class="section-label"><span class="label-icon">&#x1F9E0;</span> SECTION 4 &middot; INTERACTIVE
+                    CLASSROOM CHALLENGE</div>
+                <h2>Classroom Challenge: Triage &amp; Log Quiz</h2>
+                <p>Test your analytical instincts on these real-world log triage challenges:</p>
+
+                <div class="grid grid--2col">
+                    <div class="card card--cyan">
+                        <div class="card-title">Challenge 1: Identify the Log Type &amp; Event ID</div>
+                        <ul style="font-size: 0.84rem; line-height: 1.7;">
+                            <li><strong>Q1:</strong> Which log type records SQL queries and schema changes for
+                                regulatory compliance?</li>
+                            <li><strong>Q2:</strong> You see Windows Event ID <code>4624</code> with
+                                <code>Logon Type 10</code>. How did the user access the machine?</li>
+                            <li><strong>Q3:</strong> Why do we need <strong>Sysmon Event ID 3</strong> if we already
+                                have perimeter Firewall logs?</li>
+                            <li><strong>Q4:</strong> What happens to SIEM correlation rules if one server's NTP clock is
+                                10 minutes behind UTC?</li>
+                        </ul>
+                    </div>
+
+                    <div class="card card--purple">
+                        <div class="card-title">Challenge 2: Investigate the Log Snippet</div>
+                        <div class="terminal-box" style="margin: 4px 0 8px 0;">
+                            <div class="terminal-body" style="font-size: 0.72rem;">[11:10:02] Sysmon ID=1 | Parent=<span
+                                    class="highlight">WINWORD.EXE</span> | Image=<span class="param">cmd.exe</span> |
+                                Cmd="cmd.exe /c powershell -w hidden"
+                                [11:10:04] Sysmon ID=22 | Image=<span class="param">powershell.exe</span> |
+                                QueryName=<span class="highlight">update-check-cdn.ru</span>
+                                [11:10:09] Security ID=<span class="highlight">1102</span> | User=CORP\jdoe | Msg="The
+                                audit log was cleared"</div>
+                        </div>
+                        <p class="card-text" style="font-size: 0.82rem;">
+                            <strong>Questions:</strong> (A) What was the initial infection vector? (B) Which Sysmon
+                            event caught the C2 domain lookup? (C) Why did the attacker trigger Event 1102, and why
+                            didn't it save them?
+                        </p>
+                    </div>
+                </div>
+
+                <div class="terminal-box" style="margin-top: 8px;">
+                    <div class="terminal-header"><span>Instructor Answer Key</span></div>
+                    <div class="terminal-body" style="font-size: 0.76rem;"><span class="comment"># Challenge 1:</span>
+                        Q1 = Database / Audit Logs &middot; Q2 = Remote Desktop (RDP) &middot; Q3 = Sysmon Event 3
+                        reveals the exact Process Image &amp; PID that opened the connection &middot; Q4 = Time-window
+                        correlation rules fail due to clock skew.
+                        <span class="comment"># Challenge 2:</span> (A) Malicious Microsoft Word macro (Phishing)
+                        &middot; (B) Sysmon Event ID 22 (DNSEvent) &middot; (C) Anti-forensic log wiping, but logs were
+                        already streamed in real time to the central SIEM!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 30: ROADMAP & LAB 2 PREVIEW -->
+        <div class="slide" data-title="Roadmap & Lab 2 Preview"
+            data-notes="Preview what we will build next week in Lab 2! Students will transition from reading logs manually to deploying their own SIEM and log collection agents.">
+            <div class="slide-inner">
+                <div class="section-label"><span class="label-icon">&#x1F5FA;&#xFE0F;</span> SECTION 4 &middot; LOOKING
+                    AHEAD</div>
+                <h2>Course Roadmap &amp; Lab 02 Preview</h2>
+                <p>Now that you understand log anatomy, OS/Web telemetry, and why centralization is mandatory, here is
+                    what we will build next week in <strong>Lab 02</strong>:</p>
+
+                <div class="grid grid--3col">
+                    <div class="card card--cyan">
+                        <div class="badge badge--cyan" style="margin-bottom: 6px;">STEP 1 &middot; ENDPOINT SENSOR</div>
+                        <div class="card-title" style="font-size: 0.98rem;">Install &amp; Configure Sysmon</div>
+                        <p class="card-text" style="font-size: 0.84rem;">Deploy Microsoft Sysmon with a modular
+                            threat-hunting XML configuration (SwiftOnSecurity / Olaf Hartong) to capture Event IDs 1, 3,
+                            11, and 22.</p>
+                    </div>
+
+                    <div class="card card--purple">
+                        <div class="badge badge--purple" style="margin-bottom: 6px;">STEP 2 &middot; LOG SHIPPING</div>
+                        <div class="card-title" style="font-size: 0.98rem;">Configure Log Forwarders</div>
+                        <p class="card-text" style="font-size: 0.84rem;">Install a log shipping agent to stream live
+                            Windows Security, Sysmon, and Linux/Web logs directly into our centralized SIEM index.</p>
+                    </div>
+
+                    <div class="card card--green">
+                        <div class="badge badge--green" style="margin-bottom: 6px;">STEP 3 &middot; SIEM QUERIES</div>
+                        <div class="card-title" style="font-size: 0.98rem;">Hands-on SIEM Hunting</div>
+                        <p class="card-text" style="font-size: 0.84rem;">Explore the SIEM web interface, verify
+                            normalized fields, write your first search queries, and build a live brute-force detection
+                            alert!</p>
+                    </div>
+                </div>
+
+                <div class="card card--highlight" style="margin-top: 12px;">
+                    <div class="card-title"><span>&#x1F527; Pre-Lab 02 Checklist for Students</span></div>
+                    <p class="card-text">Ensure your lab virtual machine or workstation is ready with Administrator
+                        privileges, **Sysinternals Suite**, and at least **10GB of free disk space** before next week's
+                        session.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 31: KEY TAKEAWAYS & THM HOMEWORK -->
+        <div class="slide" data-title="Key Takeaways & TryHackMe Homework"
+            data-notes="Wrap up the session! Review the 4 main takeaways and assign the TryHackMe 'Intro to Logs' homework room so students practice hands-on log analysis before Lab 2.">
+            <div class="slide-inner">
+                <div class="section-label"><span class="label-icon">&#x1F3C1;</span> SECTION 4 &middot; CONCLUSION &amp;
+                    HOMEWORK</div>
+                <h2>Key Takeaways &amp; TryHackMe Homework</h2>
+                <p>Summary of core principles covered in this session and your practical homework assignment for Week 1:
+                </p>
+
+                <div class="grid grid--2col">
+                    <div class="card card--green">
+                        <div class="card-title">
+                            <span>Core Session Takeaways</span>
+                            <span class="badge badge--green">Summary</span>
+                        </div>
+                        <ul style="font-size: 0.85rem;">
+                            <li><strong>The 6 Forensic Questions:</strong> Logs provide the ground truth for <em>Who,
+                                    What, When, Where, How, and Outcome</em>.</li>
+                            <li><strong>8 Log Types &amp; Formats:</strong> From unstructured Syslog/CLF to structured
+                                JSON, CEF, and binary EVTX.</li>
+                            <li><strong>Cross-Layer Telemetry:</strong> Combining Windows Security + Sysmon + Linux
+                                `auth.log` + Web + Firewall logs eliminates blind spots.</li>
+                            <li><strong>Centralization &amp; SIEM Pipeline:</strong> NTP sync, off-host shipping,
+                                Enrichment, and Correlation turn isolated logs into actionable alerts.</li>
+                        </ul>
+                    </div>
+
+                    <div class="card card--cyan">
+                        <div class="card-title">
+                            <span>Homework Assignment (Due Before Lab 02)</span>
+                            <span class="badge badge--blue">Required Practice</span>
+                        </div>
+                        <p class="card-text" style="margin-bottom: 10px;">Complete the official hands-on TryHackMe room
+                            to practice everything we learned today:</p>
+                        <div class="terminal-box" style="margin: 0 0 10px 0;">
+                            <div class="terminal-body" style="font-size: 0.78rem;"><span class="param">Platform:</span>
+                                TryHackMe
+                                <span class="param">Room Name:</span> <span class="cmd">Intro to Logs</span>
+                                <span class="param">URL:</span> <span
+                                    class="success">https://tryhackme.com/room/introtologs</span>
+                            </div>
+                        </div>
+                        <p class="card-text" style="font-size: 0.82rem;">
+                            <strong>Deliverable:</strong> Submit a screenshot of your completed TryHackMe room badge
+                            along with the output of the `Get-WinEvent` PowerShell query from Demo 1 on your lab
+                            machine.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /presentation -->
+
+    <!-- Bottom Control Bar -->
+    <div id="bottom-bar">
+        <div>
+            <span id="slide-counter">01 / 31</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+            <div class="nav-controls">
+                <button class="nav-btn nav-btn--notes" id="btn-notes" title="Speaker Notes (Key: N)">&#x1F4DD;
+                    Notes</button>
+                <button class="nav-btn" id="btn-prev" aria-label="Previous slide">&larr; Prev</button>
+                <button class="nav-btn" id="btn-next" aria-label="Next slide">Next &rarr;</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Speaker Notes Overlay Modal -->
+    <div id="speaker-notes-overlay" role="dialog" aria-label="Speaker Notes">
+        <div class="notes-header">
+            <div class="notes-title">
+                <span>&#x1F4DD;</span> Speaker Notes
+                <span id="notes-slide-num"
+                    style="font-size:0.75rem; color:var(--text-muted); font-weight:normal; margin-left:6px;"></span>
+            </div>
+            <button class="notes-close" id="btn-close-notes" aria-label="Close notes">&times;</button>
+        </div>
+        <div class="notes-body" id="notes-content"></div>
+    </div>
+
+    <!-- JavaScript Navigation Engine -->
+    <script>
+        (() => {
+            const slides = document.querySelectorAll('.slide');
+            const total = slides.length;
+            let current = 0;
+
+            const counterEl = document.getElementById('slide-counter');
+            const progressEl = document.getElementById('progress-bar');
+            const headerTitleEl = document.getElementById('header-slide-title');
+
+            const notesOverlay = document.getElementById('speaker-notes-overlay');
+            const notesBtn = document.getElementById('btn-notes');
+            const notesCloseBtn = document.getElementById('btn-close-notes');
+            const notesContent = document.getElementById('notes-content');
+            const notesSlideNum = document.getElementById('notes-slide-num');
+
+            function updateNotes() {
+                if (!notesOverlay) return;
+                const note = slides[current].getAttribute('data-notes');
+                const title = slides[current].getAttribute('data-title') || `Slide ${current + 1}`;
+                if (notesSlideNum) notesSlideNum.textContent = `(${String(current + 1).padStart(2, '0')}/${String(total).padStart(2, '0')} - ${title})`;
+                if (note && note.trim().length > 0) {
+                    notesContent.innerHTML = `<p>${note.replace(/\n/g, '<br>')}</p>`;
+                } else {
+                    notesContent.innerHTML = `<span class="notes-empty">No speaker notes recorded for this slide.</span>`;
+                }
+            }
+
+            function toggleNotes() {
+                if (!notesOverlay) return;
+                const isActive = notesOverlay.classList.toggle('active');
+                if (notesBtn) notesBtn.classList.toggle('active', isActive);
+                if (isActive) updateNotes();
+            }
+
+            if (notesBtn) notesBtn.addEventListener('click', toggleNotes);
+            if (notesCloseBtn) notesCloseBtn.addEventListener('click', () => {
+                notesOverlay.classList.remove('active');
+                if (notesBtn) notesBtn.classList.remove('active');
+            });
+
+            function goTo(index) {
+                if (index < 0 || index >= total || index === current) return;
+                slides[current].classList.remove('active');
+                slides[current].scrollTop = 0;
+                slides[index].classList.add('active');
+                slides[index].scrollTop = 0;
+                current = index;
+                updateUI();
+            }
+
+            function updateUI() {
+                counterEl.textContent = `${String(current + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`;
+                progressEl.style.width = `${((current + 1) / total) * 100}%`;
+                headerTitleEl.textContent = slides[current].getAttribute('data-title') || '';
+                if (notesOverlay && notesOverlay.classList.contains('active')) updateNotes();
+            }
+
+            document.addEventListener('keydown', (e) => {
+                if (e.code === 'KeyN' || e.key === 'n' || e.key === 'N' || e.key === 'ى') {
+                    e.preventDefault();
+                    toggleNotes();
+                } else if (e.key === 'Escape') {
+                    if (notesOverlay && notesOverlay.classList.contains('active')) {
+                        e.preventDefault();
+                        notesOverlay.classList.remove('active');
+                        if (notesBtn) notesBtn.classList.remove('active');
+                    }
+                } else if (e.key === 'ArrowRight' || e.key === ' ') {
+                    e.preventDefault();
+                    goTo(current + 1);
+                } else if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    goTo(current - 1);
+                } else if (e.key === 'ArrowDown') {
+                    const s = slides[current];
+                    if (s && s.scrollHeight > s.clientHeight && s.scrollTop + s.clientHeight < s.scrollHeight - 5) {
+                        e.preventDefault();
+                        s.scrollBy({ top: 120, behavior: 'smooth' });
+                    } else {
+                        e.preventDefault();
+                        goTo(current + 1);
+                    }
+                } else if (e.key === 'ArrowUp') {
+                    const s = slides[current];
+                    if (s && s.scrollHeight > s.clientHeight && s.scrollTop > 5) {
+                        e.preventDefault();
+                        s.scrollBy({ top: -120, behavior: 'smooth' });
+                    } else {
+                        e.preventDefault();
+                        goTo(current - 1);
+                    }
+                } else if (e.key === 'Home') {
+                    e.preventDefault();
+                    goTo(0);
+                } else if (e.key === 'End') {
+                    e.preventDefault();
+                    goTo(total - 1);
+                }
+            });
+
+            document.getElementById('btn-prev').addEventListener('click', () => goTo(current - 1));
+            document.getElementById('btn-next').addEventListener('click', () => goTo(current + 1));
+
+            updateUI();
+        })();
+    </script>
+
+</body>
+
+</html>
