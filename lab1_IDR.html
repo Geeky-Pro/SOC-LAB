@@ -2231,6 +2231,49 @@
       border-color: var(--blue-400) !important;
       box-shadow: 0 0 12px rgba(53, 99, 233, 0.5) !important;
     }
+  
+    /* --- Triage Table & Badge Styles --- */
+    .table-container {
+      width: 100%; overflow-x: auto; margin: 8px 0; border-radius: 9px; border: 1px solid var(--border);
+    }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.84rem; }
+    th {
+      background: rgba(14, 22, 44, 0.9);
+      padding: 7px 12px;
+      font-family: var(--font-heading);
+      color: var(--blue-200);
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+      letter-spacing: 0.02em;
+    }
+    td {
+      padding: 7px 12px;
+      border-bottom: 1px solid rgba(99, 130, 241, 0.08);
+      color: var(--text-secondary);
+      background: rgba(8, 12, 24, 0.6);
+      font-size: 0.78rem;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: rgba(18, 26, 52, 0.7); }
+    .badge {
+      display: inline-block; font-family: var(--font-mono); font-size: 0.62rem;
+      font-weight: 700; padding: 0.2em 0.55em; border-radius: 4px; letter-spacing: 0.04em;
+    }
+    .badge--blue { background: rgba(53,99,233,0.2); color: var(--blue-200); border: 1px solid rgba(53,99,233,0.3); }
+    .badge--purple { background: rgba(124,58,237,0.2); color: var(--purple-200); border: 1px solid rgba(124,58,237,0.3); }
+    .badge--green { background: rgba(52,211,153,0.2); color: #6ee7b7; border: 1px solid rgba(52,211,153,0.3); }
+    .badge--red { background: rgba(248,113,113,0.2); color: #fca5a5; border: 1px solid rgba(248,113,113,0.3); }
+    .badge--amber { background: rgba(251,191,36,0.2); color: #fde68a; border: 1px solid rgba(251,191,36,0.3); }
+    .card--highlight {
+      border-color: rgba(99, 130, 241, 0.35);
+      background: var(--gradient-card);
+    }
+    .card-title {
+      font-family: var(--font-heading); font-size: 0.95rem; font-weight: 600;
+      color: var(--text-primary); margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-text { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.45; margin: 0; }
+
   </style>
 </head>
 
@@ -2308,7 +2351,7 @@
     <!-- ==========================================
          SLIDE 2 — Learning Objectives
          ========================================== -->
-    <div class="slide" data-slide="1" data-title="Domain Objectives"
+    <div class="slide" data-slide="0" data-title="Domain Objectives"
       data-notes="Walk through each objective so students know what they are expected to achieve by the end of the lab session.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">◆</span> DOMAIN OBJECTIVES</div>
@@ -2330,7 +2373,7 @@
     <!-- ==========================================
          SLIDE 3 — What is a SOC?
          ========================================== -->
-    <div class="slide" data-slide="2" data-title="What is a SOC?"
+    <div class="slide" data-slide="1" data-title="What is a SOC?"
       data-notes="Emphasize that a SOC is not necessarily a physical room. It can be a distributed team working together to defend an organization against cyber threats.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">◆</span> FOUNDATIONS</div>
@@ -2391,7 +2434,7 @@
     <!-- ==========================================
          SLIDE 4 — The Role / Core Cycle
          ========================================== -->
-    <div class="slide" data-slide="3" data-title="The Core Role of a SOC"
+    <div class="slide" data-slide="2" data-title="The Core Role of a SOC"
       data-notes="This cycle represents the fundamental mission of every Security Operations Center and serves as the foundation for many SOC activities.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">◆</span> MISSION</div>
@@ -2469,7 +2512,7 @@
     <!-- ==========================================
          SLIDE 5 — SOC Models
          ========================================== -->
-    <div class="slide" data-slide="4" data-title="SOC Models & Structures"
+    <div class="slide" data-slide="3" data-title="SOC Models & Structures"
       data-notes="Discuss the advantages and challenges of each model and explain why organizations choose different SOC structures based on budget, expertise, and operational requirements.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">◆</span> ORGANIZATIONAL STRUCTURES</div>
@@ -2554,7 +2597,7 @@
     <!-- ==========================================
          SLIDE 6 — SOC Roles and Responsibilities
          ========================================== -->
-    <div class="slide" data-slide="5" data-title="SOC Roles and Responsibilities"
+    <div class="slide" data-slide="4" data-title="SOC Roles and Responsibilities"
       data-notes="Explain that escalation between tiers allows organizations to handle large volumes of alerts efficiently, while the SOC Manager oversees strategic operations, performance metrics, and executive communication.">
       <div class="slide-inner">
         <div class="section-label" style="margin-bottom: 2px;"><span class="label-icon">&#x25C6;</span> TEAMS &amp;
@@ -2705,7 +2748,7 @@
     <!-- ==========================================
          SLIDE 6 — People, Process & Technology
          ========================================== -->
-    <div class="slide" data-slide="6" data-title="People, Process & Technology"
+    <div class="slide" data-slide="5" data-title="People, Process & Technology"
       data-notes="Emphasize that technology alone cannot secure an organization. Effective security operations require skilled personnel, well-defined procedures, and appropriate tools working together.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">◆</span> THREE PILLARS</div>
@@ -2830,7 +2873,7 @@
     <!-- ==========================================
          SLIDE 7 — CIA Triad
          ========================================== -->
-    <div class="slide" data-slide="7" data-title="Protecting the CIA Triad"
+    <div class="slide" data-slide="6" data-title="Protecting the CIA Triad"
       data-notes="Use a ransomware example to show that ransomware primarily attacks Availability (and often Confidentiality via data theft), then walk through how People, Process, and Technology each contribute to the response.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">◆</span> SECURITY PRINCIPLES</div>
@@ -2909,7 +2952,7 @@
     <!-- ==========================================
          SLIDE 9 — Reactive Operations
          ========================================== -->
-    <div class="slide" data-slide="8" data-title="Reactive Operations"
+    <div class="slide" data-slide="7" data-title="Reactive Operations"
       data-notes="Explain that reactive operations focus on investigating and responding to events that have already occurred or been detected.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">◆</span> REACTIVE OPS</div>
@@ -2982,7 +3025,7 @@
     <!-- ==========================================
          SLIDE 10 — Proactive Operations
          ========================================== -->
-    <div class="slide" data-slide="9" data-title="Proactive Operations"
+    <div class="slide" data-slide="8" data-title="Proactive Operations"
       data-notes="Explain that mature SOCs spend significant effort on proactive security because preventing incidents is often more effective than responding to them.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">◆</span> PROACTIVE OPS</div>
@@ -3105,7 +3148,7 @@
     <!-- ==========================================
          SLIDE 11 — A Day in the Life of a SOC Analyst
          ========================================== -->
-    <div class="slide" data-slide="10" data-title="A Day in the Life of a SOC Analyst"
+    <div class="slide" data-slide="9" data-title="A Day in the Life of a SOC Analyst"
       data-notes="Explain that analysts spend much more time investigating and documenting than simply watching dashboards.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">◆</span> A DAY IN THE SOC</div>
@@ -3262,7 +3305,7 @@
     <!-- ==========================================
          SLIDE 13 — Scenario: Insider Data Exfiltration
          ========================================== -->
-    <div class="slide" data-slide="11" data-title="Scenario: Insider Data Exfiltration"
+    <div class="slide" data-slide="10" data-title="Scenario: Insider Data Exfiltration"
       data-notes="Walk through this scenario tier by tier. Emphasize how each tier adds context the previous tier couldn't see, and how the SOC Manager's role is coordination and decision-making rather than hands-on investigation.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">◆</span> ROLES IN ACTION</div>
@@ -3369,7 +3412,7 @@
     <!-- ==========================================
          SLIDE 8 — Logs, Events, Alerts & Incidents
          ========================================== -->
-    <div class="slide" data-slide="12" data-title="Logs, Events, Alerts, and Incidents"
+    <div class="slide" data-slide="11" data-title="Logs, Events, Alerts, and Incidents"
       data-notes="Students often confuse these terms. Emphasize that not every log becomes an event, not every event generates an alert, and not every alert becomes an incident.">
       <div class="slide-inner">
         <div class="section-label"><span class="label-icon">◆</span> SEC FLOWS</div>
@@ -3478,6 +3521,62 @@
                 font-weight="600">Action Required</text>
             </svg>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE — Triage Truth Matrix: TP / FP / TN / FN
+         ========================================== -->
+    <div class="slide" data-slide="12" data-title="Triage Truth Matrix: TP / FP / TN / FN"
+      data-notes="Explain the four quadrants. Highlight that False Positives waste precious analyst time and cause alert fatigue. But False Negatives are the true nightmare — an attacker is actively inside your network and not a single alarm fired.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x2696;&#xFE0F;</span> DETECTION METRICS</div>
+        <h2>The Triage Truth Matrix: Evaluating Detections</h2>
+        <p style="margin-bottom: 6px;">Whenever an alert fires (or fails to fire), it falls into one of four statistical quadrants:</p>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 22%;">Quadrant</th>
+                <th style="width: 22%;">Alert Fired?</th>
+                <th style="width: 22%;">Actually Malicious?</th>
+                <th style="width: 34%;">Operational Impact &amp; Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="badge badge--green">TRUE POSITIVE (TP)</span></td>
+                <td><strong style="color:var(--accent-green)">YES (Alert)</strong></td>
+                <td><strong style="color:var(--accent-green)">YES (Attack)</strong></td>
+                <td><strong>Success!</strong> Threat detected. Escalate immediately to Tier 2 for containment.</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge--amber">FALSE POSITIVE (FP)</span></td>
+                <td><strong style="color:var(--accent-amber)">YES (Alert)</strong></td>
+                <td><strong style="color:var(--text-muted)">NO (Benign)</strong></td>
+                <td><strong>Alert Fatigue.</strong> Benign backup script flagged as ransomware. Requires rule tuning.</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge--blue">TRUE NEGATIVE (TN)</span></td>
+                <td><strong style="color:var(--text-muted)">NO (Quiet)</strong></td>
+                <td><strong style="color:var(--text-muted)">NO (Benign)</strong></td>
+                <td><strong>Normal Operations.</strong> Regular employee traffic correctly ignored by detection rules.</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge--red">FALSE NEGATIVE (FN)</span></td>
+                <td><strong style="color:var(--accent-red)">NO (Quiet)</strong></td>
+                <td><strong style="color:var(--accent-red)">YES (Attack)</strong></td>
+                <td><strong>The Worst Nightmare!</strong> Stealthy adversary penetrated network undetected. Blind spot!</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card card--highlight" style="margin-top: 8px; border: 1px solid rgba(99, 130, 241, 0.35); padding: 9px 14px;">
+          <div class="card-title"><span>&#x1F3AF; SOC Analyst's Golden Rule for Tuning</span></div>
+          <p class="card-text">Every SOC must continuously tune rules to minimize <strong>False Positives</strong> (which burn out analysts) without opening blind spots that produce <strong>False Negatives</strong> (which let attackers breach undetected).</p>
         </div>
       </div>
     </div>
