@@ -2541,43 +2541,46 @@
         <h2 style="margin-bottom: 3px;">SOC Roles and Responsibilities</h2>
         <p style="margin-bottom: 8px;">A structured tier system ensures high efficiency and ensures expert focus is applied where it is needed most.</p>
 
-        <div style="display: flex; gap: 28px; align-items: center; margin-top: 0.2em; flex-wrap: wrap;">
+        <div style="display: flex; gap: 26px; align-items: center; margin-top: 0.2em; flex-wrap: wrap;">
           
-          <!-- Left: Slightly Enlarged Clean Animated SVG Pyramid -->
-          <div class="svg-diagram pyramid-anim" style="flex: 1; min-width: 300px; max-width: 350px; margin-top: 0;">
-            <svg viewBox="0 0 320 290" xmlns="http://www.w3.org/2000/svg">
+          <!-- Left: Clean Animated SVG Pyramid with 2 Escalation Arrows -->
+          <div class="svg-diagram pyramid-anim" style="flex: 1; min-width: 310px; max-width: 355px; margin-top: 0;">
+            <svg viewBox="0 0 340 290" xmlns="http://www.w3.org/2000/svg">
               <defs>
-                <linearGradient id="pyrEscGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#3563e9" />
-                  <stop offset="100%" stop-color="#7c3aed" />
-                </linearGradient>
                 <filter id="pyrGlow">
                   <feGaussianBlur stdDeviation="3" result="b"/>
                   <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
                 </filter>
               </defs>
 
-              <!-- Escalation Arrow (Side) - Self-contained gradient fix -->
-              <path d="M 52,245 Q 12,150 115,70" fill="none" stroke="url(#pyrEscGrad)" stroke-width="2" stroke-dasharray="4 4">
-                <animate attributeName="stroke-dashoffset" values="40;0" dur="4s" repeatCount="indefinite"/>
+              <!-- Escalation Arrow 1: From Tier 1 to Tier 2 -->
+              <path d="M 28,245 Q 12,212 52,182" fill="none" stroke="#3563e9" stroke-width="2" stroke-dasharray="4 3">
+                <animate attributeName="stroke-dashoffset" values="28;0" dur="2.5s" repeatCount="indefinite"/>
               </path>
-              <polygon points="115,70 105,71 110,79" fill="#6b93f7" transform="rotate(-30, 115, 70)" />
-              <text x="24" y="152" fill="#6b93f7" font-family="'JetBrains Mono',monospace" font-size="7.5" transform="rotate(-68, 24, 152)">ESCALATION FLOW</text>
+              <polygon points="52,182 42,180 47,189" fill="#3563e9" />
+              <text x="10" y="218" fill="#93b4fd" font-family="'JetBrains Mono',monospace" font-size="7" font-weight="700" transform="rotate(-62, 10, 218)">T1 &#8594; T2</text>
+
+              <!-- Escalation Arrow 2: From Tier 2 to Tier 3 -->
+              <path d="M 58,172 Q 44,138 90,106" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="4 3">
+                <animate attributeName="stroke-dashoffset" values="28;0" dur="2.5s" repeatCount="indefinite"/>
+              </path>
+              <polygon points="90,106 80,105 85,114" fill="#8b5cf6" />
+              <text x="44" y="142" fill="#c5a0fc" font-family="'JetBrains Mono',monospace" font-size="7" font-weight="700" transform="rotate(-62, 44, 142)">T2 &#8594; T3</text>
 
               <!-- Pyramid Outline Background -->
-              <polygon points="160,55 305,270 15,270" fill="none" stroke="#1e3a9e" stroke-width="1" opacity="0.3" />
+              <polygon points="175,55 320,270 30,270" fill="none" stroke="#1e3a9e" stroke-width="1" opacity="0.25" />
 
               <!-- Tier 1 Solid (bottom trapezoid) -->
-              <polygon class="tier-1" points="38,218 282,218 305,270 15,270" fill="rgba(53,99,233,0.15)" stroke="#3563e9" stroke-width="1.6" style="animation: tierPulse1 3s ease-in-out infinite;"/>
-              <text x="160" y="248" text-anchor="middle" fill="#93b4fd" font-family="'Space Grotesk',sans-serif" font-size="9" font-weight="700">TIER 1 — TRIAGE</text>
+              <polygon class="tier-1" points="53,218 297,218 320,270 30,270" fill="rgba(53,99,233,0.15)" stroke="#3563e9" stroke-width="1.6" style="animation: tierPulse1 3s ease-in-out infinite;"/>
+              <text x="175" y="248" text-anchor="middle" fill="#93b4fd" font-family="'Space Grotesk',sans-serif" font-size="9" font-weight="700">TIER 1 — TRIAGE</text>
 
               <!-- Tier 2 Solid (middle trapezoid) -->
-              <polygon class="tier-2" points="75,152 245,152 274,208 46,208" fill="rgba(124,58,237,0.15)" stroke="#7c3aed" stroke-width="1.6" style="animation: tierPulse2 3s ease-in-out infinite;"/>
-              <text x="160" y="184" text-anchor="middle" fill="#c5a0fc" font-family="'Space Grotesk',sans-serif" font-size="9" font-weight="700">TIER 2 — INVESTIGATE</text>
+              <polygon class="tier-2" points="90,152 260,152 289,208 61,208" fill="rgba(124,58,237,0.15)" stroke="#7c3aed" stroke-width="1.6" style="animation: tierPulse2 3s ease-in-out infinite;"/>
+              <text x="175" y="184" text-anchor="middle" fill="#c5a0fc" font-family="'Space Grotesk',sans-serif" font-size="9" font-weight="700">TIER 2 — INVESTIGATE</text>
 
               <!-- Tier 3 Solid (top triangle) -->
-              <polygon class="tier-3" points="160,65 235,142 85,142" fill="rgba(53,99,233,0.25)" stroke="#6b93f7" stroke-width="1.6" style="animation: tierPulse3 3s ease-in-out infinite;" filter="url(#pyrGlow)"/>
-              <text x="160" y="112" text-anchor="middle" fill="#e8ecf4" font-family="'Space Grotesk',sans-serif" font-size="9" font-weight="700">TIER 3 — HUNT</text>
+              <polygon class="tier-3" points="175,65 250,142 100,142" fill="rgba(53,99,233,0.25)" stroke="#6b93f7" stroke-width="1.6" style="animation: tierPulse3 3s ease-in-out infinite;" filter="url(#pyrGlow)"/>
+              <text x="175" y="112" text-anchor="middle" fill="#e8ecf4" font-family="'Space Grotesk',sans-serif" font-size="9" font-weight="700">TIER 3 — HUNT</text>
             </svg>
           </div>
 
