@@ -1,0 +1,2070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab 1 – Security Operations, Logging Architecture & Centralization</title>
+  <meta name="description" content="Introduction to Security Operations, Enterprise Logging Architecture, Telemetry Sources, and Centralization — Lab 1." />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue-100: #c2d6ff;
+      --blue-200: #93b4fd;
+      --blue-300: #6b93f7;
+      --blue-400: #4a78f0;
+      --blue-500: #3563e9;
+      --blue-600: #2a4ec4;
+      --blue-700: #1e3a9e;
+      --blue-800: #152c78;
+      --blue-900: #0d1d52;
+      --purple-100: #dfc8ff;
+      --purple-200: #c5a0fc;
+      --purple-300: #a87bf5;
+      --purple-400: #8b5cf6;
+      --purple-500: #7c3aed;
+      --purple-600: #6626c9;
+      --purple-700: #4f1d96;
+      --purple-800: #3b1578;
+      --purple-900: #270f52;
+      --cyan-400: #22d3ee;
+      --cyan-500: #06b6d4;
+      --accent-green: #34d399;
+      --accent-red: #f87171;
+      --accent-amber: #fbbf24;
+      --bg: #03050a;
+      --bg-surface: #070a14;
+      --bg-card: rgba(8, 12, 24, 0.78);
+      --bg-card-hover: rgba(14, 20, 36, 0.92);
+      --text-primary: #e8ecf4;
+      --text-secondary: #a0aec4;
+      --text-muted: #5c6b84;
+      --text-dim: #3e4a62;
+      --border: rgba(99, 130, 241, 0.12);
+      --border-glow: rgba(99, 130, 241, 0.28);
+      --shadow-sm: 0 1px 4px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 20px rgba(0,0,0,0.4);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.5);
+      --gradient-main: linear-gradient(135deg, var(--blue-500), var(--purple-500));
+      --gradient-cyan: linear-gradient(135deg, var(--cyan-500), var(--blue-500));
+      --gradient-soft: linear-gradient(135deg, rgba(53,99,233,0.12), rgba(124,58,237,0.12));
+      --gradient-card: linear-gradient(160deg, rgba(16,22,42,0.85), rgba(30,20,70,0.4));
+      --font-heading: 'Space Grotesk', 'Outfit', system-ui, sans-serif;
+      --font-body: 'Outfit', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    html { font-size: 18px; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text-primary);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .circuit-bg {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none; opacity: 0.035; overflow: hidden;
+    }
+
+    .orb {
+      position: fixed; border-radius: 50%; filter: blur(110px);
+      z-index: 0; pointer-events: none;
+    }
+    .orb--1 { width: 580px; height: 580px; top: -200px; right: -120px; background: radial-gradient(circle, rgba(53,99,233,0.14) 0%, rgba(124,58,237,0.07) 50%, transparent 70%); }
+    .orb--2 { width: 500px; height: 500px; bottom: -180px; left: -100px; background: radial-gradient(circle, rgba(124,58,237,0.11) 0%, rgba(53,99,233,0.05) 50%, transparent 70%); }
+    .orb--3 { width: 340px; height: 340px; top: 40%; left: 45%; background: radial-gradient(circle, rgba(6,182,212,0.06) 0%, transparent 65%); }
+
+    .side-accent { position: fixed; left: 0; top: 0; bottom: 0; width: 4px; background: var(--gradient-main); z-index: 10; }
+
+    .top-header {
+      position: fixed; top: 0; left: 4px; right: 0; height: 42px;
+      background: rgba(3, 5, 10, 0.88); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; z-index: 9;
+    }
+    .header-title {
+      font-family: var(--font-heading); font-size: 0.72rem; font-weight: 600;
+      color: var(--text-secondary); letter-spacing: 0.02em;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .header-title .title-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--blue-500); box-shadow: 0 0 8px rgba(53, 99, 233, 0.6); }
+    .header-title .title-sep { color: var(--text-dim); font-weight: 400; }
+    #header-slide-title { color: var(--text-muted); font-weight: 400; font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.04em; }
+    .header-right { display: flex; align-items: center; gap: 14px; }
+
+    .lab-badge {
+      font-family: var(--font-mono); font-size: 0.62rem; font-weight: 600;
+      padding: 0.22em 0.7em; border-radius: 5px; letter-spacing: 0.06em;
+      background: rgba(53,99,233,0.15); color: var(--blue-200);
+      border: 1px solid rgba(53,99,233,0.25);
+    }
+
+    #progress-bar {
+      position: fixed; top: 42px; left: 4px; height: 3px;
+      background: var(--gradient-main);
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 10; border-radius: 0 2px 2px 0;
+      box-shadow: 0 0 14px rgba(99, 102, 241, 0.35);
+    }
+
+    #presentation { position: relative; width: 100%; height: 100%; z-index: 1; }
+
+    .slide {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 68px 80px 64px 80px;
+      opacity: 0; transform: translateY(16px);
+      transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+      overflow-y: auto; overflow-x: hidden;
+    }
+    .slide.active { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .slide-inner { max-width: 1100px; width: 100%; margin: auto 0; }
+
+    .slide::-webkit-scrollbar { width: 8px; }
+    .slide::-webkit-scrollbar-track { background: rgba(8, 12, 24, 0.25); }
+    .slide::-webkit-scrollbar-thumb { background: rgba(99, 130, 241, 0.3); border-radius: 4px; }
+    .slide::-webkit-scrollbar-thumb:hover { background: rgba(99, 130, 241, 0.55); }
+
+    h1 { font-family: var(--font-heading); font-size: 2.8rem; font-weight: 700; line-height: 1.15; margin-bottom: 0.35em; letter-spacing: -0.03em; }
+    h2 { font-family: var(--font-heading); font-size: 1.95rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.45em; letter-spacing: -0.02em; }
+    h3 { font-family: var(--font-heading); font-size: 1.22rem; font-weight: 600; color: var(--blue-200); margin-bottom: 0.4em; }
+
+    .section-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: var(--font-mono); font-size: 0.68rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 0.85em;
+      padding: 0.35em 0.9em; border-radius: 6px;
+      background: var(--gradient-soft); border: 1px solid var(--border); color: var(--blue-300);
+    }
+    .section-label .label-icon { font-size: 0.85em; }
+
+    p, li { font-size: 1.02rem; line-height: 1.65; color: var(--text-secondary); }
+    ul { list-style: none; padding: 0; }
+    ul li { position: relative; padding-left: 1.6em; margin-bottom: 0.5em; }
+    ul li::before { content: ''; position: absolute; left: 0; top: 0.55em; width: 8px; height: 8px; border-radius: 2px; border: 2px solid var(--blue-500); background: transparent; transform: rotate(45deg); }
+
+    .grid { display: grid; gap: 16px; margin: 18px 0; }
+    .grid--2col { grid-template-columns: repeat(2, 1fr); }
+    .grid--3col { grid-template-columns: repeat(3, 1fr); }
+    .grid--4col { grid-template-columns: repeat(4, 1fr); }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      backdrop-filter: blur(12px);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-glow);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    .card--highlight {
+      border-color: rgba(99, 130, 241, 0.4);
+      background: var(--gradient-card);
+    }
+    .card--cyan { border-top: 3px solid var(--cyan-400); }
+    .card--purple { border-top: 3px solid var(--purple-400); }
+    .card--green { border-top: 3px solid var(--accent-green); }
+    .card--red { border-top: 3px solid var(--accent-red); }
+    .card--amber { border-top: 3px solid var(--accent-amber); }
+
+    .card-icon { font-size: 1.6rem; margin-bottom: 12px; display: inline-block; }
+    .card-title {
+      font-family: var(--font-heading); font-size: 1.15rem; font-weight: 600;
+      color: var(--text-primary); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-text { font-size: 0.94rem; color: var(--text-secondary); line-height: 1.55; }
+
+    .badge {
+      display: inline-block; font-family: var(--font-mono); font-size: 0.65rem;
+      font-weight: 600; padding: 0.2em 0.55em; border-radius: 4px; letter-spacing: 0.04em;
+    }
+    .badge--blue { background: rgba(53,99,233,0.2); color: var(--blue-200); border: 1px solid rgba(53,99,233,0.3); }
+    .badge--purple { background: rgba(124,58,237,0.2); color: var(--purple-200); border: 1px solid rgba(124,58,237,0.3); }
+    .badge--green { background: rgba(52,211,153,0.2); color: #6ee7b7; border: 1px solid rgba(52,211,153,0.3); }
+    .badge--red { background: rgba(248,113,113,0.2); color: #fca5a5; border: 1px solid rgba(248,113,113,0.3); }
+    .badge--amber { background: rgba(251,191,36,0.2); color: #fde68a; border: 1px solid rgba(251,191,36,0.3); }
+
+    .terminal-box {
+      background: #060913;
+      border: 1px solid rgba(99, 130, 241, 0.2);
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 16px 0;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+    .terminal-header {
+      background: rgba(14, 20, 38, 0.95);
+      padding: 7px 14px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid rgba(99, 130, 241, 0.15);
+      font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted);
+    }
+    .terminal-dots { display: flex; gap: 6px; }
+    .terminal-dot { width: 9px; height: 9px; border-radius: 50%; }
+    .terminal-dot--red { background: #ef4444; }
+    .terminal-dot--yellow { background: #f59e0b; }
+    .terminal-dot--green { background: #10b981; }
+
+    .terminal-body {
+      padding: 14px 18px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: #cbd5e1;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .terminal-body .cmd { color: #67e8f9; font-weight: 600; }
+    .terminal-body .comment { color: #64748b; font-style: italic; }
+    .terminal-body .highlight { color: #fca5a5; font-weight: 600; }
+    .terminal-body .success { color: #86efac; font-weight: 600; }
+    .terminal-body .param { color: #fde047; }
+
+    .table-container {
+      width: 100%; overflow-x: auto; margin: 16px 0; border-radius: 10px; border: 1px solid var(--border);
+    }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.92rem; }
+    th {
+      background: rgba(14, 22, 44, 0.9);
+      padding: 12px 16px;
+      font-family: var(--font-heading);
+      color: var(--blue-200);
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+      letter-spacing: 0.02em;
+    }
+    td {
+      padding: 11px 16px;
+      border-bottom: 1px solid rgba(99, 130, 241, 0.08);
+      color: var(--text-secondary);
+      background: rgba(8, 12, 24, 0.6);
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(18, 26, 52, 0.6); }
+
+    .funnel-container {
+      display: flex; flex-direction: column; gap: 8px; margin: 18px 0;
+    }
+    .funnel-step {
+      display: flex; align-items: center; border-radius: 8px; padding: 12px 18px;
+      border: 1px solid var(--border); backdrop-filter: blur(10px);
+      transition: transform 0.2s ease;
+    }
+    .funnel-step:hover { transform: translateX(6px); }
+    .funnel-step--1 { width: 100%; background: linear-gradient(90deg, rgba(30,41,59,0.8), rgba(15,23,42,0.8)); border-left: 5px solid #64748b; }
+    .funnel-step--2 { width: 85%; margin-left: 20px; background: linear-gradient(90deg, rgba(37,99,235,0.25), rgba(30,58,138,0.25)); border-left: 5px solid var(--blue-500); }
+    .funnel-step--3 { width: 68%; margin-left: 45px; background: linear-gradient(90deg, rgba(217,119,6,0.25), rgba(180,83,9,0.25)); border-left: 5px solid var(--accent-amber); }
+    .funnel-step--4 { width: 50%; margin-left: 75px; background: linear-gradient(90deg, rgba(220,38,38,0.3), rgba(153,27,27,0.3)); border-left: 5px solid var(--accent-red); }
+
+    .funnel-title { font-family: var(--font-heading); font-weight: 700; font-size: 1rem; width: 140px; }
+    .funnel-count { font-family: var(--font-mono); font-size: 0.8rem; color: var(--blue-300); width: 130px; }
+    .funnel-desc { font-size: 0.9rem; color: var(--text-secondary); flex: 1; }
+
+    .flow-row {
+      display: flex; align-items: stretch; gap: 10px; margin: 18px 0; flex-wrap: wrap;
+    }
+    .flow-node {
+      flex: 1; min-width: 140px; background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px 12px; text-align: center;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      transition: all 0.3s ease;
+    }
+    .flow-node:hover { border-color: var(--border-glow); transform: translateY(-3px); }
+    .flow-node .node-num { font-family: var(--font-mono); font-size: 0.7rem; color: var(--blue-400); margin-bottom: 4px; font-weight: 700; }
+    .flow-node .node-title { font-family: var(--font-heading); font-size: 0.98rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+    .flow-node .node-desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.4; }
+    .flow-arrow { display: flex; align-items: center; color: var(--blue-400); font-weight: bold; font-size: 1.2rem; }
+
+    #bottom-bar {
+      position: fixed; bottom: 0; left: 4px; right: 0; height: 50px;
+      background: rgba(3, 5, 10, 0.9); backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; z-index: 9;
+    }
+    #slide-counter { font-family: var(--font-mono); font-size: 0.82rem; color: var(--text-muted); font-weight: 500; }
+    .nav-controls { display: flex; align-items: center; gap: 8px; }
+    .nav-btn {
+      background: rgba(14, 20, 38, 0.8); border: 1px solid var(--border);
+      color: var(--text-primary); border-radius: 6px; padding: 6px 14px;
+      font-family: var(--font-heading); font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .nav-btn:hover { background: var(--blue-600); border-color: var(--blue-400); color: #fff; }
+    .nav-btn--notes.active { background: var(--purple-600); border-color: var(--purple-400); color: #fff; }
+
+    #speaker-notes-overlay {
+      position: fixed; right: 24px; bottom: 62px; width: 440px; max-height: 480px;
+      background: rgba(8, 12, 26, 0.96); backdrop-filter: blur(25px);
+      border: 1px solid var(--border-glow); border-radius: 12px;
+      box-shadow: var(--shadow-lg); z-index: 100; display: none; flex-direction: column;
+      overflow: hidden; animation: popUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #speaker-notes-overlay.active { display: flex; }
+    @keyframes popUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+    .notes-header {
+      padding: 12px 18px; background: rgba(14, 22, 46, 0.9);
+      border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;
+    }
+    .notes-title { font-family: var(--font-heading); font-size: 0.85rem; font-weight: 700; color: var(--blue-200); display: flex; align-items: center; gap: 6px; }
+    .notes-close { background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; }
+    .notes-close:hover { color: #fff; }
+    .notes-body {
+      padding: 16px 18px; overflow-y: auto; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);
+    }
+    .notes-body p { margin-bottom: 10px; font-size: 0.9rem; }
+    .notes-body strong { color: var(--text-primary); }
+    .notes-empty { color: var(--text-muted); font-style: italic; }
+  </style>
+</head>
+<body>
+
+  <div class="side-accent"></div>
+  <div class="circuit-bg"></div>
+  <div class="orb orb--1"></div>
+  <div class="orb orb--2"></div>
+  <div class="orb orb--3"></div>
+
+  <div class="top-header">
+    <div class="header-title">
+      <div class="title-dot"></div>
+      <span>SECURITY OPERATIONS CENTER (SOC)</span>
+      <span class="title-sep">/</span>
+      <span id="header-slide-title">Lab 1: Foundations & Logging</span>
+    </div>
+    <div class="header-right">
+      <span class="lab-badge">LAB 01 · WEEK 1</span>
+    </div>
+  </div>
+
+  <div id="progress-bar"></div>
+
+  <div id="presentation">
+
+    <!-- ==================== SLIDE 01: COVER ==================== -->
+    <div class="slide active" data-title="Security Operations Fundamentals" data-notes="Welcome students to the course! Emphasize that SOC and Security Operations are the frontline battlefield of enterprise cyber defense. Everything starts with understanding what is happening on our systems. In this foundational lab, we will demystify the SOC, understand the true value of logs and telemetry, see live Windows and Linux logs in action, and explore how centralizing disparate data streams unlocks true enterprise visibility.">
+      <div class="slide-inner" style="text-align: center; padding: 30px 0;">
+        <div class="section-label" style="margin-bottom: 1.2em;">
+          <span class="label-icon">&#x1F6E1;&#xFE0F;</span> CYBERSECURITY OPERATIONS &amp; INCIDENT DETECTION
+        </div>
+        <h1 style="font-size: 3.1rem; margin-bottom: 0.25em;">
+          Security Operations <span style="background: var(--gradient-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Fundamentals</span>
+        </h1>
+        <h2 style="font-size: 1.5rem; color: var(--blue-200); font-weight: 500; margin-bottom: 1.4em; letter-spacing: 0.01em;">
+          Telemetry, Enterprise Logging Architecture &amp; The Centralization Paradigm
+        </h2>
+        
+        <div style="display: inline-flex; align-items: center; gap: 24px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 50px; padding: 10px 28px; margin-bottom: 26px;">
+          <div><strong style="color:var(--text-primary)">Course:</strong> SOC Lab / Incident Detection</div>
+          <div style="color:var(--text-dim)">&bull;</div>
+          <div><strong style="color:var(--text-primary)">Instructor:</strong> Hussein Al-Selwi</div>
+          <div style="color:var(--text-dim)">&bull;</div>
+          <div><strong style="color:var(--blue-400)">Duration:</strong> 2 Hours (Week 1)</div>
+        </div>
+
+        <div class="grid grid--3col" style="max-width: 950px; margin: 16px auto 0 auto; text-align: left;">
+          <div class="card card--cyan">
+            <div class="card-icon">&#x1F3DB;&#xFE0F;</div>
+            <div class="card-title">SOC Foundations</div>
+            <div class="card-text">Roles, workflows, CIA triad, and why organizations build modern 24/7 defense centers.</div>
+          </div>
+          <div class="card card--purple">
+            <div class="card-icon">&#x1F4CB;</div>
+            <div class="card-title">Telemetry &amp; Logs</div>
+            <div class="card-text">Log anatomy, sources across Windows, Linux, and Web, with live hands-on terminal demos.</div>
+          </div>
+          <div class="card card--green">
+            <div class="card-icon">&#x1F517;</div>
+            <div class="card-title">Centralization &amp; Tools</div>
+            <div class="card-text">Solving data fragmentation via SIEM, EDR, Sysmon, and multi-source event correlation.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 02: OBJECTIVES ==================== -->
+    <div class="slide" data-title="Domain Objectives" data-notes="Walk through these core competencies. Make it clear that this lab balances high-level concepts with actual hands-on terminal commands. By the end of today, every student will be able to look at raw log records and pinpoint exactly who did what, when, and how.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x1F3AF;</span> LEARNING OUTCOMES</div>
+        <h2>What You Will Master Today</h2>
+        <p style="margin-bottom: 18px;">By the end of this 2-hour session, you will possess the foundational knowledge required for modern SOC analysis:</p>
+
+        <div class="grid grid--2col">
+          <div class="card">
+            <div class="card-title">
+              <span>1. SOC Mission &amp; Structure</span>
+              <span class="badge badge--blue">Concepts</span>
+            </div>
+            <p class="card-text">Understand the core 24/7 monitoring mission, the tier escalation model (Tier 1 Triage to Tier 3 Hunter), and the People-Process-Technology balance.</p>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <span>2. The Visibility Imperative</span>
+              <span class="badge badge--purple">Core Logic</span>
+            </div>
+            <p class="card-text">Learn why security operations revolves around answering the 6 Forensic Questions (Who, What, When, Where, How, Outcome) and why 'you cannot catch what you don't record.'</p>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <span>3. Log vs Event vs Alert vs Incident</span>
+              <span class="badge badge--amber">Terminology</span>
+            </div>
+            <p class="card-text">Master the critical distinctions between raw logs, observable security events, automated detection alerts, and verified incidents with the True/False positive matrix.</p>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <span>4. Hands-on Windows &amp; Linux Telemetry</span>
+              <span class="badge badge--green">Hands-on</span>
+            </div>
+            <p class="card-text">Examine live Windows Security Event IDs (4624, 4625, 4688), Sysmon process execution telemetry, and Linux authentication logs (/var/log/auth.log) directly via CLI.</p>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <span>5. The Centralization &amp; SIEM Pipeline</span>
+              <span class="badge badge--cyan">Architecture</span>
+            </div>
+            <p class="card-text">Understand why decentralized logs fail, how agents/syslog ship data, the 6-stage SIEM pipeline (Collect, Parse, Enrich, Index, Correlate, Alert), and NTP time sync.</p>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <span>6. The Defensive Tech Stack &amp; Roadmap</span>
+              <span class="badge badge--blue">Ecosystem</span>
+            </div>
+            <p class="card-text">Connect SIEM, EDR, Sysmon, Firewalls, and SOAR into one cohesive blueprint, walk through a multi-source attack scenario, and preview the Lab 2 workstation setup.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 03: WHAT IS A SOC ==================== -->
+    <div class="slide" data-title="What is a SOC?" data-notes="Emphasize that a SOC is not just a room with big TV screens. It is an organizational capability. It operates 24/7/365 because attackers operate globally across all time zones. Explain the continuous dual posture: reacting to alerts while proactively hunting for hidden threats.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x1F3DB;&#xFE0F;</span> SOC FOUNDATIONS</div>
+        <h2>What is a Security Operations Center (SOC)?</h2>
+        <p style="margin-bottom: 20px;">A <strong>Security Operations Center (SOC)</strong> is a centralized function within an organization responsible for monitoring, detecting, analyzing, and responding to cyber threats 24/7/365.</p>
+
+        <div class="grid grid--3col">
+          <div class="card card--cyan">
+            <div class="card-icon">&#x1F441;&#xFE0F;</div>
+            <div class="card-title">Continuous Visibility</div>
+            <p class="card-text">Maintains real-time awareness over all endpoints, servers, network perimeters, and cloud identities across the enterprise infrastructure.</p>
+          </div>
+          <div class="card card--purple">
+            <div class="card-icon">&#x26A1;</div>
+            <div class="card-title">Rapid Threat Containment</div>
+            <p class="card-text">Minimizes attacker dwell time (MTTD / MTTR) by detecting malicious activity early in the cyber kill chain and isolating compromised assets.</p>
+          </div>
+          <div class="card card--green">
+            <div class="card-icon">&#x1F6E1;&#xFE0F;</div>
+            <div class="card-title">Asset &amp; Risk Defense</div>
+            <p class="card-text">Protects critical intellectual property, customer data, and operational systems from disruption, exfiltration, and extortion (ransomware).</p>
+          </div>
+        </div>
+
+        <div class="terminal-box">
+          <div class="terminal-header">
+            <div class="terminal-dots"><span class="terminal-dot terminal-dot--red"></span><span class="terminal-dot terminal-dot--yellow"></span><span class="terminal-dot terminal-dot--green"></span></div>
+            <span>SOC Operational Postures</span>
+          </div>
+          <div class="terminal-body"><span class="comment"># A mature SOC operates continuously across two complementary postures:</span>
+<span class="cmd">[REACTIVE POSTURE]</span>   Alert Ingestion &rarr; Triage &amp; Verification &rarr; Threat Containment &rarr; Incident Remediation
+<span class="cmd">[PROACTIVE POSTURE]</span>  Threat Hunting &rarr; Detection Engineering &rarr; Vulnerability Management &rarr; System Hardening</div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 04: THE SOC OPERATIONAL CYCLE ==================== -->
+    <div class="slide" data-title="The SOC Operational Cycle" data-notes="Walk through the 4 steps left to right. Emphasize step 5: the Feedback Loop. When an analyst responds to a new attack technique, they don't just close the ticket; they create a new detection rule or tune existing alerts so the SOC detects it faster next time.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x1F504;</span> OPERATIONAL LIFECYCLE</div>
+        <h2>The Core Operational Cycle</h2>
+        <p style="margin-bottom: 20px;">The fundamental mission of every SOC follows a continuous, iterative 4-stage lifecycle:</p>
+
+        <div class="flow-row">
+          <div class="flow-node">
+            <span class="node-num">STAGE 01</span>
+            <span class="node-title">1. MONITOR</span>
+            <span class="node-desc">Continuous ingestion of telemetry across endpoints, network traffic, authentications, and web services.</span>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-node">
+            <span class="node-num">STAGE 02</span>
+            <span class="node-title">2. DETECT</span>
+            <span class="node-desc">Rule correlation, threat intelligence matching, and anomaly engines flagging suspicious activity.</span>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-node">
+            <span class="node-num">STAGE 03</span>
+            <span class="node-title">3. ANALYZE</span>
+            <span class="node-desc">Analyst investigation: validating alerts, establishing blast radius, root cause, and timeline reconstruction.</span>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-node">
+            <span class="node-num">STAGE 04</span>
+            <span class="node-title">4. RESPOND</span>
+            <span class="node-desc">Containing compromised hosts, revoking stolen credentials, blocking malicious IPs, and system recovery.</span>
+          </div>
+        </div>
+
+        <div class="card card--highlight" style="margin-top: 18px;">
+          <div class="card-title">
+            <span>&#x1F501; The Crucial Feedback Loop (Detection Engineering)</span>
+            <span class="badge badge--green">Continuous Improvement</span>
+          </div>
+          <p class="card-text">Every resolved incident feeds directly back into Step 1 &amp; 2: writing new SIEM correlation rules, deploying custom Sysmon/EDR blocks, and tuning out false positives so the defense posture becomes harder to penetrate over time.</p>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 05: PEOPLE, PROCESS, TECHNOLOGY ==================== -->
+    <div class="slide" data-title="The Three Pillars: PPT" data-notes="Explain the Golden Rule of Security: 'A million-dollar SIEM without trained analysts is just an expensive hard drive full of unread text.' Technology alerts you, but People make the critical decisions and Processes guarantee consistency under pressure.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x1F3DB;&#xFE0F;</span> THE CORE PILLARS</div>
+        <h2>The Triad of SOC Success: People, Process &amp; Tech</h2>
+        <p style="margin-bottom: 20px;">A world-class SOC is never built on software alone. Defense requires three balanced pillars working in synchronization:</p>
+
+        <div class="grid grid--3col">
+          <div class="card card--cyan">
+            <div class="card-icon">&#x1F465;</div>
+            <div class="card-title">PEOPLE</div>
+            <div class="badge badge--blue" style="margin-bottom: 10px;">The Human Intellect</div>
+            <ul style="font-size: 0.9rem;">
+              <li><strong>Tier 1 Analysts:</strong> Frontline alert triage &amp; validation</li>
+              <li><strong>Tier 2 Responders:</strong> Deep investigation &amp; incident handling</li>
+              <li><strong>Tier 3 / Hunters:</strong> Advanced threat hunting &amp; detection rules</li>
+              <li><strong>SOC Engineers:</strong> Pipeline maintenance &amp; tool integration</li>
+            </ul>
+          </div>
+
+          <div class="card card--purple">
+            <div class="card-icon">&#x1F4DC;</div>
+            <div class="card-title">PROCESS</div>
+            <div class="badge badge--purple" style="margin-bottom: 10px;">The Repeatable Playbooks</div>
+            <ul style="font-size: 0.9rem;">
+              <li><strong>Standard Operating Procedures (SOPs):</strong> Step-by-step triage</li>
+              <li><strong>Incident Playbooks:</strong> Phishing, Ransomware, Brute-force runbooks</li>
+              <li><strong>Escalation Matrices:</strong> Who gets notified when Severity = Critical</li>
+              <li><strong>SLAs &amp; Metrics:</strong> MTTD (Detect) &amp; MTTR (Respond) targets</li>
+            </ul>
+          </div>
+
+          <div class="card card--green">
+            <div class="card-icon">&#x2699;&#xFE0F;</div>
+            <div class="card-title">TECHNOLOGY</div>
+            <div class="badge badge--green" style="margin-bottom: 10px;">The Enablers &amp; Sensors</div>
+            <ul style="font-size: 0.9rem;">
+              <li><strong>SIEM:</strong> Central log correlation &amp; search engine</li>
+              <li><strong>EDR &amp; Sysmon:</strong> Host-level kernel telemetry &amp; active kill</li>
+              <li><strong>Network Controls:</strong> NGFW, IDS/IPS, WAF, Zeek</li>
+              <li><strong>SOAR &amp; Case Mgmt:</strong> Automated enrichment &amp; ticketing</li>
+            </ul>
+          </div>
+        </div>
+
+        <div style="background: rgba(53,99,233,0.1); border: 1px solid rgba(53,99,233,0.3); border-radius: 8px; padding: 12px 20px; display: flex; align-items: center; gap: 14px;">
+          <span style="font-size: 1.5rem;">&#x1F4A1;</span>
+          <span style="font-size: 0.95rem; color: var(--blue-200);"><strong>The Defensive Law:</strong> Technology discovers anomalies, Process directs orderly execution, but skilled Analysts make the judgment call on true malicious intent.</span>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 06: SOC TIERS & WORKFLOW ==================== -->
+    <div class="slide" data-title="SOC Tiers & Roles" data-notes="Explain the escalation path. Tier 1 handles the deluge of incoming alerts (often hundreds a day). When something is confirmed true positive, it is escalated to Tier 2 for full containment. Tier 3 does not handle routine alerts; they proactively search for threats that bypassed automated detections entirely.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x1F4CA;</span> ORGANIZATIONAL STRUCTURE</div>
+        <h2>SOC Roles &amp; Tier Escalation Model</h2>
+        <p style="margin-bottom: 18px;">To handle thousands of daily alerts without burning out analysts, modern SOCs employ a structured tier system:</p>
+
+        <div class="grid grid--4col">
+          <div class="card card--cyan">
+            <span class="badge badge--blue" style="margin-bottom: 8px;">TIER 1 &middot; TRIAGE</span>
+            <div class="card-title">Alert Analyst</div>
+            <p class="card-text"><strong>Role:</strong> Monitors the SIEM console 24/7.<br><strong>Primary Task:</strong> Rapidly triage alerts, filter out False Positives, gather initial context, and escalate validated threats within 15 minutes.</p>
+          </div>
+
+          <div class="card card--purple">
+            <span class="badge badge--purple" style="margin-bottom: 8px;">TIER 2 &middot; HANDLER</span>
+            <div class="card-title">Incident Responder</div>
+            <p class="card-text"><strong>Role:</strong> Deep-dive investigation.<br><strong>Primary Task:</strong> Scopes the breach extent, reconstructs the attacker timeline, isolates infected hosts, revokes access, and coordinates eradication.</p>
+          </div>
+
+          <div class="card card--green">
+            <span class="badge badge--green" style="margin-bottom: 8px;">TIER 3 &middot; HUNTER</span>
+            <div class="card-title">Threat Hunter / Sr.</div>
+            <p class="card-text"><strong>Role:</strong> Proactive defense &amp; engineering.<br><strong>Primary Task:</strong> Assumes the network is already breached; hunts for stealthy APT activity, crafts detection rules, and evaluates advanced TTPs.</p>
+          </div>
+
+          <div class="card card--amber">
+            <span class="badge badge--amber" style="margin-bottom: 8px;">LEADERSHIP</span>
+            <div class="card-title">SOC Manager</div>
+            <p class="card-text"><strong>Role:</strong> Operations &amp; Governance.<br><strong>Primary Task:</strong> Oversees personnel, manages tool licensing and budget, reports breach status to C-suite/legal, and tracks performance metrics (MTTD/MTTR).</p>
+          </div>
+        </div>
+
+        <div class="terminal-box">
+          <div class="terminal-header"><span>Escalation Lifecycle in Practice</span></div>
+          <div class="terminal-body"><span class="comment"># Realistic Alert Flow:</span>
+SIEM Alert Fires &rarr; <span class="cmd">Tier 1:</span> Confirms malicious base64 PowerShell &rarr; Escalates to <span class="cmd">Tier 2:</span> Isolates host &amp; cleans malware &rarr; <span class="cmd">Tier 3:</span> Hunts across all 5,000 endpoints for identical parent processes!</div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 07: DEFENDING THE CIA TRIAD ==================== -->
+    <div class="slide" data-title="Defending the CIA Triad" data-notes="Connect abstract CIA security theory to concrete SOC operational defense. Walk through how ransomware attacks Availability first, but modern double-extortion ransomware also steals data first, violating Confidentiality as well.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x1F512;</span> SECURITY PRINCIPLES</div>
+        <h2>How a SOC Defends the CIA Triad</h2>
+        <p style="margin-bottom: 20px;">Every security control, log search, and incident response action exists to safeguard one or more core tenets of information security:</p>
+
+        <div class="grid grid--3col">
+          <div class="card card--cyan">
+            <div class="card-icon">&#x1F510;</div>
+            <div class="card-title">Confidentiality</div>
+            <div class="badge badge--blue" style="margin-bottom: 8px;">Preventing Disclosure</div>
+            <p class="card-text"><strong>Threats:</strong> Data exfiltration, credential harvesting, insider leaks.<br><strong>SOC Defense:</strong> DLP alerts, monitoring unusual outbound bandwidth, detecting unauthorized access to HR/finance databases.</p>
+          </div>
+
+          <div class="card card--purple">
+            <div class="card-icon">&#x1F6E1;&#xFE0F;</div>
+            <div class="card-title">Integrity</div>
+            <div class="badge badge--purple" style="margin-bottom: 8px;">Preventing Alteration</div>
+            <p class="card-text"><strong>Threats:</strong> Unauthorized file tampering, registry modification, log deletion.<br><strong>SOC Defense:</strong> File Integrity Monitoring (FIM), Sysmon Event 11 (FileCreate), Event 1102 (Log Clearance Alert).</p>
+          </div>
+
+          <div class="card card--green">
+            <div class="card-icon">&#x26A1;</div>
+            <div class="card-title">Availability</div>
+            <div class="badge badge--green" style="margin-bottom: 8px;">Ensuring Authorized Access</div>
+            <p class="card-text"><strong>Threats:</strong> DDoS floods, Ransomware encryption, service termination.<br><strong>SOC Defense:</strong> Network traffic thresholds, WAF rate limiting, early detection of mass file renaming/encryption processes.</p>
+          </div>
+        </div>
+
+        <div class="card card--highlight" style="margin-top: 15px;">
+          <div class="card-title"><span>Real-World Scenario: Double Extortion Ransomware</span></div>
+          <p class="card-text">Attackers first exfiltrate confidential customer records (violating <strong>Confidentiality</strong>), then encrypt virtual machines to shut down production (destroying <strong>Availability</strong>), and threaten to publish modified fake records if uncooperative (threatening <strong>Integrity</strong>). The SOC must defend all three simultaneously!</p>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 08: THE VISIBILITY IMPERATIVE ==================== -->
+    <div class="slide" data-title="The Visibility Imperative" data-notes="This is the philosophical heart of the lecture. Explain that an analyst is essentially a detective. When a burglary occurs, detectives look for fingerprint evidence, timestamps, and witness accounts. In cybersecurity, logs are the only digital witness testimony we have. Without logs, an attack is completely invisible.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x1F441;&#xFE0F;</span> PHILOSOPHY OF DEFENSE</div>
+        <h2>The Visibility Imperative: Why We Need Events</h2>
+        <div style="font-size: 1.25rem; color: var(--blue-200); font-family: var(--font-heading); margin-bottom: 18px; border-left: 4px solid var(--blue-500); padding-left: 16px;">
+          &ldquo;You cannot defend what you cannot see, and you cannot investigate what was never recorded.&rdquo;
+        </div>
+
+        <p style="margin-bottom: 18px;">In enterprise defense, ground truth does not come from assumptions &mdash; it comes strictly from timestamped telemetry. When an incident occurs, every analyst must answer the <strong>6 Forensic Questions</strong>:</p>
+
+        <div class="grid grid--3col">
+          <div class="card card--cyan">
+            <div class="card-title">1. WHO?</div>
+            <p class="card-text">Which user account, security identifier (SID), or service principal initiated the action? Was it elevated?</p>
+          </div>
+          <div class="card card--cyan">
+            <div class="card-title">2. WHAT?</div>
+            <p class="card-text">What exact action occurred? Was a process executed? A user created? A sensitive file read or copied?</p>
+          </div>
+          <div class="card card--purple">
+            <div class="card-title">3. WHEN?</div>
+            <p class="card-text">Precise UTC timestamp. Establishing a reliable chronological sequence of events is the cornerstone of forensics.</p>
+          </div>
+          <div class="card card--purple">
+            <div class="card-title">4. WHERE?</div>
+            <p class="card-text">Which source machine, internal IP, external destination IP, or cloud tenant hosted the event?</p>
+          </div>
+          <div class="card card--green">
+            <div class="card-title">5. HOW?</div>
+            <p class="card-text">What mechanism was used? Which parent process spawned the command? What protocol or port was targeted?</p>
+          </div>
+          <div class="card card--green">
+            <div class="card-title">6. OUTCOME?</div>
+            <p class="card-text">Did the attempt succeed or fail? (e.g. HTTP 200 vs 403; Windows 4624 success vs 4625 bad password).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 09: LOG vs EVENT vs ALERT vs INCIDENT ==================== -->
+    <div class="slide" data-title="Terminology: Log vs Event vs Alert vs Incident" data-notes="Students often mix these terms up. Emphasize the funnel: Millions of raw logs reduce down to thousands of observable events. Detection rules turn some events into dozens of alerts. When an analyst confirms true malicious impact, it becomes an official Incident.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x1F50D;</span> CORE TERMINOLOGY</div>
+        <h2>Log vs Event vs Alert vs Incident</h2>
+        <p style="margin-bottom: 16px;">Defenders must never confuse these terms. They represent four distinct phases of information distillation:</p>
+
+        <div class="funnel-container">
+          <div class="funnel-step funnel-step--1">
+            <div class="funnel-title">1. RAW LOG</div>
+            <div class="funnel-count">Millions / day</div>
+            <div class="funnel-desc">The immutable, timestamped record written to disk by an OS, device, or app documenting an activity (e.g. text file or EVTX).</div>
+          </div>
+          <div class="funnel-step funnel-step--2">
+            <div class="funnel-title">2. EVENT</div>
+            <div class="funnel-count">Thousands / day</div>
+            <div class="funnel-desc">An observable occurrence within an IT environment that holds potential security significance (e.g., successful user logon, firewall block).</div>
+          </div>
+          <div class="funnel-step funnel-step--3">
+            <div class="funnel-title">3. ALERT</div>
+            <div class="funnel-count">Dozens / day</div>
+            <div class="funnel-desc">A high-priority notification triggered when one or more events match a specific detection rule or anomaly threshold (requires analyst review).</div>
+          </div>
+          <div class="funnel-step funnel-step--4">
+            <div class="funnel-title">4. INCIDENT</div>
+            <div class="funnel-count">Few / month</div>
+            <div class="funnel-desc">A verified breach or critical security violation confirmed by human investigation that requires immediate formal containment and eradication.</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top: 14px;">
+          <div class="card-title"><span>Concrete Example Walkthrough</span></div>
+          <div class="terminal-body" style="padding: 10px 0;"><span class="comment"># Real-World Progression:</span>
+&bull; <span class="cmd">Raw Log:</span> Single Windows Security record generated: "EventCode=4625, User=admin, Status=0xC000006D"
+&bull; <span class="cmd">Event:</span> "A failed logon attempt occurred on Domain Controller from workstation IP 10.0.0.55"
+&bull; <span class="cmd">Alert:</span> SIEM rule triggers: "High-Volume Brute Force Detected: 200 failed logons in 60 seconds followed by success!"
+&bull; <span class="cmd">Incident:</span> Analyst validates admin account compromise + lateral movement: P1 Critical Incident declared!</div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 10: TRIAGE TRUTH MATRIX ==================== -->
+    <div class="slide" data-title="Triage Truth Matrix: TP / FP / TN / FN" data-notes="Explain the four quadrants. Highlight that False Positives waste precious analyst time and cause 'alert fatigue'. But False Negatives are the true nightmare &mdash; an attacker is actively inside your network and not a single alarm fired.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x2696;&#xFE0F;</span> DETECTION METRICS</div>
+        <h2>The Triage Truth Matrix: Evaluating Detections</h2>
+        <p style="margin-bottom: 18px;">Whenever an alert fires (or fails to fire), it falls into one of four statistical quadrants:</p>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 20%;">Quadrant</th>
+                <th style="width: 25%;">Alert Fired?</th>
+                <th style="width: 25%;">Actually Malicious?</th>
+                <th style="width: 30%;">Operational Impact &amp; Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="badge badge--green">TRUE POSITIVE (TP)</span></td>
+                <td><strong style="color:var(--accent-green)">YES (Alert)</strong></td>
+                <td><strong style="color:var(--accent-green)">YES (Attack)</strong></td>
+                <td><strong>Success!</strong> Threat detected. Escalate immediately to Tier 2 for containment.</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge--amber">FALSE POSITIVE (FP)</span></td>
+                <td><strong style="color:var(--accent-amber)">YES (Alert)</strong></td>
+                <td><strong style="color:var(--text-muted)">NO (Benign)</strong></td>
+                <td><strong>Alert Fatigue.</strong> Benign backup script flagged as ransomware. Requires rule tuning.</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge--blue">TRUE NEGATIVE (TN)</span></td>
+                <td><strong style="color:var(--text-muted)">NO (Quiet)</strong></td>
+                <td><strong style="color:var(--text-muted)">NO (Benign)</strong></td>
+                <td><strong>Normal Operations.</strong> Regular employee traffic correctly ignored by detection rules.</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge--red">FALSE NEGATIVE (FN)</span></td>
+                <td><strong style="color:var(--accent-red)">NO (Quiet)</strong></td>
+                <td><strong style="color:var(--accent-red)">YES (Attack)</strong></td>
+                <td><strong>The Worst Nightmare!</strong> Stealthy adversary penetrated network undetected. Blind spot!</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card card--highlight" style="margin-top: 15px;">
+          <div class="card-title"><span>SOC Analyst's Golden Rule for Tuning</span></div>
+          <p class="card-text">Every SOC must continuously tune rules to minimize <strong>False Positives</strong> (which burn out analysts) without opening blind spots that produce <strong>False Negatives</strong> (which let attackers breach undetected).</p>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 11: ANATOMY OF A LOG ENTRY ==================== -->
+    <div class="slide" data-title="Anatomy of a Log Entry" data-notes="Show the anatomy breakdown. Highlight the difference between legacy unstructured text lines and modern structured JSON/Key-Value pairs. Explain that modern SIEM correlation relies heavily on normalized fields (like src_ip and dest_port).">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x1F9EC;</span> LOG ANATOMY</div>
+        <h2>Anatomy of a Log Entry: Raw vs Structured</h2>
+        <p style="margin-bottom: 18px;">Every well-formed security log contains specific forensic fields, regardless of the operating system:</p>
+
+        <div class="grid grid--2col">
+          <div>
+            <div class="terminal-box" style="margin-top: 0;">
+              <div class="terminal-header"><span>Traditional Raw Text Log (Unstructured)</span></div>
+              <div class="terminal-body" style="font-size: 0.8rem;"><span class="comment"># Apache Access Log (Combined Log Format):</span>
+192.168.1.105 - john [20/Oct/2026:14:22:10 +0000] "GET /api/v1/user?id=1 HTTP/1.1" 200 4523 "https://example.com" "Mozilla/5.0 Windows NT 10.0"
+
+<span class="comment"># Linux Auth Log:</span>
+Oct 20 03:15:22 srv01 sshd[12345]: Failed password for root from 185.220.101.42 port 52431 ssh2</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="terminal-box" style="margin-top: 0;">
+              <div class="terminal-header"><span>Modern Normalized Log (JSON / Key-Value)</span></div>
+              <div class="terminal-body" style="font-size: 0.8rem;">{
+  <span class="param">"@timestamp"</span>: <span class="highlight">"2026-10-20T03:15:22.412Z"</span>,
+  <span class="param">"host.name"</span>: <span class="cmd">"srv01"</span>,
+  <span class="param">"event.action"</span>: <span class="highlight">"logon-failed"</span>,
+  <span class="param">"source.ip"</span>: <span class="highlight">"185.220.101.42"</span>,
+  <span class="param">"source.port"</span>: 52431,
+  <span class="param">"user.name"</span>: <span class="highlight">"root"</span>,
+  <span class="param">"process.name"</span>: <span class="cmd">"sshd"</span>,
+  <span class="param">"event.outcome"</span>: <span class="highlight">"failure"</span>
+}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid--4col" style="margin-top: 14px;">
+          <div class="card card--cyan">
+            <div class="card-title" style="font-size: 0.95rem;">1. Timestamp</div>
+            <p class="card-text" style="font-size: 0.85rem;">Must be ISO 8601 UTC standard for chronological correlation.</p>
+          </div>
+          <div class="card card--purple">
+            <div class="card-title" style="font-size: 0.95rem;">2. Subject &amp; Identity</div>
+            <p class="card-text" style="font-size: 0.85rem;">User account, Domain, Security ID (SID), or Service Account.</p>
+          </div>
+          <div class="card card--green">
+            <div class="card-title" style="font-size: 0.95rem;">3. Object &amp; Action</div>
+            <p class="card-text" style="font-size: 0.85rem;">Target file, registry key, process image, or network socket.</p>
+          </div>
+          <div class="card card--amber">
+            <div class="card-title" style="font-size: 0.95rem;">4. Status &amp; Outcome</div>
+            <p class="card-text" style="font-size: 0.85rem;">Success vs Failure code (e.g. Windows 0xC000006D, HTTP 403).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 12: ENTERPRISE LOG LANDSCAPE ==================== -->
+    <div class="slide" data-title="Enterprise Log Landscape" data-notes="Provide an aerial view of an enterprise. Show that logs don't just come from Windows laptops. They come from firewalls, web servers, identity providers, switches, and SaaS cloud tenants. An analyst must be comfortable reading telemetry from all layers.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x1F310;</span> TELEMETRY SOURCES</div>
+        <h2>Enterprise Log Landscape: Where Logs Originate</h2>
+        <p style="margin-bottom: 18px;">Modern security operations ingests telemetry from across five fundamental infrastructure tiers:</p>
+
+        <div class="grid grid--2col">
+          <div class="card card--cyan">
+            <div class="card-title">
+              <span>1. Host &amp; Endpoint Layer</span>
+              <span class="badge badge--blue">Highest Volume</span>
+            </div>
+            <p class="card-text">Windows Event Logs (.evtx), Sysmon kernel events, Linux authentication/syslog (`/var/log`), macOS unified logging, EDR telemetry.</p>
+          </div>
+
+          <div class="card card--purple">
+            <div class="card-title">
+              <span>2. Network &amp; Perimeter Layer</span>
+              <span class="badge badge--purple">Traffic Visibility</span>
+            </div>
+            <p class="card-text">Next-Gen Firewalls (Palo Alto, Fortinet), IDS/IPS alerts (Snort, Suricata), DNS query logs, NetFlow/IPFIX, VPN concentrators, Proxy logs.</p>
+          </div>
+
+          <div class="card card--green">
+            <div class="card-title">
+              <span>3. Web &amp; Application Layer</span>
+              <span class="badge badge--green">App Defense</span>
+            </div>
+            <p class="card-text">Web servers (Nginx, Apache, IIS access/error logs), Web Application Firewalls (WAF), database query logs (SQL audit), custom business app logs.</p>
+          </div>
+
+          <div class="card card--amber">
+            <div class="card-title">
+              <span>4. Identity &amp; Cloud Services Layer</span>
+              <span class="badge badge--amber">Access &amp; SaaS</span>
+            </div>
+            <p class="card-text">Active Directory Domain Services, Microsoft Entra ID (Azure AD), Okta, M365 Unified Audit Log (UAL), AWS CloudTrail, GCP Audit Logs.</p>
+          </div>
+        </div>
+
+        <div class="card card--highlight" style="margin-top: 14px;">
+          <div class="card-title"><span>The Core Defense Insight</span></div>
+          <p class="card-text">An attacker rarely attacks one layer alone. They probe the perimeter (Network), exploit a vulnerability (Web), execute code (Host), and escalate privileges (Identity). To catch them, we must monitor <strong>all layers simultaneously</strong>!</p>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 13: WINDOWS LOGGING ARCHITECTURE ==================== -->
+    <div class="slide" data-title="Windows Logging Architecture" data-notes="Deconstruct Windows Event Logging (.evtx). Mention that it's a structured binary format located in C:\Windows\System32\winevt\Logs\. Walk through the essential Event IDs: 4624 (logon), 4625 (failed logon), 4688 (process created), 7045 (new service), and 1102 (audit log cleared).">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x1FA9F;</span> ENDPOINT TELEMETRY</div>
+        <h2>Windows Event Logging Architecture (.evtx)</h2>
+        <p style="margin-bottom: 16px;">Windows stores event logs in binary XML files (`.evtx`) inside `C:\Windows\System32\winevt\Logs\`. The three primary core channels are <strong>Security</strong>, <strong>System</strong>, and <strong>Application</strong>.</p>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 14%;">Event ID</th>
+                <th style="width: 20%;">Channel</th>
+                <th style="width: 30%;">Event Description</th>
+                <th style="width: 36%;">SOC Analyst Significance</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="badge badge--green">4624</span></td>
+                <td>Security</td>
+                <td>An account was successfully logged on</td>
+                <td>Verifies legitimate access; inspect <strong>Logon Type</strong> (2=Console, 3=Network, 10=RDP).</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge--red">4625</span></td>
+                <td>Security</td>
+                <td>An account failed to log on</td>
+                <td>Tracks password guessing, dictionary attacks, and Brute Force attempts.</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge--amber">4672</span></td>
+                <td>Security</td>
+                <td>Special privileges assigned to new logon</td>
+                <td>Administrator account logon; watch for unauthorized privilege utilization.</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge--blue">4688</span></td>
+                <td>Security</td>
+                <td>A new process has been created</td>
+                <td>Tracks malware execution; requires <em>Command Line Auditing</em> GPO enabled!</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge--purple">4720 / 4732</span></td>
+                <td>Security</td>
+                <td>User account created / Added to Admin group</td>
+                <td>Attacker establishing backdoor persistence and privilege escalation.</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge--cyan">7045</span></td>
+                <td>System</td>
+                <td>A new service was installed in the system</td>
+                <td>Common persistence mechanism (MITRE ATT&amp;CK T1543.003).</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge--red">1102 / 104</span></td>
+                <td>Security / System</td>
+                <td>The audit log was cleared</td>
+                <td><strong>High Severity!</strong> Anti-forensic wiping to conceal malicious footprint.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 14: WHY WE NEED SYSMON ==================== -->
+    <div class="slide" data-title="Sysmon: Advanced Endpoint Telemetry" data-notes="Explain why default Windows logs leave massive blind spots. Default Windows logs don't calculate file hashes, don't show network connections tied to PIDs, and don't log DNS queries. Microsoft Sysmon fills these exact gaps for free with a kernel-level driver.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x2699;&#xFE0F;</span> ADVANCED TELEMETRY</div>
+        <h2>Why Default Logs Aren't Enough: Enter Sysmon</h2>
+        <p style="margin-bottom: 18px;">Default Windows logs leave critical forensic blind spots. <strong>System Monitor (Sysmon)</strong> is a free Sysinternals kernel driver that records advanced threat telemetry directly into Windows Event Viewer:</p>
+
+        <div class="grid grid--2col">
+          <div class="card card--red">
+            <div class="card-title">Default Windows Blind Spots &#x274C;</div>
+            <ul style="font-size: 0.88rem;">
+              <li>Does not calculate cryptographic hashes (SHA256) of launched executables.</li>
+              <li>Cannot tie network socket connections to the specific PID that initiated them.</li>
+              <li>No logging of DNS lookups performed by processes.</li>
+              <li>Fails to track process memory injection (`CreateRemoteThread`).</li>
+            </ul>
+          </div>
+
+          <div class="card card--green">
+            <div class="card-title">Sysmon Deep Telemetry Superpowers &#x2705;</div>
+            <ul style="font-size: 0.88rem;">
+              <li>Automatic SHA256 / MD5 hashing of every running executable.</li>
+              <li>Full process ancestry (Parent CommandLine + Child CommandLine).</li>
+              <li>Logs all outbound network connections with PID and source/dest IPs.</li>
+              <li>Detects DLL hijacking, named pipe creation, and driver loading.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="grid grid--3col" style="margin-top: 14px;">
+          <div class="card card--cyan">
+            <span class="badge badge--blue">SYSMON EVENT 1</span>
+            <div class="card-title" style="font-size: 1rem;">Process Creation</div>
+            <p class="card-text" style="font-size: 0.85rem;">Full image path, CommandLine arguments, parent process, hashes, and user SID.</p>
+          </div>
+          <div class="card card--purple">
+            <span class="badge badge--purple">SYSMON EVENT 3</span>
+            <div class="card-title" style="font-size: 1rem;">Network Connection</div>
+            <p class="card-text" style="font-size: 0.85rem;">Ties network connections directly to the executable (e.g. `powershell.exe` calling external IP).</p>
+          </div>
+          <div class="card card--amber">
+            <span class="badge badge--amber">SYSMON EVENT 22</span>
+            <div class="card-title" style="font-size: 1rem;">DNS Query</div>
+            <p class="card-text" style="font-size: 0.85rem;">Logs domain name queries initiated per process; catches C2 domain lookups.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 15: LINUX LOGGING ARCHITECTURE ==================== -->
+    <div class="slide" data-title="Linux Logging Architecture" data-notes="Explain the Linux logging philosophy: everything in Unix is a file! Show where authentication lives (/var/log/auth.log or /var/log/secure), explain syslog facilities and priorities, and introduce systemd-journald and auditd.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x1F427;</span> LINUX TELEMETRY</div>
+        <h2>Linux Logging Architecture &amp; Key Files</h2>
+        <p style="margin-bottom: 18px;">Linux systems historically manage logging through the <strong>Syslog daemon</strong> (`rsyslog`/`syslog-ng`) storing plain-text records in `/var/log/`, complemented by modern <strong>systemd-journald</strong> and <strong>auditd</strong>.</p>
+
+        <div class="grid grid--2col">
+          <div class="card card--cyan">
+            <div class="card-title">
+              <span>Authentication Logs</span>
+              <span class="badge badge--blue">Debian / RHEL</span>
+            </div>
+            <p class="card-text">
+              &bull; <strong>Ubuntu / Debian:</strong> <code>/var/log/auth.log</code><br>
+              &bull; <strong>RHEL / CentOS / Rocky:</strong> <code>/var/log/secure</code><br>
+              Records all SSH logins, <code>sudo</code> command executions, PAM authentications, and failed password attempts.
+            </p>
+          </div>
+
+          <div class="card card--purple">
+            <div class="card-title">
+              <span>System &amp; Kernel Messages</span>
+              <span class="badge badge--purple">OS Operations</span>
+            </div>
+            <p class="card-text">
+              &bull; <strong>General Syslog:</strong> <code>/var/log/syslog</code> or <code>/var/log/messages</code><br>
+              &bull; <strong>Kernel Ring Buffer:</strong> <code>/var/log/dmesg</code><br>
+              Tracks device drivers, hardware errors, system boot parameters, and service state changes.
+            </p>
+          </div>
+        </div>
+
+        <div class="terminal-box">
+          <div class="terminal-header">
+            <span>Querying Linux Logs: Classic CLI vs Modern Journalctl</span>
+          </div>
+          <div class="terminal-body"><span class="comment"># 1. Searching failed SSH attempts in Debian/Ubuntu:</span>
+<span class="cmd">sudo grep</span> <span class="highlight">"Failed password"</span> /var/log/auth.log | <span class="cmd">tail -n 5</span>
+
+<span class="comment"># 2. Investigating sudo commands via systemd journal:</span>
+<span class="cmd">sudo journalctl</span> _COMM=sudo --since <span class="param">"1 hour ago"</span> -n 10
+
+<span class="comment"># 3. Kernel audit logs (auditd) tracking file execution:</span>
+<span class="cmd">sudo ausearch</span> -m EXECVE -ts today</div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 16: NETWORK TELEMETRY ==================== -->
+    <div class="slide" data-title="Network & Perimeter Telemetry" data-notes="Explain what network traffic sees that endpoints might hide. If malware disables local endpoint logging, network traffic cannot be erased because the packets literally crossed the wire. Introduce Firewalls, IDS/IPS (Snort/Suricata), and DNS logs.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x1F310;</span> NETWORK VISIBILITY</div>
+        <h2>Network &amp; Perimeter Telemetry</h2>
+        <p style="margin-bottom: 18px;">Network data provides objective, tamper-proof ground truth: <em>an attacker might tamper with host logs, but they cannot delete packets that have already crossed the network cable</em>.</p>
+
+        <div class="grid grid--3col">
+          <div class="card card--cyan">
+            <div class="card-icon">&#x1F9F1;</div>
+            <div class="card-title">Firewall Logs</div>
+            <div class="badge badge--blue" style="margin-bottom: 8px;">Perimeter Gatekeeper</div>
+            <p class="card-text">Tracks ALLOW vs DENY decisions based on IP, port, and protocol. Crucial for detecting external port scans and unauthorized outbound connections.</p>
+          </div>
+
+          <div class="card card--purple">
+            <div class="card-icon">&#x1F6A8;</div>
+            <div class="card-title">IDS / IPS Alerts</div>
+            <div class="badge badge--purple" style="margin-bottom: 8px;">Signature Inspection</div>
+            <p class="card-text">Tools like <strong>Snort</strong> &amp; <strong>Suricata</strong> inspect packet payloads for known exploit patterns, SQL injections, shellcode, and protocol violations.</p>
+          </div>
+
+          <div class="card card--green">
+            <div class="card-icon">&#x1F30D;</div>
+            <div class="card-title">DNS Telemetry</div>
+            <div class="badge badge--green" style="margin-bottom: 8px;">Name Resolution</div>
+            <p class="card-text">Almost all malware resolves a domain name before initiating C2 communication. DNS logs reveal DGA algorithms, fast-flux, and DNS tunneling exfiltration.</p>
+          </div>
+        </div>
+
+        <div class="terminal-box">
+          <div class="terminal-header"><span>Sample Firewall Deny Log</span></div>
+          <div class="terminal-body"><span class="param">Date=</span>2026-10-20 <span class="param">Time=</span>02:15:33 <span class="param">Action=</span><span class="highlight">DENY</span> <span class="param">Protocol=</span>TCP <span class="param">SrcIP=</span><span class="highlight">203.0.113.50</span> <span class="param">SrcPort=</span>44821 <span class="param">DstIP=</span>10.0.0.5 <span class="param">DstPort=</span><span class="highlight">3389 (RDP)</span> <span class="param">Rule=</span>Block-External-RDP</div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 17: WEB APP & CLOUD LOGGING ==================== -->
+    <div class="slide" data-title="Web App & Cloud Telemetry" data-notes="Explain that Web applications are the primary public-facing door into an organization. Deconstruct the Combined Log Format and show how web application firewalls (WAF) and CloudTrail/Entra ID logs complete modern enterprise visibility.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x2601;&#xFE0F;</span> WEB &amp; CLOUD ACCESS</div>
+        <h2>Web Application &amp; Cloud / Identity Logging</h2>
+        <p style="margin-bottom: 18px;">Public-facing web applications and cloud identity providers represent the most heavily attacked attack surface in modern enterprises:</p>
+
+        <div class="grid grid--2col">
+          <div class="card card--cyan">
+            <div class="card-title">
+              <span>Web Server Access Logs (Apache / Nginx / IIS)</span>
+              <span class="badge badge--blue">Application Layer</span>
+            </div>
+            <p class="card-text">Every HTTP request generates an access record containing Client IP, Request Verb (GET/POST), URI, HTTP Status Code, and User-Agent.</p>
+            <div class="terminal-box" style="margin: 10px 0 0 0;">
+              <div class="terminal-body" style="font-size: 0.78rem;">203.0.113.88 - - [20/Oct/2026:14:32:01] <span class="param">"GET /login.php HTTP/1.1"</span> <span class="success">200</span> 3420
+203.0.113.88 - - [20/Oct/2026:14:32:05] <span class="param">"GET /login.php?id=1' OR '1'='1"</span> <span class="highlight">500</span> 1024</div>
+            </div>
+          </div>
+
+          <div class="card card--purple">
+            <div class="card-title">
+              <span>Cloud Identity &amp; Audit (Entra ID / AWS / M365)</span>
+              <span class="badge badge--purple">Identity Perimeter</span>
+            </div>
+            <p class="card-text">Tracks authentication attempts outside the corporate network, Impossible Travel alerts, MFA fatigue, and administrative privilege grants.</p>
+            <div class="terminal-box" style="margin: 10px 0 0 0;">
+              <div class="terminal-body" style="font-size: 0.78rem;"><span class="param">Service:</span> Microsoft Entra ID (Azure AD)
+<span class="param">Alert:</span> <span class="highlight">"Impossible Travel Detected"</span>
+<span class="param">User:</span> alice@company.com logged in from <span class="highlight">New York</span> and 10 mins later from <span class="highlight">Tokyo</span>!</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card card--highlight" style="margin-top: 14px;">
+          <div class="card-title"><span>HTTP Status Codes Quick Reference for SOC Analysts</span></div>
+          <div style="display: flex; gap: 15px; font-family: var(--font-mono); font-size: 0.85rem; flex-wrap: wrap;">
+            <span><strong style="color:var(--accent-green)">200 OK:</strong> Request succeeded</span>
+            <span><strong style="color:var(--blue-300)">301/302:</strong> Redirection</span>
+            <span><strong style="color:var(--accent-amber)">401/403:</strong> Unauthorized / Forbidden</span>
+            <span><strong style="color:var(--text-muted)">404:</strong> Not Found</span>
+            <span><strong style="color:var(--accent-red)">500:</strong> Server Error (Potential SQLi crash!)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 18: HANDS-ON DEMO 1 (WINDOWS AUTH) ==================== -->
+    <div class="slide" data-title="Demo 1: Windows Authentication Analysis" data-notes="Perform this live or explain it step-by-step. Have students open PowerShell as Administrator and run the Get-WinEvent command. Explain Logon Types: Type 2 is interactive (hands on keyboard), Type 3 is network (file share access), and Type 10 is Remote Desktop (RDP).">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x1F4BB;</span> HANDS-ON DEMO &middot; WINDOWS</div>
+        <h2>Demo 1: Live Windows Authentication Analysis</h2>
+        <p style="margin-bottom: 16px;">Let's inspect real Windows authentication events generated right on your local machine using both GUI and CLI:</p>
+
+        <div class="grid grid--2col">
+          <div class="card card--cyan">
+            <div class="card-title">Method A: Event Viewer (GUI)</div>
+            <ol style="font-size: 0.9rem; padding-left: 18px; line-height: 1.7; color: var(--text-secondary);">
+              <li>Press <code>Win + R</code> &rarr; type <code>eventvwr.msc</code> &rarr; Enter.</li>
+              <li>Expand <strong>Windows Logs</strong> &rarr; Click <strong>Security</strong>.</li>
+              <li>In the right pane, click <strong>Filter Current Log...</strong></li>
+              <li>In the Event IDs field, enter: <code>4624, 4625</code> &rarr; Click OK.</li>
+              <li>Click on an Event 4624 and examine the <strong>Logon Type</strong>!</li>
+            </ol>
+          </div>
+
+          <div class="card card--purple">
+            <div class="card-title">Method B: PowerShell (Fast CLI Query)</div>
+            <p class="card-text" style="font-size: 0.88rem; margin-bottom: 8px;">Run PowerShell as Administrator to extract the latest 5 failed logon attempts:</p>
+            <div class="terminal-box" style="margin: 0;">
+              <div class="terminal-body" style="font-size: 0.78rem;"><span class="cmd">Get-WinEvent</span> -FilterHashtable @{
+  LogName = <span class="highlight">'Security'</span>
+  Id = <span class="highlight">4625</span>
+} -MaxEvents 5 | <span class="cmd">Select-Object</span> TimeCreated, Id, Message | <span class="cmd">Format-List</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-container" style="margin-top: 14px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Logon Type</th>
+                <th>Name</th>
+                <th>Real-World Description</th>
+                <th>Investigative Context</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>Logon Type 2</code></td>
+                <td>Interactive</td>
+                <td>User logged on locally with physical keyboard/console.</td>
+                <td>Standard workstation sign-in.</td>
+              </tr>
+              <tr>
+                <td><code>Logon Type 3</code></td>
+                <td>Network</td>
+                <td>Connected over network (e.g. SMB file share, IIS web auth).</td>
+                <td>Common in lateral movement (PsExec).</td>
+              </tr>
+              <tr>
+                <td><code>Logon Type 10</code></td>
+                <td>RemoteInteractive</td>
+                <td>Logged on via Remote Desktop Protocol (RDP / Terminal Services).</td>
+                <td>Watch for Type 10 logins during midnight hours!</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 19: HANDS-ON DEMO 2 (WINDOWS PROCESS EXECUTION) ==================== -->
+    <div class="slide" data-title="Demo 2: Process Auditing & Sysmon" data-notes="Demonstrate how command lines reveal attacker intent. When an attacker runs 'powershell.exe -enc ...' or 'whoami', Event 4688 records it. Point out the crucial field: ParentProcessName. If Word or Excel spawns PowerShell, that is a 99% malicious macro execution!">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x1F4BB;</span> HANDS-ON DEMO &middot; WINDOWS</div>
+        <h2>Demo 2: Process Creation &amp; Lineage Auditing</h2>
+        <p style="margin-bottom: 16px;">Every attacker action eventually executes as an operating system process. Examining the process hierarchy (Parent &rarr; Child) exposes malware execution:</p>
+
+        <div class="terminal-box">
+          <div class="terminal-header">
+            <span>Simulating Command Execution (Run in CMD or PowerShell)</span>
+          </div>
+          <div class="terminal-body"><span class="comment"># Attacker initiates basic host reconnaissance:</span>
+<span class="cmd">cmd.exe /c</span> <span class="param">"whoami &amp; ipconfig /all &amp; net user"</span></div>
+        </div>
+
+        <div class="grid grid--2col" style="margin-top: 14px;">
+          <div class="card card--cyan">
+            <div class="card-title">Windows Event ID 4688 Telemetry</div>
+            <div class="terminal-body" style="font-size: 0.78rem; padding: 10px 0;"><span class="param">New Process Name:</span> C:\Windows\System32\whoami.exe
+<span class="param">Process Command Line:</span> <span class="highlight">whoami</span>
+<span class="param">Creator Process ID:</span> 0x1f4c
+<span class="param">Creator Process Name:</span> <span class="cmd">C:\Windows\System32\cmd.exe</span>
+<span class="param">Security ID:</span> DOMAIN\AnalystUser</div>
+          </div>
+
+          <div class="card card--purple">
+            <div class="card-title">Sysmon Event ID 1 Telemetry (Deeper!)</div>
+            <div class="terminal-body" style="font-size: 0.78rem; padding: 10px 0;"><span class="param">Image:</span> C:\Windows\System32\whoami.exe
+<span class="param">ParentImage:</span> <span class="cmd">C:\Windows\System32\cmd.exe</span>
+<span class="param">ParentCommandLine:</span> "cmd.exe /c whoami..."
+<span class="param">Hashes:</span> <span class="highlight">SHA256=3B4A1D8... (Checked vs VirusTotal)</span>
+<span class="param">IntegrityLevel:</span> High</div>
+          </div>
+        </div>
+
+        <div class="card card--highlight" style="margin-top: 14px;">
+          <div class="card-title"><span>&#x26A0;&#xFE0F; The Golden Process Detection Rule: Malicious Parentage</span></div>
+          <p class="card-text">Legitimate user software follows predictable parent-child relationships. If <code>WINWORD.EXE</code> or <code>EXCEL.EXE</code> spawns <code>cmd.exe</code> or <code>powershell.exe</code>, it is virtually guaranteed to be a malicious phishing payload!</p>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 20: HANDS-ON DEMO 3 (LINUX LOGS) ==================== -->
+    <div class="slide" data-title="Demo 3: Linux Authentication Telemetry" data-notes="Demonstrate Linux terminal commands. Show how a failed sudo command immediately registers in /var/log/auth.log with the keyword 'authentication failure'. Show how analysts use grep and awk to quickly find brute-force attacker IPs.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x1F4BB;</span> HANDS-ON DEMO &middot; LINUX</div>
+        <h2>Demo 3: Linux Authentication &amp; Privilege Telemetry</h2>
+        <p style="margin-bottom: 16px;">Let's inspect how Linux logs failed password attempts, privilege escalation via <code>sudo</code>, and SSH activity:</p>
+
+        <div class="terminal-box">
+          <div class="terminal-header">
+            <span>Simulating Failed Privileged Access (Linux / WSL Terminal)</span>
+          </div>
+          <div class="terminal-body"><span class="comment"># 1. Invalidate current sudo credentials and enter an incorrect password:</span>
+<span class="cmd">$ sudo -k</span>
+<span class="cmd">$ sudo ls /root</span>
+[sudo] password for user: <span class="comment">(enter wrong password)</span>
+<span class="highlight">Sorry, try again.</span></div>
+        </div>
+
+        <div class="grid grid--2col" style="margin-top: 14px;">
+          <div>
+            <h3 style="font-size: 1rem; color: var(--blue-200); margin-bottom: 8px;">Investigating in /var/log/auth.log</h3>
+            <div class="terminal-box" style="margin: 0;">
+              <div class="terminal-body" style="font-size: 0.78rem;"><span class="cmd">sudo grep</span> -i "sudo:" /var/log/auth.log | <span class="cmd">tail -n 3</span>
+
+<span class="comment"># Generated forensic output:</span>
+Oct 20 14:10:02 debian-srv sudo[2419]: user : <span class="highlight">1 incorrect password attempt</span> ; TTY=pts/0 ; PWD=/home/user ; USER=root ; COMMAND=/bin/ls /root</div>
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size: 1rem; color: var(--purple-200); margin-bottom: 8px;">Detecting SSH Brute-Force Attackers</h3>
+            <div class="terminal-box" style="margin: 0;">
+              <div class="terminal-body" style="font-size: 0.78rem;"><span class="comment"># Analyst one-liner to rank top attacking IPs:</span>
+<span class="cmd">grep</span> "Failed password" /var/log/auth.log | \
+<span class="cmd">awk</span> '{print $(NF-3)}' | \
+<span class="cmd">sort</span> | <span class="cmd">uniq -c</span> | <span class="cmd">sort -nr</span> | <span class="cmd">head -n 5</span>
+
+<span class="comment"># Output:</span>
+  <span class="highlight">1,482</span> 185.220.101.42  <span class="comment">&larr; Immediate IP block!</span>
+    <span class="highlight">820</span> 45.142.122.18
+     <span class="highlight">45</span> 192.168.1.50</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 21: HANDS-ON DEMO 4 (WEB ACCESS LOGS) ==================== -->
+    <div class="slide" data-title="Demo 4: Spotting Attacks in Web Logs" data-notes="Demonstrate how web server logs catch attacks. Show students that an attacker's SQL injection payload or directory traversal is recorded in plain text in the web server access log. Point out the single quotes, UNION SELECT, and ../ in the URI.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x1F4BB;</span> HANDS-ON DEMO &middot; WEB</div>
+        <h2>Demo 4: Spotting Attacks in Web Access Logs</h2>
+        <p style="margin-bottom: 16px;">Web application attacks leave unmistakable signatures in web server access logs. Let's dissect real attack payloads recorded in Apache/Nginx logs:</p>
+
+        <div class="terminal-box">
+          <div class="terminal-header"><span>Sample Access Log Entries Under Attack</span></div>
+          <div class="terminal-body" style="font-size: 0.8rem;"><span class="comment"># 1. Normal legitimate web request:</span>
+10.0.0.12 - - [20/Oct/2026:10:00:01 +0000] "GET /products/item?id=45 HTTP/1.1" <span class="success">200</span> 3120
+
+<span class="comment"># 2. Attacker probes for SQL Injection (Note the single quote '):</span>
+198.51.100.4 - - [20/Oct/2026:10:00:15 +0000] "GET /products/item?id=<span class="highlight">45'</span> HTTP/1.1" <span class="highlight">500</span> 842
+
+<span class="comment"># 3. Successful SQL Injection data extraction:</span>
+198.51.100.4 - - [20/Oct/2026:10:00:22 +0000] "GET /products/item?id=<span class="highlight">45%20UNION%20SELECT%20username,password%20FROM%20users--</span> HTTP/1.1" <span class="success">200</span> <span class="highlight">58291 (Huge Response!)</span>
+
+<span class="comment"># 4. Directory Traversal / Local File Inclusion attempt:</span>
+198.51.100.4 - - [20/Oct/2026:10:00:45 +0000] "GET /view.php?file=<span class="highlight">../../../../etc/passwd</span> HTTP/1.1" <span class="highlight">403</span> 420</div>
+        </div>
+
+        <div class="grid grid--3col" style="margin-top: 14px;">
+          <div class="card card--red">
+            <div class="card-title">SQL Injection Clues</div>
+            <p class="card-text">Look for single quotes (<code>'</code> or <code>%27</code>), SQL keywords (<code>UNION</code>, <code>SELECT</code>), comment dashes (<code>--</code>), and abnormally large response byte sizes.</p>
+          </div>
+          <div class="card card--amber">
+            <div class="card-title">Path Traversal Clues</div>
+            <p class="card-text">Look for repeated <code>../</code> dot-dot-slash patterns attempting to escape web root to read sensitive system files (<code>/etc/passwd</code>, <code>win.ini</code>).</p>
+          </div>
+          <div class="card card--cyan">
+            <div class="card-title">Status Code Insights</div>
+            <p class="card-text">A <strong>500 Server Error</strong> reveals the database query crashed; an immediate subsequent <strong>200 OK</strong> indicates the attacker successfully adjusted their syntax!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 22: THE CENTRALIZATION DILEMMA ==================== -->
+    <div class="slide" data-title="The Centralization Dilemma" data-notes="Explain the nightmare of 'islands of data'. Ask the class: 'If a bank has 2,000 servers, can an analyst log into each server one by one to investigate a breach?' Obviously not. Furthermore, if a hacker gets root on a server, what's the first thing they do? They clear the logs. If logs are stored only locally, the evidence is gone forever.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x1F3DD;&#xFE0F;</span> ARCHITECTURAL CHALLENGE</div>
+        <h2>The Centralization Dilemma: &ldquo;Islands of Data&rdquo;</h2>
+        <p style="margin-bottom: 20px;">In an enterprise with thousands of servers, leaving logs scattered across individual machines creates a catastrophic defensive failure:</p>
+
+        <div class="grid grid--2col">
+          <div class="card card--red">
+            <div class="card-icon">&#x26A1;</div>
+            <div class="card-title">1. Anti-Forensic Wiping</div>
+            <p class="card-text">When an attacker gains Administrator or root privileges, their immediate priority is clearing local logs (<code>wevtutil cl Security</code> or <code>rm -rf /var/log/*</code>). If logs remain local, all evidence evaporates!</p>
+          </div>
+
+          <div class="card card--amber">
+            <div class="card-icon">&#x23F1;&#xFE0F;</div>
+            <div class="card-title">2. Impossible Search Scale</div>
+            <p class="card-text">An analyst cannot manually RDP or SSH into 5,000 distinct servers during an active breach to search for an IOC. Triage would take months instead of seconds.</p>
+          </div>
+
+          <div class="card card--purple">
+            <div class="card-icon">&#x1F9E9;</div>
+            <div class="card-title">3. Missing Correlation Context</div>
+            <p class="card-text">A firewall block means nothing without seeing the host process; a workstation login failure means nothing without knowing the external VPN IP. Fragmented logs tell no coherent story.</p>
+          </div>
+
+          <div class="card card--cyan">
+            <div class="card-icon">&#x23F0;</div>
+            <div class="card-title">4. Time Drift &amp; Format Chaos</div>
+            <p class="card-text">Without time synchronization and field normalization, piecing together a chronological timeline across Linux, Windows, Cisco, and AWS becomes virtually impossible.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 23: THE CENTRALIZATION SOLUTION & NTP ==================== -->
+    <div class="slide" data-title="Centralization & Time Synchronization" data-notes="Explain the solution: logs must be shipped off the endpoint the instant they are generated to a tamper-proof central store. Stress the critical role of NTP. If clock skew is off by even 3 minutes, correlation rules fail and court-admissible evidence is compromised.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x1F6E1;&#xFE0F;</span> CENTRALIZATION SOLUTION</div>
+        <h2>Centralization &amp; The Critical Role of NTP</h2>
+        <p style="margin-bottom: 20px;">The solution is simple yet non-negotiable: <strong>ship all logs immediately to a centralized, tamper-proof repository (SIEM)</strong> the instant they are generated.</p>
+
+        <div class="grid grid--2col">
+          <div class="card card--cyan">
+            <div class="card-title">Why Centralization Solves the Problem</div>
+            <ul style="font-size: 0.9rem;">
+              <li><strong>Write-Once, Tamper-Proof:</strong> Even if an attacker wipes the endpoint, the log was already shipped off-box and safely indexed in the SIEM!</li>
+              <li><strong>Single Pane of Glass:</strong> Query millions of events across 10,000 hosts simultaneously in sub-second search times.</li>
+              <li><strong>Multi-Source Correlation:</strong> Tie a firewall alert, an endpoint process, and a cloud login into a unified incident graph.</li>
+              <li><strong>Regulatory Compliance:</strong> Fulfills PCI-DSS, ISO 27001, and SOC2 requirements for centralized audit trails.</li>
+            </ul>
+          </div>
+
+          <div class="card card--purple">
+            <div class="card-title">The Non-Negotiable Foundation: NTP Time Sync</div>
+            <p class="card-text" style="margin-bottom: 12px;"><strong>Network Time Protocol (NTP)</strong> synchronizes all enterprise clocks to within milliseconds of UTC (Coordinated Universal Time).</p>
+            <div class="terminal-box" style="margin: 0;">
+              <div class="terminal-body" style="font-size: 0.78rem;"><span class="comment"># Why Time Drift Destroys Investigations:</span>
+Server A Clock: 10:04:00 (Off by +4 minutes)
+Firewall Clock: 10:00:00 (Correct UTC)
+
+Analyst sees a firewall drop at 10:00:00, but Server A's exploit log is stamped at 10:04:00. <span class="highlight">Automated correlation rules FAIL</span> because the events appear 4 minutes apart!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 24: LOG SHIPPING METHODS ==================== -->
+    <div class="slide" data-title="Log Shipping: Agents vs Agentless" data-notes="Explain how logs physically get from the endpoint to the SIEM. Compare Agent-based (Splunk Universal Forwarder, Elastic Agent, Wazuh) with Agentless (Syslog UDP/TCP, WEF, API pull). Explain trade-offs: agents give local caching and compression, but network appliances only speak Syslog.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x1F69A;</span> DATA INGESTION</div>
+        <h2>How Logs are Shipped: Agents vs Agentless</h2>
+        <p style="margin-bottom: 20px;">How does log telemetry physically travel from thousands of disparate endpoints into the central SIEM? Organizations leverage two primary architectures:</p>
+
+        <div class="grid grid--2col">
+          <div class="card card--cyan">
+            <div class="card-title">
+              <span>1. Agent-Based Ingestion</span>
+              <span class="badge badge--blue">Endpoints &amp; Servers</span>
+            </div>
+            <p class="card-text" style="margin-bottom: 10px;">A lightweight software service installed directly on the host (e.g., <strong>Splunk Universal Forwarder</strong>, <strong>Elastic Agent</strong>, <strong>Wazuh Agent</strong>, <strong>Winlogbeat</strong>).</p>
+            <ul style="font-size: 0.88rem;">
+              <li><strong>Local Disk Buffering:</strong> If network drops, logs queue on disk and never get lost.</li>
+              <li><strong>Data Compression &amp; Encryption:</strong> Sends TLS encrypted, compressed streams.</li>
+              <li><strong>Minimal Footprint:</strong> Uses &lt;1% CPU and negligible memory.</li>
+            </ul>
+          </div>
+
+          <div class="card card--purple">
+            <div class="card-title">
+              <span>2. Agentless Ingestion</span>
+              <span class="badge badge--purple">Appliances &amp; Cloud</span>
+            </div>
+            <p class="card-text" style="margin-bottom: 10px;">Used for network switches, firewalls, and cloud services where installing third-party agent software is impossible.</p>
+            <ul style="font-size: 0.88rem;">
+              <li><strong>Syslog Forwarding:</strong> Devices push RFC 5424 syslog over UDP 514 or TCP/TLS 6514 to a central collector.</li>
+              <li><strong>Windows Event Forwarding (WEF):</strong> Native Windows Kerberos push to a central Windows Event Collector (WEC).</li>
+              <li><strong>Cloud REST APIs:</strong> SIEM pulls audit trails directly via API tokens (e.g. AWS CloudTrail, Microsoft Graph API).</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 25: THE 6-STAGE SIEM PIPELINE ==================== -->
+    <div class="slide" data-title="The 6-Stage SIEM Pipeline" data-notes="Walk through the 6 stages left to right. Explain Parsing & Normalization: turning vendor-specific text into standard fields. Explain Enrichment: looking up an IP in GeoIP or Threat Intel. Explain Correlation: matching multiple events across time windows to trigger an Alert.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x2699;&#xFE0F;</span> PROCESSING ENGINE</div>
+        <h2>The 6-Stage SIEM Processing Pipeline</h2>
+        <p style="margin-bottom: 18px;">Before an alert ever appears on an analyst's monitor, raw telemetry passes through a rigorous 6-stage engineering pipeline:</p>
+
+        <div class="flow-row">
+          <div class="flow-node">
+            <span class="node-num">01</span>
+            <span class="node-title">COLLECT</span>
+            <span class="node-desc">Agents, Syslog streams, and API integrations gathering raw bytes.</span>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-node">
+            <span class="node-num">02</span>
+            <span class="node-title">AGGREGATE</span>
+            <span class="node-desc">Buffering incoming logs into high-throughput message queues (Kafka).</span>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-node">
+            <span class="node-num">03</span>
+            <span class="node-title">PARSE</span>
+            <span class="node-desc">Normalizing raw text into Common Information Models (e.g. <code>src_ip</code>).</span>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-node">
+            <span class="node-num">04</span>
+            <span class="node-title">ENRICH</span>
+            <span class="node-desc">Adding GeoIP location, Threat Intel reputation, and Asset Criticality.</span>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-node">
+            <span class="node-num">05</span>
+            <span class="node-title">INDEX</span>
+            <span class="node-desc">Compressing and writing into high-speed searchable index clusters.</span>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-node">
+            <span class="node-num">06</span>
+            <span class="node-title">CORRELATE</span>
+            <span class="node-desc">Multi-source logic matching detection rules &rarr; <strong>Alert Generated!</strong></span>
+          </div>
+        </div>
+
+        <div class="card card--highlight" style="margin-top: 15px;">
+          <div class="card-title"><span>Stage 3 &amp; 4 in Action: What Normalization &amp; Enrichment Looks Like</span></div>
+          <div class="terminal-body" style="font-size: 0.8rem; padding: 10px 0;"><span class="comment"># Raw Log:</span> "Oct 20 14:02:11 gw-fw[52]: DROP src=198.51.100.4 dst=10.0.0.5 sport=52112 dport=22"
+<span class="comment"># Normalized (CIM):</span>  <span class="param">action=</span>"blocked", <span class="param">src_ip=</span>"198.51.100.4", <span class="param">dest_port=</span>22, <span class="param">app=</span>"ssh"
+<span class="comment"># Enriched (ThreatIntel):</span> <span class="highlight">src_ip_country="NL", threat_score="95/100 (Known Tor Exit Node)"</span></div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 26: INTEGRATED DEFENSIVE ARCHITECTURE ==================== -->
+    <div class="slide" data-title="Integrated SOC Architecture" data-notes="This architectural diagram pulls everything together into one unified picture. Show how Endpoints, Networks, Applications, and Cloud streams flow through forwarders into the central SIEM. Show how TIP feeds threat intel into SIEM, and how SIEM triggers SOAR playbooks and case management for the analyst.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x1F3DB;&#xFE0F;</span> DEFENSIVE ECOSYSTEM</div>
+        <h2>The Integrated SOC Defensive Architecture</h2>
+        <p style="margin-bottom: 16px;">How all security solutions interconnect into a single unified defensive ecosystem:</p>
+
+        <div style="background: rgba(8,12,24,0.85); border: 1px solid var(--border-glow); border-radius: 12px; padding: 22px; margin: 16px 0;">
+          <div style="display: flex; justify-content: space-between; align-items: stretch; gap: 14px; text-align: center;">
+            
+            <div style="flex: 1.2; display: flex; flex-direction: column; gap: 8px;">
+              <div style="font-family: var(--font-heading); font-size: 0.82rem; color: var(--blue-200); font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 4px;">TELEMETRY PRODUCERS</div>
+              <div class="card" style="padding: 10px; font-size: 0.82rem; border-color: rgba(53,99,233,0.3);">&#x1F4BB; <strong>Endpoints:</strong> Sysmon + EDR</div>
+              <div class="card" style="padding: 10px; font-size: 0.82rem; border-color: rgba(6,182,212,0.3);">&#x1F310; <strong>Network:</strong> NGFW + IDS/IPS</div>
+              <div class="card" style="padding: 10px; font-size: 0.82rem; border-color: rgba(124,58,237,0.3);">&#x1F30D; <strong>Web Apps:</strong> Nginx/IIS + WAF</div>
+              <div class="card" style="padding: 10px; font-size: 0.82rem; border-color: rgba(251,191,36,0.3);">&#x2601;&#xFE0F; <strong>Identity:</strong> AD + Entra ID</div>
+            </div>
+
+            <div style="display: flex; align-items: center; color: var(--blue-400); font-size: 1.5rem;">&rarr;</div>
+
+            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 10px;">
+              <div style="font-family: var(--font-heading); font-size: 0.82rem; color: var(--blue-200); font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 4px;">FORWARDING LAYER</div>
+              <div class="card card--highlight" style="padding: 16px 10px; font-size: 0.85rem;">
+                <strong>Log Shippers</strong><br>
+                <span style="font-size: 0.78rem; color: var(--text-muted);">Splunk UF &middot; Elastic Agent &middot; Syslog RFC 5424 &middot; Cloud APIs</span>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; color: var(--blue-400); font-size: 1.5rem;">&rarr;</div>
+
+            <div style="flex: 1.3; display: flex; flex-direction: column; justify-content: center;">
+              <div style="font-family: var(--font-heading); font-size: 0.82rem; color: var(--accent-green); font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 4px;">THE CENTRAL BRAIN</div>
+              <div class="card card--green" style="padding: 18px 12px;">
+                <div style="font-size: 1.3rem;">&#x1F9E0;</div>
+                <div style="font-weight: 700; color: #fff; font-size: 1.05rem;">SIEM PLATFORM</div>
+                <div style="font-size: 0.78rem; color: var(--blue-200); margin-top: 4px;">Splunk &middot; Sentinel &middot; QRadar &middot; Elastic</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">Correlation Rules &middot; Search Processing &middot; Threat Intel Enrichment</div>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; color: var(--blue-400); font-size: 1.5rem;">&rarr;</div>
+
+            <div style="flex: 1.2; display: flex; flex-direction: column; gap: 8px;">
+              <div style="font-family: var(--font-heading); font-size: 0.82rem; color: var(--purple-200); font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 4px;">ANALYST RESPONSE</div>
+              <div class="card card--purple" style="padding: 10px; font-size: 0.82rem;">&#x1F916; <strong>SOAR:</strong> Auto-Playbooks</div>
+              <div class="card card--cyan" style="padding: 10px; font-size: 0.82rem;">&#x1F4CB; <strong>Cases:</strong> TheHive / Jira</div>
+              <div class="card card--amber" style="padding: 10px; font-size: 0.82rem;">&#x1F465; <strong>Analyst:</strong> Triage Console</div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 27: SIEM DEEP DIVE ==================== -->
+    <div class="slide" data-title="SIEM: Central Brain" data-notes="Explain that SIEM is the heart of the SOC analyst's daily workflow. An analyst spends 80% of their shift inside the SIEM search bar. Mention market leaders: Splunk (which we deploy in Lab 2 and use throughout the course), Microsoft Sentinel, IBM QRadar, and Elastic Security.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x1F9E0;</span> SIEM PLATFORMS</div>
+        <h2>SIEM: The Central Brain of the SOC</h2>
+        <p style="margin-bottom: 20px;"><strong>Security Information and Event Management (SIEM)</strong> aggregates, parses, indexes, and correlates telemetry across the entire enterprise to give analysts a single pane of glass.</p>
+
+        <div class="grid grid--3col">
+          <div class="card card--cyan">
+            <div class="card-icon">&#x1F50E;</div>
+            <div class="card-title">Search &amp; Investigation</div>
+            <p class="card-text">Provides specialized query languages (e.g. <strong>Splunk SPL</strong>, <strong>Microsoft KQL</strong>) enabling analysts to query petabytes of logs in seconds during active incidents.</p>
+          </div>
+
+          <div class="card card--purple">
+            <div class="card-icon">&#x26A1;</div>
+            <div class="card-title">Real-Time Correlation</div>
+            <p class="card-text">Links disparate events across time windows: e.g. <em>"Flag an alert if an external IP triggers a WAF block AND authenticates successfully to Active Directory within 2 minutes."</em></p>
+          </div>
+
+          <div class="card card--green">
+            <div class="card-icon">&#x1F4CA;</div>
+            <div class="card-title">Dashboards &amp; Metrics</div>
+            <p class="card-text">Visualizes attack trends, top targeted systems, analyst workload queues, and compliance reporting (PCI-DSS, HIPAA, SOC2) for management.</p>
+          </div>
+        </div>
+
+        <div class="terminal-box">
+          <div class="terminal-header"><span>Market-Leading Enterprise SIEM Platforms</span></div>
+          <div class="terminal-body"><span class="cmd">&bull; Splunk Enterprise Security:</span> Market leader, powerful SPL query language (used in our course!).
+<span class="cmd">&bull; Microsoft Sentinel:</span> Cloud-native SIEM/SOAR deeply integrated into Azure and M365 environments.
+<span class="cmd">&bull; Elastic Security (ELK):</span> Open-core, highly scalable Lucene-based search and security analytics.
+<span class="cmd">&bull; IBM QRadar:</span> Longstanding enterprise SIEM with robust network flow integration.</div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 28: EDR & SYSMON ==================== -->
+    <div class="slide" data-title="EDR & Host Defense" data-notes="Distinguish between traditional Antivirus and modern EDR. AV looks only for known file hashes (signatures). If malware is fileless or executes in memory, AV misses it completely. EDR records all process behaviors and allows the analyst to remotely isolate the computer from the network with one click.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x1F4BB;</span> HOST DEFENSE</div>
+        <h2>EDR &amp; Sysmon: Endpoint Visibility &amp; Active Response</h2>
+        <p style="margin-bottom: 20px;">While SIEM looks across the entire enterprise, <strong>Endpoint Detection and Response (EDR)</strong> provides micro-visibility and live surgical intervention directly inside host memory and processes:</p>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 25%;">Capability</th>
+                <th style="width: 35%;">Traditional Antivirus (AV)</th>
+                <th style="width: 40%;">Modern EDR (CrowdStrike, Defender, LimaCharlie)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Detection Model</strong></td>
+                <td>Static signatures and known file hashes.</td>
+                <td><strong>Behavioral AI</strong>, memory analysis, parentage anomaly tracking.</td>
+              </tr>
+              <tr>
+                <td><strong>Fileless Malware</strong></td>
+                <td>Blind to scripts executing purely in RAM.</td>
+                <td>Interprets AMSI telemetry, memory injection, reflective DLL loading.</td>
+              </tr>
+              <tr>
+                <td><strong>Telemetry Recorded</strong></td>
+                <td>Only alerts when a known signature matches.</td>
+                <td><strong>Flight Recorder:</strong> Records every process, socket, and file touched.</td>
+              </tr>
+              <tr>
+                <td><strong>Live Active Response</strong></td>
+                <td>Can only quarantine or delete a file.</td>
+                <td><strong>Remote Host Isolation</strong>, process kill, remote live terminal shell!</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card card--highlight" style="margin-top: 15px;">
+          <div class="card-title"><span>Our Lab EDR Platform: LimaCharlie (Lab 10 &amp; 11)</span></div>
+          <p class="card-text">Later in the semester, we will deploy <strong>LimaCharlie</strong> &mdash; a powerful SecOps Cloud EDR platform. You will deploy real sensors, watch live process trees in real time, and trigger remote network isolation directly from the cloud console!</p>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 29: NETWORK DEFENSES ==================== -->
+    <div class="slide" data-title="Network Defenses: FW, IDS/IPS & NSM" data-notes="Review network controls. A firewall is a gatekeeper. An IDS is an alarm bell (passive). An IPS is an active guard standing at the gate resetting malicious TCP streams. NSM tools like Zeek and Wireshark capture full conversations for packet forensics.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x1F6E1;&#xFE0F;</span> NETWORK DEFENSE</div>
+        <h2>Network Security: Firewalls, IDS/IPS &amp; NSM</h2>
+        <p style="margin-bottom: 20px;">Network defenses operate at the wire level, monitoring packets as they traverse between security zones:</p>
+
+        <div class="grid grid--3col">
+          <div class="card card--cyan">
+            <div class="card-icon">&#x1F9F1;</div>
+            <div class="card-title">Firewalls &amp; NGFW</div>
+            <div class="badge badge--blue" style="margin-bottom: 8px;">Gatekeeper</div>
+            <p class="card-text"><strong>Role:</strong> Enforces access control policies.<br><strong>NGFW (Next-Gen):</strong> Inspects Layer 7 applications (e.g. blocks BitTorrent or Tor even if running over standard port 443).</p>
+          </div>
+
+          <div class="card card--purple">
+            <div class="card-icon">&#x1F6A8;</div>
+            <div class="card-title">IDS vs IPS</div>
+            <div class="badge badge--purple" style="margin-bottom: 8px;">Detection vs Prevention</div>
+            <p class="card-text">
+              &bull; <strong>IDS (Snort/Suricata):</strong> Sits out-of-band on a TAP/SPAN port. <em>Passively alerts</em> without interrupting traffic.<br>
+              &bull; <strong>IPS:</strong> Sits inline. <em>Actively drops packets</em> and resets TCP connections!
+            </p>
+          </div>
+
+          <div class="card card--green">
+            <div class="card-icon">&#x1F4E1;</div>
+            <div class="card-title">NSM &amp; Zeek</div>
+            <div class="badge badge--green" style="margin-bottom: 8px;">Metadata &amp; PCAP</div>
+            <p class="card-text"><strong>Network Security Monitoring (NSM):</strong> Converts raw packets into structured protocol transaction logs (HTTP requests, SSL certs, DNS lookups) and stores PCAP for deep packet inspection.</p>
+          </div>
+        </div>
+
+        <div class="card card--highlight" style="margin-top: 15px;">
+          <div class="card-title"><span>Hands-on Focus in Week 4 &amp; 5</span></div>
+          <p class="card-text">In Labs 4 and 5, we will get hands-on with <strong>Wireshark</strong>, <strong>tcpdump</strong>, and write custom detection rules in <strong>Snort/Suricata</strong> to detect network exploits in real time!</p>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 30: SOAR, CASE MGMT & THREAT INTEL ==================== -->
+    <div class="slide" data-title="SOAR, Case Management & TIP" data-notes="Explain the remaining parts of the SOC toolkit. SOAR automates repetitive tasks (like looking up an IP on VirusTotal). Case management tracks evidence for legal and regulatory compliance. Threat Intelligence Platforms (TIP) provide known attacker IOCs to enrich alerts.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x26A1;</span> AUTOMATION &amp; ENRICHMENT</div>
+        <h2>SOAR, Case Management &amp; Threat Intelligence (TIP)</h2>
+        <p style="margin-bottom: 20px;">To prevent analysts from being overwhelmed by repetitive manual tasks, mature SOCs deploy automation and threat enrichment layers:</p>
+
+        <div class="grid grid--3col">
+          <div class="card card--cyan">
+            <div class="card-icon">&#x1F916;</div>
+            <div class="card-title">SOAR Automation</div>
+            <div class="badge badge--blue" style="margin-bottom: 8px;">Playbook Execution</div>
+            <p class="card-text"><strong>Security Orchestration, Automation and Response:</strong> Executes automated workflows (e.g., when a phishing alert fires, SOAR automatically extracts URLs, queries VirusTotal, and quarantines the email in seconds).</p>
+          </div>
+
+          <div class="card card--purple">
+            <div class="card-icon">&#x1F4CB;</div>
+            <div class="card-title">Case Management</div>
+            <div class="badge badge--purple" style="margin-bottom: 8px;">Chain of Custody</div>
+            <p class="card-text">Dedicated ticketing platforms like <strong>TheHive</strong> and <strong>ServiceNow SecOps</strong>. Documents every analyst observation, preserves digital evidence, and maintains legal chain-of-custody.</p>
+          </div>
+
+          <div class="card card--green">
+            <div class="card-icon">&#x1F310;</div>
+            <div class="card-title">Threat Intel (TIP)</div>
+            <div class="badge badge--green" style="margin-bottom: 8px;">Adversary Context</div>
+            <p class="card-text">Platforms like <strong>MISP</strong> and <strong>OpenCTI</strong> ingest threat feeds containing millions of known malicious Indicators of Compromise (IOCs: IPs, domains, hashes) and feed them directly into the SIEM.</p>
+          </div>
+        </div>
+
+        <div class="terminal-box">
+          <div class="terminal-header"><span>SOAR Playbook Example: Automated Phishing Triage</span></div>
+          <div class="terminal-body"><span class="comment"># Playbook: "Phishing-Auto-Triage"</span>
+Trigger &rarr; Employee reports email &rarr; <span class="cmd">Extract Attachments</span> &rarr; Calculate SHA256 &rarr; <span class="cmd">Query TIP/VirusTotal</span>
+<span class="cmd">IF</span> DetectionScore &gt; 10 &rarr; <span class="highlight">Auto-Delete from all inboxes</span> + <span class="highlight">Block sender domain on Email Gateway</span> + <span class="cmd">Open P2 Ticket</span>!</div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 31: CORRELATED ATTACK SCENARIO ==================== -->
+    <div class="slide" data-title="Walkthrough: Correlated Attack Scenario" data-notes="This slide connects every single concept taught today. Walk through the 4 steps. Emphasize: Look at log 1 alone (just a port scan). Look at log 2 alone (just an error). Look at log 3 alone (just PowerShell). None of them scream 'massive breach' on their own. But when the SIEM correlates all 4 across the 30-minute window, it reveals the complete attack kill chain!">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x1F3AF;</span> SYNTHESIS WALKTHROUGH</div>
+        <h2>One Attack Traced Across 4 Distinct Data Sources</h2>
+        <p style="margin-bottom: 16px;">This real-world attack scenario proves why centralizing multi-source logs is the only way to solve modern cyber incidents:</p>
+
+        <div class="flow-row">
+          <div class="flow-node" style="border-top: 3px solid #22d3ee;">
+            <span class="node-num">1. PERIMETER</span>
+            <span class="node-title">Firewall Log</span>
+            <span class="node-desc" style="font-family: var(--font-mono); font-size: 0.75rem;">198.51.100.4 probes 50 ports; finds port 443 open to Web Server (10.0.0.5).</span>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-node" style="border-top: 3px solid #a87bf5;">
+            <span class="node-num">2. WEB APP</span>
+            <span class="node-title">Nginx Access Log</span>
+            <span class="node-desc" style="font-family: var(--font-mono); font-size: 0.75rem;">198.51.100.4 exploits SQLi on /search.php and uploads webshell `shell.aspx`.</span>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-node" style="border-top: 3px solid #34d399;">
+            <span class="node-num">3. HOST KERNEL</span>
+            <span class="node-title">Sysmon Event 1</span>
+            <span class="node-desc" style="font-family: var(--font-mono); font-size: 0.75rem;">`w3wp.exe` spawns `cmd.exe` executing `powershell.exe -enc ...` beaconing out!</span>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-node" style="border-top: 3px solid #f87171;">
+            <span class="node-num">4. IDENTITY</span>
+            <span class="node-title">Security Event 4720</span>
+            <span class="node-desc" style="font-family: var(--font-mono); font-size: 0.75rem;">Attacker script creates local backdoor account `svc_backup01`.</span>
+          </div>
+        </div>
+
+        <div class="card card--highlight" style="margin-top: 15px;">
+          <div class="card-title">
+            <span style="color: #fff;">&#x1F9E0; The SIEM Correlation Magic</span>
+            <span class="badge badge--red">CRITICAL INCIDENT</span>
+          </div>
+          <p class="card-text">
+            &bull; Alone, the firewall drop was just background internet noise.<br>
+            &bull; Alone, the web log entry looked like an ordinary web server error.<br>
+            &bull; Alone, the PowerShell process might have looked like routine IT maintenance.<br>
+            <strong>Only the SIEM</strong> correlated all four events across the 25-minute window and raised the alert: <em>"External Exploit leading to WebShell Execution and Backdoor User Creation!"</em>
+          </p>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 32: ROADMAP & LAB 2 PREVIEW ==================== -->
+    <div class="slide" data-title="Course Roadmap & Week 2 Lab Preview" data-notes="Walk students through the semester roadmap. Then explain next week's lab: Lab 2 is our hands-on Workstation Setup. Emphasize that we use native Windows host tooling (Splunk Enterprise Free, Wireshark, Sysinternals) because it runs blazingly fast without requiring heavy virtual machines. Give them the prep homework.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x1F5FA;&#xFE0F;</span> COURSE ROADMAP</div>
+        <h2>Semester Roadmap &amp; Week 2 Lab Preview</h2>
+        <p style="margin-bottom: 16px;">Today established the theoretical and architectural bedrock. Here is where our hands-on journey takes us:</p>
+
+        <div class="grid grid--3col" style="margin-bottom: 15px;">
+          <div class="card card--cyan">
+            <div class="badge badge--blue" style="margin-bottom: 6px;">WEEKS 1 - 3</div>
+            <div class="card-title" style="font-size: 1rem;">Foundations &amp; SIEM</div>
+            <p class="card-text" style="font-size: 0.85rem;">SOC Architecture &rarr; Workstation Setup (Splunk, Wireshark, Sysinternals) &rarr; Splunk SPL Log Ingestion &amp; Threat Hunting.</p>
+          </div>
+          <div class="card card--purple">
+            <div class="badge badge--purple" style="margin-bottom: 6px;">WEEKS 4 - 6</div>
+            <div class="card-title" style="font-size: 1rem;">Network Security &amp; PCAP</div>
+            <p class="card-text" style="font-size: 0.85rem;">Live packet captures with tcpdump &amp; Wireshark &rarr; Snort/Suricata IDS Rule Writing &rarr; Midterm Practical Incident Exam.</p>
+          </div>
+          <div class="card card--green">
+            <div class="badge badge--green" style="margin-bottom: 6px;">WEEKS 7 - 12</div>
+            <div class="card-title" style="font-size: 1rem;">Phishing, Endpoint &amp; EDR</div>
+            <p class="card-text" style="font-size: 0.85rem;">Phishing Email &amp; Header Analysis &rarr; Windows Internals &amp; Registry Persistence &rarr; Cloud EDR (LimaCharlie) &rarr; Final Capstone.</p>
+          </div>
+        </div>
+
+        <div class="card card--highlight">
+          <div class="card-title">
+            <span>&#x1F527; Next Week: Week 2 Hands-on Lab Setup</span>
+            <span class="badge badge--green">Preparation Required</span>
+          </div>
+          <p class="card-text" style="margin-bottom: 8px;">Next week, every student turns their laptop into a live defensive analyst workstation:</p>
+          <div style="display: flex; gap: 20px; font-size: 0.88rem; flex-wrap: wrap;">
+            <span>&#x2705; <strong>Wireshark + Npcap:</strong> Packet analyzer</span>
+            <span>&#x2705; <strong>Sysinternals Suite:</strong> Process Explorer + Autoruns</span>
+            <span>&#x2705; <strong>Splunk Enterprise Free:</strong> Local SIEM on port 8000</span>
+            <span>&#x2705; <strong>CyberChef:</strong> The cyber swiss-army knife</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 33: INTERACTIVE CHALLENGE ==================== -->
+    <div class="slide" data-title="Class Challenge: Analyst Triage Quiz" data-notes="Engage the classroom! Ask individual students to classify each of the 4 rapid-fire scenarios. Then have them inspect the raw log box and identify the Attacker IP, Target User, and what kind of attack was taking place.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x1F9E0;</span> KNOWLEDGE CHECK</div>
+        <h2>Classroom Challenge: The Analyst's Triage Quiz</h2>
+        <p style="margin-bottom: 18px;">Test your SOC instincts with these rapid-fire operational scenarios:</p>
+
+        <div class="grid grid--2col">
+          <div class="card card--cyan">
+            <div class="card-title">Part 1: Log, Event, Alert, or Incident?</div>
+            <ul style="font-size: 0.88rem; line-height: 1.8;">
+              <li><strong>Scenario A:</strong> A web server appends a line to access.log recording an image download. <span style="color:var(--text-muted)">(What is this?)</span></li>
+              <li><strong>Scenario B:</strong> The SIEM notices 50 failed logins in 1 minute and sends an email to the SOC team. <span style="color:var(--text-muted)">(What is this?)</span></li>
+              <li><strong>Scenario C:</strong> A user plugs an encrypted USB drive into a corporate workstation. <span style="color:var(--text-muted)">(What is this?)</span></li>
+              <li><strong>Scenario D:</strong> Ransomware is confirmed encrypting files on the primary database server. <span style="color:var(--text-muted)">(What is this?)</span></li>
+            </ul>
+          </div>
+
+          <div class="card card--purple">
+            <div class="card-title">Part 2: Read the Raw Log Snippet!</div>
+            <div class="terminal-box" style="margin: 6px 0 10px 0;">
+              <div class="terminal-body" style="font-size: 0.74rem;">[2026-10-20 03:22:10] EventID: <span class="highlight">4625</span> | User: <span class="param">administrator</span> | SrcIP: <span class="highlight">10.0.0.55</span> | LogonType: <span class="cmd">10</span>
+[2026-10-20 03:22:11] EventID: <span class="highlight">4625</span> | User: <span class="param">administrator</span> | SrcIP: <span class="highlight">10.0.0.55</span> | LogonType: <span class="cmd">10</span>
+[2026-10-20 03:22:12] EventID: <span class="highlight">4624</span> | User: <span class="param">administrator</span> | SrcIP: <span class="highlight">10.0.0.55</span> | LogonType: <span class="cmd">10</span></div>
+            </div>
+            <p class="card-text" style="font-size: 0.85rem;">
+              <strong>Question:</strong> What attack occurred? Did the attacker succeed? What protocol/method did they use? What is your immediate containment action?
+            </p>
+          </div>
+        </div>
+
+        <div class="terminal-box" style="margin-top: 14px;">
+          <div class="terminal-header"><span>Answers (For Instructor Discussion)</span></div>
+          <div class="terminal-body" style="font-size: 0.8rem;"><span class="comment"># Part 1:</span> A = Raw Log &middot; B = Alert &middot; C = Security Event &middot; D = Critical Incident!
+<span class="comment"># Part 2:</span> RDP Brute-Force attack (Logon Type 10) from 10.0.0.55 against administrator. Event 4624 proves they <span class="highlight">SUCCEEDED</span>! Immediate action: Disable/reset administrator account, isolate 10.0.0.55, and revoke RDP session.</div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SLIDE 34: WRAP-UP & HOMEWORK ==================== -->
+    <div class="slide" data-title="Key Takeaways & Homework" data-notes="Congratulate the students on completing their first SOC Lab session! Review the key takeaways and assign the homework. The homework involves querying their own machine using PowerShell and optionally completing the recommended free TryHackMe rooms to build confidence before next week's installation lab.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">&#x1F3C1;</span> SESSION CONCLUSION</div>
+        <h2>Key Takeaways &amp; Homework Assignment</h2>
+        <p style="margin-bottom: 20px;">You have officially completed Lab 01! Here is the summary of foundational principles you now master:</p>
+
+        <div class="grid grid--2col">
+          <div class="card card--green">
+            <div class="card-title">
+              <span>Core Takeaways</span>
+              <span class="badge badge--green">Mastered</span>
+            </div>
+            <ul style="font-size: 0.88rem;">
+              <li><strong>The Visibility Rule:</strong> Events are the digital ground truth of defense. You cannot defend what you don't record.</li>
+              <li><strong>Four Distinct States:</strong> Raw Logs &rarr; Events &rarr; Detection Alerts &rarr; Verified Incidents.</li>
+              <li><strong>Endpoint Breadth:</strong> Windows Security IDs, Sysmon process parentage, and Linux `/var/log/auth.log`.</li>
+              <li><strong>Centralization Imperative:</strong> Dispersed logs fail; SIEM pipelines and NTP time synchronization unlock true correlation.</li>
+            </ul>
+          </div>
+
+          <div class="card card--cyan">
+            <div class="card-title">
+              <span>Homework &amp; Week 2 Prep</span>
+              <span class="badge badge--blue">Action Item</span>
+            </div>
+            <ul style="font-size: 0.88rem;">
+              <li><strong>Lab Exercise:</strong> Open PowerShell on your Windows machine and run:<br>
+                <code>Get-WinEvent -FilterHashtable @{LogName='Security';Id=4624} -MaxEvents 3</code><br>
+                Identify your own account's Logon Type and write a 2-line explanation.
+              </li>
+              <li><strong>Recommended Practice:</strong> Complete TryHackMe's free room <em>"Intro to SIEM"</em> and <em>"Windows Event Logs"</em>.</li>
+              <li><strong>Hardware Prep:</strong> Ensure your laptop has at least <strong>10GB free disk space</strong> and <strong>8GB RAM</strong> ready for next week's tool installations!</li>
+            </ul>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 25px;">
+          <p style="font-size: 1.1rem; color: var(--blue-200); font-family: var(--font-heading); font-weight: 600;">
+            See you next week for Lab 02: Deploying Your Personal SOC Defense Workstation! &#x1F6E1;&#xFE0F;
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /presentation -->
+
+  <!-- Bottom Control Bar -->
+  <div id="bottom-bar">
+    <div>
+      <span id="slide-counter">01 / 34</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <div class="nav-controls">
+        <button class="nav-btn nav-btn--notes" id="btn-notes" title="Speaker Notes (Key: N)">&#x1F4DD; Notes</button>
+        <button class="nav-btn" id="btn-prev" aria-label="Previous slide">&larr; Prev</button>
+        <button class="nav-btn" id="btn-next" aria-label="Next slide">Next &rarr;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Speaker Notes Overlay Modal -->
+  <div id="speaker-notes-overlay" role="dialog" aria-label="Speaker Notes">
+    <div class="notes-header">
+      <div class="notes-title">
+        <span>&#x1F4DD;</span> Speaker Notes
+        <span id="notes-slide-num" style="font-size:0.75rem; color:var(--text-muted); font-weight:normal; margin-left:6px;"></span>
+      </div>
+      <button class="notes-close" id="btn-close-notes" aria-label="Close notes">&times;</button>
+    </div>
+    <div class="notes-body" id="notes-content"></div>
+  </div>
+
+  <!-- JavaScript Navigation Engine -->
+  <script>
+    (() => {
+      const slides = document.querySelectorAll('.slide');
+      const total = slides.length;
+      let current = 0;
+
+      const counterEl     = document.getElementById('slide-counter');
+      const progressEl    = document.getElementById('progress-bar');
+      const headerTitleEl = document.getElementById('header-slide-title');
+
+      const notesOverlay  = document.getElementById('speaker-notes-overlay');
+      const notesBtn      = document.getElementById('btn-notes');
+      const notesCloseBtn = document.getElementById('btn-close-notes');
+      const notesContent  = document.getElementById('notes-content');
+      const notesSlideNum = document.getElementById('notes-slide-num');
+
+      function updateNotes() {
+        if (!notesOverlay) return;
+        const note = slides[current].getAttribute('data-notes');
+        const title = slides[current].getAttribute('data-title') || `Slide ${current + 1}`;
+        if (notesSlideNum) notesSlideNum.textContent = `(${String(current + 1).padStart(2, '0')}/${String(total).padStart(2, '0')} - ${title})`;
+        if (note && note.trim().length > 0) {
+          notesContent.innerHTML = `<p>${note.replace(/\n/g, '<br>')}</p>`;
+        } else {
+          notesContent.innerHTML = `<span class="notes-empty">No speaker notes recorded for this slide.</span>`;
+        }
+      }
+
+      function toggleNotes() {
+        if (!notesOverlay) return;
+        const isActive = notesOverlay.classList.toggle('active');
+        if (notesBtn) notesBtn.classList.toggle('active', isActive);
+        if (isActive) updateNotes();
+      }
+
+      if (notesBtn) notesBtn.addEventListener('click', toggleNotes);
+      if (notesCloseBtn) notesCloseBtn.addEventListener('click', () => {
+        notesOverlay.classList.remove('active');
+        if (notesBtn) notesBtn.classList.remove('active');
+      });
+
+      function goTo(index) {
+        if (index < 0 || index >= total || index === current) return;
+        slides[current].classList.remove('active');
+        slides[current].scrollTop = 0;
+        slides[index].classList.add('active');
+        slides[index].scrollTop = 0;
+        current = index;
+        updateUI();
+      }
+
+      function updateUI() {
+        counterEl.textContent = `${String(current + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`;
+        progressEl.style.width = `${((current + 1) / total) * 100}%`;
+        headerTitleEl.textContent = slides[current].getAttribute('data-title') || '';
+        if (notesOverlay && notesOverlay.classList.contains('active')) updateNotes();
+      }
+
+      // Keyboard Controls
+      document.addEventListener('keydown', (e) => {
+        if (e.code === 'KeyN' || e.key === 'n' || e.key === 'N' || e.key === 'ى') {
+          e.preventDefault();
+          toggleNotes();
+        } else if (e.key === 'Escape') {
+          if (notesOverlay && notesOverlay.classList.contains('active')) {
+            e.preventDefault();
+            notesOverlay.classList.remove('active');
+            if (notesBtn) notesBtn.classList.remove('active');
+          }
+        } else if (e.key === 'ArrowRight' || e.key === ' ') {
+          e.preventDefault();
+          goTo(current + 1);
+        } else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          goTo(current - 1);
+        } else if (e.key === 'ArrowDown') {
+          const s = slides[current];
+          if (s && s.scrollHeight > s.clientHeight && s.scrollTop + s.clientHeight < s.scrollHeight - 5) {
+            e.preventDefault();
+            s.scrollBy({ top: 120, behavior: 'smooth' });
+          } else {
+            e.preventDefault();
+            goTo(current + 1);
+          }
+        } else if (e.key === 'ArrowUp') {
+          const s = slides[current];
+          if (s && s.scrollHeight > s.clientHeight && s.scrollTop > 5) {
+            e.preventDefault();
+            s.scrollBy({ top: -120, behavior: 'smooth' });
+          } else {
+            e.preventDefault();
+            goTo(current - 1);
+          }
+        } else if (e.key === 'Home') {
+          e.preventDefault();
+          goTo(0);
+        } else if (e.key === 'End') {
+          e.preventDefault();
+          goTo(total - 1);
+        }
+      });
+
+      document.getElementById('btn-prev').addEventListener('click', () => goTo(current - 1));
+      document.getElementById('btn-next').addEventListener('click', () => goTo(current + 1));
+
+      updateUI();
+    })();
+  </script>
+
+</body>
+</html>

@@ -6,6 +6,7 @@
 > **Source Presentation:** `lab1_IDR.html`  
 
 ### 📋 Overview
+
 Foundational guide on modern SOC architecture, the CIA Triad, analyst workflow lifecycle, logs vs events vs alerts vs incidents, and defensive security tooling (SIEM, SOAR, EDR, IDS/IPS, Firewalls).
 
 ---
@@ -17,12 +18,12 @@ Foundational guide on modern SOC architecture, the CIA Triad, analyst workflow l
 - [Slide 03: What is a SOC?](#slide-03-what-is-a-soc)
 - [Slide 04: The Core Role of a SOC](#slide-04-the-core-role-of-a-soc)
 - [Slide 05: SOC Models & Structures](#slide-05-soc-models-structures)
-- [Slide 06: People, Process & Technology](#slide-06-people-process-technology)
-- [Slide 07: Protecting the CIA Triad](#slide-07-protecting-the-cia-triad)
-- [Slide 08: Reactive Operations](#slide-08-reactive-operations)
-- [Slide 09: Proactive Operations](#slide-09-proactive-operations)
-- [Slide 10: A Day in the Life of a SOC Analyst](#slide-10-a-day-in-the-life-of-a-soc-analyst)
-- [Slide 11: SOC Roles and Responsibilities](#slide-11-soc-roles-and-responsibilities)
+- [Slide 06: SOC Roles and Responsibilities](#slide-06-soc-roles-and-responsibilities)
+- [Slide 07: People, Process & Technology](#slide-07-people-process-technology)
+- [Slide 08: Protecting the CIA Triad](#slide-08-protecting-the-cia-triad)
+- [Slide 09: Reactive Operations](#slide-09-reactive-operations)
+- [Slide 10: Proactive Operations](#slide-10-proactive-operations)
+- [Slide 11: A Day in the Life of a SOC Analyst](#slide-11-a-day-in-the-life-of-a-soc-analyst)
 - [Slide 12: Scenario: Insider Data Exfiltration](#slide-12-scenario-insider-data-exfiltration)
 - [Slide 13: Logs, Events, Alerts, and Incidents](#slide-13-logs-events-alerts-and-incidents)
 - [Slide 14: Security Information and Event Management (SIEM)](#slide-14-security-information-and-event-management-siem)
@@ -115,10 +116,10 @@ The SOC operational cycle is the fundamental mission of every Security Operation
 03. **Analyze**: Investigate alerts and determine their significance
 04. **Respond**: Contain, mitigate, and recover from threats
 
-1. **Step 1**: Monitor
-2. **Step 2**: Detect
-3. **Step 3**: Analyze
-4. **Step 4**: Respond
+5. **Step 1**: Monitor
+6. **Step 2**: Detect
+7. **Step 3**: Analyze
+8. **Step 4**: Respond
 
 > [!NOTE] 🎙️ **Instructor Lecture Notes**
 > This cycle represents the fundamental mission of every Security Operations Center and serves as the foundation for many SOC activities.
@@ -145,7 +146,22 @@ Organizations choose different SOC structures based on budget , expertise , and 
 
 ---
 
-## Slide 06: People, Process & Technology
+## Slide 06: SOC Roles and Responsibilities
+
+> **Category:** `TEAMS & ROLES`
+
+A structured tier system ensures high efficiency and ensures expert focus is applied where it is needed most.
+
+ESCALATION FLOW TIER 1 — TRIAGE TIER 2 — INVESTIGATE TIER 3 — HUNT T1 Tier 1 Analyst (Triage) Initial alert review · Alert triage · Basic investigations · Escalation of confirmed threats T2 Tier 2 Analyst (Incident Analysis) Advanced investigations · Incident analysis · Root cause analysis · Threat validation T3 Tier 3 Analyst (Expert / Hunt) Expert-level investigations · Detection engineering · Threat hunting · Malware analysis Other Specialized SOC Roles Incident Responder Threat Intel Analyst Security Engineer SOC Manager
+
+> [!NOTE] 🎙️ **Instructor Lecture Notes**
+> Explain that escalation between tiers allows organizations to handle large volumes of alerts efficiently.
+
+---
+
+---
+
+## Slide 07: People, Process & Technology
 
 > **Category:** `THREE PILLARS`
 
@@ -164,7 +180,7 @@ PEOPLE PROCESS TECHNOLOGY SOC SUCCESS
 
 ---
 
-## Slide 07: Protecting the CIA Triad
+## Slide 08: Protecting the CIA Triad
 
 > **Category:** `SECURITY PRINCIPLES`
 
@@ -190,7 +206,7 @@ EXAMPLE: RANSOMWARE ATTACK Ransomware encrypts files and demands payment — it 
 
 ---
 
-## Slide 08: Reactive Operations
+## Slide 09: Reactive Operations
 
 > **Category:** `REACTIVE OPS`
 
@@ -205,7 +221,7 @@ Security Monitoring Continuously observe systems and networks for anomalies. Thr
 
 ---
 
-## Slide 09: Proactive Operations
+## Slide 10: Proactive Operations
 
 > **Category:** `PROACTIVE OPS`
 
@@ -220,7 +236,7 @@ THREAT INTEL HUNTING VULN MGMT INTEL Threat Intelligence Collect and analyze inf
 
 ---
 
-## Slide 10: A Day in the Life of a SOC Analyst
+## Slide 11: A Day in the Life of a SOC Analyst
 
 > **Category:** `A DAY IN THE SOC`
 
@@ -230,19 +246,6 @@ Typical Daily Activities Review security dashboards Monitor incoming alerts Perf
 
 > [!NOTE] 🎙️ **Instructor Lecture Notes**
 > Explain that analysts spend much more time investigating and documenting than simply watching dashboards.
-
----
-
-## Slide 11: SOC Roles and Responsibilities
-
-> **Category:** `TEAMS & ROLES`
-
-A structured tier system ensures high efficiency and ensures expert focus is applied where it is needed most.
-
-ESCALATION FLOW TIER 1 — TRIAGE TIER 2 — INVESTIGATE TIER 3 — HUNT T1 Tier 1 Analyst (Triage) Initial alert review · Alert triage · Basic investigations · Escalation of confirmed threats T2 Tier 2 Analyst (Incident Analysis) Advanced investigations · Incident analysis · Root cause analysis · Threat validation T3 Tier 3 Analyst (Expert / Hunt) Expert-level investigations · Detection engineering · Threat hunting · Malware analysis Other Specialized SOC Roles Incident Responder Threat Intel Analyst Security Engineer SOC Manager
-
-> [!NOTE] 🎙️ **Instructor Lecture Notes**
-> Explain that escalation between tiers allows organizations to handle large volumes of alerts efficiently.
 
 ---
 
