@@ -2336,7 +2336,8 @@
         <div class="section-label"><span class="label-icon">◆</span> FOUNDATIONS</div>
         <h2>What is a Security Operations Center (SOC)?</h2>
         <p>A <strong class="blue">Security Operations Center (SOC)</strong> is a centralized unit responsible for
-          <strong>monitoring, detecting, analyzing, and responding</strong> to cybersecurity threats.</p>
+          <strong>monitoring, detecting, analyzing, and responding</strong> to cybersecurity threats.
+        </p>
 
         <div class="card-row card-row--3" style="margin-top: 1.2em;">
           <div class="card">
@@ -2535,92 +2536,126 @@
          SLIDE 6 — SOC Roles and Responsibilities
          ========================================== -->
     <div class="slide" data-slide="5" data-title="SOC Roles and Responsibilities"
-         data-notes="Explain that escalation between tiers allows organizations to handle large volumes of alerts efficiently, while the SOC Manager oversees strategic operations, performance metrics, and executive communication.">
+      data-notes="Explain that escalation between tiers allows organizations to handle large volumes of alerts efficiently, while the SOC Manager oversees strategic operations, performance metrics, and executive communication.">
       <div class="slide-inner">
-        <div class="section-label" style="margin-bottom: 2px;"><span class="label-icon">&#x25C6;</span> TEAMS &amp; ROLES</div>
+        <div class="section-label" style="margin-bottom: 2px;"><span class="label-icon">&#x25C6;</span> TEAMS &amp;
+          ROLES</div>
         <h2 style="margin-bottom: 3px;">SOC Roles and Responsibilities</h2>
-        <p style="margin-bottom: 8px;">A structured tier system ensures high efficiency and ensures expert focus is applied where it is needed most.</p>
+        <p style="margin-bottom: 8px;">A structured tier system ensures high efficiency and ensures expert focus is
+          applied where it is needed most.</p>
 
         <div style="display: flex; gap: 26px; align-items: center; margin-top: 0.2em; flex-wrap: wrap;">
-          
+
           <!-- Left: Clean Animated SVG Pyramid with 2 Escalation Arrows -->
           <div class="svg-diagram pyramid-anim" style="flex: 1; min-width: 310px; max-width: 355px; margin-top: 0;">
             <svg viewBox="0 0 340 290" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <filter id="pyrGlow">
-                  <feGaussianBlur stdDeviation="3" result="b"/>
-                  <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+                  <feGaussianBlur stdDeviation="3" result="b" />
+                  <feMerge>
+                    <feMergeNode in="b" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
                 </filter>
               </defs>
 
               <!-- Escalation Arrow 1: From Tier 1 to Tier 2 -->
               <path d="M 28,245 Q 12,212 52,182" fill="none" stroke="#3563e9" stroke-width="2" stroke-dasharray="4 3">
-                <animate attributeName="stroke-dashoffset" values="28;0" dur="2.5s" repeatCount="indefinite"/>
+                <animate attributeName="stroke-dashoffset" values="28;0" dur="2.5s" repeatCount="indefinite" />
               </path>
               <polygon points="52,182 42,180 47,189" fill="#3563e9" />
-              <text x="10" y="218" fill="#93b4fd" font-family="'JetBrains Mono',monospace" font-size="7" font-weight="700" transform="rotate(-62, 10, 218)">T1 &#8594; T2</text>
+              <text x="10" y="218" fill="#93b4fd" font-family="'JetBrains Mono',monospace" font-size="7"
+                font-weight="700" transform="rotate(-62, 10, 218)">T1 &#8594; T2</text>
 
               <!-- Escalation Arrow 2: From Tier 2 to Tier 3 -->
               <path d="M 58,172 Q 44,138 90,106" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="4 3">
-                <animate attributeName="stroke-dashoffset" values="28;0" dur="2.5s" repeatCount="indefinite"/>
+                <animate attributeName="stroke-dashoffset" values="28;0" dur="2.5s" repeatCount="indefinite" />
               </path>
               <polygon points="90,106 80,105 85,114" fill="#8b5cf6" />
-              <text x="44" y="142" fill="#c5a0fc" font-family="'JetBrains Mono',monospace" font-size="7" font-weight="700" transform="rotate(-62, 44, 142)">T2 &#8594; T3</text>
+              <text x="44" y="142" fill="#c5a0fc" font-family="'JetBrains Mono',monospace" font-size="7"
+                font-weight="700" transform="rotate(-62, 44, 142)">T2 &#8594; T3</text>
 
               <!-- Pyramid Outline Background -->
               <polygon points="175,55 320,270 30,270" fill="none" stroke="#1e3a9e" stroke-width="1" opacity="0.25" />
 
               <!-- Tier 1 Solid (bottom trapezoid) -->
-              <polygon class="tier-1" points="53,218 297,218 320,270 30,270" fill="rgba(53,99,233,0.15)" stroke="#3563e9" stroke-width="1.6" style="animation: tierPulse1 3s ease-in-out infinite;"/>
-              <text x="175" y="248" text-anchor="middle" fill="#93b4fd" font-family="'Space Grotesk',sans-serif" font-size="9" font-weight="700">TIER 1 — TRIAGE</text>
+              <polygon class="tier-1" points="53,218 297,218 320,270 30,270" fill="rgba(53,99,233,0.15)"
+                stroke="#3563e9" stroke-width="1.6" style="animation: tierPulse1 3s ease-in-out infinite;" />
+              <text x="175" y="248" text-anchor="middle" fill="#93b4fd" font-family="'Space Grotesk',sans-serif"
+                font-size="9" font-weight="700">TIER 1 — TRIAGE</text>
 
               <!-- Tier 2 Solid (middle trapezoid) -->
-              <polygon class="tier-2" points="90,152 260,152 289,208 61,208" fill="rgba(124,58,237,0.15)" stroke="#7c3aed" stroke-width="1.6" style="animation: tierPulse2 3s ease-in-out infinite;"/>
-              <text x="175" y="184" text-anchor="middle" fill="#c5a0fc" font-family="'Space Grotesk',sans-serif" font-size="9" font-weight="700">TIER 2 — INVESTIGATE</text>
+              <polygon class="tier-2" points="90,152 260,152 289,208 61,208" fill="rgba(124,58,237,0.15)"
+                stroke="#7c3aed" stroke-width="1.6" style="animation: tierPulse2 3s ease-in-out infinite;" />
+              <text x="175" y="184" text-anchor="middle" fill="#c5a0fc" font-family="'Space Grotesk',sans-serif"
+                font-size="9" font-weight="700">TIER 2 — INVESTIGATE</text>
 
               <!-- Tier 3 Solid (top triangle) -->
-              <polygon class="tier-3" points="175,65 250,142 100,142" fill="rgba(53,99,233,0.25)" stroke="#6b93f7" stroke-width="1.6" style="animation: tierPulse3 3s ease-in-out infinite;" filter="url(#pyrGlow)"/>
-              <text x="175" y="112" text-anchor="middle" fill="#e8ecf4" font-family="'Space Grotesk',sans-serif" font-size="9" font-weight="700">TIER 3 — HUNT</text>
+              <polygon class="tier-3" points="175,65 250,142 100,142" fill="rgba(53,99,233,0.25)" stroke="#6b93f7"
+                stroke-width="1.6" style="animation: tierPulse3 3s ease-in-out infinite;" filter="url(#pyrGlow)" />
+              <text x="175" y="112" text-anchor="middle" fill="#e8ecf4" font-family="'Space Grotesk',sans-serif"
+                font-size="9" font-weight="700">TIER 3 — HUNT</text>
             </svg>
           </div>
 
           <!-- Right: Analyst Details + Manager under Tier 3 -->
           <div style="flex: 1.2; min-width: 320px;">
             <div class="card-row" style="grid-template-columns: 1fr; gap: 5px; margin-top: 0;">
-              
+
               <!-- Tier 1 -->
-              <div style="display: flex; gap: 11px; align-items: center; background: rgba(53,99,233,0.04); border: 1px solid rgba(53,99,233,0.12); border-radius: 7px; padding: 6px 12px;">
-                <div style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--blue-300); min-width: 22px;">T1</div>
+              <div
+                style="display: flex; gap: 11px; align-items: center; background: rgba(53,99,233,0.04); border: 1px solid rgba(53,99,233,0.12); border-radius: 7px; padding: 6px 12px;">
+                <div
+                  style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--blue-300); min-width: 22px;">
+                  T1</div>
                 <div>
-                  <h4 style="font-size: 0.77rem; margin-bottom: 0.1em; color: var(--text-primary);">Tier 1 Analyst (Triage)</h4>
-                  <p style="font-size: 0.68rem; color: var(--text-muted); line-height: 1.28; margin: 0;">Initial alert review · Alert triage · Basic investigations · Escalation of confirmed threats</p>
+                  <h4 style="font-size: 0.77rem; margin-bottom: 0.1em; color: var(--text-primary);">Tier 1 Analyst
+                    (Triage)</h4>
+                  <p style="font-size: 0.68rem; color: var(--text-muted); line-height: 1.28; margin: 0;">Initial alert
+                    review · Alert triage · Basic investigations · Escalation of confirmed threats</p>
                 </div>
               </div>
 
               <!-- Tier 2 -->
-              <div style="display: flex; gap: 11px; align-items: center; background: rgba(124,58,237,0.04); border: 1px solid rgba(124,58,237,0.12); border-radius: 7px; padding: 6px 12px;">
-                <div style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--purple-300); min-width: 22px;">T2</div>
+              <div
+                style="display: flex; gap: 11px; align-items: center; background: rgba(124,58,237,0.04); border: 1px solid rgba(124,58,237,0.12); border-radius: 7px; padding: 6px 12px;">
+                <div
+                  style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--purple-300); min-width: 22px;">
+                  T2</div>
                 <div>
-                  <h4 style="font-size: 0.77rem; margin-bottom: 0.1em; color: var(--text-primary);">Tier 2 Analyst (Incident Response)</h4>
-                  <p style="font-size: 0.68rem; color: var(--text-muted); line-height: 1.28; margin: 0;">Advanced investigations · Incident analysis · Threat containment · Root cause analysis</p>
+                  <h4 style="font-size: 0.77rem; margin-bottom: 0.1em; color: var(--text-primary);">Tier 2 Analyst
+                    (Incident Response)</h4>
+                  <p style="font-size: 0.68rem; color: var(--text-muted); line-height: 1.28; margin: 0;">Advanced
+                    investigations · Incident analysis · Threat containment · Root cause analysis</p>
                 </div>
               </div>
 
               <!-- Tier 3 -->
-              <div style="display: flex; gap: 11px; align-items: center; background: rgba(53,99,233,0.08); border: 1px solid rgba(53,99,233,0.2); border-radius: 7px; padding: 6px 12px;">
-                <div style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--blue-200); min-width: 22px;">T3</div>
+              <div
+                style="display: flex; gap: 11px; align-items: center; background: rgba(53,99,233,0.08); border: 1px solid rgba(53,99,233,0.2); border-radius: 7px; padding: 6px 12px;">
+                <div
+                  style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--blue-200); min-width: 22px;">
+                  T3</div>
                 <div>
-                  <h4 style="font-size: 0.77rem; margin-bottom: 0.1em; color: var(--text-primary);">Tier 3 Analyst (Expert / Hunt)</h4>
-                  <p style="font-size: 0.68rem; color: var(--text-muted); line-height: 1.28; margin: 0;">Expert-level investigations · Detection engineering · Proactive threat hunting · Adversary simulation</p>
+                  <h4 style="font-size: 0.77rem; margin-bottom: 0.1em; color: var(--text-primary);">Tier 3 Analyst
+                    (Expert / Hunt)</h4>
+                  <p style="font-size: 0.68rem; color: var(--text-muted); line-height: 1.28; margin: 0;">Expert-level
+                    investigations · Detection engineering · Proactive threat hunting · Adversary simulation</p>
                 </div>
               </div>
 
               <!-- SOC Manager under Tier 3 -->
-              <div style="display: flex; gap: 11px; align-items: center; background: rgba(251,191,36,0.06); border: 1px solid rgba(251,191,36,0.25); border-radius: 7px; padding: 6px 12px;">
-                <div style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: #fbbf24; min-width: 22px;">MGR</div>
+              <div
+                style="display: flex; gap: 11px; align-items: center; background: rgba(251,191,36,0.06); border: 1px solid rgba(251,191,36,0.25); border-radius: 7px; padding: 6px 12px;">
+                <div
+                  style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: #fbbf24; min-width: 22px;">
+                  MGR</div>
                 <div>
-                  <h4 style="font-size: 0.77rem; margin-bottom: 0.1em; color: #fbbf24;">SOC Manager (Leadership &amp; Operations)</h4>
-                  <p style="font-size: 0.68rem; color: var(--text-muted); line-height: 1.28; margin: 0;">Directs 24/7 SOC operations · Tracks MTTD &amp; MTTR metrics · Budget &amp; tooling management · Executive liaison to CISO &amp; Legal</p>
+                  <h4 style="font-size: 0.77rem; margin-bottom: 0.1em; color: #ffffff;">SOC Manager (Leadership &amp;
+                    Operations)</h4>
+                  <p style="font-size: 0.68rem; color: var(--text-muted); line-height: 1.28; margin: 0;">Directs 24/7
+                    SOC operations · Tracks MTTD &amp; MTTR metrics · Budget &amp; tooling management · Executive
+                    liaison to CISO &amp; Legal</p>
                 </div>
               </div>
 
@@ -2628,12 +2663,18 @@
 
             <!-- Other Specialized Roles -->
             <div style="margin-top: 6px; border-top: 1px solid var(--border); padding-top: 5px;">
-              <h5 style="font-family: var(--font-mono); font-size: 0.62rem; color: var(--purple-300); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px;">Other Specialized SOC Roles</h5>
+              <h5
+                style="font-family: var(--font-mono); font-size: 0.62rem; color: var(--purple-300); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px;">
+                Other Specialized SOC Roles</h5>
               <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-                <span class="tag tag--blue" style="font-size: 0.6rem; padding: 0.12em 0.45em;"><span class="tag-dot"></span> Incident Responder</span>
-                <span class="tag tag--purple" style="font-size: 0.6rem; padding: 0.12em 0.45em;"><span class="tag-dot"></span> Threat Intel Analyst</span>
-                <span class="tag tag--blue" style="font-size: 0.6rem; padding: 0.12em 0.45em;"><span class="tag-dot"></span> Security Engineer</span>
-                <span class="tag tag--purple" style="font-size: 0.6rem; padding: 0.12em 0.45em;"><span class="tag-dot"></span> Security Automation (SOAR)</span>
+                <span class="tag tag--blue" style="font-size: 0.6rem; padding: 0.12em 0.45em;"><span
+                    class="tag-dot"></span> Incident Responder</span>
+                <span class="tag tag--purple" style="font-size: 0.6rem; padding: 0.12em 0.45em;"><span
+                    class="tag-dot"></span> Threat Intel Analyst</span>
+                <span class="tag tag--blue" style="font-size: 0.6rem; padding: 0.12em 0.45em;"><span
+                    class="tag-dot"></span> Security Engineer</span>
+                <span class="tag tag--purple" style="font-size: 0.6rem; padding: 0.12em 0.45em;"><span
+                    class="tag-dot"></span> Security Automation (SOAR)</span>
               </div>
             </div>
 
@@ -3676,7 +3717,8 @@
         <p>A <strong>firewall</strong> enforces rules to allow or block traffic between network segments. A
           <strong>Next-Generation Firewall (NGFW)</strong> extends this with application awareness, identity-based
           policies, and built-in intrusion prevention, while a <strong>Web Application Firewall (WAF)</strong> protects
-          web applications by filtering and monitoring HTTP/HTTPS traffic for attacks like SQL injection and XSS.</p>
+          web applications by filtering and monitoring HTTP/HTTPS traffic for attacks like SQL injection and XSS.
+        </p>
 
         <div style="display: flex; gap: 24px; align-items: flex-start; margin-top: 0.6em; flex-wrap: wrap;">
           <div style="flex: 1.1; min-width: 300px;">
