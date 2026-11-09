@@ -86,15 +86,17 @@ Before publication, the corresponding lab/scenario asset must add exact steps, t
 
 **Primary assessment evidence:** LAB-06-A, LAB-06-B — see the practical activity blueprint above and the [common SOC-LAB assessment rubric](../../curriculum/assessment-rubric.md).
 
-| Learning outcome | Lesson(s) introducing/practicing/assessing | Observable assessment evidence |
+| Learning outcome | Lesson mapping (I/P/A) | Observable assessment evidence |
 |---|---|---|
-| LO-06-01 | L06-01, L06-02 | Annotated Suricata alert/rule example and statement of what the alert does not prove. |
-| LO-06-02 | L06-02, L06-03 | pfSense/Suricata configuration and health evidence from deployed version or sanitized instructor output. |
-| LO-06-03 | L06-03, L06-06 | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
-| LO-06-04 | L06-04, L06-06 | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
-| LO-06-05 | L06-05, L06-06 | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
-| LO-06-06 | L06-06 | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
-| LO-06-07 | L06-01, L06-03, L06-05, L06-06 | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
+| LO-06-01 | L06-01 (I/P), L06-02 (A) | Annotated Suricata alert/rule example and statement of what the alert does not prove. |
+| LO-06-02 | L06-02 (I/P), L06-03 (A) | pfSense/Suricata configuration and health evidence from deployed version or sanitized instructor output. |
+| LO-06-03 | L06-03 (I/P), L06-06 (A) | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
+| LO-06-04 | L06-04 (I/P), L06-06 (A) | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
+| LO-06-05 | L06-05 (I/P), L06-06 (A) | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
+| LO-06-06 | L06-06 (I/P/A) | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
+| LO-06-07 | L06-01 (I), L06-03 (P), L06-05 (P), L06-06 (A) | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
+
+**Mapping legend:** I = introduces the outcome; P = provides guided/independent practice; A = contains the observable assessment evidence. A single-lesson outcome is marked I/P/A in that lesson. These labels are the proposed instructional design and must be confirmed when the lecture and lab assets are authored.
 
 Assessment conditions:
 - The student brief must state permitted dataset/environment, time limit, allowed references, and submission format before delivery.
