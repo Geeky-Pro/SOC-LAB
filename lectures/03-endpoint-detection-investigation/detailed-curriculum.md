@@ -85,14 +85,16 @@ Before publication, the corresponding lab/scenario asset must add exact steps, t
 
 **Primary assessment evidence:** LAB-03-A, LAB-03-B — see the practical activity blueprint above and the [common SOC-LAB assessment rubric](../../curriculum/assessment-rubric.md).
 
-| Learning outcome | Lesson(s) introducing/practicing/assessing | Observable assessment evidence |
+| Learning outcome | Lesson mapping (I/P/A) | Observable assessment evidence |
 |---|---|---|
-| LO-03-01 | L03-01 | Telemetry-source map: event channel, producer, observed fields, and coverage limits. |
-| LO-03-02 | L03-01, L03-02, L03-03, L03-04 | Correlated file/registry/script/network worksheet separating observation from inference. |
-| LO-03-03 | L03-02, L03-03, L03-06 | Endpoint report with scope, timeline, evidence matrix, hypothesis disposition, confidence, and escalation. |
-| LO-03-04 | L03-03, L03-04, L03-06 | Endpoint report with scope, timeline, evidence matrix, hypothesis disposition, confidence, and escalation. |
-| LO-03-05 | L03-04, L03-05, L03-06 | Endpoint report with scope, timeline, evidence matrix, hypothesis disposition, confidence, and escalation. |
-| LO-03-06 | L03-06 | Endpoint report with scope, timeline, evidence matrix, hypothesis disposition, confidence, and escalation. |
+| LO-03-01 | L03-01 (I/P/A) | Telemetry-source map: event channel, producer, observed fields, and coverage limits. |
+| LO-03-02 | L03-01 (I), L03-02 (P), L03-03 (P), L03-04 (A) | Correlated file/registry/script/network worksheet separating observation from inference. |
+| LO-03-03 | L03-02 (I), L03-03 (P), L03-06 (A) | Endpoint report with scope, timeline, evidence matrix, hypothesis disposition, confidence, and escalation. |
+| LO-03-04 | L03-03 (I), L03-04 (P), L03-06 (A) | Endpoint report with scope, timeline, evidence matrix, hypothesis disposition, confidence, and escalation. |
+| LO-03-05 | L03-04 (I), L03-05 (P), L03-06 (A) | Endpoint report with scope, timeline, evidence matrix, hypothesis disposition, confidence, and escalation. |
+| LO-03-06 | L03-06 (I/P/A) | Endpoint report with scope, timeline, evidence matrix, hypothesis disposition, confidence, and escalation. |
+
+**Mapping legend:** I = introduces the outcome; P = provides guided/independent practice; A = contains the observable assessment evidence. A single-lesson outcome is marked I/P/A in that lesson. These labels are the proposed instructional design and must be confirmed when the lecture and lab assets are authored.
 
 Assessment conditions:
 - The student brief must state permitted dataset/environment, time limit, allowed references, and submission format before delivery.
