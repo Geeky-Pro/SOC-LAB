@@ -19,11 +19,11 @@ By the end of this module, learners should be able to:
 
 | ID | Learning outcome | Lesson alignment | Evidence |
 |---|---|---|---|
-| LO-01-01 | Explain SOC purpose, operating models, core functions, and analyst responsibilities. | L01-01, L01-02, L01-03, L01-04, L01-05, L01-06 | Practical artifact |
-| LO-01-02 | Differentiate events, alerts, cases, incidents, indicators, and confirmed findings. | L01-01, L01-02, L01-03, L01-04, L01-05, L01-06 | Mapped lesson activity and assessment evidence |
-| LO-01-03 | Apply a repeatable alert-triage workflow using scope, confidence, impact, and urgency. | L01-01, L01-02, L01-03, L01-04, L01-05, L01-06 | Mapped lesson activity and assessment evidence |
-| LO-01-04 | Prioritize and route a case with a defensible rationale and escalation trigger. | L01-01, L01-02, L01-03, L01-04, L01-05, L01-06 | Mapped lesson activity and assessment evidence |
-| LO-01-05 | Document observations, hypotheses, decisions, and uncertainty in an analyst handoff. | L01-01, L01-02, L01-03, L01-04, L01-05, L01-06 | Mapped lesson activity and assessment evidence |
+| LO-01-01 | Explain SOC purpose, operating models, core functions, and analyst responsibilities. | L01-01, L01-04 | Prioritized queue and escalation/handoff message with rationale. |
+| LO-01-02 | Differentiate events, alerts, cases, incidents, indicators, and confirmed findings. | L01-02, L01-03 | Triage record: scope, facts, hypotheses, unknowns, confidence, impact, urgency. |
+| LO-01-03 | Apply a repeatable alert-triage workflow using scope, confidence, impact, and urgency. | L01-03, L01-06 | Team case disposition plus individually authored triage rationale and handoff. |
+| LO-01-04 | Prioritize and route a case with a defensible rationale and escalation trigger. | L01-04, L01-06 | Team case disposition plus individually authored triage rationale and handoff. |
+| LO-01-05 | Document observations, hypotheses, decisions, and uncertainty in an analyst handoff. | L01-05, L01-06 | Team case disposition plus individually authored triage rationale and handoff. |
 
 ## 4. Detailed lesson sequence
 
@@ -71,20 +71,33 @@ By the end of this module, learners should be able to:
 
 ## 5. Practical learning activities
 
-Queue triage exercise; incident-versus-alert classification; analyst handoff.
+The following are curriculum-level activity blueprints, not final student lab instructions. Convert each activity into its module-specific lab/scenario asset before delivery.
 
-Activities must be delivered only within the authorized lab or with instructor-provided sanitized/synthetic artifacts. If required telemetry is unavailable, disclose the substitution and its limitations.
+| Activity ID | Learner task | Required input / environment | Expected output | Safety, cleanup, and recovery |
+|---|---|---|---|---|
+| LAB-01-A | Classify a mixed alert bundle and create a triage case. | Synthetic event/alert records; no live infrastructure. | Classification worksheet, triage record, escalation rationale. | Synthetic records only; no external accounts or live response. |
+| LAB-01-B | Prioritize a queue and produce a shift handoff. | Scenario cards and case-record template. | Prioritized queue, handoff note, individual rationale. | No real personal data; instructor debrief on severity, urgency, and confidence. |
+
+Before publication, the corresponding lab/scenario asset must add exact steps, tested versions, instructor preparation, troubleshooting, reset procedure, expected outputs, and evidence-capture instructions. If a telemetry source is unavailable, use a clearly labeled instructor-provided dataset and record the substitution.
 
 ## 6. Assessment plan
 
-**Primary assessment evidence:** Triage worksheet, prioritized queue, case note, and oral handoff; suggested 100-point formative rubric.
+**Primary assessment evidence:** LAB-01-A, LAB-01-B — see the practical activity blueprint above and the [common SOC-LAB assessment rubric](../../curriculum/assessment-rubric.md).
 
-Assessment design rules:
-- Map every scored task to one or more LO identifiers.
-- Require source references, timestamps where available, reasoning, limitations, and uncertainty.
-- Score analytical process and evidence quality, not merely the final verdict.
-- Do not require a single severity/verdict when multiple evidence-supported conclusions are reasonable.
-- Keep instructor answer keys separate from student-facing instructions.
+| Learning outcome | Lesson(s) introducing/practicing/assessing | Observable assessment evidence |
+|---|---|---|
+| LO-01-01 | L01-01, L01-04 | Prioritized queue and escalation/handoff message with rationale. |
+| LO-01-02 | L01-02, L01-03 | Triage record: scope, facts, hypotheses, unknowns, confidence, impact, urgency. |
+| LO-01-03 | L01-03, L01-06 | Team case disposition plus individually authored triage rationale and handoff. |
+| LO-01-04 | L01-04, L01-06 | Team case disposition plus individually authored triage rationale and handoff. |
+| LO-01-05 | L01-05, L01-06 | Team case disposition plus individually authored triage rationale and handoff. |
+
+Assessment conditions:
+- The student brief must state permitted dataset/environment, time limit, allowed references, and submission format before delivery.
+- Score only rubric criteria relevant to the outcomes assessed; weighting and pass threshold remain pending Project Owner decision.
+- Require source/time references, reasoning, alternatives, uncertainty, and limitations where relevant.
+- Identify individual versus team-produced evidence; team output alone does not establish individual mastery.
+- Keep instructor answer keys and expected reasoning separate from student-facing materials.
 
 ## 7. Lab and resource dependencies
 
@@ -117,7 +130,7 @@ The proposed 6-hour allocation is a planning estimate. It must be checked agains
 
 ## 11. References
 
-Use authoritative, versioned sources appropriate to the lesson. Record the publication/version and access date during content development. Do not add references that were not consulted or that do not support the relevant claims.
+Use the lesson-mapped [Module Reference Catalog](../../curriculum/references/module-reference-catalog.md) as the research starting point. During lesson production, record the exact page/edition and access date for every technical claim. The catalog does not imply that lab-specific versions or configurations have been validated.
 
 ## 12. Change history
 
