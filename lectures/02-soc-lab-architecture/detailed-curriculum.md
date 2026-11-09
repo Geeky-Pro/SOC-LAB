@@ -33,42 +33,42 @@ By the end of this module, learners should be able to:
 - **Duration:** 60 minutes
 - **Core content:** Functional requirements; threat boundaries; management/SOC/DMZ/endpoint/Kali zones; data-flow diagrams.
 - **Learning activity:** Annotate topology and justify each boundary.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed annotate topology and justify each boundary artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L02-02 — VMware Workstation networking and VM resource planning
 
 - **Duration:** 60 minutes
 - **Core content:** Virtual switches/NAT/host-only concepts; isolation; CPU/RAM/storage; snapshots; host overlap risks.
 - **Learning activity:** Build and verify isolated virtual networks.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed build and verify isolated virtual networks artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L02-03 — pfSense routing, segmentation, and firewall policy
 
 - **Duration:** 90 minutes
 - **Core content:** Interfaces; gateways; rules; least privilege; logging; rule order; safe rollback.
 - **Learning activity:** Implement baseline rules and test allowed/blocked paths.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed implement baseline rules and test allowed/blocked paths artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L02-04 — Splunk Enterprise baseline deployment
 
 - **Duration:** 75 minutes
 - **Core content:** Installation concepts; access control; indexes as design concepts; time range; search fundamentals; data onboarding.
 - **Learning activity:** Verify service health and run baseline searches.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed verify service health and run baseline searches artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L02-05 — Endpoint and infrastructure telemetry onboarding
 
 - **Duration:** 90 minutes
 - **Core content:** Windows/Sysmon, pfSense, Suricata and Ubuntu log paths; forwarder/collector choices; timestamp and parsing validation.
 - **Learning activity:** Onboard one source at a time and record observed metadata.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed onboard one source at a time and record observed metadata artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L02-06 — End-to-end validation, troubleshooting, and recovery
 
 - **Duration:** 105 minutes
 - **Core content:** Connectivity tests; event generation; ingestion lag; time sync; snapshot strategy; reset and evidence of validation.
 - **Learning activity:** Execute checklist, diagnose seeded faults, restore baseline.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed execute checklist, diagnose seeded faults, restore baseline artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ## 5. Practical learning activities
 
