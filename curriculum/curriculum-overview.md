@@ -1,13 +1,15 @@
 # SOC-LAB Curriculum Overview
 
-> **Status:** draft — pending independent review and Project Owner approval  
-> **Version:** 0.2
+> **Status:** draft — revised after independent review; pending re-review and Project Owner approval  
+> **Version:** 0.3
 
 ## Purpose
 Develop practical SOC capabilities: understanding security operations, working with telemetry, investigating suspicious activity, validating detections, responding to incidents, and communicating evidence-based conclusions.
 
-## Audience
-Learners developing foundational SOC analyst skills through instructor-led teaching and isolated hands-on exercises. Entry requirements and pacing remain to be confirmed.
+## Audience and proposed entry profile
+Learners developing foundational SOC analyst skills through instructor-led teaching and isolated hands-on exercises. Prior SOC employment, security certification, advanced programming, and professional incident-response experience are not assumed. The proposed entry baseline is general computer literacy plus basic IP/network, Windows, Linux, web/email, and evidence-recording familiarity.
+
+Use the [Learner Entry Profile & Readiness Checklist](learner-readiness-checklist.md) to identify support needs. This profile remains a proposal until confirmed for the actual cohort.
 
 ## Design principles
 - Capability-led, not tool-led.
@@ -19,9 +21,16 @@ Learners developing foundational SOC analyst skills through instructor-led teach
 - Require measurable outcomes and traceable assessment evidence.
 
 ## Detailed curriculum
-The proposed detailed design is documented in [Detailed Curriculum Design](detailed-curriculum-design.md). It contains the lesson sequence, measurable outcomes, practical activities, evidence, dependencies, and estimated duration for each of the 11 modules.
+The proposed detailed design is documented in [Detailed Curriculum Design](detailed-curriculum-design.md). Each module now includes more discriminating outcome-to-lesson mappings, specific evidence expectations, and curriculum-level practical activity blueprints.
 
-**Proposed duration:** 89 contact hours across 11 modules, excluding breaks, independent study, remediation, and lab installation time. This is an estimate requiring instructor review and classroom piloting, not an approved schedule.
+**Proposed duration:** 89 contact hours across 11 modules, excluding breaks, independent study, remediation, and lab installation time. This remains an estimate requiring instructor review and classroom piloting, not an approved schedule.
+
+## Supporting design controls
+- [Common assessment rubric](assessment-rubric.md) defines draft performance descriptors; it does not set grading weights or pass thresholds.
+- [Assessment framework](assessment-framework.md) defines the assessment layers and evidence rules.
+- [Prerequisite map](prerequisite-map.md) and [readiness checklist](learner-readiness-checklist.md) define proposed entry and progression gates.
+- [Module reference catalog](references/module-reference-catalog.md) provides primary-source starting points for lesson development; each claim still requires lesson-level source verification.
+- Practical activity blueprints are not final student lab instructions. Exact steps, tested versions, troubleshooting, reset, and instructor preparation remain production work.
 
 ## Proposed 11-module sequence
 1. [SOC Fundamentals & Security Operations](../lectures/01-soc-fundamentals/README.md)
@@ -48,4 +57,4 @@ This is a proposed baseline, not evidence of completed deployment or validation.
 Digital forensics, memory forensics, Active Directory, and vulnerability management require a separate scope decision before inclusion.
 
 ## Decisions still required
-Confirm learner entry level, whether 89 contact hours fit the delivery model, module order, outcome granularity, assessment thresholds, delivery schedule, and individual/team assessment balance. Project Owner approval is required before this curriculum is marked approved or released.
+Confirm cohort entry profile, whether 89 contact hours fit the delivery model, assessment weighting/pass threshold, retake/remediation, individual/team balance, delivery schedule, and whether Mailpit is installed as a standard component or remains optional. Project Owner approval is required before this curriculum is marked approved or released.
