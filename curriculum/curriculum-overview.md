@@ -1,7 +1,7 @@
 # SOC-LAB Curriculum Overview
 
-> **Status:** draft — pending Project Owner approval  
-> **Version:** 0.1
+> **Status:** draft — pending independent review and Project Owner approval  
+> **Version:** 0.2
 
 ## Purpose
 Develop practical SOC capabilities: understanding security operations, working with telemetry, investigating suspicious activity, validating detections, responding to incidents, and communicating evidence-based conclusions.
@@ -16,6 +16,12 @@ Learners developing foundational SOC analyst skills through instructor-led teach
 - Practice evidence collection, hypothesis testing, validation, and analyst communication.
 - Keep all simulations within the authorized isolated lab.
 - Separate student and instructor materials appropriately.
+- Require measurable outcomes and traceable assessment evidence.
+
+## Detailed curriculum
+The proposed detailed design is documented in [Detailed Curriculum Design](detailed-curriculum-design.md). It contains the lesson sequence, measurable outcomes, practical activities, evidence, dependencies, and estimated duration for each of the 11 modules.
+
+**Proposed duration:** 89 contact hours across 11 modules, excluding breaks, independent study, remediation, and lab installation time. This is an estimate requiring instructor review and classroom piloting, not an approved schedule.
 
 ## Proposed 11-module sequence
 1. [SOC Fundamentals & Security Operations](../lectures/01-soc-fundamentals/README.md)
@@ -42,4 +48,4 @@ This is a proposed baseline, not evidence of completed deployment or validation.
 Digital forensics, memory forensics, Active Directory, and vulnerability management require a separate scope decision before inclusion.
 
 ## Decisions still required
-Confirm learner entry level, total contact hours, module order, outcome granularity, assessment thresholds, and delivery schedule. Project Owner approval is required before this curriculum is marked approved or released.
+Confirm learner entry level, whether 89 contact hours fit the delivery model, module order, outcome granularity, assessment thresholds, delivery schedule, and individual/team assessment balance. Project Owner approval is required before this curriculum is marked approved or released.
