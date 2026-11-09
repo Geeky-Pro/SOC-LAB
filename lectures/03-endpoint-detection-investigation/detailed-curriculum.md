@@ -19,12 +19,12 @@ By the end of this module, learners should be able to:
 
 | ID | Learning outcome | Lesson alignment | Evidence |
 |---|---|---|---|
-| LO-03-01 | Describe Windows process, logon, service, file, and network activity relevant to SOC investigations. | L03-01, L03-02, L03-03, L03-04, L03-05, L03-06 | Practical artifact |
-| LO-03-02 | Interpret selected Windows Security and Sysmon event records using event context rather than ID memorization. | L03-01, L03-02, L03-03, L03-04, L03-05, L03-06 | Mapped lesson activity and assessment evidence |
-| LO-03-03 | Reconstruct process ancestry and a time-bounded endpoint activity sequence. | L03-01, L03-02, L03-03, L03-04, L03-05, L03-06 | Mapped lesson activity and assessment evidence |
-| LO-03-04 | Investigate suspicious script, executable, persistence-like, and logon activity while considering benign explanations. | L03-01, L03-02, L03-03, L03-04, L03-05, L03-06 | Mapped lesson activity and assessment evidence |
-| LO-03-05 | Correlate endpoint observations with network and SIEM evidence and state confidence and limitations. | L03-01, L03-02, L03-03, L03-04, L03-05, L03-06 | Mapped lesson activity and assessment evidence |
-| LO-03-06 | Produce a reproducible endpoint investigation report with source references. | L03-01, L03-02, L03-03, L03-04, L03-05, L03-06 | Mapped lesson activity and assessment evidence |
+| LO-03-01 | Describe Windows process, logon, service, file, and network activity relevant to SOC investigations. | L03-01 | Telemetry-source map: event channel, producer, observed fields, and coverage limits. |
+| LO-03-02 | Interpret selected Windows Security and Sysmon event records using event context rather than ID memorization. | L03-01, L03-02, L03-03, L03-04 | Correlated file/registry/script/network worksheet separating observation from inference. |
+| LO-03-03 | Reconstruct process ancestry and a time-bounded endpoint activity sequence. | L03-02, L03-03, L03-06 | Endpoint report with scope, timeline, evidence matrix, hypothesis disposition, confidence, and escalation. |
+| LO-03-04 | Investigate suspicious script, executable, persistence-like, and logon activity while considering benign explanations. | L03-03, L03-04, L03-06 | Endpoint report with scope, timeline, evidence matrix, hypothesis disposition, confidence, and escalation. |
+| LO-03-05 | Correlate endpoint observations with network and SIEM evidence and state confidence and limitations. | L03-04, L03-05, L03-06 | Endpoint report with scope, timeline, evidence matrix, hypothesis disposition, confidence, and escalation. |
+| LO-03-06 | Produce a reproducible endpoint investigation report with source references. | L03-06 | Endpoint report with scope, timeline, evidence matrix, hypothesis disposition, confidence, and escalation. |
 
 ## 4. Detailed lesson sequence
 
@@ -72,20 +72,34 @@ By the end of this module, learners should be able to:
 
 ## 5. Practical learning activities
 
-Investigate prepared Windows/Sysmon event dataset; process tree; timeline; evidence-backed endpoint report.
+The following are curriculum-level activity blueprints, not final student lab instructions. Convert each activity into its module-specific lab/scenario asset before delivery.
 
-Activities must be delivered only within the authorized lab or with instructor-provided sanitized/synthetic artifacts. If required telemetry is unavailable, disclose the substitution and its limitations.
+| Activity ID | Learner task | Required input / environment | Expected output | Safety, cleanup, and recovery |
+|---|---|---|---|---|
+| LAB-03-A | Investigate a prepared Windows/Sysmon activity bundle and reconstruct process ancestry. | Sanitized event export or isolated Windows VM with approved Sysmon configuration. | Process tree, logon/activity timeline, evidence references, alternative explanations. | No malware execution; use benign/synthetic records; snapshot before configuration changes. |
+| LAB-03-B | Investigate a bounded endpoint case in Splunk Enterprise. | Sanitized dataset with source metadata; Splunk Enterprise. | Reproducible searches, evidence matrix, endpoint report. | Discover fields from sample events; no sensitive host/user data; no disruptive remediation. |
+
+Before publication, the corresponding lab/scenario asset must add exact steps, tested versions, instructor preparation, troubleshooting, reset procedure, expected outputs, and evidence-capture instructions. If a telemetry source is unavailable, use a clearly labeled instructor-provided dataset and record the substitution.
 
 ## 6. Assessment plan
 
-**Primary assessment evidence:** Endpoint evidence matrix, process tree, timeline, Splunk search notes, and investigation report.
+**Primary assessment evidence:** LAB-03-A, LAB-03-B — see the practical activity blueprint above and the [common SOC-LAB assessment rubric](../../curriculum/assessment-rubric.md).
 
-Assessment design rules:
-- Map every scored task to one or more LO identifiers.
-- Require source references, timestamps where available, reasoning, limitations, and uncertainty.
-- Score analytical process and evidence quality, not merely the final verdict.
-- Do not require a single severity/verdict when multiple evidence-supported conclusions are reasonable.
-- Keep instructor answer keys separate from student-facing instructions.
+| Learning outcome | Lesson(s) introducing/practicing/assessing | Observable assessment evidence |
+|---|---|---|
+| LO-03-01 | L03-01 | Telemetry-source map: event channel, producer, observed fields, and coverage limits. |
+| LO-03-02 | L03-01, L03-02, L03-03, L03-04 | Correlated file/registry/script/network worksheet separating observation from inference. |
+| LO-03-03 | L03-02, L03-03, L03-06 | Endpoint report with scope, timeline, evidence matrix, hypothesis disposition, confidence, and escalation. |
+| LO-03-04 | L03-03, L03-04, L03-06 | Endpoint report with scope, timeline, evidence matrix, hypothesis disposition, confidence, and escalation. |
+| LO-03-05 | L03-04, L03-05, L03-06 | Endpoint report with scope, timeline, evidence matrix, hypothesis disposition, confidence, and escalation. |
+| LO-03-06 | L03-06 | Endpoint report with scope, timeline, evidence matrix, hypothesis disposition, confidence, and escalation. |
+
+Assessment conditions:
+- The student brief must state permitted dataset/environment, time limit, allowed references, and submission format before delivery.
+- Score only rubric criteria relevant to the outcomes assessed; weighting and pass threshold remain pending Project Owner decision.
+- Require source/time references, reasoning, alternatives, uncertainty, and limitations where relevant.
+- Identify individual versus team-produced evidence; team output alone does not establish individual mastery.
+- Keep instructor answer keys and expected reasoning separate from student-facing materials.
 
 ## 7. Lab and resource dependencies
 
@@ -118,7 +132,7 @@ The proposed 8-hour allocation is a planning estimate. It must be checked agains
 
 ## 11. References
 
-Use authoritative, versioned sources appropriate to the lesson. Record the publication/version and access date during content development. Do not add references that were not consulted or that do not support the relevant claims.
+Use the lesson-mapped [Module Reference Catalog](../../curriculum/references/module-reference-catalog.md) as the research starting point. During lesson production, record the exact page/edition and access date for every technical claim. The catalog does not imply that lab-specific versions or configurations have been validated.
 
 ## 12. Change history
 
