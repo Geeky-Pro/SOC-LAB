@@ -11,7 +11,7 @@ Integrated Threat Investigation — Operation Shadow Access develops the capabil
 
 ## 2. Prerequisites
 
-Modules 03–09; all relevant telemetry sources validated or synthetic datasets clearly labeled.
+Modules 03–09, including Module 04 email investigation; all relevant telemetry sources validated or synthetic datasets clearly labeled.
 
 ## 3. Measurable learning outcomes
 
@@ -19,12 +19,12 @@ By the end of this module, learners should be able to:
 
 | ID | Learning outcome | Lesson alignment | Evidence |
 |---|---|---|---|
-| LO-10-01 | Define investigation scope and competing hypotheses from an ambiguous initial alert. | L10-01, L10-02, L10-03, L10-04, L10-05, L10-06, L10-07 | Practical artifact |
-| LO-10-02 | Collect and correlate endpoint, network, IDS, web, and SIEM evidence using source-aware methods. | L10-01, L10-02, L10-03, L10-04, L10-05, L10-06, L10-07 | Mapped lesson activity and assessment evidence |
-| LO-10-03 | Construct a normalized timeline and distinguish observed facts from inferred stages. | L10-01, L10-02, L10-03, L10-04, L10-05, L10-06, L10-07 | Mapped lesson activity and assessment evidence |
-| LO-10-04 | Assess attack progression, affected assets, potential impact, and confidence without unsupported attribution. | L10-01, L10-02, L10-03, L10-04, L10-05, L10-06, L10-07 | Mapped lesson activity and assessment evidence |
-| LO-10-05 | Evaluate detection coverage and identify visibility or validation gaps. | L10-01, L10-02, L10-03, L10-04, L10-05, L10-06, L10-07 | Mapped lesson activity and assessment evidence |
-| LO-10-06 | Recommend proportionate response actions and communicate a defensible incident assessment. | L10-01, L10-02, L10-03, L10-04, L10-05, L10-06, L10-07 | Mapped lesson activity and assessment evidence |
+| LO-10-01 | Define investigation scope and competing hypotheses from an ambiguous initial alert. | L10-01, L10-05 | Normalized timeline and hypothesis disposition using endpoint, network, web, SIEM, and sanitized email evidence. |
+| LO-10-02 | Collect and correlate endpoint, network, IDS, web, and SIEM evidence using source-aware methods. | L10-02, L10-03, L10-04, L10-05 | Normalized timeline and hypothesis disposition using endpoint, network, web, SIEM, and sanitized email evidence. |
+| LO-10-03 | Construct a normalized timeline and distinguish observed facts from inferred stages. | L10-05 | Normalized timeline and hypothesis disposition using endpoint, network, web, SIEM, and sanitized email evidence. |
+| LO-10-04 | Assess attack progression, affected assets, potential impact, and confidence without unsupported attribution. | L10-02, L10-03, L10-04, L10-05 | Normalized timeline and hypothesis disposition using endpoint, network, web, SIEM, and sanitized email evidence. |
+| LO-10-05 | Evaluate detection coverage and identify visibility or validation gaps. | L10-05, L10-07 | Detection/telemetry gap matrix and after-action recommendations with evidence provenance. |
+| LO-10-06 | Recommend proportionate response actions and communicate a defensible incident assessment. | L10-06 | Incident assessment, response decision log, and technical/stakeholder briefing. |
 
 ## 4. Detailed lesson sequence
 
@@ -56,11 +56,11 @@ By the end of this module, learners should be able to:
 - **Learning activity:** Reconstruct web activity and alternative explanations.
 - **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
 
-### L10-05 — Cross-source timeline and hypothesis testing
+### L10-05 — Cross-source timeline, email evidence, and hypothesis testing
 
 - **Duration:** 105 minutes
-- **Core content:** Time normalization; entity pivots; contradictions; confidence; ATT&CK mapping only when supported.
-- **Learning activity:** Build unified timeline and hypothesis disposition.
+- **Core content:** Time normalization; entity pivots; sanitized .eml/header/URL evidence; contradictions; confidence; ATT&CK mapping only when supported.
+- **Learning activity:** Build unified timeline and hypothesis disposition across endpoint, network, web, SIEM, and email evidence.
 - **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
 
 ### L10-06 — Response decision and stakeholder briefing
@@ -79,20 +79,34 @@ By the end of this module, learners should be able to:
 
 ## 5. Practical learning activities
 
-Operation Shadow Access multi-source case using endpoint, network, IDS, web, and Splunk evidence; synthetic sources explicitly labeled.
+The following are curriculum-level activity blueprints, not final student lab instructions. Convert each activity into its module-specific lab/scenario asset before delivery.
 
-Activities must be delivered only within the authorized lab or with instructor-provided sanitized/synthetic artifacts. If required telemetry is unavailable, disclose the substitution and its limitations.
+| Activity ID | Learner task | Required input / environment | Expected output | Safety, cleanup, and recovery |
+|---|---|---|---|---|
+| SCN-10-A | Investigate a multi-source case using endpoint, network, IDS, web, SIEM, and email evidence. | Curated case pack: sanitized .eml, endpoint events, PCAP, Suricata/firewall records, web logs, Splunk exports; provenance manifest. | Plan, evidence matrix, timeline, hypotheses, incident assessment, briefing, gap analysis. | Label each artifact captured/synthetic/simulated; .eml may replace Mailpit; no live phishing or external targets. |
+
+Before publication, the corresponding lab/scenario asset must add exact steps, tested versions, instructor preparation, troubleshooting, reset procedure, expected outputs, and evidence-capture instructions. If a telemetry source is unavailable, use a clearly labeled instructor-provided dataset and record the substitution.
 
 ## 6. Assessment plan
 
-**Primary assessment evidence:** Investigation plan, evidence matrix, unified timeline, hypothesis register, response recommendation, and briefing.
+**Primary assessment evidence:** SCN-10-A — see the practical activity blueprint above and the [common SOC-LAB assessment rubric](../../curriculum/assessment-rubric.md).
 
-Assessment design rules:
-- Map every scored task to one or more LO identifiers.
-- Require source references, timestamps where available, reasoning, limitations, and uncertainty.
-- Score analytical process and evidence quality, not merely the final verdict.
-- Do not require a single severity/verdict when multiple evidence-supported conclusions are reasonable.
-- Keep instructor answer keys separate from student-facing instructions.
+| Learning outcome | Lesson(s) introducing/practicing/assessing | Observable assessment evidence |
+|---|---|---|
+| LO-10-01 | L10-01, L10-05 | Normalized timeline and hypothesis disposition using endpoint, network, web, SIEM, and sanitized email evidence. |
+| LO-10-02 | L10-02, L10-03, L10-04, L10-05 | Normalized timeline and hypothesis disposition using endpoint, network, web, SIEM, and sanitized email evidence. |
+| LO-10-03 | L10-05 | Normalized timeline and hypothesis disposition using endpoint, network, web, SIEM, and sanitized email evidence. |
+| LO-10-04 | L10-02, L10-03, L10-04, L10-05 | Normalized timeline and hypothesis disposition using endpoint, network, web, SIEM, and sanitized email evidence. |
+| LO-10-05 | L10-05, L10-07 | Detection/telemetry gap matrix and after-action recommendations with evidence provenance. |
+| LO-10-06 | L10-06 | Incident assessment, response decision log, and technical/stakeholder briefing. |
+| LO-10-07 | L10-01, L10-05 | Normalized timeline and hypothesis disposition using endpoint, network, web, SIEM, and sanitized email evidence. |
+
+Assessment conditions:
+- The student brief must state permitted dataset/environment, time limit, allowed references, and submission format before delivery.
+- Score only rubric criteria relevant to the outcomes assessed; weighting and pass threshold remain pending Project Owner decision.
+- Require source/time references, reasoning, alternatives, uncertainty, and limitations where relevant.
+- Identify individual versus team-produced evidence; team output alone does not establish individual mastery.
+- Keep instructor answer keys and expected reasoning separate from student-facing materials.
 
 ## 7. Lab and resource dependencies
 
@@ -125,7 +139,7 @@ The proposed 10-hour allocation is a planning estimate. It must be checked again
 
 ## 11. References
 
-Use authoritative, versioned sources appropriate to the lesson. Record the publication/version and access date during content development. Do not add references that were not consulted or that do not support the relevant claims.
+Use the lesson-mapped [Module Reference Catalog](../../curriculum/references/module-reference-catalog.md) as the research starting point. During lesson production, record the exact page/edition and access date for every technical claim. The catalog does not imply that lab-specific versions or configurations have been validated.
 
 ## 12. Change history
 
