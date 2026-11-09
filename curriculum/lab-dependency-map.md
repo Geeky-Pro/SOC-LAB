@@ -13,7 +13,7 @@
 | Windows + Sysmon | Process, logon, file, and network telemetry | 03, 09–11 |
 | Kali Linux | Authorized traffic generation and controlled emulation | 05–07, 09–11 |
 | Ubuntu web server | Web service and access/application logs | 07, 09–11 |
-| Mailpit (optional) | Local email exercises | 04, 10, 11 |
+| Mailpit (optional) | Local email exercises; Modules 10–11 can use sanitized .eml evidence packs when Mailpit is unavailable | 04, 10, 11 |
 
 ## Planned network zones
 
@@ -37,6 +37,8 @@ These are proposed ranges. Students must check for overlap with physical LAN, VP
 Exact collection methods, ports, indexes, sourcetypes, and parsing must be documented and validated. See lab-environment/deployment/telemetry-pipeline.md.
 
 ## Module dependencies
+
+Module 10 explicitly includes an email evidence artifact from Module 04. Mailpit remains optional; a sanitized, provenance-labeled .eml artifact is an accepted alternative. Module 11 uses whichever evidence sources are included in its assigned case pack.
 
 | Module | Minimum capabilities |
 |---|---|
