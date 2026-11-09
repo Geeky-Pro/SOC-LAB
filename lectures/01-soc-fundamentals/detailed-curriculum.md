@@ -2,7 +2,7 @@
 
 > **Status:** draft — pending independent review and Project Owner approval  
 > **Module ID:** 01-soc-fundamentals  
-> **Curriculum version:** 0.2  
+> **Curriculum version:** 0.3  
 > **Proposed contact time:** 6 hours
 
 ## 1. Module purpose
@@ -136,4 +136,5 @@ Use the lesson-mapped [Module Reference Catalog](../../curriculum/references/mod
 
 | Version | Change | Status |
 |---|---|---|
+| 0.3 | Revised outcome mapping, evidence expectations, activity blueprint, and lesson evidence following independent review | Draft |
 | 0.2 | Initial detailed curriculum design for this module | Draft |
