@@ -21,11 +21,11 @@ By the end of this module, learners should be able to:
 |---|---|---|---|
 | LO-06-01 | Explain signature, protocol-anomaly, and behavior-oriented network detection approaches. | L06-01, L06-02 | Annotated Suricata alert/rule example and statement of what the alert does not prove. |
 | LO-06-02 | Describe inline versus passive IDS/IPS deployment and operational trade-offs. | L06-02, L06-03 | pfSense/Suricata configuration and health evidence from deployed version or sanitized instructor output. |
-| LO-06-03 | Interpret Suricata alert fields, rule metadata, flow context, and alert limitations. | L06-03, L06-06 | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
-| LO-06-04 | Validate an alert against packet and environmental context and identify likely false positives. | L06-04, L06-06 | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
-| LO-06-05 | Explain rule tuning, suppression, updates, and change-control considerations. | L06-05, L06-06 | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
-| LO-06-07 | Evaluate a prevention control decision, verify an authorized lab-only effect, and document impact and rollback requirements. | L06-01, L06-03, L06-05, L06-06 | Prevention decision record, allowed/denied flow test evidence, rollback and verification record. |
+| LO-06-03 | Interpret Suricata alert fields, rule metadata, flow context, and alert limitations. | L06-03, L06-06 | Annotated alert interpretation worksheet identifying field meaning, rule context, and unsupported conclusions. |
+| LO-06-04 | Validate an alert against packet and environmental context and identify likely false positives. | L06-04, L06-06 | Alert triage record corroborated with packet references, environment context, and false-positive rationale. |
+| LO-06-05 | Explain rule tuning, suppression, updates, and change-control considerations. | L06-05, L06-06 | Tuning change proposal with rationale, expected effect, regression checks, approval gate, and rollback. |
 | LO-06-06 | Document detection test outcomes separately from telemetry visibility and analyst conclusions. | L06-06 | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
+| LO-06-07 | Evaluate a prevention control decision, verify an authorized lab-only effect, and document impact and rollback requirements. | L06-01, L06-03, L06-05, L06-06 | Prevention decision record, allowed/denied flow test evidence, rollback and verification record. |
 
 ## 4. Detailed lesson sequence
 
