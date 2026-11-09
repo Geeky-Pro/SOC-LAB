@@ -19,12 +19,14 @@ By the end of this module, learners should be able to:
 
 | ID | Learning outcome | Lesson alignment | Evidence |
 |---|---|---|---|
-| LO-06-01 | Explain signature, protocol-anomaly, and behavior-oriented network detection approaches. | L06-01, L06-02, L06-03, L06-04, L06-05, L06-06 | Practical artifact |
-| LO-06-02 | Describe inline versus passive IDS/IPS deployment and operational trade-offs. | L06-01, L06-02, L06-03, L06-04, L06-05, L06-06 | Mapped lesson activity and assessment evidence |
-| LO-06-03 | Interpret Suricata alert fields, rule metadata, flow context, and alert limitations. | L06-01, L06-02, L06-03, L06-04, L06-05, L06-06 | Mapped lesson activity and assessment evidence |
-| LO-06-04 | Validate an alert against packet and environmental context and identify likely false positives. | L06-01, L06-02, L06-03, L06-04, L06-05, L06-06 | Mapped lesson activity and assessment evidence |
-| LO-06-05 | Explain rule tuning, suppression, updates, and change-control considerations. | L06-01, L06-02, L06-03, L06-04, L06-05, L06-06 | Mapped lesson activity and assessment evidence |
-| LO-06-06 | Document detection test outcomes separately from telemetry visibility and analyst conclusions. | L06-01, L06-02, L06-03, L06-04, L06-05, L06-06 | Mapped lesson activity and assessment evidence |
+| LO-06-01 | Explain signature, protocol-anomaly, and behavior-oriented network detection approaches. | L06-01, L06-02 | Annotated Suricata alert/rule example and statement of what the alert does not prove. |
+| LO-06-02 | Describe inline versus passive IDS/IPS deployment and operational trade-offs. | L06-02, L06-03 | pfSense/Suricata configuration and health evidence from deployed version or sanitized instructor output. |
+| LO-06-03 | Interpret Suricata alert fields, rule metadata, flow context, and alert limitations. | L06-03, L06-06 | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
+| LO-06-04 | Validate an alert against packet and environmental context and identify likely false positives. | L06-04, L06-06 | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
+| LO-06-05 | Explain rule tuning, suppression, updates, and change-control considerations. | L06-05, L06-06 | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
+| LO-06-07 | Evaluate a prevention control decision, verify an authorized lab-only effect, and document impact and rollback requirements. | L06-01, L06-03, L06-05, L06-06 | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
+| LO-06-07 | Evaluate a prevention control decision, verify an authorized lab-only effect, and document impact and rollback requirements. | L06-01, L06-03, L06-05, L06-06 | Prevention decision record, allowed/denied flow test evidence, rollback and verification record. |
+| LO-06-06 | Document detection test outcomes separately from telemetry visibility and analyst conclusions. | L06-06 | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
 
 ## 4. Detailed lesson sequence
 
@@ -56,7 +58,7 @@ By the end of this module, learners should be able to:
 - **Learning activity:** Validate seeded alert records against matching packet evidence.
 - **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
 
-### L06-05 — Tuning, suppression, and change management
+### L06-05 — Tuning, suppression, prevention policy, and change management
 
 - **Duration:** 75 minutes
 - **Core content:** Thresholds; suppressions; rule updates; regression risk; rollback; test cases.
@@ -72,20 +74,35 @@ By the end of this module, learners should be able to:
 
 ## 5. Practical learning activities
 
-Interpret Suricata alerts; validate against packet context; propose a safe tuning change and regression test.
+The following are curriculum-level activity blueprints, not final student lab instructions. Convert each activity into its module-specific lab/scenario asset before delivery.
 
-Activities must be delivered only within the authorized lab or with instructor-provided sanitized/synthetic artifacts. If required telemetry is unavailable, disclose the substitution and its limitations.
+| Activity ID | Learner task | Required input / environment | Expected output | Safety, cleanup, and recovery |
+|---|---|---|---|---|
+| LAB-06-A | Interpret Suricata alerts and corroborate with PCAP. | Sanitized alert/EVE output and matching PCAP, or verified pfSense telemetry. | Alert/rule worksheet, packet references, triage, false-positive notes. | Alert-only mode unless prevention capability is verified and explicitly authorized. |
+| LAB-06-B | Evaluate a prevention control and verify effect safely. | Isolated lab firewall rule or instructor-controlled policy simulation; snapshots and rollback. | Prevention decision record, allowed/denied flow tests, impact and rollback evidence. | Do not enable inline IPS by default; require authorization, allowlist, out-of-band access, rollback. |
+
+Before publication, the corresponding lab/scenario asset must add exact steps, tested versions, instructor preparation, troubleshooting, reset procedure, expected outputs, and evidence-capture instructions. If a telemetry source is unavailable, use a clearly labeled instructor-provided dataset and record the substitution.
 
 ## 6. Assessment plan
 
-**Primary assessment evidence:** Alert interpretation, corroborating packet context, tuning proposal, and detection validation record.
+**Primary assessment evidence:** LAB-06-A, LAB-06-B — see the practical activity blueprint above and the [common SOC-LAB assessment rubric](../../curriculum/assessment-rubric.md).
 
-Assessment design rules:
-- Map every scored task to one or more LO identifiers.
-- Require source references, timestamps where available, reasoning, limitations, and uncertainty.
-- Score analytical process and evidence quality, not merely the final verdict.
-- Do not require a single severity/verdict when multiple evidence-supported conclusions are reasonable.
-- Keep instructor answer keys separate from student-facing instructions.
+| Learning outcome | Lesson(s) introducing/practicing/assessing | Observable assessment evidence |
+|---|---|---|
+| LO-06-01 | L06-01, L06-02 | Annotated Suricata alert/rule example and statement of what the alert does not prove. |
+| LO-06-02 | L06-02, L06-03 | pfSense/Suricata configuration and health evidence from deployed version or sanitized instructor output. |
+| LO-06-03 | L06-03, L06-06 | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
+| LO-06-04 | L06-04, L06-06 | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
+| LO-06-05 | L06-05, L06-06 | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
+| LO-06-06 | L06-06 | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
+| LO-06-07 | L06-01, L06-03, L06-05, L06-06 | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
+
+Assessment conditions:
+- The student brief must state permitted dataset/environment, time limit, allowed references, and submission format before delivery.
+- Score only rubric criteria relevant to the outcomes assessed; weighting and pass threshold remain pending Project Owner decision.
+- Require source/time references, reasoning, alternatives, uncertainty, and limitations where relevant.
+- Identify individual versus team-produced evidence; team output alone does not establish individual mastery.
+- Keep instructor answer keys and expected reasoning separate from student-facing materials.
 
 ## 7. Lab and resource dependencies
 
@@ -114,11 +131,13 @@ The proposed 7-hour allocation is a planning estimate. It must be checked agains
 - [ ] Independent Quality Reviewer review completed.
 - [ ] Project Owner approval recorded.
 
+**Prevention scope:** Distinguish passive Suricata alerting from inline IPS and pfSense firewall enforcement. The student exercise evaluates a reversible, isolated firewall-policy change or a tabletop policy simulation. Inline Suricata prevention is not assumed; it may be demonstrated only after package/version/interface support is verified and the instructor authorizes a rollback-tested change.
+
 **Current validation state:** NOT VALIDATED. No classroom pilot or end-to-end practical execution is claimed.
 
 ## 11. References
 
-Use authoritative, versioned sources appropriate to the lesson. Record the publication/version and access date during content development. Do not add references that were not consulted or that do not support the relevant claims.
+Use the lesson-mapped [Module Reference Catalog](../../curriculum/references/module-reference-catalog.md) as the research starting point. During lesson production, record the exact page/edition and access date for every technical claim. The catalog does not imply that lab-specific versions or configurations have been validated.
 
 ## 12. Change history
 
