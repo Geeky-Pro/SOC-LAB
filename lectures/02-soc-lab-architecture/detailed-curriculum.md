@@ -19,12 +19,12 @@ By the end of this module, learners should be able to:
 
 | ID | Learning outcome | Lesson alignment | Evidence |
 |---|---|---|---|
-| LO-02-01 | Explain the lab's trust boundaries, network zones, traffic paths, and security rationale. | L02-01, L02-02, L02-03, L02-04, L02-05, L02-06 | Practical artifact |
-| LO-02-02 | Deploy and configure the documented VMware virtual network and baseline VMs. | L02-01, L02-02, L02-03, L02-04, L02-05, L02-06 | Mapped lesson activity and assessment evidence |
-| LO-02-03 | Apply the documented pfSense segmentation and verify permitted/denied flows. | L02-01, L02-02, L02-03, L02-04, L02-05, L02-06 | Mapped lesson activity and assessment evidence |
-| LO-02-04 | Configure Splunk Enterprise and approved telemetry sources using verified settings. | L02-01, L02-02, L02-03, L02-04, L02-05, L02-06 | Mapped lesson activity and assessment evidence |
-| LO-02-05 | Validate ingestion, timestamps, field extraction, and source coverage without assuming undocumented fields. | L02-01, L02-02, L02-03, L02-04, L02-05, L02-06 | Mapped lesson activity and assessment evidence |
-| LO-02-06 | Troubleshoot common connectivity and telemetry failures and restore a known-good snapshot. | L02-01, L02-02, L02-03, L02-04, L02-05, L02-06 | Mapped lesson activity and assessment evidence |
+| LO-02-01 | Explain the lab's trust boundaries, network zones, traffic paths, and security rationale. | L02-01, L02-02 | VM/network configuration record, isolation checks, resource plan, snapshot identifier. |
+| LO-02-02 | Deploy and configure the documented VMware virtual network and baseline VMs. | L02-02, L02-06 | Completed validation checklist, fault diagnosis log, and recovery/snapshot evidence. |
+| LO-02-03 | Apply the documented pfSense segmentation and verify permitted/denied flows. | L02-03, L02-06 | Completed validation checklist, fault diagnosis log, and recovery/snapshot evidence. |
+| LO-02-04 | Configure Splunk Enterprise and approved telemetry sources using verified settings. | L02-04, L02-05 | Source onboarding record with sample event, observed metadata, timestamps, and limitations. |
+| LO-02-05 | Validate ingestion, timestamps, field extraction, and source coverage without assuming undocumented fields. | L02-05, L02-06 | Completed validation checklist, fault diagnosis log, and recovery/snapshot evidence. |
+| LO-02-06 | Troubleshoot common connectivity and telemetry failures and restore a known-good snapshot. | L02-06 | Completed validation checklist, fault diagnosis log, and recovery/snapshot evidence. |
 
 ## 4. Detailed lesson sequence
 
@@ -72,20 +72,34 @@ By the end of this module, learners should be able to:
 
 ## 5. Practical learning activities
 
-Build segmented network; verify firewall paths; onboard one telemetry source at a time; complete validation and recovery checklist.
+The following are curriculum-level activity blueprints, not final student lab instructions. Convert each activity into its module-specific lab/scenario asset before delivery.
 
-Activities must be delivered only within the authorized lab or with instructor-provided sanitized/synthetic artifacts. If required telemetry is unavailable, disclose the substitution and its limitations.
+| Activity ID | Learner task | Required input / environment | Expected output | Safety, cleanup, and recovery |
+|---|---|---|---|---|
+| LAB-02-A | Build or inspect isolated VM networks and verify segmentation. | VMware Workstation; documented topology; approved VM images. | Annotated topology, VM/network inventory, allowed/denied flow evidence. | Check subnet overlap; isolate lab; snapshot before firewall changes; restore baseline. |
+| LAB-02-B | Onboard telemetry sources and verify ingestion. | Splunk Enterprise and available Windows/pfSense/Suricata/Ubuntu sources; dataset fallback. | Source readiness matrix with observed events, timestamps, actual fields, limitations. | Do not assume indexes/sourcetypes/ports/export methods; no credentials in submissions. |
+
+Before publication, the corresponding lab/scenario asset must add exact steps, tested versions, instructor preparation, troubleshooting, reset procedure, expected outputs, and evidence-capture instructions. If a telemetry source is unavailable, use a clearly labeled instructor-provided dataset and record the substitution.
 
 ## 6. Assessment plan
 
-**Primary assessment evidence:** Topology/data-flow submission, firewall test matrix, telemetry source inventory, validation checklist, and recovery demonstration.
+**Primary assessment evidence:** LAB-02-A, LAB-02-B — see the practical activity blueprint above and the [common SOC-LAB assessment rubric](../../curriculum/assessment-rubric.md).
 
-Assessment design rules:
-- Map every scored task to one or more LO identifiers.
-- Require source references, timestamps where available, reasoning, limitations, and uncertainty.
-- Score analytical process and evidence quality, not merely the final verdict.
-- Do not require a single severity/verdict when multiple evidence-supported conclusions are reasonable.
-- Keep instructor answer keys separate from student-facing instructions.
+| Learning outcome | Lesson(s) introducing/practicing/assessing | Observable assessment evidence |
+|---|---|---|
+| LO-02-01 | L02-01, L02-02 | VM/network configuration record, isolation checks, resource plan, snapshot identifier. |
+| LO-02-02 | L02-02, L02-06 | Completed validation checklist, fault diagnosis log, and recovery/snapshot evidence. |
+| LO-02-03 | L02-03, L02-06 | Completed validation checklist, fault diagnosis log, and recovery/snapshot evidence. |
+| LO-02-04 | L02-04, L02-05 | Source onboarding record with sample event, observed metadata, timestamps, and limitations. |
+| LO-02-05 | L02-05, L02-06 | Completed validation checklist, fault diagnosis log, and recovery/snapshot evidence. |
+| LO-02-06 | L02-06 | Completed validation checklist, fault diagnosis log, and recovery/snapshot evidence. |
+
+Assessment conditions:
+- The student brief must state permitted dataset/environment, time limit, allowed references, and submission format before delivery.
+- Score only rubric criteria relevant to the outcomes assessed; weighting and pass threshold remain pending Project Owner decision.
+- Require source/time references, reasoning, alternatives, uncertainty, and limitations where relevant.
+- Identify individual versus team-produced evidence; team output alone does not establish individual mastery.
+- Keep instructor answer keys and expected reasoning separate from student-facing materials.
 
 ## 7. Lab and resource dependencies
 
@@ -118,7 +132,7 @@ The proposed 8-hour allocation is a planning estimate. It must be checked agains
 
 ## 11. References
 
-Use authoritative, versioned sources appropriate to the lesson. Record the publication/version and access date during content development. Do not add references that were not consulted or that do not support the relevant claims.
+Use the lesson-mapped [Module Reference Catalog](../../curriculum/references/module-reference-catalog.md) as the research starting point. During lesson production, record the exact page/edition and access date for every technical claim. The catalog does not imply that lab-specific versions or configurations have been validated.
 
 ## 12. Change history
 
