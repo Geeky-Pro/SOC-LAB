@@ -1,6 +1,6 @@
 # Lab Dependency Map
 
-> **Status:** draft — logical dependencies only; not a deployment validation record
+> **Status:** draft — logical dependencies only; not a deployment validation record.
 
 ## Baseline components
 
@@ -15,17 +15,26 @@
 | Ubuntu web server | Web service and access/application logs | 07, 09–11 |
 | Mailpit (optional) | Local email exercises | 04, 10, 11 |
 
+## Planned network zones
+
+| Zone | Subnet | Main workload |
+|---|---|---|
+| Management | 10.0.10.0/24 | Controlled administration |
+| SOC | 10.0.20.0/24 | Splunk Enterprise and collectors |
+| DMZ | 10.0.30.0/24 | Ubuntu web server |
+| Endpoint | 10.0.40.0/24 | Windows + Sysmon |
+| Kali | 10.0.90.0/24 | Kali Linux |
+
+These are proposed ranges. Students must check for overlap with physical LAN, VPN, Docker, and existing VMware networks. See lab-environment/network/addressing-plan.md.
+
 ## Logical telemetry paths
-- Windows/Sysmon → configured collection path → Splunk Enterprise.
-- pfSense/Suricata → configured collection path → Splunk Enterprise.
-- Ubuntu web logs → configured collection path → Splunk Enterprise.
-- Kali traffic → isolated lab network → pfSense/Suricata and destination telemetry.
-- Mailpit artifacts → local email investigation workflow.
+- Windows/Sysmon → supported collection path → Splunk Enterprise.
+- pfSense firewall events → configured remote logging/collector → Splunk Enterprise.
+- Suricata alerts from pfSense → tested package-compatible export/collector → Splunk Enterprise.
+- Ubuntu web logs → supported collection path → Splunk Enterprise.
+- Kali activity → pfSense/Suricata and destination telemetry.
 
-Exact collection methods, ports, addresses, parsing, indexes, and sourcetypes must be documented and validated in `lab-environment/` and `detection-engineering/`.
-
-## Network constraints
-Use the approved `10.0.0.0` addressing plan. Kali is assigned to `10.0.90.0/24`. Other segment addresses and routes must come from the approved lab architecture; do not invent them here.
+Exact collection methods, ports, indexes, sourcetypes, and parsing must be documented and validated. See lab-environment/deployment/telemetry-pipeline.md.
 
 ## Module dependencies
 
