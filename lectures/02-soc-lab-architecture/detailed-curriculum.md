@@ -85,14 +85,16 @@ Before publication, the corresponding lab/scenario asset must add exact steps, t
 
 **Primary assessment evidence:** LAB-02-A, LAB-02-B — see the practical activity blueprint above and the [common SOC-LAB assessment rubric](../../curriculum/assessment-rubric.md).
 
-| Learning outcome | Lesson(s) introducing/practicing/assessing | Observable assessment evidence |
+| Learning outcome | Lesson mapping (I/P/A) | Observable assessment evidence |
 |---|---|---|
-| LO-02-01 | L02-01, L02-02 | VM/network configuration record, isolation checks, resource plan, snapshot identifier. |
-| LO-02-02 | L02-02, L02-06 | Completed validation checklist, fault diagnosis log, and recovery/snapshot evidence. |
-| LO-02-03 | L02-03, L02-06 | Completed validation checklist, fault diagnosis log, and recovery/snapshot evidence. |
-| LO-02-04 | L02-04, L02-05 | Source onboarding record with sample event, observed metadata, timestamps, and limitations. |
-| LO-02-05 | L02-05, L02-06 | Completed validation checklist, fault diagnosis log, and recovery/snapshot evidence. |
-| LO-02-06 | L02-06 | Completed validation checklist, fault diagnosis log, and recovery/snapshot evidence. |
+| LO-02-01 | L02-01 (I/P), L02-02 (A) | VM/network configuration record, isolation checks, resource plan, snapshot identifier. |
+| LO-02-02 | L02-02 (I/P), L02-06 (A) | Completed validation checklist, fault diagnosis log, and recovery/snapshot evidence. |
+| LO-02-03 | L02-03 (I/P), L02-06 (A) | Completed validation checklist, fault diagnosis log, and recovery/snapshot evidence. |
+| LO-02-04 | L02-04 (I/P), L02-05 (A) | Source onboarding record with sample event, observed metadata, timestamps, and limitations. |
+| LO-02-05 | L02-05 (I/P), L02-06 (A) | Completed validation checklist, fault diagnosis log, and recovery/snapshot evidence. |
+| LO-02-06 | L02-06 (I/P/A) | Completed validation checklist, fault diagnosis log, and recovery/snapshot evidence. |
+
+**Mapping legend:** I = introduces the outcome; P = provides guided/independent practice; A = contains the observable assessment evidence. A single-lesson outcome is marked I/P/A in that lesson. These labels are the proposed instructional design and must be confirmed when the lecture and lab assets are authored.
 
 Assessment conditions:
 - The student brief must state permitted dataset/environment, time limit, allowed references, and submission format before delivery.
