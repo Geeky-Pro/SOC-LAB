@@ -33,42 +33,42 @@ By the end of this module, learners should be able to:
 - **Duration:** 60 minutes
 - **Core content:** Client/server; DNS/TLS; reverse proxy; application logs; access logs; logging gaps.
 - **Learning activity:** Map investigative questions to log sources.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed map investigative questions to log sources artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L07-02 — HTTP requests, responses, and access-log interpretation
 
 - **Duration:** 90 minutes
 - **Core content:** Methods; paths; query strings; status codes; bytes; referrer; user-agent; client IP trust boundaries.
 - **Learning activity:** Parse logs and build request summaries.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed parse logs and build request summaries artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L07-03 — Suspicious web patterns and attack indicators
 
 - **Duration:** 90 minutes
 - **Core content:** Reconnaissance; path traversal indicators; injection-like strings; auth abuse; upload anomalies; rate patterns.
 - **Learning activity:** Classify synthetic requests as benign, suspicious, or indeterminate.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed classify synthetic requests as benign, suspicious, or indeterminate artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L07-04 — Web server investigation in Splunk
 
 - **Duration:** 75 minutes
 - **Core content:** Time-bounded searches; field extraction verification; aggregation; client/request pivots.
 - **Learning activity:** Investigate a prepared web log dataset.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed investigate a prepared web log dataset artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L07-05 — Cross-source correlation and impact assessment
 
 - **Duration:** 75 minutes
 - **Core content:** Correlate firewall/Suricata, PCAP, endpoint, and web records; 4xx/5xx interpretation; impact evidence.
 - **Learning activity:** Build a multi-source request timeline.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed build a multi-source request timeline artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L07-06 — Web incident report and handoff
 
 - **Duration:** 30 minutes
 - **Core content:** Scope, confidence, evidence, recommended containment/escalation.
 - **Learning activity:** Submit concise investigation report.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed submit concise investigation report artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ## 5. Practical learning activities
 
