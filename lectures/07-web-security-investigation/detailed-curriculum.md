@@ -85,14 +85,16 @@ Before publication, the corresponding lab/scenario asset must add exact steps, t
 
 **Primary assessment evidence:** LAB-07-A, LAB-07-B — see the practical activity blueprint above and the [common SOC-LAB assessment rubric](../../curriculum/assessment-rubric.md).
 
-| Learning outcome | Lesson(s) introducing/practicing/assessing | Observable assessment evidence |
+| Learning outcome | Lesson mapping (I/P/A) | Observable assessment evidence |
 |---|---|---|
-| LO-07-01 | L07-01 | Web data-flow diagram mapping access, application, proxy, and firewall log sources. |
-| LO-07-02 | L07-02, L07-04 | Reproducible Splunk worksheet using observed fields and sample event references. |
-| LO-07-03 | L07-03, L07-05 | Cross-source request timeline with confirmed/unconfirmed impact distinction. |
-| LO-07-04 | L07-04, L07-05 | Cross-source request timeline with confirmed/unconfirmed impact distinction. |
-| LO-07-05 | L07-03, L07-05 | Cross-source request timeline with confirmed/unconfirmed impact distinction. |
-| LO-07-06 | L07-05, L07-06 | Concise web investigation report and analyst handoff with limitations. |
+| LO-07-01 | L07-01 (I/P/A) | Web data-flow diagram mapping access, application, proxy, and firewall log sources. |
+| LO-07-02 | L07-02 (I/P), L07-04 (A) | Reproducible Splunk worksheet using observed fields and sample event references. |
+| LO-07-03 | L07-03 (I/P), L07-05 (A) | Cross-source request timeline with confirmed/unconfirmed impact distinction. |
+| LO-07-04 | L07-04 (I/P), L07-05 (A) | Cross-source request timeline with confirmed/unconfirmed impact distinction. |
+| LO-07-05 | L07-03 (I/P), L07-05 (A) | Cross-source request timeline with confirmed/unconfirmed impact distinction. |
+| LO-07-06 | L07-05 (I/P), L07-06 (A) | Concise web investigation report and analyst handoff with limitations. |
+
+**Mapping legend:** I = introduces the outcome; P = provides guided/independent practice; A = contains the observable assessment evidence. A single-lesson outcome is marked I/P/A in that lesson. These labels are the proposed instructional design and must be confirmed when the lecture and lab assets are authored.
 
 Assessment conditions:
 - The student brief must state permitted dataset/environment, time limit, allowed references, and submission format before delivery.
