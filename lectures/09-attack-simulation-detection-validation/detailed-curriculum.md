@@ -19,12 +19,12 @@ By the end of this module, learners should be able to:
 
 | ID | Learning outcome | Lesson alignment | Evidence |
 |---|---|---|---|
-| LO-09-01 | Design a bounded, authorized test plan with explicit objectives, scope, safety controls, and rollback. | L09-01, L09-02, L09-03, L09-04, L09-05, L09-06 | Practical artifact |
-| LO-09-02 | Select benign or controlled emulation cases that produce observable telemetry in the isolated lab. | L09-01, L09-02, L09-03, L09-04, L09-05, L09-06 | Mapped lesson activity and assessment evidence |
-| LO-09-03 | Predict expected telemetry and detection outcomes before executing a test. | L09-01, L09-02, L09-03, L09-04, L09-05, L09-06 | Mapped lesson activity and assessment evidence |
-| LO-09-04 | Execute or analyze approved tests and compare expected versus observed results. | L09-01, L09-02, L09-03, L09-04, L09-05, L09-06 | Mapped lesson activity and assessment evidence |
-| LO-09-05 | Diagnose gaps among behavior execution, telemetry visibility, parsing, search logic, and alerting. | L09-01, L09-02, L09-03, L09-04, L09-05, L09-06 | Mapped lesson activity and assessment evidence |
-| LO-09-06 | Produce reproducible validation records and prioritized engineering recommendations. | L09-01, L09-02, L09-03, L09-04, L09-05, L09-06 | Mapped lesson activity and assessment evidence |
+| LO-09-01 | Design a bounded, authorized test plan with explicit objectives, scope, safety controls, and rollback. | L09-01, L09-02 | Test plan with target allowlist, preconditions, stop conditions, cleanup, rollback, and approval. |
+| LO-09-02 | Select benign or controlled emulation cases that produce observable telemetry in the isolated lab. | L09-03, L09-05 | Execution or supplied-evidence record with operator, timestamps, target, output, cleanup, deviations. |
+| LO-09-03 | Predict expected telemetry and detection outcomes before executing a test. | L09-04 | Pre-execution expected telemetry matrix with source, event hypothesis, field assumptions, ATT&CK version. |
+| LO-09-04 | Execute or analyze approved tests and compare expected versus observed results. | L09-05, L09-06 | Validation matrix separating execution, telemetry, parsing, search match, alert, prevention, and gaps. |
+| LO-09-05 | Diagnose gaps among behavior execution, telemetry visibility, parsing, search logic, and alerting. | L09-04, L09-06 | Validation matrix separating execution, telemetry, parsing, search match, alert, prevention, and gaps. |
+| LO-09-06 | Produce reproducible validation records and prioritized engineering recommendations. | L09-02, L09-06 | Validation matrix separating execution, telemetry, parsing, search match, alert, prevention, and gaps. |
 
 ## 4. Detailed lesson sequence
 
@@ -72,20 +72,34 @@ By the end of this module, learners should be able to:
 
 ## 5. Practical learning activities
 
-Instructor-approved, low-risk emulation or pre-captured evidence analysis; expected-versus-observed telemetry and detection validation.
+The following are curriculum-level activity blueprints, not final student lab instructions. Convert each activity into its module-specific lab/scenario asset before delivery.
 
-Activities must be delivered only within the authorized lab or with instructor-provided sanitized/synthetic artifacts. If required telemetry is unavailable, disclose the substitution and its limitations.
+| Activity ID | Learner task | Required input / environment | Expected output | Safety, cleanup, and recovery |
+|---|---|---|---|---|
+| LAB-09-A | Plan a low-risk authorized behavior test and predict telemetry. | Isolated Windows VM, approved test catalog, snapshots, allowlist, telemetry readiness record. | Approved test plan and expected-versus-observed matrix prepared before execution. | No public targets, credential theft, destructive tests, or uncontrolled malware; instructor approval. |
+| LAB-09-B | Execute approved benign test or analyze captured output, then validate visibility/detection. | Pre-approved isolated test or supplied captured evidence. | Execution/evidence record and validation matrix with stage-specific gaps. | Verify cleanup and restore snapshot; if prerequisites fail, stop and use labeled captured evidence. |
+
+Before publication, the corresponding lab/scenario asset must add exact steps, tested versions, instructor preparation, troubleshooting, reset procedure, expected outputs, and evidence-capture instructions. If a telemetry source is unavailable, use a clearly labeled instructor-provided dataset and record the substitution.
 
 ## 6. Assessment plan
 
-**Primary assessment evidence:** Approved test plan, expected telemetry matrix, execution/evidence record, validation result, and gap recommendations.
+**Primary assessment evidence:** LAB-09-A, LAB-09-B — see the practical activity blueprint above and the [common SOC-LAB assessment rubric](../../curriculum/assessment-rubric.md).
 
-Assessment design rules:
-- Map every scored task to one or more LO identifiers.
-- Require source references, timestamps where available, reasoning, limitations, and uncertainty.
-- Score analytical process and evidence quality, not merely the final verdict.
-- Do not require a single severity/verdict when multiple evidence-supported conclusions are reasonable.
-- Keep instructor answer keys separate from student-facing instructions.
+| Learning outcome | Lesson(s) introducing/practicing/assessing | Observable assessment evidence |
+|---|---|---|
+| LO-09-01 | L09-01, L09-02 | Test plan with target allowlist, preconditions, stop conditions, cleanup, rollback, and approval. |
+| LO-09-02 | L09-03, L09-05 | Execution or supplied-evidence record with operator, timestamps, target, output, cleanup, deviations. |
+| LO-09-03 | L09-04 | Pre-execution expected telemetry matrix with source, event hypothesis, field assumptions, ATT&CK version. |
+| LO-09-04 | L09-05, L09-06 | Validation matrix separating execution, telemetry, parsing, search match, alert, prevention, and gaps. |
+| LO-09-05 | L09-04, L09-06 | Validation matrix separating execution, telemetry, parsing, search match, alert, prevention, and gaps. |
+| LO-09-06 | L09-02, L09-06 | Validation matrix separating execution, telemetry, parsing, search match, alert, prevention, and gaps. |
+
+Assessment conditions:
+- The student brief must state permitted dataset/environment, time limit, allowed references, and submission format before delivery.
+- Score only rubric criteria relevant to the outcomes assessed; weighting and pass threshold remain pending Project Owner decision.
+- Require source/time references, reasoning, alternatives, uncertainty, and limitations where relevant.
+- Identify individual versus team-produced evidence; team output alone does not establish individual mastery.
+- Keep instructor answer keys and expected reasoning separate from student-facing materials.
 
 ## 7. Lab and resource dependencies
 
@@ -118,7 +132,7 @@ The proposed 8-hour allocation is a planning estimate. It must be checked agains
 
 ## 11. References
 
-Use authoritative, versioned sources appropriate to the lesson. Record the publication/version and access date during content development. Do not add references that were not consulted or that do not support the relevant claims.
+Use the lesson-mapped [Module Reference Catalog](../../curriculum/references/module-reference-catalog.md) as the research starting point. During lesson production, record the exact page/edition and access date for every technical claim. The catalog does not imply that lab-specific versions or configurations have been validated.
 
 ## 12. Change history
 
