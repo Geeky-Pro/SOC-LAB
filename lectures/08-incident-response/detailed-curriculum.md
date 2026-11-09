@@ -85,14 +85,16 @@ Before publication, the corresponding lab/scenario asset must add exact steps, t
 
 **Primary assessment evidence:** LAB-08-A, LAB-08-B — see the practical activity blueprint above and the [common SOC-LAB assessment rubric](../../curriculum/assessment-rubric.md).
 
-| Learning outcome | Lesson(s) introducing/practicing/assessing | Observable assessment evidence |
+| Learning outcome | Lesson mapping (I/P/A) | Observable assessment evidence |
 |---|---|---|
-| LO-08-01 | L08-01, L08-02 | Incident intake, scope, severity/priority rationale, confidence, and escalation record. |
-| LO-08-02 | L08-02, L08-03, L08-06 | Tabletop incident record, team decision log, inject responses, individual rationale, and after-action review. |
-| LO-08-03 | L08-02, L08-06 | Tabletop incident record, team decision log, inject responses, individual rationale, and after-action review. |
-| LO-08-04 | L08-03, L08-06 | Tabletop incident record, team decision log, inject responses, individual rationale, and after-action review. |
-| LO-08-05 | L08-04, L08-06 | Tabletop incident record, team decision log, inject responses, individual rationale, and after-action review. |
-| LO-08-06 | L08-05, L08-06 | Tabletop incident record, team decision log, inject responses, individual rationale, and after-action review. |
+| LO-08-01 | L08-01 (I/P), L08-02 (A) | Incident intake, scope, severity/priority rationale, confidence, and escalation record. |
+| LO-08-02 | L08-02 (I), L08-03 (P), L08-06 (A) | Tabletop incident record, team decision log, inject responses, individual rationale, and after-action review. |
+| LO-08-03 | L08-02 (I/P), L08-06 (A) | Tabletop incident record, team decision log, inject responses, individual rationale, and after-action review. |
+| LO-08-04 | L08-03 (I/P), L08-06 (A) | Tabletop incident record, team decision log, inject responses, individual rationale, and after-action review. |
+| LO-08-05 | L08-04 (I/P), L08-06 (A) | Tabletop incident record, team decision log, inject responses, individual rationale, and after-action review. |
+| LO-08-06 | L08-05 (I/P), L08-06 (A) | Tabletop incident record, team decision log, inject responses, individual rationale, and after-action review. |
+
+**Mapping legend:** I = introduces the outcome; P = provides guided/independent practice; A = contains the observable assessment evidence. A single-lesson outcome is marked I/P/A in that lesson. These labels are the proposed instructional design and must be confirmed when the lecture and lab assets are authored.
 
 Assessment conditions:
 - The student brief must state permitted dataset/environment, time limit, allowed references, and submission format before delivery.
