@@ -85,14 +85,16 @@ Before publication, the corresponding lab/scenario asset must add exact steps, t
 
 **Primary assessment evidence:** LAB-04-A, LAB-04-B — see the practical activity blueprint above and the [common SOC-LAB assessment rubric](../../curriculum/assessment-rubric.md).
 
-| Learning outcome | Lesson(s) introducing/practicing/assessing | Observable assessment evidence |
+| Learning outcome | Lesson mapping (I/P/A) | Observable assessment evidence |
 |---|---|---|
-| LO-04-01 | L04-01, L04-02 | Header trace with Received-chain interpretation, authentication results, and trust limitations. |
-| LO-04-02 | L04-02, L04-05 | Phishing disposition with exposure, corroborating indicators, alternative explanation, and confidence. |
-| LO-04-03 | L04-02, L04-03, L04-05 | Phishing disposition with exposure, corroborating indicators, alternative explanation, and confidence. |
-| LO-04-04 | L04-04, L04-06 | Mailpit local trace or supplied sanitized .eml analysis; state that simulation is not external delivery. |
-| LO-04-05 | L04-03, L04-04, L04-05, L04-06 | Mailpit local trace or supplied sanitized .eml analysis; state that simulation is not external delivery. |
-| LO-04-06 | L04-05, L04-06 | Mailpit local trace or supplied sanitized .eml analysis; state that simulation is not external delivery. |
+| LO-04-01 | L04-01 (I/P), L04-02 (A) | Header trace with Received-chain interpretation, authentication results, and trust limitations. |
+| LO-04-02 | L04-02 (I/P), L04-05 (A) | Phishing disposition with exposure, corroborating indicators, alternative explanation, and confidence. |
+| LO-04-03 | L04-02 (I), L04-03 (P), L04-05 (A) | Phishing disposition with exposure, corroborating indicators, alternative explanation, and confidence. |
+| LO-04-04 | L04-04 (I/P), L04-06 (A) | Mailpit local trace or supplied sanitized .eml analysis; state that simulation is not external delivery. |
+| LO-04-05 | L04-03 (I), L04-04 (P), L04-05 (P), L04-06 (A) | Mailpit local trace or supplied sanitized .eml analysis; state that simulation is not external delivery. |
+| LO-04-06 | L04-05 (I/P), L04-06 (A) | Mailpit local trace or supplied sanitized .eml analysis; state that simulation is not external delivery. |
+
+**Mapping legend:** I = introduces the outcome; P = provides guided/independent practice; A = contains the observable assessment evidence. A single-lesson outcome is marked I/P/A in that lesson. These labels are the proposed instructional design and must be confirmed when the lecture and lab assets are authored.
 
 Assessment conditions:
 - The student brief must state permitted dataset/environment, time limit, allowed references, and submission format before delivery.
