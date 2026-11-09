@@ -85,14 +85,16 @@ Before publication, the corresponding lab/scenario asset must add exact steps, t
 
 **Primary assessment evidence:** LAB-05-A, LAB-05-B — see the practical activity blueprint above and the [common SOC-LAB assessment rubric](../../curriculum/assessment-rubric.md).
 
-| Learning outcome | Lesson(s) introducing/practicing/assessing | Observable assessment evidence |
+| Learning outcome | Lesson mapping (I/P/A) | Observable assessment evidence |
 |---|---|---|
-| LO-05-01 | L05-01, L05-02 | Protocol worksheet with packet/time references and TCP/UDP/DNS/HTTP/TLS interpretation. |
-| LO-05-02 | L05-02, L05-04 | DNS/web/TLS timeline with encrypted-payload limitations. |
-| LO-05-03 | L05-03 | PCAP analysis record with scope, filters, packet references, and sanitized export if required. |
-| LO-05-04 | L05-04, L05-05 | Traffic-pattern comparison, baseline, competing hypotheses, and confidence. |
-| LO-05-05 | L05-05, L05-06 | Network investigation report correlating PCAP with available firewall/endpoint/SIEM records. |
-| LO-05-06 | L05-03, L05-06 | Network investigation report correlating PCAP with available firewall/endpoint/SIEM records. |
+| LO-05-01 | L05-01 (I/P), L05-02 (A) | Protocol worksheet with packet/time references and TCP/UDP/DNS/HTTP/TLS interpretation. |
+| LO-05-02 | L05-02 (I/P), L05-04 (A) | DNS/web/TLS timeline with encrypted-payload limitations. |
+| LO-05-03 | L05-03 (I/P/A) | PCAP analysis record with scope, filters, packet references, and sanitized export if required. |
+| LO-05-04 | L05-04 (I/P), L05-05 (A) | Traffic-pattern comparison, baseline, competing hypotheses, and confidence. |
+| LO-05-05 | L05-05 (I/P), L05-06 (A) | Network investigation report correlating PCAP with available firewall/endpoint/SIEM records. |
+| LO-05-06 | L05-03 (I/P), L05-06 (A) | Network investigation report correlating PCAP with available firewall/endpoint/SIEM records. |
+
+**Mapping legend:** I = introduces the outcome; P = provides guided/independent practice; A = contains the observable assessment evidence. A single-lesson outcome is marked I/P/A in that lesson. These labels are the proposed instructional design and must be confirmed when the lecture and lab assets are authored.
 
 Assessment conditions:
 - The student brief must state permitted dataset/environment, time limit, allowed references, and submission format before delivery.
