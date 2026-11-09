@@ -1,0 +1,1986 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>أساسيات أنظمة SIEM — SIEM Fundamentals</title>
+  <meta name="description" content="كشف التهديدات والاستجابة للحوادث — أساسيات أنظمة إدارة الأحداث والمعلومات الأمنية (SIEM): جمع السجلات، توحيد البيانات، الارتباط الأمني، والتنبيهات." />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=المسافة (Space)+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue-100: #c2d6ff;
+      --blue-200: #93b4fd;
+      --blue-300: #6b93f7;
+      --blue-400: #4a78f0;
+      --blue-500: #3563e9;
+      --blue-600: #2a4ec4;
+      --blue-700: #1e3a9e;
+      --blue-800: #152c78;
+      --blue-900: #0d1d52;
+      --purple-100: #dfc8ff;
+      --purple-200: #c5a0fc;
+      --purple-300: #a87bf5;
+      --purple-400: #8b5cf6;
+      --purple-500: #7c3aed;
+      --purple-600: #6626c9;
+      --purple-700: #4f1d96;
+      --purple-800: #3b1578;
+      --purple-900: #270f52;
+      --accent-green: #34d399;
+      --accent-red: #f87171;
+      --accent-amber: #fbbf24;
+      --bg: #03050a;
+      --bg-surface: #070a14;
+      --bg-card: rgba(8, 12, 24, 0.75);
+      --bg-card-hover: rgba(14, 20, 36, 0.9);
+      --text-primary: #e8ecf4;
+      --text-secondary: #a0aec4;
+      --text-muted: #5c6b84;
+      --text-dim: #3e4a62;
+      --border: rgba(99, 130, 241, 0.1);
+      --border-glow: rgba(99, 130, 241, 0.22);
+      --shadow-sm: 0 1px 4px rgba(0,0,0,0.25);
+      --shadow-md: 0 4px 20px rgba(0,0,0,0.35);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.4);
+      --gradient-main: linear-gradient(135deg, var(--blue-500), var(--purple-500));
+      --gradient-soft: linear-gradient(135deg, rgba(53,99,233,0.12), rgba(124,58,237,0.12));
+      --gradient-card: linear-gradient(160deg, rgba(16,22,42,0.8), rgba(30,20,70,0.35));
+      --font-heading: 'Cairo', 'المسافة (Space) Grotesk', system-ui, sans-serif;
+      --font-body: 'Cairo', 'Outfit', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    html { font-size: 18px; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text-primary);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===== Static Background ===== */
+    .circuit-bg {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none; opacity: 0.03; overflow: hidden;
+    }
+
+    .orb {
+      position: fixed; border-radius: 50%; filter: blur(100px);
+      z-index: 0; pointer-events: none;
+    }
+    .orb--1 { width: 550px; height: 550px; top: -200px; right: -140px; background: radial-gradient(circle, rgba(53,99,233,0.12) 0%, rgba(124,58,237,0.06) 50%, transparent 70%); }
+    .orb--2 { width: 480px; height: 480px; bottom: -180px; left: -100px; background: radial-gradient(circle, rgba(124,58,237,0.09) 0%, rgba(53,99,233,0.04) 50%, transparent 70%); }
+    .orb--3 { width: 300px; height: 300px; top: 45%; left: 50%; background: radial-gradient(circle, rgba(53,99,233,0.06) 0%, transparent 65%); }
+
+    .shield-watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 0; pointer-events: none; opacity: 0.02; }
+
+    .side-accent { position: fixed; left: 0; top: 0; bottom: 0; width: 4px; background: var(--gradient-main); z-index: 10; }
+
+    /* ===== Top Header ===== */
+    .top-header {
+      position: fixed; top: 0; left: 4px; right: 0; height: 40px;
+      background: rgba(3, 5, 10, 0.85); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; z-index: 9;
+    }
+    .header-title {
+      font-family: var(--font-heading); font-size: 0.72rem; font-weight: 600;
+      color: var(--text-secondary); letter-spacing: 0.02em;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .header-title .title-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--blue-500); box-shadow: 0 0 8px rgba(53, 99, 233, 0.5); }
+    .header-title .title-sep { color: var(--text-dim); font-weight: 400; }
+    #header-slide-title { color: var(--text-muted); font-weight: 400; font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.04em; }
+    .header-right { display: flex; align-items: center; gap: 14px; }
+
+    /* ===== Lab Badge ===== */
+    .lab-badge {
+      font-family: var(--font-mono); font-size: 0.6rem; font-weight: 600;
+      padding: 0.2em 0.65em; border-radius: 5px; letter-spacing: 0.06em;
+      background: rgba(53,99,233,0.15); color: var(--blue-200);
+      border: 1px solid rgba(53,99,233,0.2);
+    }
+
+    /* ===== Progress Bar ===== */
+    #progress-bar {
+      position: fixed; top: 40px; left: 4px; height: 2px;
+      background: var(--gradient-main);
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 10; border-radius: 0 2px 2px 0;
+      box-shadow: 0 0 14px rgba(99, 102, 241, 0.25);
+    }
+
+    /* ===== Slide Container ===== */
+    #presentation { position: relative; width: 100%; height: 100%; z-index: 1; }
+
+    .slide {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 72px 100px 68px 100px;
+      opacity: 0; transform: translateY(16px);
+      transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+      overflow-y: auto; overflow-x: hidden;
+    }
+    .slide.active { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .slide-inner { max-width: 1060px; width: 100%; margin: auto 0; }
+
+    /* ===== Custom Scrollbar ===== */
+    .slide::-webkit-scrollbar { width: 8px; }
+    .slide::-webkit-scrollbar-track { background: rgba(8, 12, 24, 0.2); }
+    .slide::-webkit-scrollbar-thumb { background: rgba(99, 130, 241, 0.25); border-radius: 4px; }
+    .slide::-webkit-scrollbar-thumb:hover { background: rgba(99, 130, 241, 0.5); }
+
+    /* ===== Typography ===== */
+    h1 { font-family: var(--font-heading); font-size: 3rem; font-weight: 700; line-height: 1.1; margin-bottom: 0.4em; letter-spacing: -0.03em; }
+    h2 { font-family: var(--font-heading); font-size: 2.05rem; font-weight: 700; line-height: 1.18; margin-bottom: 0.5em; letter-spacing: -0.02em; }
+
+    .section-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: var(--font-mono); font-size: 0.66rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 0.9em;
+      padding: 0.35em 0.9em; border-radius: 6px;
+      background: var(--gradient-soft); border: 1px solid var(--border); color: var(--blue-300);
+    }
+    .section-label .label-icon { font-size: 0.8em; }
+
+    p, li { font-size: 1.08rem; line-height: 1.72; color: var(--text-secondary); }
+    ul { list-style: none; padding: 0; }
+    ul li { position: relative; padding-left: 1.8em; margin-bottom: 0.6em; }
+    ul li::before { content: ''; position: absolute; left: 0; top: 0.5em; width: 10px; height: 10px; border-radius: 3px; border: 2px solid var(--blue-600); background: transparent; transform: rotate(45deg); }
+    ul li::after { content: ''; position: absolute; left: 3px; top: calc(0.5em + 3px); width: 4px; height: 4px; border-radius: 1px; background: var(--gradient-main); transform: rotate(45deg); }
+
+    .gradient-text { background: var(--gradient-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .blue   { color: var(--blue-300); }
+    .purple { color: var(--purple-300); }
+    .green  { color: var(--accent-green); }
+    .red    { color: var(--accent-red); }
+    .amber  { color: var(--accent-amber); }
+    .mono   { font-family: var(--font-mono); font-size: 0.88em; }
+    .muted  { color: var(--text-muted); }
+    .dim    { color: var(--text-dim); }
+    .small  { font-size: 0.8rem; }
+
+    /* ===== Tags ===== */
+    .tag { display: inline-flex; align-items: center; gap: 5px; padding: 0.2em 0.7em; border-radius: 6px; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 600; letter-spacing: 0.04em; }
+    .tag--blue   { background: rgba(53,99,233,0.15);  color: var(--blue-200);   border: 1px solid rgba(53,99,233,0.2); }
+    .tag--purple { background: rgba(124,58,237,0.15); color: var(--purple-200); border: 1px solid rgba(124,58,237,0.2); }
+    .tag--red    { background: rgba(239,68,68,0.12);  color: #fca5a5;           border: 1px solid rgba(239,68,68,0.15); }
+    .tag--amber  { background: rgba(245,158,11,0.12); color: #fcd34d;           border: 1px solid rgba(245,158,11,0.15); }
+    .tag--green  { background: rgba(34,197,94,0.12);  color: #86efac;           border: 1px solid rgba(34,197,94,0.15); }
+    .tag-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+    /* ===== Cards ===== */
+    .card-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 1.1em; }
+    .card-row--2 { grid-template-columns: repeat(2, 1fr); }
+    .card-row--3 { grid-template-columns: repeat(3, 1fr); }
+    .card-row--4 { grid-template-columns: repeat(4, 1fr); }
+
+    .card {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.3em 1.35em; box-shadow: var(--shadow-sm);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative; overflow: hidden;
+    }
+    .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--gradient-main); opacity: 0; transition: opacity 0.35s ease; }
+    .card:hover { background: var(--bg-card-hover); box-shadow: var(--shadow-lg); transform: translateY(-3px); border-color: var(--border-glow); }
+    .card:hover::before { opacity: 1; }
+    .card h4 { font-family: var(--font-heading); font-size: 0.96rem; font-weight: 600; margin-bottom: 0.35em; color: var(--text-primary); }
+    .card p  { font-size: 0.86rem; color: var(--text-muted); line-height: 1.55; }
+    .card-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; margin-bottom: 0.75em; }
+    .card-icon--blue   { background: rgba(53,99,233,0.12);  border: 1px solid rgba(53,99,233,0.15); }
+    .card-icon--purple { background: rgba(124,58,237,0.12); border: 1px solid rgba(124,58,237,0.15); }
+    .card-icon--green  { background: rgba(52,211,153,0.12); border: 1px solid rgba(52,211,153,0.15); }
+    .card-icon--amber  { background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.15); }
+    .card-icon--red    { background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.15); }
+    .card-icon--mixed  { background: var(--gradient-soft); border: 1px solid var(--border); }
+
+    /* ===== Flow Diagram ===== */
+    .flow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 1.1em; }
+    .flow-step {
+      background: var(--bg-card); backdrop-filter: blur(8px);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 0.6em 1.1em; font-size: 0.88rem; font-weight: 500;
+      box-shadow: var(--shadow-sm); white-space: nowrap; transition: all 0.3s ease;
+    }
+    .flow-step:hover { box-shadow: var(--shadow-md); border-color: var(--border-glow); transform: translateY(-1px); }
+    .flow-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 6px; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600; margin-right: 6px; }
+    .flow-num--1 { background: rgba(53,99,233,0.18);  color: var(--blue-200); }
+    .flow-num--2 { background: rgba(124,58,237,0.18); color: var(--purple-200); }
+    .flow-num--3 { background: rgba(239,68,68,0.14);  color: #fca5a5; }
+    .flow-num--4 { background: rgba(245,158,11,0.14); color: #fcd34d; }
+    .flow-arrow { font-size: 1.1rem; color: var(--blue-600); }
+
+    /* ===== Title Slide ===== */
+    .slide--title { text-align: center; }
+    .slide--title h1 { font-size: 3.3rem; }
+    .slide--title .subtitle { font-size: 1.1rem; color: var(--text-muted); margin-top: 0.15em; max-width: 580px; margin-left: auto; margin-right: auto; }
+    .divider { width: 50px; height: 4px; background: var(--gradient-main); border-radius: 3px; margin: 1em auto; position: relative; }
+    .divider::after { content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 80px; height: 20px; background: var(--gradient-main); filter: blur(16px); opacity: 0.25; border-radius: 10px; }
+
+    /* ===== Instructor Line ===== */
+    .instructor-line {
+      margin-top: 1.6em;
+      font-size: 0.88rem; color: var(--text-muted);
+      font-family: var(--font-body); letter-spacing: 0.01em;
+    }
+    .instructor-line span { color: var(--text-secondary); font-weight: 500; }
+
+    /* ===== Info Box ===== */
+    .info-box {
+      display: flex; align-items: flex-start; gap: 1em;
+      background: var(--gradient-soft); border: 1px solid var(--border-glow);
+      border-radius: 12px; padding: 1em 1.3em; margin-top: 1.2em;
+    }
+    .info-box-icon { flex-shrink: 0; margin-top: 0.1em; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; }
+    .info-box-icon svg { width: 20px; height: 20px; }
+    .info-box p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
+    .info-box strong { color: var(--blue-300); }
+
+    /* ===== Warning Box (red variant of info-box) ===== */
+    .warn-box {
+      display: flex; align-items: flex-start; gap: 1em;
+      background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25);
+      border-radius: 12px; padding: 1em 1.3em; margin-top: 1.2em;
+    }
+    .warn-box .info-box-icon svg { stroke: var(--accent-red); }
+    .warn-box p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
+    .warn-box strong { color: var(--accent-red); }
+
+    /* ===== Cycle Row ===== */
+    .cycle-row {
+      display: flex; align-items: stretch; justify-content: center;
+      gap: 0; margin-top: 1.4em; border-radius: 14px; overflow: hidden;
+      border: 1px solid var(--border); box-shadow: var(--shadow-md);
+    }
+    .cycle-item {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 1.2em 0.8em; text-align: center;
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      position: relative; transition: background 0.3s ease;
+      border-right: 1px solid var(--border);
+    }
+    .cycle-item:last-child { border-right: none; }
+    .cycle-item:hover { background: var(--bg-card-hover); }
+    .cycle-item::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+    .cycle-item:hover::before { opacity: 1; }
+    .ci-1::before { background: linear-gradient(90deg, var(--blue-500), var(--blue-400)); }
+    .ci-2::before { background: linear-gradient(90deg, var(--blue-600), var(--blue-500)); }
+    .ci-3::before { background: linear-gradient(90deg, var(--purple-600), var(--purple-500)); }
+    .ci-4::before { background: linear-gradient(90deg, var(--accent-red), #fca5a5); }
+    .ci-5::before { background: linear-gradient(90deg, var(--purple-500), var(--blue-400)); }
+    .ci-6::before { background: linear-gradient(90deg, var(--accent-green), #6ee7b7); }
+
+    .cycle-num {
+      width: 28px; height: 28px; border-radius: 8px; display: flex;
+      align-items: center; justify-content: center; font-family: var(--font-mono);
+      font-size: 0.7rem; font-weight: 700; margin-bottom: 0.6em;
+    }
+    .cycle-num--1 { background: rgba(53,99,233,0.2);  color: var(--blue-200); }
+    .cycle-num--2 { background: rgba(53,99,233,0.16); color: var(--blue-300); }
+    .cycle-num--3 { background: rgba(124,58,237,0.18); color: var(--purple-200); }
+    .cycle-num--4 { background: rgba(248,113,113,0.18); color: #fca5a5; }
+    .cycle-num--5 { background: rgba(139,92,246,0.2); color: var(--purple-200); }
+    .cycle-num--6 { background: rgba(52,211,153,0.18); color: var(--accent-green); }
+
+    .cycle-label {
+      font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700;
+      color: var(--text-primary); margin-bottom: 0.3em;
+    }
+    .cycle-desc { font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; }
+
+    /* ===== Two-column layout ===== */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 1em; }
+    .col-block {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.3em 1.4em; position: relative; overflow: hidden;
+    }
+    .col-block::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+    .col-block--blue::before   { background: linear-gradient(90deg, var(--blue-500), transparent); }
+    .col-block--purple::before { background: linear-gradient(90deg, var(--purple-500), transparent); }
+    .col-block--green::before  { background: linear-gradient(90deg, var(--accent-green), transparent); }
+    .col-block--red::before    { background: linear-gradient(90deg, var(--accent-red), transparent); }
+    .col-block h4 { font-family: var(--font-heading); font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.8em; }
+    .col-block ul { padding: 0; }
+    .col-block ul li { font-size: 0.88rem; margin-bottom: 0.45em; }
+
+    /* ===== Methodology Steps ===== */
+    .method-step { display: flex; align-items: flex-start; gap: 0.8em; margin-bottom: 1em; }
+    .method-step:last-child { margin-bottom: 0; }
+    .method-num {
+      flex-shrink: 0; width: 26px; height: 26px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700;
+      background: rgba(53,99,233,0.15); color: var(--blue-200);
+      border: 1px solid rgba(53,99,233,0.2); margin-top: 0.1em;
+    }
+    .method-step ul { margin-top: 0.2em; }
+    .method-step ul li { font-size: 0.84rem; margin-bottom: 0.3em; }
+
+    /* ===== Model / Profile Cards ===== */
+    .model-card {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 16px;
+      padding: 1.6em 1.5em; box-shadow: var(--shadow-md);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative; overflow: hidden;
+      display: flex; flex-direction: column; gap: 0.7em;
+    }
+    .model-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gradient-main); opacity: 0; transition: opacity 0.35s ease; }
+    .model-card:hover { background: var(--bg-card-hover); box-shadow: var(--shadow-lg); transform: translateY(-4px); border-color: var(--border-glow); }
+    .model-card:hover::before { opacity: 1; }
+    .model-card .model-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .model-card h4 { font-family: var(--font-heading); font-size: 1.0rem; font-weight: 700; color: var(--text-primary); }
+    .model-card p  { font-size: 0.86rem; color: var(--text-muted); line-height: 1.6; }
+    .model-card .model-tag { align-self: flex-start; }
+
+    /* ===== Case Study Card ===== */
+    .case-card {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 16px;
+      padding: 1.4em 1.5em; box-shadow: var(--shadow-md);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative; overflow: hidden; cursor: pointer;
+    }
+    .case-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gradient-main); opacity: 0.6; }
+    .case-card:hover { background: var(--bg-card-hover); box-shadow: var(--shadow-lg); transform: translateY(-4px); border-color: var(--border-glow); }
+    .case-card .case-year { font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: var(--blue-300); letter-spacing: 0.03em; margin-bottom: 0.5em; }
+    .case-card h4 { font-family: var(--font-heading); font-size: 1.05rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.5em; }
+    .case-card p { font-size: 0.84rem; color: var(--text-muted); line-height: 1.55; }
+    .case-card .case-impact { margin-top: 0.7em; padding-top: 0.7em; border-top: 1px solid var(--border); font-size: 0.78rem; color: var(--accent-red); font-weight: 600; }
+
+    /* ===== Case Study Detail Layout ===== */
+    .case-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 1em; flex-wrap: wrap; }
+    .case-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+    .case-stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 1.1em; }
+    .case-stat {
+      background: var(--gradient-card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1em 1.1em; text-align: center;
+    }
+    .case-stat .stat-value { font-family: var(--font-heading); font-size: 1.5rem; font-weight: 700; color: var(--text-primary); }
+    .case-stat .stat-value.red { color: var(--accent-red); }
+    .case-stat .stat-value.amber { color: var(--accent-amber); }
+    .case-stat .stat-value.blue { color: var(--blue-300); }
+    .case-stat .stat-label { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.3em; letter-spacing: 0.03em; }
+
+    .timeline-mini { display: flex; flex-direction: column; gap: 8px; margin-top: 1em; }
+    .tl-mini-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      background: var(--gradient-card); backdrop-filter: blur(12px);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 0.65em 1em; transition: all 0.3s ease;
+    }
+    .tl-mini-item:hover { border-color: var(--border-glow); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .tl-mini-time { font-family: var(--font-mono); font-size: 0.7rem; color: var(--blue-300); flex-shrink: 0; min-width: 88px; padding-top: 0.15em; }
+    .tl-mini-item p { font-size: 0.85rem; margin: 0; color: var(--text-secondary); }
+    .tl-mini-item strong { color: var(--text-primary); }
+
+    /* ===== Benefit grid (checklist) ===== */
+    .benefit-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 1em; }
+    .benefit-item {
+      background: var(--gradient-card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 0.8em 1em;
+      display: flex; align-items: center; gap: 10px;
+      transition: all 0.3s ease;
+    }
+    .benefit-item:hover { border-color: var(--border-glow); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .benefit-check {
+      width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0;
+      background: rgba(53,99,233,0.15); border: 1px solid rgba(53,99,233,0.2);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .benefit-check svg { width: 12px; height: 12px; }
+    .benefit-item span { font-size: 0.85rem; color: var(--text-secondary); }
+
+    /* ===== Bottom Bar ===== */
+    #bottom-bar {
+      position: fixed; bottom: 0; left: 4px; right: 0; height: 46px;
+      display: flex; align-items: center; justify-content: space-between; padding: 0 24px;
+      z-index: 10; background: rgba(3, 5, 10, 0.85); backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border);
+    }
+    .bottom-left { display: flex; align-items: center; gap: 14px; }
+    #slide-counter { font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-muted); letter-spacing: 0.04em; }
+    .nav-controls { display: flex; gap: 6px; }
+    .nav-btn {
+      background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary);
+      border-radius: 8px; width: 36px; height: 30px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 0.82rem; transition: all 0.25s ease; box-shadow: var(--shadow-sm);
+    }
+    .nav-btn:hover { background: var(--bg-card-hover); color: var(--blue-300); border-color: var(--border-glow); box-shadow: var(--shadow-md); }
+
+    /* ===== Slide element entrance animations ===== */
+    .slide.active li, .slide.active .card, .slide.active .flow-step, .slide.active .model-card,
+    .slide.active .cycle-item, .slide.active .col-block, .slide.active .case-card,
+    .slide.active .case-stat, .slide.active .tl-mini-item, .slide.active .benefit-item {
+      animation: fadeUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+    }
+    .slide.active li:nth-child(1), .slide.active .card:nth-child(1), .slide.active .flow-step:nth-child(1), .slide.active .model-card:nth-child(1), .slide.active .cycle-item:nth-child(1), .slide.active .col-block:nth-child(1), .slide.active .case-card:nth-child(1), .slide.active .case-stat:nth-child(1), .slide.active .tl-mini-item:nth-child(1), .slide.active .benefit-item:nth-child(1) { animation-delay: 0.06s; }
+    .slide.active li:nth-child(2), .slide.active .card:nth-child(2), .slide.active .flow-step:nth-child(2), .slide.active .model-card:nth-child(2), .slide.active .cycle-item:nth-child(2), .slide.active .col-block:nth-child(2), .slide.active .case-card:nth-child(2), .slide.active .case-stat:nth-child(2), .slide.active .tl-mini-item:nth-child(2), .slide.active .benefit-item:nth-child(2) { animation-delay: 0.12s; }
+    .slide.active li:nth-child(3), .slide.active .card:nth-child(3), .slide.active .flow-step:nth-child(3), .slide.active .model-card:nth-child(3), .slide.active .cycle-item:nth-child(3), .slide.active .col-block:nth-child(3), .slide.active .case-card:nth-child(3), .slide.active .case-stat:nth-child(3), .slide.active .tl-mini-item:nth-child(3), .slide.active .benefit-item:nth-child(3) { animation-delay: 0.18s; }
+    .slide.active li:nth-child(4), .slide.active .card:nth-child(4), .slide.active .flow-step:nth-child(4), .slide.active .cycle-item:nth-child(4), .slide.active .case-card:nth-child(4), .slide.active .tl-mini-item:nth-child(4), .slide.active .benefit-item:nth-child(4) { animation-delay: 0.24s; }
+    .slide.active li:nth-child(5), .slide.active .card:nth-child(5), .slide.active .flow-step:nth-child(5), .slide.active .tl-mini-item:nth-child(5), .slide.active .benefit-item:nth-child(5) { animation-delay: 0.30s; }
+    .slide.active li:nth-child(6), .slide.active .flow-step:nth-child(6), .slide.active .tl-mini-item:nth-child(6), .slide.active .benefit-item:nth-child(6) { animation-delay: 0.36s; }
+    .slide.active li:nth-child(7)  { animation-delay: 0.42s; }
+    .slide.active li:nth-child(8)  { animation-delay: 0.48s; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* =========================================================
+       MAIL AGENTS — Bob to Alice journey diagram
+       ========================================================= */
+    .mail-actor {
+      position: absolute;
+      display: flex; flex-direction: column; align-items: center;
+      width: 95px; text-align: center; z-index: 2;
+    }
+    .mail-actor-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 0.5em; box-shadow: var(--shadow-sm);
+    }
+    .mail-actor-icon--person { background: rgba(53,99,233,0.14); border: 1px solid rgba(53,99,233,0.22); }
+    .mail-actor-icon--server { background: rgba(124,58,237,0.14); border: 1px solid rgba(124,58,237,0.22); }
+    .mail-actor-label { font-family: var(--font-heading); font-size: 0.74rem; font-weight: 600; color: var(--text-primary); line-height: 1.35; }
+    .mail-actor-label .dim { font-family: var(--font-body); font-weight: 400; font-size: 0.92em; }
+    .mail-actor-tag { margin-top: 0.5em; }
+    .mail-proto-label {
+      position: absolute; font-family: var(--font-mono); font-size: 0.68rem;
+      color: var(--blue-300); white-space: nowrap; font-weight: 600; z-index: 2;
+    }
+    .mail-relay-label {
+      position: absolute; font-family: var(--font-mono); font-size: 0.62rem;
+      color: var(--text-dim); text-align: center; line-height: 1.4; z-index: 1; width: 140px;
+    }
+
+    /* =========================================================
+       ANIMATED ACTOR / PACKET WORKFLOW DIAGRAMS (Lab2 style)
+       ========================================================= */
+    .anim-container {
+      position: relative;
+      width: 100%; max-width: 900px;
+      margin: 1.2em auto 0;
+      background: rgba(8, 12, 24, 0.6);
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: inset 0 0 50px rgba(0,0,0,0.4);
+    }
+    .anim-actor {
+      position: absolute;
+      padding: 0.7rem 0.6rem;
+      background: rgba(14, 20, 36, 0.95);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+      width: 140px;
+      min-height: 70px;
+      z-index: 2;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      color: var(--text-primary);
+    }
+    .anim-actor.actor-client   { border-color: var(--blue-400); box-shadow: 0 0 18px rgba(74,120,240,0.15); }
+    .anim-actor.actor-smtp     { border-color: var(--purple-500); box-shadow: 0 0 18px rgba(124,58,237,0.15); }
+    .anim-actor.actor-dns      { border-color: var(--accent-amber); box-shadow: 0 0 18px rgba(251,191,36,0.15); }
+    .anim-actor.actor-recv     { border-color: var(--blue-500); box-shadow: 0 0 18px rgba(53,99,233,0.15); }
+    .anim-actor.actor-attacker { border-color: var(--accent-red); box-shadow: 0 0 18px rgba(248,113,113,0.15); }
+    .anim-actor.actor-victim   { border-color: var(--accent-green); box-shadow: 0 0 18px rgba(52,211,153,0.15); }
+    .anim-actor.actor-server   { border-color: var(--blue-400); box-shadow: 0 0 18px rgba(74,120,240,0.15); }
+
+    .anim-data-store {
+      min-height: 36px; display: flex; align-items: stretch; justify-content: center; width: 100%;
+    }
+    .anim-data-store::after {
+      content: attr(data-content);
+      display: flex; align-items: center; justify-content: center;
+      padding: 5px; border-radius: 4px; font-size: 0.62rem; font-weight: 500;
+      width: 100%; border: 1px dashed var(--text-dim);
+      background: rgba(1, 4, 9, 0.5); color: var(--text-muted);
+      transition: all 0.3s ease; white-space: pre-wrap; line-height: 1.4;
+    }
+
+    .anim-packet {
+      position: absolute; left: 0; top: 0;
+      padding: 0.4rem 0.8rem;
+      background: rgba(14, 20, 36, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      white-space: nowrap;
+      z-index: 3;
+      opacity: 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      display: flex; align-items: center; gap: 6px;
+      color: var(--text-primary);
+    }
+    .anim-packet::before { content: ""; width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .pkt-blue::before   { background: var(--blue-400); box-shadow: 0 0 8px var(--blue-400); }
+    .pkt-purple::before { background: var(--purple-400); box-shadow: 0 0 8px var(--purple-400); }
+    .pkt-green::before  { background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
+    .pkt-red::before    { background: var(--accent-red); box-shadow: 0 0 8px var(--accent-red); }
+    .pkt-amber::before  { background: var(--accent-amber); box-shadow: 0 0 8px var(--accent-amber); }
+
+    .slide:not(.active) .anim-packet,
+    .slide:not(.active) .anim-data-store::after { animation: none !important; }
+    .anim-packet { animation-iteration-count: infinite; animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+
+    /* ---- Email agent diagram (MUA/MTA/MDA) pulse ---- */
+    @keyframes agentPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(53,99,233,0.25); } 50% { box-shadow: 0 0 0 8px rgba(53,99,233,0); } }
+    .slide.active .agent-node { animation: agentPulse 2.2s ease-in-out infinite; }
+    .slide.active .agent-node:nth-child(1) { animation-delay: 0s; }
+    .slide.active .agent-node:nth-child(2) { animation-delay: 0.4s; }
+    .slide.active .agent-node:nth-child(3) { animation-delay: 0.8s; }
+
+    /* ===== Email Agent Flow Layout ===== */
+    .agent-flow { display: flex; align-items: center; justify-content: center; gap: 0; margin-top: 1.4em; flex-wrap: wrap; }
+    .agent-node {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.1em 1.3em; text-align: center; min-width: 150px;
+      box-shadow: var(--shadow-sm);
+    }
+    .agent-node .agent-icon { width: 40px; height: 40px; border-radius: 10px; margin: 0 auto 0.6em; display: flex; align-items: center; justify-content: center; }
+    .agent-node h5 { font-family: var(--font-heading); font-size: 0.92rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.2em; }
+    .agent-node .agent-full { font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-dim); letter-spacing: 0.02em; margin-bottom: 0.4em; }
+    .agent-node p { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; margin: 0; }
+    .agent-arrow { font-size: 1.4rem; color: var(--blue-600); padding: 0 0.5em; flex-shrink: 0; }
+
+    /* ===== Email Anatomy Diagram ===== */
+    .email-mockup {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 14px;
+      box-shadow: var(--shadow-md); margin-top: 1.2em; overflow: hidden;
+    }
+    .email-mockup-part {
+      padding: 0.85em 1.3em; border-bottom: 1px solid var(--border);
+      position: relative; transition: background 0.25s ease;
+    }
+    .email-mockup-part:last-child { border-bottom: none; }
+    .email-mockup-part:hover { background: rgba(53,99,233,0.06); }
+    .email-mockup-part .part-label {
+      position: absolute; top: 0.6em; right: 1.1em;
+      font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.06em;
+      padding: 0.15em 0.55em; border-radius: 5px;
+    }
+    .part-label--header { background: rgba(53,99,233,0.15); color: var(--blue-200); }
+    .part-label--body   { background: rgba(124,58,237,0.15); color: var(--purple-200); }
+    .part-label--url     { background: rgba(34,197,94,0.12); color: #86efac; }
+    .part-label--attach   { background: rgba(245,158,11,0.12); color: #fcd34d; }
+    .email-mockup-part .mock-line { font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 0.3em; }
+    .email-mockup-part .mock-line strong { color: var(--text-primary); }
+    .email-mockup-part .mock-body-text { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+    .email-mockup-part .mock-link { color: var(--blue-300); text-decoration: underline; font-family: var(--font-mono); font-size: 0.78rem; }
+    .email-mockup-part .mock-attach-chip {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.2);
+      border-radius: 8px; padding: 0.4em 0.8em; font-family: var(--font-mono); font-size: 0.72rem; color: #fcd34d;
+    }
+
+    /* ===== Address anatomy ===== */
+    .addr-anatomy { display: flex; justify-content: center; align-items: flex-end; gap: 4px; margin-top: 1.6em; flex-wrap: wrap; }
+    .addr-part { display: flex; flex-direction: column; align-items: center; gap: 0.5em; }
+    .addr-part .addr-chip {
+      font-family: var(--font-mono); font-size: 1.3rem; font-weight: 600;
+      padding: 0.3em 0.5em; border-radius: 8px;
+    }
+    .addr-chip--local { background: rgba(53,99,233,0.15); color: var(--blue-200); border: 1px solid rgba(53,99,233,0.25); }
+    .addr-chip--at     { background: transparent; color: var(--text-dim); font-size: 1.3rem; padding: 0; }
+    .addr-chip--domain { background: rgba(124,58,237,0.15); color: var(--purple-200); border: 1px solid rgba(124,58,237,0.25); }
+    .addr-chip--tld    { background: rgba(34,197,94,0.12); color: #86efac; border: 1px solid rgba(34,197,94,0.2); }
+    .addr-part .addr-tag { font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-muted); letter-spacing: 0.04em; }
+
+    /* ---- Image/Screenshot Placeholder ---- */
+    .screenshot-placeholder {
+      width: 100%; height: 260px;
+      border: 2px dashed var(--border-glow); border-radius: 12px;
+      background: rgba(8, 12, 24, 0.4);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 12px; padding: 20px; text-align: center;
+      color: var(--text-muted); transition: all 0.3s ease;
+      cursor: pointer; position: relative; overflow: hidden;
+    }
+    .screenshot-placeholder:hover { border-color: var(--blue-400); background: rgba(8, 12, 24, 0.6); color: var(--blue-300); }
+    .screenshot-placeholder-icon { color: var(--blue-500); opacity: 0.6; display: flex; align-items: center; justify-content: center; }
+    .screenshot-placeholder-icon svg { width: 34px; height: 34px; }
+    .screenshot-placeholder-text { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.04em; max-width: 280px; line-height: 1.45; }
+
+    /* ===== Icon inline ===== */
+    .icon-inline { display: inline-flex; align-items: center; justify-content: center; vertical-align: -3px; }
+    .icon-inline svg { width: 1em; height: 1em; }
+
+    /* ===== Protocol Header Diagram ===== */
+    .hdr-diagram {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1.5px solid rgba(124,58,237,0.45); border-radius: 14px;
+      box-shadow: var(--shadow-md), 0 0 0 1px rgba(124,58,237,0.08); overflow: hidden; margin-top: 1.2em;
+    }
+    .hdr-row { display: flex; border-bottom: 1px solid rgba(53,99,233,0.28); }
+    .hdr-row:last-child { border-bottom: none; }
+    .hdr-field {
+      flex: 1 1 0; padding: 0.65em 0.5em; text-align: center;
+      border-right: 1px solid rgba(124,58,237,0.35); position: relative;
+    }
+    .hdr-field:last-child { border-right: none; }
+    .hdr-field--blue   { background: rgba(53,99,233,0.09); }
+    .hdr-field--purple { background: rgba(124,58,237,0.09); }
+    .hdr-field .fname { display: block; font-family: var(--font-heading); font-weight: 600; font-size: 0.78rem; color: var(--text-primary); line-height: 1.3; }
+    .hdr-field .fbits { display: block; font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-muted); margin-top: 0.2em; letter-spacing: 0.02em; }
+
+    /* ===== Field Definitions List ===== */
+    .field-defs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.55em 1.6em; margin-top: 1.1em; }
+    .field-def { font-size: 0.85rem; color: var(--text-muted); line-height: 1.55; }
+    .field-def .fd-term { display: inline-block; font-family: var(--font-mono); font-size: 0.78rem; font-weight: 600; color: var(--blue-300); margin-right: 0.45em; }
+
+    /* ===== Port Range Diagram ===== */
+    .port-range-bar { display: flex; margin-top: 1.4em; border-radius: 10px; overflow: hidden; box-shadow: var(--shadow-md); border: 1px solid var(--border-glow); }
+    .port-range-seg { flex: 1; padding: 1em 0.8em; text-align: center; position: relative; }
+    .port-range-seg--1 { background: rgba(53,99,233,0.16); border-right: 1px solid rgba(124,58,237,0.3); }
+    .port-range-seg--2 { background: rgba(124,58,237,0.14); border-right: 1px solid rgba(124,58,237,0.3); }
+    .port-range-seg--3 { background: rgba(53,99,233,0.09); }
+    .port-range-seg .pr-range { display: block; font-family: var(--font-mono); font-weight: 700; font-size: 0.95rem; color: var(--text-primary); }
+    .port-range-seg .pr-name { display: block; font-family: var(--font-heading); font-weight: 600; font-size: 0.82rem; margin-top: 0.35em; color: var(--blue-200); }
+    .port-range-seg .pr-desc { display: block; font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35em; line-height: 1.5; }
+
+    /* ===== Port List Grid ===== */
+    .port-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.65em 1.8em; margin-top: 1.1em; }
+    .port-entry { display: flex; align-items: flex-start; gap: 0.7em; }
+    .port-chip {
+      flex-shrink: 0; font-family: var(--font-mono); font-weight: 700; font-size: 0.78rem;
+      padding: 0.22em 0.55em; border-radius: 6px; min-width: 2.6em; text-align: center;
+    }
+    .port-chip--blue   { background: rgba(53,99,233,0.16);  color: var(--blue-200);   border: 1px solid rgba(53,99,233,0.25); }
+    .port-chip--purple { background: rgba(124,58,237,0.16); color: var(--purple-200); border: 1px solid rgba(124,58,237,0.25); }
+    .port-info .pname { display: block; font-family: var(--font-heading); font-weight: 600; font-size: 0.86rem; color: var(--text-primary); }
+    .port-info .pdesc { display: block; font-size: 0.76rem; color: var(--text-muted); line-height: 1.5; margin-top: 0.15em; }
+
+    /* ===== Handshake Sequence Diagram ===== */
+    .handshake-diagram { margin-top: 1.3em; }
+    .hs-lane-labels { display: flex; justify-content: space-between; padding: 0 4%; margin-bottom: 0.4em; }
+    .hs-lane-labels span { font-family: var(--font-heading); font-weight: 700; font-size: 0.95rem; color: var(--text-primary); }
+
+    /* ===== Packet Capture Demo Table ===== */
+    .capture-table {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glow); border-radius: 14px;
+      box-shadow: var(--shadow-md); margin-top: 1.2em; overflow: hidden;
+      font-family: var(--font-mono);
+    }
+    .capture-row {
+      display: grid; grid-template-columns: 34px 68px 108px 108px 62px 1fr;
+      gap: 10px; padding: 0.6em 1em; align-items: center;
+      border-bottom: 1px solid rgba(53,99,233,0.2);
+      font-size: 0.74rem; color: var(--text-secondary);
+    }
+    .capture-row:last-child { border-bottom: none; }
+    .capture-row--head {
+      background: rgba(53,99,233,0.08); color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.62rem;
+      font-family: var(--font-body); font-weight: 600;
+    }
+    .capture-row:not(.capture-row--head):hover { background: rgba(53,99,233,0.06); }
+    .cap-flag { display: inline-block; padding: 0.1em 0.5em; border-radius: 5px; font-weight: 700; font-size: 0.7rem; }
+    .cap-flag--syn { background: rgba(53,99,233,0.2); color: var(--blue-200); }
+    .cap-flag--synack { background: rgba(124,58,237,0.2); color: var(--purple-200); }
+    .cap-flag--ack { background: rgba(52,211,153,0.16); color: var(--accent-green); }
+
+    /* ===== Example Box ===== */
+    .example-box {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 14px;
+      box-shadow: var(--shadow-md); margin-top: 1.2em; padding: 1.1em 1.3em;
+    }
+    .example-box .example-label {
+      display: inline-block; font-family: var(--font-mono); font-size: 0.62rem;
+      letter-spacing: 0.08em; padding: 0.22em 0.6em; border-radius: 5px;
+      background: rgba(34,197,94,0.12); color: #86efac; margin-bottom: 0.75em;
+    }
+    .example-box .mock-line { font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 0.3em; }
+    .example-box .mock-line strong { color: var(--text-primary); }
+    .example-box .mock-body-text { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+    .example-box .mock-body-text em { color: var(--text-primary); font-style: normal; font-weight: 600; }
+
+    /* ===== Terminal / tcpdump Mockup ===== */
+    .terminal {
+      background: rgba(3, 5, 10, 0.9); border: 1px solid var(--border-glow);
+      border-radius: 12px; box-shadow: var(--shadow-md); margin-top: 1.2em; overflow: hidden;
+    }
+    .terminal-bar { display: flex; align-items: center; gap: 6px; padding: 0.6em 1em; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); }
+    .terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .terminal-dot--red { background: #f87171; }
+    .terminal-dot--amber { background: #fbbf24; }
+    .terminal-dot--green { background: #34d399; }
+    .terminal-label { margin-left: 8px; font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-muted); }
+    .terminal-body { padding: 1em 1.3em; font-family: var(--font-mono); font-size: 0.76rem; line-height: 1.75; color: var(--text-secondary); overflow-x: auto; }
+    .terminal-body::-webkit-scrollbar { height: 8px; }
+    .terminal-body::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); border-radius: 4px; }
+    .terminal-body::-webkit-scrollbar-thumb { background: linear-gradient(90deg, #3563e9, #7c3aed); border-radius: 4px; }
+    .terminal-body::-webkit-scrollbar-thumb:hover { background: linear-gradient(90deg, #4a78f0, #a87bf5); }
+    .terminal-body { scrollbar-width: thin; scrollbar-color: #7c3aed rgba(255,255,255,0.03); }
+    .terminal-body .t-prompt { color: var(--accent-green); }
+    .terminal-body .t-cmd { color: var(--text-primary); }
+    .terminal-body .t-line { white-space: pre; }
+    .terminal-body .t-comment { color: var(--text-dim); }
+
+    /* ===== Compact lists inside cards ===== */
+    .card ul { margin-top: 0.35em; }
+    .card ul li { font-size: 0.83rem; color: var(--text-muted); padding-left: 1.5em; margin-bottom: 0.4em; line-height: 1.5; }
+    .card ul li::before { width: 8px; height: 8px; top: 0.4em; }
+    .card ul li::after { top: calc(0.4em + 3px); }
+
+    /* ===== Process Tree Diagram ===== */
+    .proc-tree { margin-top: 1.3em; }
+    .proc-node {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 0.6em 1em; margin-bottom: 8px; box-shadow: var(--shadow-sm);
+      transition: all 0.3s ease;
+    }
+    .proc-node:hover { border-color: var(--border-glow); box-shadow: var(--shadow-md); }
+    .proc-node.flagged { border-color: rgba(248,113,113,0.4); box-shadow: 0 0 0 1px rgba(248,113,113,0.12); }
+    .proc-children { margin-left: 2.1em; padding-left: 1.2em; border-left: 2px dashed var(--border); }
+    .proc-icon {
+      width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .proc-name { font-family: var(--font-mono); font-weight: 600; font-size: 0.85rem; color: var(--text-primary); }
+    .proc-meta { font-family: var(--font-mono); font-weight: 400; font-size: 0.66rem; color: var(--text-muted); margin-left: 0.5em; }
+    .proc-cmdline { font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-dim); margin-top: 3px; word-break: break-all; }
+    .proc-tag { margin-left: auto; flex-shrink: 0; }
+
+    /* ===== Key-Value Info Table (process detail cards) ===== */
+    .info-table {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glow); border-radius: 14px;
+      box-shadow: var(--shadow-md); margin-top: 1.2em; overflow: hidden;
+    }
+    .info-table-row { display: grid; grid-template-columns: 200px 1fr; border-bottom: 1px solid var(--border); transition: background 0.25s ease; }
+    .info-table-row:last-child { border-bottom: none; }
+    .info-table-row:hover { background: rgba(53,99,233,0.06); }
+    .info-table-label {
+      padding: 0.75em 1.2em; font-family: var(--font-heading); font-weight: 700;
+      font-size: 0.86rem; color: var(--blue-300);
+      background: rgba(53,99,233,0.07); border-right: 1px solid var(--border);
+      display: flex; align-items: center;
+    }
+    .info-table-value { padding: 0.75em 1.2em; font-size: 0.86rem; color: var(--text-secondary); display: flex; align-items: center; flex-wrap: wrap; gap: 0.4em; }
+    .info-table-value .dim { font-size: 0.92em; }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 768px) {
+      .slide { padding: 60px 24px; }
+      h1 { font-size: 2rem; }
+      h2 { font-size: 1.4rem; }
+      .slide--title h1 { font-size: 2.2rem; }
+      .card-row, .card-row--2, .card-row--3, .card-row--4 { grid-template-columns: 1fr; }
+      .flow { flex-direction: column; align-items: flex-start; }
+      .flow-arrow { transform: rotate(90deg); }
+      .two-col { grid-template-columns: 1fr; }
+      .cycle-row { flex-direction: column; border-radius: 14px; }
+      .cycle-item { border-right: none; border-bottom: 1px solid var(--border); }
+      .cycle-item:last-child { border-bottom: none; }
+      .benefit-grid { grid-template-columns: 1fr; }
+      .case-stat-row { grid-template-columns: 1fr; }
+      .agent-flow { flex-direction: column; }
+      .agent-arrow { transform: rotate(90deg); }
+      .addr-anatomy { flex-direction: column; }
+      .field-defs { grid-template-columns: 1fr; }
+      .hdr-field .fname { font-size: 0.68rem; }
+      .hdr-field .fbits { font-size: 0.56rem; }
+      .port-range-bar { flex-direction: column; }
+      .port-range-seg--1, .port-range-seg--2 { border-right: none; border-bottom: 1px solid rgba(124,58,237,0.3); }
+      .port-grid { grid-template-columns: 1fr; }
+      .capture-row { grid-template-columns: 24px 60px 90px 90px 54px 1fr; font-size: 0.64rem; gap: 6px; padding: 0.55em 0.6em; }
+      .proc-children { margin-left: 1em; padding-left: 0.7em; }
+      .proc-node { flex-wrap: wrap; }
+      .proc-tag { margin-left: 0; }
+      .info-table-row { grid-template-columns: 1fr; }
+      .info-table-label { border-right: none; border-bottom: 1px solid var(--border); }
+    }
+  
+    /* ===== Speaker Notes Overlay ===== */
+    #speaker-notes-overlay {
+      position: fixed;
+      bottom: 58px;
+      right: 24px;
+      width: 480px;
+      max-width: calc(100vw - 48px);
+      max-height: 420px;
+      background: rgba(7, 10, 20, 0.96);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glow);
+      border-radius: 12px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65), 0 0 24px rgba(53, 99, 233, 0.2);
+      z-index: 99999 !important;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      animation: notesFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #speaker-notes-overlay.active { display: flex !important; }
+    @keyframes notesFadeIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .notes-header {
+      padding: 10px 14px;
+      background: linear-gradient(90deg, rgba(53, 99, 233, 0.18), rgba(124, 58, 237, 0.18));
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .notes-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--blue-200);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .notes-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.15rem;
+      padding: 0 4px;
+      transition: color 0.2s ease;
+      line-height: 1;
+    }
+    .notes-close:hover { color: var(--accent-red); }
+    .notes-body {
+      padding: 16px;
+      overflow-y: auto;
+      font-size: 0.95rem;
+      line-height: 1.65;
+      color: var(--text-primary);
+      font-family: var(--font-body);
+    }
+    .notes-empty { color: var(--text-muted); font-style: italic; }
+    .nav-btn--notes {
+      width: auto !important;
+      padding: 0 10px !important;
+      gap: 6px;
+      font-weight: 600;
+      font-size: 0.78rem !important;
+    }
+    .nav-btn--notes.active {
+      background: var(--blue-600) !important;
+      color: #fff !important;
+      border-color: var(--blue-400) !important;
+      box-shadow: 0 0 12px rgba(53, 99, 233, 0.5) !important;
+    }
+
+  
+    body { direction: rtl; text-align: right; }
+    pre, code, .mono, .cmd-line, .terminal-window, .log-box, .log-line, .code-snippet { direction: ltr; text-align: left; display: inline-block; font-family: var(--font-mono); }
+    .section-label { letter-spacing: normal; }
+    #speaker-notes-overlay { left: 24px !important; right: auto !important; text-align: right; direction: rtl; }
+    .notes-header { direction: rtl; }
+    .notes-close { margin-right: auto; margin-left: 0; }
+
+  </style>
+<body>
+
+  <!-- ===== Background ===== -->
+  <div class="orb orb--1"></div>
+  <div class="orb orb--2"></div>
+  <div class="orb orb--3"></div>
+
+  <div class="circuit-bg">
+    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <pattern id="circuit" x="0" y="0" width="200" height="200" patternUnits="userالمسافة (Space)OnUse">
+        <path d="M0 100 h60 v-40 h30 v40 h20 v-60 h30" fill="none" stroke="#4a78f0" stroke-width="1"/>
+        <path d="M180 0 v50 h-40 v30 h40 v30" fill="none" stroke="#4a78f0" stroke-width="1"/>
+        <circle cx="60" cy="100" r="3" fill="#4a78f0"/>
+        <circle cx="90" cy="60"  r="2.5" fill="#7c3aed"/>
+        <circle cx="140" cy="100" r="3" fill="#4a78f0"/>
+        <circle cx="140" cy="50"  r="2.5" fill="#7c3aed"/>
+        <rect x="108" y="95" width="6" height="10" rx="1" fill="none" stroke="#4a78f0" stroke-width="0.8"/>
+      </pattern>
+      <rect width="100%" height="100%" fill="url(#circuit)" />
+    </svg>
+  </div>
+
+  <div class="shield-watermark">
+    <svg width="320" height="380" viewBox="0 0 100 120" fill="none">
+      <path d="M50 5 L90 25 L90 60 Q90 95 50 115 Q10 95 10 60 L10 25 Z" stroke="#4a78f0" stroke-width="1.5" fill="none"/>
+      <path d="M50 18 L78 33 L78 58 Q78 84 50 100 Q22 84 22 58 L22 33 Z" stroke="#7c3aed" stroke-width="0.8" fill="none"/>
+      <path d="M38 58 L48 68 L65 48" stroke="#4a78f0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <div class="side-accent"></div>
+
+  <!-- Top Header -->
+  <div class="top-header">
+    <div class="header-title">
+      <span class="title-dot"></span>
+      <span>Incident Detection &amp; Response</span>
+      <span class="title-sep">—</span>
+      <span id="header-slide-title">SIEM Fundamentals</span>
+    </div>
+    <div class="header-right">
+      <span class="lab-badge">LAB 11</span>
+    </div>
+  </div>
+
+  <div id="progress-bar"></div>
+
+  <!-- ===== SLIDES ===== -->
+  <div id="presentation">
+
+    <!-- ==========================================
+         SLIDE 1 — Cover
+         ========================================== -->
+    <div class="slide slide--title active" data-slide="0" data-title="المقدمة"
+         data-notes="رحب بالطلاب في محور أنظمة SIEM. مهّد للموضوع بأنه الخطوة المنطقية الكبرى بعد مراقبة الأجهزة والشبكة: فبمجرد جمع الإشارات والأحداث من كل مكان، تحتاج إلى منصة مركزية موحدة تجمع كل شيء وتربط الأحداث ببعضها وتتيح اتخاذ إجراءات فورية.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> كشف التهديدات والاستجابة للحوادث · IDR</div>
+        <h1>Security Information<br />&amp; <span class="gradient-text">Event Management</span></h1>
+        <p class="subtitle">تجميع سجلات الأحداث من كافة أرجاء المؤسسة في منصة مركزية موحدة لكشف التهديدات وربطها والاستجابة لها في الوقت الفعلي.</p>
+        <div class="divider"></div>
+        <div class="instructor-line">المعمل 11 – <span>أساسيات أنظمة SIEM وتحليل السجلات</span></div>
+        <div class="instructor-line">المحاضر: <span>Hussein Al-Selwi</span></div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 2 — الأهداف التعليمية للمعمل
+         ========================================== -->
+    <div class="slide" data-slide="1" data-title="أهداف المعمل"
+         data-notes="استعرض أهداف المعمل بإيجاز. يتدرج هذا المعمل من فهم معمارية أنظمة SIEM نظرياً، إلى التعرف على أنماط الهجمات الشائعة في السجلات، ثم تحليل السجلات يدوياً، وأخيراً التفاعل مع أنظمة SIEM والأحداث المباشرة.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> نظرة عامة على المعمل</div>
+        <h2>الأهداف التعليمية للمعمل</h2>
+        <ul style="margin-top: 1em;">
+          <li>Understand <strong class="blue">log management</strong> and <strong class="purple">SIEM deployment architecture</strong></li>
+          <li>Identify <strong class="blue">common attack signatures</strong> and patterns within log events</li>
+          <li>Learn to manually <strong class="blue">parse</strong>, <strong class="purple">extract</strong>, and <strong class="blue">analyze</strong> logs from various sources</li>
+          <li>Deploy, configure, and operate an enterprise-grade <strong class="purple">SIEM solution</strong></li>
+          <li>Install a <strong class="blue">log collection agent</strong> and work with real-time events</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 3 — ما هو نظام الـ SIEM؟
+         ========================================== -->
+    <div class="slide" data-slide="2" data-title="ما هو نظام SIEM؟"
+         data-notes="عرّف الـ SIEM بوضوح، ورسخ الفكرة الجوهرية: إنه قلب مركز العمليات (SOC) لأنه المكان الوحيد الذي يحول ملايين الأحداث الصاخبة من كل زاوية في الشبكة إلى رؤى أمنية واضحة للمحلل. ثم اذكر أشهر المنتجات العالمية في السوق.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> INTRODUCTION</div>
+        <h2>ما هو نظام الـ SIEM؟</h2>
+        <p><strong class="blue">Security Information and Event Management (SIEM)</strong> is a centralized platform that collects log data from across an organization, normalizes it into a consistent format, and correlates events to detect threats that wouldn't be visible from any single source alone — all displayed through a central dashboard analysts can monitor and act on.</p>
+
+        <div class="info-box" style="margin-top: 1.2em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>قلب مركز عمليات الأمن (SOC):</strong> its core job is converting raw, scattered events into insights an analyst can actually act on — every other tool feeds it, and analysts work from it.</p>
+        </div>
+
+        <p class="muted small" style="margin-top: 1.4em; text-transform: uppercase; letter-spacing: 0.1em; font-family: var(--font-mono);">أشهر منصات الـ SIEM في سوق العمل:</p>
+        <div class="flow" style="margin-top: 0.6em;">
+          <span class="tag" style="background: transparent; color: var(--text-primary); border: 1px solid var(--purple-400);">Splunk</span>
+          <span class="tag" style="background: transparent; color: var(--text-primary); border: 1px solid var(--purple-400);">IBM QRadar</span>
+          <span class="tag" style="background: transparent; color: var(--text-primary); border: 1px solid var(--purple-400);">SolarWinds SEM</span>
+          <span class="tag" style="background: transparent; color: var(--text-primary); border: 1px solid var(--purple-400);">Microsoft Sentinel</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 4 — SIEM Log Management Pipeline (Overview)
+         ========================================== -->
+    <div class="slide" data-slide="3" data-title="مسار معالجة السجلات في الـ SIEM"
+         data-notes="أعط الطلاب الصورة الشاملة لمسار معالجة السجلات قبل التفصيل في كل مرحلة. أكد أن السجلات الخام يجب أن تعبر المراحل الست كاملة لتتحول من مجرد نصوص إلى تنبيه أمني دقيق يتعامل معه المحلل.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> LOG MANAGEMENT</div>
+        <h2>المراحل الست لإدارة ومعالجة السجلات في الـ SIEM</h2>
+        <p>قبل أن يتمكن نظام الـ SIEM من كشف أي تهديد، يجب أن تمر بيانات السجلات عبر 6 مراحل متتالية — من الجمع الأولي وحتى وصول التنبيه للمحلل:</p>
+
+        <div class="card-row card-row--3">
+          <div class="card">
+            <div class="card-icon card-icon--blue">1</div>
+            <h4>Collection</h4>
+            <p>جمع السجلات الأولية مباشرة من الأجهزة والأحداث الأمنية الهامة.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--purple">2</div>
+            <h4>Aggregation</h4>
+            <p>تجميع السجلات من كافة المصادر المتفرقة في موقع مركزي موحد.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--blue">3</div>
+            <h4>Parsing &amp; Normalization</h4>
+            <p>تحويل صيغ السجلات المختلفة إلى هيكل وقالب حقول موحد ومشترك.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--purple">4</div>
+            <h4>Indexing</h4>
+            <p>فهرسة وتنظيم السجلات لتسريع عمليات البحث والاسترجاع اللحظي.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--blue">5</div>
+            <h4>Correlation &amp; Analysis</h4>
+            <p>ربط الأحداث المتفرقة ببعضها لكشف الأنماط المعقدة والهجمات.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--purple">6</div>
+            <h4>Alerting</h4>
+            <p>إشعار محللي الـ SOC فور رصد سلوك مشبوه بواسطة قواعد الكشف.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 5 — المرحلة 1: الجمع (Collection)
+         ========================================== -->
+    <div class="slide" data-slide="4" data-title="المرحلة 1: الجمع (Collection)"
+         data-notes="اشرح أن جمع السجلات يتطلب تخطيطاً ذكياً: فليس كل جهاز وكل حدث يستحق الجمع والتخزين لتجنب التكلفة والضوضاء. ثم قارن بين طريقتي الجمع: عبر تثبيت العميل (Agent) أو الجمع بدون عميل (بدون عميل (Agentless)) عبر البروتوكولات.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> LOG MANAGEMENT — STEP 1</div>
+        <h2>المرحلة 1: الجمع (Collection)</h2>
+        <p><strong class="blue">Collection</strong> is the first stage of log management — it's where the SIEM gathers raw log data directly from the source, before anything is combined or analyzed.</p>
+
+        <div class="two-col">
+          <div class="col-block">
+            <h4>Which devices to collect from</h4>
+            <p>الخوادم، جدران الحماية، محطات العمل، والموجهات، والخدمات السحابية. الهدف هو اختيار الأجهزة التي تحقق الرؤية الأمنية دون استهلاك عشوائي.</p>
+          </div>
+          <div class="col-block">
+            <h4>Which events to collect</h4>
+            <p>التركيز على الأحداث الحرجة أمنياً: تسجيل الدخول، المحاولات الفاشلة، تعديلات الصلاحيات، تغيير الملفات الحساسة، والتعديلات الإدارية.</p>
+          </div>
+        </div>
+
+        <p class="muted small" style="margin-top: 1.4em; text-transform: uppercase; letter-spacing: 0.1em; font-family: var(--font-mono);">طرق جمع السجلات</p>
+        <div class="card-row card-row--2">
+          <div class="card">
+            <div class="card-icon card-icon--blue">A</div>
+            <h4>Agent</h4>
+            <p>برمجية خفيفة تُثبت مباشرة على الجهاز، تقرأ السجلات المحلية وترسلها تلقائياً للـ SIEM.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--purple">B</div>
+            <h4>بدون عميل (Agentless)</h4>
+            <p>يستخدم عندما يتعذر تثبيت برنامج (مثل الموجهات وأجهزة الشبكة). يسحب الـ SIEM السجلات عن بُعد عبر بروتوكولات مثل Syslog أو SNMP أو APIs.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 6 — المرحلة 2: التجميع المركزي (Aggregation)
+         ========================================== -->
+    <div class="slide" data-slide="5" data-title="المرحلة 2: التجميع المركزي (Aggregation)"
+         data-notes="أكد على فائدتي التجميع المركزي (Aggregation): الحصول على خط زمني موحد (خط زمني أمني موحد (Unified Timeline)) يربط أحداث الشبكة بالأجهزة بالسيرفرات، وتوفير رؤية شاملة واحدة للبيئة بدلاً من تشتت السجلات في خوادم منفصلة.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> LOG MANAGEMENT — STEP 2</div>
+        <h2>المرحلة 2: التجميع المركزي (Aggregation)</h2>
+        <p><strong class="blue">Aggregation</strong> takes the logs gathered from every different source and brings them together into one centralized location inside the SIEM.</p>
+
+        <div class="info-box" style="margin-top: 1.2em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>أهمية التجميع المركزي:</strong> once the logs are combined, aggregation lines them up on a single, unified timeline — so events from a firewall, a server, and an endpoint can all be viewed in the order they actually happened, giving analysts one holistic view of the environment instead of scattered, disconnected pieces.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 7 — Step 3: Parsing & Normalization
+         ========================================== -->
+    <div class="slide" data-slide="6" data-title="Step 3: Parsing & Normalization"
+         data-notes="رسخ فكرة أن كل جهاز ونظام تشغيل يكتب السجلات بصيغته الخاصة، وعملية التحليل وتوحيد البنية (Parsing & Normalization) هي المترجم الذي يحول كل هذه الصيغ المختلفة إلى حقول موحدة (مثل src_ip و dst_ip) في مخطط قياسي مثل CEF.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> LOG MANAGEMENT — STEP 3</div>
+        <h2>المرحلة 3: التحليل وتوحيد البنية (Normalization)</h2>
+        <p>Every device speaks its own "language" — a firewall log looks nothing like a Windows event log. <strong class="blue">Parsing and normalization</strong> take these inconsistent formats and convert them into one common schema.</p>
+
+        <div class="info-box" style="margin-top: 1.2em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>الهدف هو توحيد المعايير:</strong> once every log shares the same structure — the same fields for timestamp, source IP, user, and action — the SIEM can read, compare, and correlate logs the same way, no matter where they came from.</p>
+        </div>
+
+        <p style="margin-top: 1.2em;">Many SIEMs normalize logs into <strong class="purple">Common Event Format (CEF)</strong> — a standard schema built for exactly this purpose, so logs from completely different vendors can all be read the same way.</p>
+
+        <p class="muted small" style="margin-top: 1.4em; text-transform: uppercase; letter-spacing: 0.1em; font-family: var(--font-mono);">مثال عملي: توحيد تسمية حقل عنوان IP المصدر:</p>
+        <svg viewBox="0 0 900 460" xmlns="http://www.w3.org/2000/svg" style="width:82%; max-width:620px; height:auto; margin-top: 0.6em; display:block; margin-left:auto; margin-right:auto;">
+          <defs>
+            <marker id="arrowBlue" markerWidth="8" markerHeight="8" refX="5" refY="2.5" orient="auto">
+              <path d="M0,0 L5,2.5 L0,5 Z" fill="var(--blue-400)"/>
+            </marker>
+            <marker id="arrowPurple" markerWidth="8" markerHeight="8" refX="5" refY="2.5" orient="auto">
+              <path d="M0,0 L5,2.5 L0,5 Z" fill="var(--purple-400)"/>
+            </marker>
+            <linearGradient id="siemGradient" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="var(--blue-500)"/>
+              <stop offset="100%" stop-color="var(--purple-500)"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Firewall Log box -->
+          <rect x="40" y="20" width="330" height="110" rx="12" fill="rgba(53,99,233,0.08)" stroke="var(--blue-400)" stroke-width="1.5"/>
+          <text x="60" y="58" font-family="المسافة (Space) Grotesk, sans-serif" font-size="21" font-weight="600" fill="var(--blue-300)">Firewall Log</text>
+          <text x="60" y="90" font-family="JetBrains Mono, monospace" font-size="15" fill="var(--text-secondary)">ip_source: <tspan fill="var(--accent-red)" font-weight="600">40.11.187.1</tspan></text>
+
+          <!-- Proxy Log box -->
+          <rect x="530" y="20" width="330" height="110" rx="12" fill="rgba(124,58,237,0.08)" stroke="var(--purple-400)" stroke-width="1.5"/>
+          <text x="550" y="58" font-family="المسافة (Space) Grotesk, sans-serif" font-size="21" font-weight="600" fill="var(--purple-300)">Proxy Log</text>
+          <text x="550" y="90" font-family="JetBrains Mono, monospace" font-size="15" fill="var(--text-secondary)">source_ip: <tspan fill="var(--accent-red)" font-weight="600">40.11.187.1</tspan></text>
+
+          <!-- Converging dashed arrows -->
+          <path d="M 200 140 L 425 258" stroke="var(--blue-400)" stroke-width="2.5" stroke-dasharray="8 7" fill="none" marker-end="url(#arrowBlue)"/>
+          <path d="M 700 140 L 475 258" stroke="var(--purple-400)" stroke-width="2.5" stroke-dasharray="8 7" fill="none" marker-end="url(#arrowPurple)"/>
+
+          <!-- SIEM shield -->
+          <g transform="translate(450,300)">
+            <circle cx="0" cy="30" r="58" fill="url(#siemGradient)" opacity="0.14"/>
+            <path d="M0,-8 L34,6 C34,46 19,69 0,80 C-19,69 -34,46 -34,6 Z" fill="url(#siemGradient)" stroke="var(--blue-300)" stroke-width="1.5"/>
+            <path d="M-13,32 L-3,44 L18,18" stroke="#f4f7ff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <text x="0" y="112" text-anchor="middle" font-family="المسافة (Space) Grotesk, sans-serif" font-size="23" font-weight="700" fill="var(--text-primary)">SIEM</text>
+          </g>
+
+          <!-- Unified output -->
+          <text x="450" y="440" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="17" fill="var(--text-secondary)">src_ip: <tspan fill="var(--accent-green)" font-weight="700">40.11.187.1</tspan></text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 8 — المرحلة 4: الفهرسة (Indexing)
+         ========================================== -->
+    <div class="slide" data-slide="7" data-title="المرحلة 4: الفهرسة (Indexing)"
+         data-notes="اشرح الفهرسة (Indexing) كالمرحلة التي تجعل السجلات الموحدة قابلة للبحث فائق السرعة، تماماً كفهرس الكتب الضخمة، حيث تصنف الأحداث حسب الوقت والمصدر والنوع بدلاً من مسح ملايين السطور عشوائياً.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> LOG MANAGEMENT — STEP 4</div>
+        <h2>المرحلة 4: الفهرسة (Indexing)</h2>
+        <p><strong class="blue">Indexing</strong> is the process of converting normalized logs into something searchable, and grouping related events together so logs can be retrieved efficiently.</p>
+
+        <div class="info-box" style="margin-top: 1.2em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>أهمية التجميع المركزي:</strong> without an index, finding one event would mean scanning through millions of raw logs one by one. Indexing organizes logs ahead of time so an analyst can search and pull up exactly what they need in seconds.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 9 — Step 5: Correlation & Analysis
+         ========================================== -->
+    <div class="slide" data-slide="8" data-title="Step 5: Correlation & Analysis"
+         data-notes="اشرح الارتباط الأمني (Correlation) كربط السجلات المتعلقة ببعضها عبر قواعد ذكية (قواعد الارتباط (Correlation Rules))، ثم وضح أن التحليل (Analysis) هو التعرف على الأنماط المشبوهة والسلوكيات الشاذة الناتجة عن هذا الربط."
+      >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> LOG MANAGEMENT — STEP 5</div>
+        <h2>المرحلة 5: الارتباط والتحليل (Correlation)</h2>
+        <p><strong class="blue">Correlation</strong> links related logs together using <strong class="purple">correlation rules</strong> — on their own, individual events can look harmless, but linked together they can reveal an attack.</p>
+
+        <div class="info-box" style="margin-top: 1.2em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>Analysis</strong> is then performed on these correlated events using the rules to determine whether they represent real, meaningful activity.</p>
+        </div>
+
+        <div class="card-row card-row--2" style="margin-top: 1.2em;">
+          <div class="card">
+            <div class="card-icon card-icon--blue">◈</div>
+            <h4>التعرف على الأنماط (Pattern Recognition)</h4>
+            <p>Matching linked events against known attack patterns, like a login failure repeated across many accounts.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--purple">△</div>
+            <h4>كشف السلوكيات الشاذة (Anomaly Detection)</h4>
+            <p>Flagging activity that deviates from normal behavior, like a user logging in from an unusual location.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 10 — المرحلة 6: التنبيه (Alerting)
+         ========================================== -->
+    <div class="slide" data-slide="9" data-title="المرحلة 6: التنبيه (Alerting)"
+         data-notes="Explain alerting as the final, action-facing stage: once analysis flags something meaningful, the SIEM notifies analysts so they can respond, typically prioritized by severity."
+      >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> LOG MANAGEMENT — STEP 6</div>
+        <h2>المرحلة 6: التنبيه (Alerting)</h2>
+        <p><strong class="blue">Alerting</strong> is the final stage — once correlation and analysis identify something suspicious, the SIEM notifies analysts so they can respond quickly.</p>
+
+        <div class="info-box" style="margin-top: 1.2em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>أهمية التجميع المركزي:</strong> alerts are usually prioritized by severity, so analysts know what to investigate first instead of getting buried under thousands of raw events with no clear starting point.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 11 — المكونات الأساسية لنظام الـ SIEM
+         ========================================== -->
+    <div class="slide" data-slide="10" data-title="مكونات معمارية نظام الـ SIEM"
+         data-notes="Explain that every SIEM shares this core architecture, but the exact naming and boundaries between components can shift slightly from vendor to vendor. We'll use Splunk's terminology since that's the platform for this lab, and walk left to right through how data physically moves through the system.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> SIEM المكونات الهندسية</div>
+        <h2>المكونات الأساسية لنظام الـ SIEM</h2>
+        <p>Every SIEM platform shares the same core components, though the details can differ slightly between vendors. We'll walk through <strong class="purple">Splunk's</strong> architecture, since it's the platform we'll be using in this lab.</p>
+
+        <div style="margin-top: 1.6em; background: var(--gradient-card); backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow-md); padding: 1.6em 1.2em 1.2em;">
+          <svg viewBox="0 0 1120 230" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:auto;">
+            <defs>
+              <marker id="archArrowBlue" markerWidth="8" markerHeight="8" refX="5" refY="2.5" orient="auto">
+                <path d="M0,0 L5,2.5 L0,5 Z" fill="var(--blue-400)"/>
+              </marker>
+            </defs>
+
+            <!-- Straight connector: Endpoint -> Forwarder -->
+            <line x1="104" y1="100" x2="226" y2="100" stroke="var(--blue-400)" stroke-width="1.8" marker-end="url(#archArrowBlue)"/>
+            <text x="165" y="86" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="12" font-weight="600" fill="var(--blue-300)">collects →</text>
+
+            <!-- Relay connector: Forwarder -> Indexer -->
+            <path d="M294 100 C 340 40, 380 40, 410 90 C 440 140, 480 160, 510 110 C 540 60, 580 50, 616 100"
+                  stroke="var(--purple-400)" stroke-width="2" fill="none" stroke-dasharray="1 9" stroke-linecap="round"/>
+            <circle cx="330" cy="52" r="4" fill="var(--purple-400)"/>
+            <circle cx="410" cy="90" r="4" fill="var(--purple-400)"/>
+            <circle cx="462" cy="145" r="4" fill="var(--purple-400)"/>
+            <circle cx="540" cy="65" r="4" fill="var(--purple-400)"/>
+            <circle cx="600" cy="58" r="4" fill="var(--purple-400)"/>
+            <text x="455" y="192" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="var(--text-muted)">
+              <tspan x="455" dy="0">relay across</tspan>
+              <tspan x="455" dy="14">the network</tspan>
+            </text>
+
+            <!-- Straight connector: Indexer -> Search Head -->
+            <line x1="684" y1="100" x2="816" y2="100" stroke="var(--blue-400)" stroke-width="1.8" marker-end="url(#archArrowBlue)"/>
+            <text x="750" y="86" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="12" font-weight="600" fill="var(--blue-300)">search →</text>
+
+            <!-- Straight connector: Search Head -> Analyst -->
+            <line x1="884" y1="100" x2="1016" y2="100" stroke="var(--blue-400)" stroke-width="1.8" marker-end="url(#archArrowBlue)"/>
+            <text x="950" y="86" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="12" font-weight="600" fill="var(--blue-300)">alerts →</text>
+
+            <!-- Node 1: Endpoint -->
+            <g transform="translate(70,100)">
+              <rect x="-32" y="-32" width="64" height="64" rx="16" fill="rgba(53,99,233,0.15)" stroke="var(--blue-400)" stroke-width="1.4"/>
+              <g stroke="var(--blue-300)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none">
+                <rect x="-12" y="-14" width="24" height="7" rx="1.4"/>
+                <rect x="-12" y="-3.5" width="24" height="7" rx="1.4"/>
+                <rect x="-12" y="7" width="24" height="7" rx="1.4"/>
+                <circle cx="-7.5" cy="-10.5" r="1" fill="var(--blue-300)" stroke="none"/>
+                <circle cx="-7.5" cy="0" r="1" fill="var(--blue-300)" stroke="none"/>
+                <circle cx="-7.5" cy="10.5" r="1" fill="var(--blue-300)" stroke="none"/>
+              </g>
+            </g>
+            <text x="70" y="160" text-anchor="middle" font-family="المسافة (Space) Grotesk, sans-serif" font-size="15" font-weight="700" fill="var(--text-primary)">Endpoint</text>
+            <text x="70" y="178" text-anchor="middle" font-family="Outfit, sans-serif" font-size="11.5" fill="var(--text-muted)">(Data Source)</text>
+            <rect x="31" y="188" width="78" height="22" rx="10" fill="rgba(53,99,233,0.14)" stroke="rgba(53,99,233,0.3)"/>
+            <text x="70" y="203" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" letter-spacing="0.04em" fill="var(--blue-200)">SOURCE</text>
+
+            <!-- Node 2: Forwarder -->
+            <g transform="translate(260,100)">
+              <rect x="-32" y="-32" width="64" height="64" rx="16" fill="rgba(124,58,237,0.15)" stroke="var(--purple-400)" stroke-width="1.4"/>
+              <g stroke="var(--purple-300)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+                <path d="M-12.5,0 H4.5"/>
+                <path d="M-1.5,-6 L4.5,0 L-1.5,6"/>
+                <path d="M12.5,-10 V10"/>
+              </g>
+            </g>
+            <text x="260" y="160" text-anchor="middle" font-family="المسافة (Space) Grotesk, sans-serif" font-size="15" font-weight="700" fill="var(--text-primary)">Forwarder</text>
+            <text x="260" y="178" text-anchor="middle" font-family="Outfit, sans-serif" font-size="11.5" fill="var(--text-muted)">(Splunk UF)</text>
+            <rect x="223" y="188" width="74" height="22" rx="10" fill="rgba(124,58,237,0.16)" stroke="rgba(124,58,237,0.32)"/>
+            <text x="260" y="203" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" letter-spacing="0.04em" fill="var(--purple-200)">AGENT</text>
+
+            <!-- Node 3: Indexer -->
+            <g transform="translate(650,100)">
+              <rect x="-32" y="-32" width="64" height="64" rx="16" fill="rgba(124,58,237,0.15)" stroke="var(--purple-400)" stroke-width="1.4"/>
+              <g stroke="var(--purple-300)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+                <path d="M-9,-14 H3 L9,-8 V14 H-9 Z"/>
+                <path d="M3,-14 V-8 H9"/>
+                <path d="M-5,-1 H5 M-5,3 H5 M-5,7 H1"/>
+              </g>
+            </g>
+            <text x="650" y="160" text-anchor="middle" font-family="المسافة (Space) Grotesk, sans-serif" font-size="15" font-weight="700" fill="var(--text-primary)">Indexer</text>
+            <text x="650" y="178" text-anchor="middle" font-family="Outfit, sans-serif" font-size="11.5" fill="var(--text-muted)">(Splunk)</text>
+            <rect x="609" y="188" width="82" height="22" rx="10" fill="rgba(124,58,237,0.16)" stroke="rgba(124,58,237,0.32)"/>
+            <text x="650" y="203" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" letter-spacing="0.04em" fill="var(--purple-200)">STORAGE</text>
+
+            <!-- Node 4: Search Head -->
+            <g transform="translate(850,100)">
+              <rect x="-32" y="-32" width="64" height="64" rx="16" fill="rgba(53,99,233,0.15)" stroke="var(--blue-400)" stroke-width="1.4"/>
+              <g stroke="var(--blue-300)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+                <rect x="-15" y="-12" width="22" height="16" rx="1.5"/>
+                <path d="M-8,9 H0"/>
+                <path d="M-4,4 V9"/>
+                <rect x="9" y="-8" width="6" height="20" rx="1.5"/>
+              </g>
+            </g>
+            <text x="850" y="160" text-anchor="middle" font-family="المسافة (Space) Grotesk, sans-serif" font-size="15" font-weight="700" fill="var(--text-primary)">Search Head</text>
+            <text x="850" y="178" text-anchor="middle" font-family="Outfit, sans-serif" font-size="11.5" fill="var(--text-muted)">(Dashboard)</text>
+            <rect x="800" y="188" width="100" height="22" rx="10" fill="rgba(53,99,233,0.14)" stroke="rgba(53,99,233,0.3)"/>
+            <text x="850" y="203" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" letter-spacing="0.04em" fill="var(--blue-200)">INTERFACE</text>
+
+            <!-- Node 5: Analyst -->
+            <g transform="translate(1050,100)">
+              <rect x="-32" y="-32" width="64" height="64" rx="16" fill="rgba(53,99,233,0.15)" stroke="var(--blue-400)" stroke-width="1.4"/>
+              <g stroke="var(--blue-300)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none">
+                <circle cx="0" cy="-9" r="6"/>
+                <path d="M-12,12 C-12,3 -6,0 0,0 C6,0 12,3 12,12"/>
+              </g>
+            </g>
+            <text x="1050" y="160" text-anchor="middle" font-family="المسافة (Space) Grotesk, sans-serif" font-size="15" font-weight="700" fill="var(--text-primary)">Analyst</text>
+            <text x="1050" y="178" text-anchor="middle" font-family="Outfit, sans-serif" font-size="11.5" fill="var(--text-muted)">(SOC Team)</text>
+            <rect x="1018" y="188" width="64" height="22" rx="10" fill="rgba(53,99,233,0.14)" stroke="rgba(53,99,233,0.3)"/>
+            <text x="1050" y="203" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" letter-spacing="0.04em" fill="var(--blue-200)">USER</text>
+          </svg>
+        </div>
+
+        <div class="card-row card-row--3" style="margin-top: 1em;">
+          <p class="small" style="color: var(--text-secondary);"><strong class="blue">Endpoint</strong> — the device generating raw data.</p>
+          <p class="small" style="color: var(--text-secondary);"><strong class="purple">Forwarder</strong> — agent that sends data onward.</p>
+          <p class="small" style="color: var(--text-secondary);"><strong class="purple">Indexer</strong> — stores and organizes the data.</p>
+          <p class="small" style="color: var(--text-secondary);"><strong class="blue">Search Head</strong> — dashboard the user interacts with to search and run queries.</p>
+          <p class="small" style="color: var(--text-secondary);"><strong class="blue">Analyst</strong> — the person who investigates.</p>
+        </div>
+      </div>
+    </div>
+    <!-- ==========================================
+         SLIDE 12 — نماذج نشر وتثبيت أنظمة الـ SIEM
+         ========================================== -->
+    <div class="slide" data-slide="11" data-title="نماذج نشر وتثبيت أنظمة الـ SIEM"
+         data-notes="Walk through the three deployment models in order of increasing scale and complexity. Single instance is simplest but has no redundancy. Distributed splits the workload across dedicated machines. Clustered adds redundancy on top of that — emphasize load balancing (spreading queries/traffic across nodes) and fault tolerance (the system keeps running if a node fails).">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> SIEM المكونات الهندسية</div>
+        <h2>نماذج نشر وتثبيت أنظمة الـ SIEM</h2>
+        <p>A SIEM can be deployed in different ways depending on the size of the environment and how much redundancy is needed.</p>
+
+        <!-- Single Instance -->
+        <div style="display:flex; align-items:center; gap:28px; margin-top: 1.4em; padding: 1.1em; background: var(--gradient-card); backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: 14px;">
+          <div style="flex: 0 0 260px;">
+            <svg viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:auto;">
+              <rect x="60" y="25" width="180" height="92" rx="18" fill="rgba(53,99,233,0.10)" stroke="var(--blue-400)" stroke-width="1.6"/>
+              <g transform="translate(120,68) scale(0.8)" stroke="var(--purple-300)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none">
+                <path d="M-9,-14 H3 L9,-8 V14 H-9 Z"/>
+                <path d="M3,-14 V-8 H9"/>
+                <path d="M-5,-1 H5 M-5,3 H5 M-5,7 H1"/>
+              </g>
+              <g transform="translate(180,68) scale(0.8)" stroke="var(--blue-300)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none">
+                <rect x="-15" y="-12" width="22" height="16" rx="1.5"/>
+                <path d="M-8,9 H0"/>
+                <path d="M-4,4 V9"/>
+                <rect x="9" y="-8" width="6" height="20" rx="1.5"/>
+              </g>
+              <line x1="140" y1="68" x2="160" y2="68" stroke="var(--text-dim)" stroke-width="1.4" stroke-dasharray="2 3"/>
+              <text x="120" y="105" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="var(--text-secondary)">Indexer</text>
+              <text x="180" y="105" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="var(--text-secondary)">Search Head</text>
+              <text x="150" y="142" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="12" font-weight="600" fill="var(--blue-300)">ONE MACHINE</text>
+            </svg>
+          </div>
+          <div style="flex:1;">
+            <h4 style="font-size: 1.05rem;">Single Instance</h4>
+            <p style="font-size: 0.92rem; color: var(--text-secondary); line-height: 1.6; margin-top: 0.3em;">All components — forwarding, indexing, and the search head — run on <strong class="blue">one machine</strong>. It's the simplest setup to deploy and manage, but there's no redundancy: if that machine goes down, the whole SIEM goes down with it.</p>
+          </div>
+        </div>
+
+        <!-- Distributed -->
+        <div style="display:flex; align-items:center; gap:28px; margin-top: 1em; padding: 1.1em; background: var(--gradient-card); backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: 14px;">
+          <div style="flex: 0 0 260px;">
+            <svg viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:auto;">
+              <defs>
+                <marker id="dmArrow" markerWidth="7" markerHeight="7" refX="4" refY="2" orient="auto">
+                  <path d="M0,0 L4,2 L0,4 Z" fill="var(--blue-400)"/>
+                </marker>
+              </defs>
+              <line x1="72" y1="65" x2="123" y2="65" stroke="var(--blue-400)" stroke-width="1.6" marker-end="url(#dmArrow)"/>
+              <line x1="177" y1="65" x2="228" y2="65" stroke="var(--blue-400)" stroke-width="1.6" marker-end="url(#dmArrow)"/>
+
+              <circle cx="45" cy="65" r="27" fill="rgba(124,58,237,0.15)" stroke="var(--purple-400)" stroke-width="1.4"/>
+              <g transform="translate(45,65) scale(0.68)" stroke="var(--purple-300)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+                <path d="M-12.5,0 H4.5"/>
+                <path d="M-1.5,-6 L4.5,0 L-1.5,6"/>
+                <path d="M12.5,-10 V10"/>
+              </g>
+
+              <circle cx="150" cy="65" r="27" fill="rgba(124,58,237,0.15)" stroke="var(--purple-400)" stroke-width="1.4"/>
+              <g transform="translate(150,65) scale(0.68)" stroke="var(--purple-300)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none">
+                <path d="M-9,-14 H3 L9,-8 V14 H-9 Z"/>
+                <path d="M3,-14 V-8 H9"/>
+                <path d="M-5,-1 H5 M-5,3 H5 M-5,7 H1"/>
+              </g>
+
+              <circle cx="255" cy="65" r="27" fill="rgba(53,99,233,0.15)" stroke="var(--blue-400)" stroke-width="1.4"/>
+              <g transform="translate(255,65) scale(0.68)" stroke="var(--blue-300)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none">
+                <rect x="-15" y="-12" width="22" height="16" rx="1.5"/>
+                <path d="M-8,9 H0"/>
+                <path d="M-4,4 V9"/>
+                <rect x="9" y="-8" width="6" height="20" rx="1.5"/>
+              </g>
+
+              <text x="45" y="112" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="var(--text-secondary)">Forwarder</text>
+              <text x="150" y="112" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="var(--text-secondary)">Indexer</text>
+              <text x="255" y="112" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="var(--text-secondary)">Search Head</text>
+              <text x="150" y="145" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="12" font-weight="600" fill="var(--blue-300)">DEDICATED MACHINES</text>
+            </svg>
+          </div>
+          <div style="flex:1;">
+            <h4 style="font-size: 1.05rem;">Distributed</h4>
+            <p style="font-size: 0.92rem; color: var(--text-secondary); line-height: 1.6; margin-top: 0.3em;">Each component runs on its own <strong class="purple">dedicated machine</strong>. This spreads out the workload, so a heavy search doesn't slow down data collection, and each part can scale independently.</p>
+          </div>
+        </div>
+
+        <!-- Clustered -->
+        <div style="display:flex; align-items:center; gap:28px; margin-top: 1em; padding: 1.1em; background: var(--gradient-card); backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: 14px;">
+          <div style="flex: 0 0 260px;">
+            <svg viewBox="0 0 300 175" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:auto;">
+              <rect x="10" y="14" width="130" height="96" rx="14" fill="rgba(124,58,237,0.06)" stroke="var(--purple-400)" stroke-width="1.4" stroke-dasharray="4 4"/>
+              <rect x="160" y="14" width="130" height="96" rx="14" fill="rgba(53,99,233,0.06)" stroke="var(--blue-400)" stroke-width="1.4" stroke-dasharray="4 4"/>
+              <line x1="140" y1="60" x2="160" y2="60" stroke="var(--text-dim)" stroke-width="1.4" stroke-dasharray="2 3"/>
+
+              <g transform="translate(55,58) scale(0.66)" stroke="var(--purple-300)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none">
+                <path d="M-9,-14 H3 L9,-8 V14 H-9 Z"/><path d="M3,-14 V-8 H9"/><path d="M-5,-1 H5 M-5,3 H5 M-5,7 H1"/>
+              </g>
+              <g transform="translate(105,58) scale(0.66)" stroke="var(--purple-300)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none">
+                <path d="M-9,-14 H3 L9,-8 V14 H-9 Z"/><path d="M3,-14 V-8 H9"/><path d="M-5,-1 H5 M-5,3 H5 M-5,7 H1"/>
+              </g>
+
+              <g transform="translate(205,58) scale(0.66)" stroke="var(--blue-300)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none">
+                <rect x="-15" y="-12" width="22" height="16" rx="1.5"/><path d="M-8,9 H0"/><path d="M-4,4 V9"/><rect x="9" y="-8" width="6" height="20" rx="1.5"/>
+              </g>
+              <g transform="translate(255,58) scale(0.66)" stroke="var(--blue-300)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none">
+                <rect x="-15" y="-12" width="22" height="16" rx="1.5"/><path d="M-8,9 H0"/><path d="M-4,4 V9"/><rect x="9" y="-8" width="6" height="20" rx="1.5"/>
+              </g>
+
+              <text x="75" y="122" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10.5" font-weight="700" fill="var(--purple-300)">INDEXER CLUSTER</text>
+              <text x="225" y="122" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10.5" font-weight="700" fill="var(--blue-300)">SEARCH HEAD CLUSTER</text>
+
+              <rect x="15" y="138" width="120" height="24" rx="12" fill="rgba(124,58,237,0.14)" stroke="rgba(124,58,237,0.3)"/>
+              <text x="75" y="154" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10.5" font-weight="700" fill="var(--purple-200)">FAULT TOLERANT</text>
+
+              <rect x="165" y="138" width="120" height="24" rx="12" fill="rgba(53,99,233,0.14)" stroke="rgba(53,99,233,0.3)"/>
+              <text x="225" y="154" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10.5" font-weight="700" fill="var(--blue-200)">LOAD BALANCED</text>
+            </svg>
+          </div>
+          <div style="flex:1;">
+            <h4 style="font-size: 1.05rem;">Clustered</h4>
+            <p style="font-size: 0.92rem; color: var(--text-secondary); line-height: 1.6; margin-top: 0.3em;">Multiple indexers and search heads are grouped into clusters that replicate data across nodes. <strong class="blue">Load balancing</strong> spreads incoming traffic across the cluster, and <strong class="purple">fault tolerance</strong> means the SIEM keeps running even if one node fails.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <!-- ==========================================
+         SLIDE 13 — Log Types
+         ========================================== -->
+    <div class="slide" data-slide="12" data-title="أنواع وتصنيفات سجلات الأحداث"
+         data-notes="Walk through each category: System Logs come from the OS itself, سجلات الشبكة (Network Logs) come from traffic crossing the network, سجلات التطبيقات (Application Logs) come from specific software, and Security Logs come from dedicated security tooling. For each sub-item, give a one-line example of what it captures and why it matters for detection.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> مصادر السجلات</div>
+        <h2>Log Types</h2>
+        <p>Logs come from many different layers of the environment. Knowing where a log comes from helps you understand what it can (and can't) tell you.</p>
+
+        <div class="card-row" style="margin-top: 1.2em; grid-template-columns: 1fr;">
+
+          <div class="card">
+            <h4><strong class="blue">System Logs</strong></h4>
+            <p class="small" style="color: var(--text-muted); margin: 0.3em 0 0.6em;">From the OS itself — host-level activity.</p>
+            <ul style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.7; padding-left: 1.1em;">
+              <li><strong style="color: var(--text-primary);">Windows Event Logs</strong> — logins, service starts</li>
+              <li><strong style="color: var(--text-primary);">Sysmon Logs</strong> — process &amp; network detail</li>
+              <li><strong style="color: var(--text-primary);">Linux/Unix Syslogs</strong> — kernel, auth, cron</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h4><strong class="blue">سجلات الشبكة (Network Logs)</strong></h4>
+            <p class="small" style="color: var(--text-muted); margin: 0.3em 0 0.6em;">Traffic moving across the network.</p>
+            <ul style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.7; padding-left: 1.1em;">
+              <li><strong style="color: var(--text-primary);">Firewall Logs</strong> — allowed/blocked attempts</li>
+              <li><strong style="color: var(--text-primary);">Proxy Logs</strong> — outbound web requests</li>
+              <li><strong style="color: var(--text-primary);">DNS Logs</strong> — domain lookups</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h4><strong class="blue">سجلات التطبيقات (Application Logs)</strong></h4>
+            <p class="small" style="color: var(--text-muted); margin: 0.3em 0 0.6em;">From specific software's own activity.</p>
+            <ul style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.7; padding-left: 1.1em;">
+              <li><strong style="color: var(--text-primary);">Database Logs</strong> — queries &amp; access</li>
+              <li><strong style="color: var(--text-primary);">Web Server / HTTP Logs</strong> — requests, status codes</li>
+              <li><strong style="color: var(--text-primary);">App Logs</strong> — app-specific activity</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h4><strong class="purple">Security Logs</strong></h4>
+            <p class="small" style="color: var(--text-muted); margin: 0.3em 0 0.6em;">From dedicated security tooling.</p>
+            <ul style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.7; padding-left: 1.1em;">
+              <li><strong style="color: var(--text-primary);">سجلات المصادقة (Authentication)</strong> — login attempts/failures</li>
+              <li><strong style="color: var(--text-primary);">IDS/IPS Logs</strong> — attack signature alerts</li>
+              <li><strong style="color: var(--text-primary);">Endpoint Security Logs</strong> — AV/EDR detections</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <!-- ==========================================
+         SLIDE 14 — تشريح سطر سجل حقيقي لخادم ويب (Apache Log)
+         ========================================== -->
+    <div class="slide" data-slide="13" data-title="تشريح سجل خادم الويب (Web Log)"
+         data-notes="Walk through a real Apache/NGINX access-log line as a worked example of an Application Log. Point out the anatomy of the line first (client IP, timestamp, request, status, size, user agent), then zoom into the request field itself, which contains a SQL injection attempt against the modules.php endpoint. Explain why a SIEM analyst reading raw web server logs would flag this: it's a UNION SELECT trying to pull username/password columns out of an admin_users table by riding along on a 'name' parameter.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> مصادر السجلات · WORKED EXAMPLE</div>
+        <h2>تشريح سطر سجل حقيقي لخادم ويب (Apache Log)</h2>
+        <p>Here's a real-world <strong class="blue">Application Log</strong> entry — a web server access log line.</p>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1.5px solid var(--purple-500); border-radius: 14px; box-shadow: 0 0 24px rgba(124,58,237,0.12); padding: 1.3em 1.5em; margin-top: 1.2em;">
+          <p style="font-family: var(--font-mono); font-size: 0.9rem; line-height: 1.9; color: #ffffff; margin: 0; word-break: break-word; white-space: normal;">200.96.104.241 - - [12/Sep/2023:09:44:28 -0300] <span style="color: var(--blue-300);">"GET /modules.php?name=Downloads&&%20lid=-1%20UNION%20SELECT%200,username,user_id,user_password,name,%20user_email,user_level,0,0%20FROM%20admin_users HTTP/1.1"</span> 200 9918 "-" "Mozilla/4.0"</p>
+        </div>
+
+        <p style="margin-top: 1.3em; font-size: 0.92rem;">This line follows the standard <strong class="blue">Common Log Format</strong>. Here's what each field represents:</p>
+
+        <div class="card-row" style="margin-top: 0.8em; grid-template-columns: repeat(2, 1fr);">
+          <div class="card">
+            <ul style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.9; padding-left: 1.1em;">
+              <li><strong style="color: var(--text-primary); font-family: var(--font-mono); font-size: 0.92em;">200.96.104.241</strong> — the client's source IP address</li>
+              <li><strong style="color: var(--text-primary); font-family: var(--font-mono); font-size: 0.92em;">[12/Sep/2023:09:44:28 -0300]</strong> — timestamp of the request</li>
+              <li><strong style="color: var(--text-primary); font-family: var(--font-mono); font-size: 0.92em;">"GET ... HTTP/1.1"</strong> — the request line: method, requested path with its parameters, and protocol version</li>
+            </ul>
+          </div>
+          <div class="card">
+            <ul style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.9; padding-left: 1.1em;">
+              <li><strong style="color: var(--text-primary); font-family: var(--font-mono); font-size: 0.92em;">200</strong> — the HTTP status code returned by the server</li>
+              <li><strong style="color: var(--text-primary); font-family: var(--font-mono); font-size: 0.92em;">9918</strong> — size of the response, in bytes</li>
+              <li><strong style="color: var(--text-primary); font-family: var(--font-mono); font-size: 0.92em;">"-" "Mozilla/4.0"</strong> — the referrer (none here) and the client's user agent</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="info-box">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--blue-300)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>Over to you:</strong> look closely at the request path and its parameters. What do you notice, and why might this line be worth an analyst's attention?</p>
+        </div>
+
+      </div>
+    </div>
+    <!-- ==========================================
+         SLIDE 15 — Common Attack Signatures: User Behavior
+         ========================================== -->
+    <div class="slide" data-slide="14" data-title="بصمات سلوك المستخدمين وهجمات التخمين"
+         data-notes="Introduce this as the first category of common attack signatures: patterns in user behavior. Walk through the four groups — failed logins, login timing, login location, and file access — and for each, explain what a SIEM would be watching for and why it matters. Multiple failed logins can indicate password guessing or brute-forcing; unusual login times can indicate a compromised account being used outside someone's normal working hours; location anomalies, especially impossible travel, are a strong signal that a credential is being used from two places at once; and abnormal file access — especially mass renames, deletions, or encryption — can indicate data theft or ransomware in progress.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> COMMON بصمات الهجمات</div>
+        <h2>User Behavior</h2>
+        <p>Attacks often leave a trace in how a user (or account) behaves. These are the patterns a SIEM watches for first.</p>
+
+        <div class="card-row" style="margin-top: 1.2em; grid-template-columns: 1fr;">
+
+          <div class="card">
+            <h4 style="font-size: 1.02rem;"><strong class="blue">Multiple Failed Login Attempts</strong></h4>
+            <ul style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.75; padding-left: 1.1em; margin-top: 0.5em;">
+              <li>Repeated attempts with an incorrect username or password</li>
+              <li>A sudden spike in failures from a single user account</li>
+              <li>A spike in failures spread across multiple user accounts at once</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h4 style="font-size: 1.02rem;"><strong class="blue">Login Times</strong></h4>
+            <ul style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.75; padding-left: 1.1em; margin-top: 0.5em;">
+              <li>Logons or access requests happening at unusual times of day</li>
+              <li>Activity that deviates from a user's established baseline</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h4 style="font-size: 1.02rem;"><strong class="blue">Login / Access Locations</strong></h4>
+            <ul style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.75; padding-left: 1.1em; margin-top: 0.5em;">
+              <li>The geographic origin of logons or access requests</li>
+              <li>Access originating from unexpected countries or regions</li>
+              <li><strong style="color: var(--text-primary);">Impossible travel</strong> — logons from two distant locations too close together in time to be the same person</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h4 style="font-size: 1.02rem;"><strong class="purple">File Access Patterns</strong></h4>
+            <ul style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.75; padding-left: 1.1em; margin-top: 0.5em;">
+              <li>Access to sensitive or restricted files outside a user's normal scope</li>
+              <li>A sudden spike in file reads, downloads, or modifications</li>
+              <li>Mass file renames, deletions, or encryption — a possible sign of ransomware</li>
+              <li>File access happening at unusual times or from unfamiliar devices</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <!-- ==========================================
+         SLIDE 16 — ما هي هجمات حقن قواعد البيانات (SQL Injection)؟
+         ========================================== -->
+    <div class="slide" data-slide="15" data-title="ما هي هجمات حقن قواعد البيانات (SQLi)؟"
+         data-notes="Define SQL injection before showing detection signatures. It's the act of inserting or injecting malicious SQL statements into an input field to manipulate the query the application expects to run. Walk through what an attacker is typically after: pulling out sensitive information, extracting hashed passwords they can crack offline, or bypassing the login/authentication logic entirely.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> COMMON بصمات الهجمات</div>
+        <h2>SQL Injection</h2>
+        <p><strong class="blue">Inserting or injecting malicious SQL statements</strong> to manipulate a database query the application expects to run in a fixed, harmless form.</p>
+
+        <div class="info-box" style="margin-top: 1.3em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--blue-300)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>The goal is to manipulate expected database queries</strong> — bending a query the developer wrote into one the attacker wrote.</p>
+        </div>
+
+        <p style="margin-top: 1.3em; font-size: 0.92rem;">A successful injection can let an attacker:</p>
+        <div class="card-row" style="margin-top: 0.7em; grid-template-columns: repeat(3, 1fr);">
+          <div class="card">
+            <h4 style="font-size: 0.95rem;"><strong class="blue">استرجاع وسرقة البيانات الحساسة والسرية</strong></h4>
+          </div>
+          <div class="card">
+            <h4 style="font-size: 0.95rem;"><strong class="blue">استخراج هاشات كلمات مرور المستخدمين</strong></h4>
+          </div>
+          <div class="card">
+            <h4 style="font-size: 0.95rem;"><strong class="purple">تجاوز شاشات تسجيل الدخول والتحقق</strong></h4>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 17 — SQL Injection: What To Look For
+         ========================================== -->
+    <div class="slide" data-slide="16" data-title="كيف تكتشف هجمات SQLi في السجلات؟"
+         data-notes="اشرح البصمات التي يبحث عنها المحلل في السجلات: كلمات SQL المفتاحية (SELECT, FROM, WHERE, UNION) في مسارات الويب، والرموز الخاصة كالفواصل الفردية والمزدوجة والفاصلة المنقوطة ورموز التعليق (--) لكسر الاستعلام.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> COMMON بصمات الهجمات</div>
+        <h2>كيف تكتشف هجمات SQL Injection في السجلات؟</h2>
+        <p>يكشف أمران رئيسيان عن هجمات SQL Injection في السجلات الخام: الكلمات المفتاحية، والرموز المستخدمة لكسر سياق الاستعلام:</p>
+
+        <div class="card-row" style="margin-top: 1.2em; grid-template-columns: repeat(2, 1fr);">
+          <div class="card">
+            <h4 style="font-size: 1.02rem;"><strong class="blue">1. ابحث عن كلمات SQL المفتاحية</strong></h4>
+            <p style="font-family: var(--font-mono); font-size: 0.95rem; color: var(--blue-200); margin-top: 0.7em; line-height: 1.8;">SELECT, FROM, WHERE, UNION</p>
+          </div>
+          <div class="card">
+            <h4 style="font-size: 1.02rem;"><strong class="purple">2. ابحث عن رموز الحقن وكسر الاستعلام</strong></h4>
+            <p style="font-size: 0.86rem; color: var(--text-secondary); margin-top: 0.7em; line-height: 1.7;">الفواصل (', ")، الفاصلة المنقوطة (;)، ورموز التعليق (--) لإلغاء باقي الاستعلام</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 18 — SQL Injection: URL-Encoded الرمز العاديs & Example
+         ========================================== -->
+    <div class="slide" data-slide="17" data-title="الحمولات المشفرة بـ URL Encoding"
+         data-notes="غالباً ما يشفر المهاجمون الكلمات والرموز بصيغة URL Encoding لتجاوز فلاتر الحماية، ولذلك يجب على المحلل معرفة الرموز المشفرة. وضح جدول التشفير، ثم فك تشفير سطر السجل مع الطلاب: %20 تعني مسافة، و %27 تعني فاصلة عليا، مما يحول الاستعلام لشرط صحيح دائماً.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> COMMON بصمات الهجمات</div>
+        <h2>التعامل مع الحمولات المشفرة بـ (URL Encoding)</h2>
+        <p>Keywords and injection characters are often <strong class="blue">URL-encoded</strong> to slip past basic filters — so it pays to recognize the encoded forms too.</p>
+
+        <table style="width: 100%; border-collapse: collapse; margin-top: 1.1em; font-size: 0.86rem;">
+          <thead>
+            <tr style="background: rgba(255,255,255,0.04);">
+              <th style="text-align: left; padding: 0.65em 1em; border: 1px solid var(--border-glow); color: var(--text-primary); font-family: var(--font-heading);">الرمز العادي</th>
+              <th style="text-align: left; padding: 0.65em 1em; border: 1px solid var(--border-glow); color: var(--text-primary); font-family: var(--font-heading);">Normal</th>
+              <th style="text-align: left; padding: 0.65em 1em; border: 1px solid var(--border-glow); color: var(--text-primary); font-family: var(--font-heading);">URL-Encoded</th>
+            </tr>
+          </thead>
+          <tbody style="color: var(--text-secondary); font-family: var(--font-mono);">
+            <tr><td style="padding: 0.55em 1em; border: 1px solid var(--border);">Single Quote</td><td style="padding: 0.55em 1em; border: 1px solid var(--border); color: #ffffff;">'</td><td style="padding: 0.55em 1em; border: 1px solid var(--border); color: var(--blue-300);">%27</td></tr>
+            <tr><td style="padding: 0.55em 1em; border: 1px solid var(--border);">Double Quote</td><td style="padding: 0.55em 1em; border: 1px solid var(--border); color: #ffffff;">"</td><td style="padding: 0.55em 1em; border: 1px solid var(--border); color: var(--blue-300);">%22</td></tr>
+            <tr><td style="padding: 0.55em 1em; border: 1px solid var(--border);">المسافة (Space)</td><td style="padding: 0.55em 1em; border: 1px solid var(--border); color: #ffffff;">&nbsp;</td><td style="padding: 0.55em 1em; border: 1px solid var(--border); color: var(--blue-300);">%20</td></tr>
+            <tr><td style="padding: 0.55em 1em; border: 1px solid var(--border);">الفاصلة المنقوطة (;)</td><td style="padding: 0.55em 1em; border: 1px solid var(--border); color: #ffffff;">;</td><td style="padding: 0.55em 1em; border: 1px solid var(--border); color: var(--blue-300);">%3B</td></tr>
+            <tr><td style="padding: 0.55em 1em; border: 1px solid var(--border);">Dash</td><td style="padding: 0.55em 1em; border: 1px solid var(--border); color: #ffffff;">-</td><td style="padding: 0.55em 1em; border: 1px solid var(--border); color: var(--blue-300);">%2D</td></tr>
+          </tbody>
+        </table>
+
+        <p style="margin-top: 1.3em; font-size: 0.9rem; color: var(--text-muted); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.08em;">تفكيك وقراءة مثال واقعي من السجلات:</p>
+
+        <div style="display: flex; flex-direction: column; gap: 0.6em; margin-top: 0.6em;">
+          <div style="background: rgba(255,255,255,0.03); border: 1.5px solid var(--purple-500); border-radius: 12px; padding: 0.85em 1.2em;">
+            <p style="font-family: var(--font-mono); font-size: 0.82rem; color: #ffffff; margin: 0;">"GET /index.php?id=1<span style="color: var(--blue-300);">%20</span>OR<span style="color: var(--blue-300);">%20</span>1=1;<span style="color: var(--blue-300);">--</span></p>
+          </div>
+          <div style="background: rgba(255,255,255,0.03); border: 1.5px solid var(--purple-500); border-radius: 12px; padding: 0.85em 1.2em;">
+            <p style="font-family: var(--font-mono); font-size: 0.82rem; color: #ffffff; margin: 0;">SELECT * FROM users WHERE id = 1;</p>
+          </div>
+          <div style="background: rgba(124,58,237,0.1); border: 1.5px solid var(--purple-400); border-radius: 12px; padding: 0.85em 1.2em; box-shadow: 0 0 20px rgba(124,58,237,0.15);">
+            <p style="font-family: var(--font-mono); font-size: 0.82rem; color: #ffffff; margin: 0;">SELECT * FROM users WHERE id = 1 <span style="color: var(--blue-300); font-weight: 600;">OR 1=1; --</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 19 — ما هي هجمات السكربتات عبر المواقع (XSS)؟
+         ========================================== -->
+    <div class="slide" data-slide="18" data-title="ما هي هجمات Cross-Site Scripting (XSS)؟"
+         data-notes="عرّف هجمات XSS: تنفيذ أكواد جافاسكربت خبيثة في متصفح الضحية عبر حقنها في صفحات يزورها المستخدمون. استعرض أهداف المهاجم: سرقة ملفات تعريف الارتباط (Cookies)، اختطاف الجلسات (Session Hijacking)، وتشويه واجهات المواقع.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> COMMON بصمات الهجمات</div>
+        <h2>Cross-Site Scripting</h2>
+        <p><strong class="blue">تنفيذ أكواد خبيثة عبر حقن لغة JavaScript:</strong> into a page so it runs in another user's browser.</p>
+
+        <p style="margin-top: 1.3em; font-size: 0.92rem;">A successful injection can let an attacker:</p>
+        <div class="card-row" style="margin-top: 0.7em; grid-template-columns: repeat(3, 1fr);">
+          <div class="card">
+            <h4 style="font-size: 0.95rem;"><strong class="blue">اختطاف جلسات المستخدمين (Session Hijacking)</strong></h4>
+          </div>
+          <div class="card">
+            <h4 style="font-size: 0.95rem;"><strong class="blue">سرقة ملفات تعريف الارتباط (Steal Cookies)</strong></h4>
+          </div>
+          <div class="card">
+            <h4 style="font-size: 0.95rem;"><strong class="purple">تشويه واجهات المواقع وتغيير المحتوى</strong></h4>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 20 — Cross-Site Scripting: What To Look For
+         ========================================== -->
+    <div class="slide" data-slide="19" data-title="كيف تكتشف هجمات XSS في السجلات؟"
+         data-notes="اشرح البصمات التي يبحث عنها المحلل في السجلات: وسوم <script>، ومحفزات الأحداث (Event Handlers مثل onload و onerror و onclick) التي تشغل جافاسكربت بدون وسم script، والرموز الخاصة (< > ' & % ;) التي تشكل هذه الأكواد.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> COMMON بصمات الهجمات</div>
+        <h2>كيف تكتشف هجمات SQL Injection في السجلات؟</h2>
+        <p>تعتمد هجمات XSS على مجموعة من اللبنات المتكررة — الوسوم البرمجية، محفزات الأحداث، والرموز الخاصة:</p>
+
+        <div class="card-row" style="margin-top: 1.2em; grid-template-columns: 1fr;">
+          <div class="card">
+            <h4 style="font-size: 1.02rem;"><strong class="blue">1. ابحث عن وسوم السكربت (&lt;script&gt;)</strong></h4>
+          </div>
+
+          <div class="card">
+            <h4 style="font-size: 1.02rem;"><strong class="blue">2. ابحث عن محفزات الأحداث (Event Handlers)</strong></h4>
+            <ul style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.75; padding-left: 1.1em; margin-top: 0.5em;">
+              <li><span style="font-family: var(--font-mono); color: var(--blue-200);">onload, onclick, onmouseover</span></li>
+              <li>References to <span style="font-family: var(--font-mono); color: var(--blue-200);">&lt;script&gt;</span> tags</li>
+              <li>References to <span style="font-family: var(--font-mono); color: var(--blue-200);">"javascript"</span></li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h4 style="font-size: 1.02rem;"><strong class="purple">Special الرمز العاديs</strong></h4>
+            <p style="font-family: var(--font-mono); font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.6em;">&lt;, &gt;, ", ', &amp;, %, ;</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 21 — Cross-Site Scripting: أمثلة واقعية لهجمات XSS في سجلات خوادم الويب
+         ========================================== -->
+    <div class="slide" data-slide="20" data-title="أمثلة حية لهجمات XSS في السجلات"
+         data-notes="استعرض سطرين حقيقيين من سجلات الويب. الأول يحمل وسم script صريح داخل الرابط. والثاني مشفر بـ URL Encoding (%3C تعني < و %3E تعني >)، وضح للطلاب كيفية فك تشفيره: وسم img برابط صورة معطوب ليعمل حدث onerror ويشغل كود الجافاسكربت فور فشل تحميل الصورة.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> COMMON بصمات الهجمات</div>
+        <h2>أمثلة واقعية لهجمات XSS في سجلات خوادم الويب</h2>
+        <p>نموذجان حقيقيان من سجلات الويب لحمولة XSS — الأول بصيغة صريحة، والآخر بصيغة مشفرة:</p>
+
+        <p style="margin-top: 1.2em; font-size: 0.85rem; color: var(--text-muted); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.08em;">1. حمولة صريحة واضحة بوسم script:</p>
+        <div style="background: rgba(255,255,255,0.03); border: 1.5px solid var(--purple-500); border-radius: 14px; box-shadow: 0 0 24px rgba(124,58,237,0.12); padding: 1.1em 1.4em; margin-top: 0.5em;">
+          <p style="font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.85; color: #ffffff; margin: 0; word-break: break-word; white-space: normal;">192.168.1.100 - - [15/Jul/2024:14:55:23 +0000] "GET /search?q=<span style="color: var(--blue-300); font-weight: 600;">&lt;script&gt;alert('XSS')&lt;/script&gt;</span> HTTP/1.1" 200 2326 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"</p>
+        </div>
+
+        <p style="margin-top: 1.2em; font-size: 0.85rem; color: var(--text-muted); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.08em;">2. حمولة مشفرة تستغل حدث onerror:</p>
+        <div style="background: rgba(255,255,255,0.03); border: 1.5px solid var(--purple-500); border-radius: 14px; box-shadow: 0 0 24px rgba(124,58,237,0.12); padding: 1.1em 1.4em; margin-top: 0.5em;">
+          <p style="font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.85; color: #ffffff; margin: 0; word-break: break-word; white-space: normal;">192.168.1.101 - - [15/Jul/2024:14:56:45 +0000] "GET /profile?name=<span style="color: var(--blue-300); font-weight: 600;">%3Cimg%20src%3Dx%20onerror%3Dalert('XSS')%3E</span> HTTP/1.1" 200 2326 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 22 — حقن أوامر نظام التشغيل (Command Injection): What It Is & What To Look For
+         ========================================== -->
+    <div class="slide" data-slide="21" data-title="ما هي هجمات حقن أوامر نظام التشغيل (Command Injection)؟"
+         data-notes="عرّف حقن أوامر نظام التشغيل (حقن أوامر نظام التشغيل (Command Injection)): تنفيذ أوامر نظام عشوائية عبر تمريرها لمدخلات تطبيق يمررها بدوره للـ Shell. اذكر ما يكشفها: الرموز المستخدمة لدمج الأوامر (; و && و ||) وأسماء أوامر النظام الشهيرة (whoami, cat, ls).">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> COMMON بصمات الهجمات</div>
+        <h2>حقن أوامر نظام التشغيل (Command Injection)</h2>
+        <p><strong class="blue">تنفيذ أوامر نظام التشغيل العشوائية:</strong> by injecting them into an input that gets passed through to the underlying shell.</p>
+
+        <div class="card-row" style="margin-top: 1.2em; grid-template-columns: 1fr;">
+          <div class="card">
+            <h4 style="font-size: 1.02rem;"><strong class="blue">Look for Special الرمز العاديs That Separate Commands</strong></h4>
+            <p style="font-family: var(--font-mono); font-size: 0.95rem; color: var(--blue-200); margin-top: 0.6em;">; , || , &amp;&amp;</p>
+          </div>
+
+          <div class="card">
+            <h4 style="font-size: 1.02rem;"><strong class="purple">2. ابحث عن أسماء أوامر ومسارات ملفات النظام</strong></h4>
+            <p style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-secondary); line-height: 1.9; margin-top: 0.6em;">ls, echo, bash, cat, cd, cmd.exe, curl, wget<br>ping, sudo, chmod, rm, nc, nc.exe, sh</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 23 — حقن أوامر نظام التشغيل (Command Injection): مثال عملي لهجوم Command Injection في سجلات الويب
+         ========================================== -->
+    <div class="slide" data-slide="22" data-title="حقن أوامر نظام التشغيل (Command Injection): Example"
+         data-notes="استعرض سطر السجل العملي لحقن الأوامر. يحمل المعامل cmd أمرين مدموجين بفاصلة منقوطة: ls ثم cat /etc/passwd (مع تشفير المسافة بـ %20). قراءة ملف passwd خطوة كلاسيكية في لينكس لتأكيد نجاح تشغيل الأوامر واستخراج قائمة بأسماء مستخدمي النظام.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> COMMON بصمات الهجمات</div>
+        <h2>مثال عملي لهجوم Command Injection في سجلات الويب</h2>
+        <p>سطر سجل وصول حقيقي يحمل حمولة حقن أوامر نظام التشغيل:</p>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1.5px solid var(--purple-500); border-radius: 14px; box-shadow: 0 0 24px rgba(124,58,237,0.12); padding: 1.1em 1.4em; margin-top: 1.2em;">
+          <p style="font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.85; color: #ffffff; margin: 0; word-break: break-word; white-space: normal;">192.168.1.103 - - [15/Jul/2024:15:30:00 +0000] "GET /execute?<span style="color: var(--blue-300); font-weight: 600;">cmd=ls;cat%20/etc/passwd</span> HTTP/1.1" 200 4123 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"</p>
+        </div>
+      </div>
+    </div>
+  </div><!-- /presentation -->
+
+  <!-- Bottom Bar -->
+  <div id="bottom-bar">
+    <div class="bottom-left">
+      <span id="slide-counter">01 / 23</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <div class="nav-controls">
+        <button class="nav-btn nav-btn--notes" id="btn-notes" title="ملاحظات المحاضر (مفتاح: N)">📝 ملاحظات</button>
+        <button class="nav-btn" id="btn-prev" aria-label="الشريحة السابقة">→</button>
+        <button class="nav-btn" id="btn-next" aria-label="الشريحة التالية">←</button>
+      </div>
+    </div>
+  </div>
+
+  
+  <!-- Speaker Notes Overlay -->
+  <!-- Speaker Notes Overlay -->
+  <div id="speaker-notes-overlay" role="dialog" aria-label="Speaker Notes">
+    <div class="notes-header">
+      <div class="notes-title">
+        <span>📝</span> ملاحظات المحاضر
+        <span id="notes-slide-num" style="font-size:0.75rem; color:var(--text-muted); font-weight:normal; margin-left:6px;"></span>
+      </div>
+      <button class="notes-close" id="btn-close-notes" aria-label="إغلاق الملاحظات">&times;</button>
+    </div>
+    <div class="notes-body" id="notes-content"></div>
+  </div>
+
+  <script>
+    (() => {
+      const slides = document.querySelectorAll('.slide');
+      const total = slides.length;
+      let current = 0;
+
+      const counterEl     = document.getElementById('slide-counter');
+      const progressEl    = document.getElementById('progress-bar');
+      const headerTitleEl = document.getElementById('header-slide-title');
+
+      
+      const notesOverlay   = document.getElementById('speaker-notes-overlay');
+      const notesBtn       = document.getElementById('btn-notes');
+      const notesCloseBtn  = document.getElementById('btn-close-notes');
+      const notesContent   = document.getElementById('notes-content');
+      const notesSlideNum  = document.getElementById('notes-slide-num');
+
+      function updateNotes() {
+        if (!notesOverlay) return;
+        const note = slides[current].getAttribute('data-notes');
+        const title = slides[current].getAttribute('data-title') || `Slide ${current + 1}`;
+        if (notesSlideNum) notesSlideNum.textContent = `(${String(current + 1).padStart(2, '0')}/${String(total).padStart(2, '0')} - ${title})`;
+        if (note && note.trim().length > 0) {
+          notesContent.innerHTML = `<p>${note.replace(/\n/g, '<br>')}</p>`;
+        } else {
+          notesContent.innerHTML = `<span class="notes-empty">لا توجد ملاحظات مسجلة لهذه الشريحة.</span>`;
+        }
+      }
+
+      function toggleNotes() {
+        const overlay = document.getElementById('speaker-notes-overlay');
+        const btn = document.getElementById('btn-notes');
+        if (!overlay) return;
+        const isActive = overlay.classList.toggle('active');
+        if (btn) btn.classList.toggle('active', isActive);
+        if (isActive) updateNotes();
+      }
+
+      if (notesBtn) notesBtn.addEventListener('click', toggleNotes);
+      if (notesCloseBtn) notesCloseBtn.addEventListener('click', () => {
+        notesOverlay.classList.remove('active');
+        if (notesBtn) notesBtn.classList.remove('active');
+      });
+
+      function goTo(index) {
+        if (index < 0 || index >= total || index === current) return;
+        slides[current].classList.remove('active');
+        slides[current].scrollTop = 0;
+        slides[index].classList.add('active');
+        slides[index].scrollTop = 0;
+        current = index;
+        updateUI();
+      }
+
+      function updateUI() {
+        counterEl.textContent = `${String(current + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`;
+        progressEl.style.width = `${((current + 1) / total) * 100}%`;
+        headerTitleEl.textContent = slides[current].getAttribute('data-title') || '';
+        if (notesOverlay && notesOverlay.classList.contains('active')) updateNotes();
+      }
+
+      document.addEventListener('keydown', (e) => {
+        if (e.code === 'KeyN' || e.key === 'n' || e.key === 'N' || e.key === 'ى') { e.preventDefault(); toggleNotes(); }
+        else if (e.key === 'Escape') {
+          if (notesOverlay && notesOverlay.classList.contains('active')) {
+            e.preventDefault();
+            notesOverlay.classList.remove('active');
+            if (notesBtn) notesBtn.classList.remove('active');
+          }
+        }
+        else if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); goTo(current + 1); }
+        else if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(current - 1); }
+        else if (e.key === 'ArrowDown') {
+          const s = slides[current];
+          if (s && s.scrollHeight > s.clientHeight && s.scrollTop + s.clientHeight < s.scrollHeight - 5) {
+            e.preventDefault(); s.scrollBy({ top: 100, behavior: 'smooth' });
+          } else { e.preventDefault(); goTo(current + 1); }
+        }
+        else if (e.key === 'ArrowUp') {
+          const s = slides[current];
+          if (s && s.scrollHeight > s.clientHeight && s.scrollTop > 5) {
+            e.preventDefault(); s.scrollBy({ top: -100, behavior: 'smooth' });
+          } else { e.preventDefault(); goTo(current - 1); }
+        }
+        else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+        else if (e.key === 'End')  { e.preventDefault(); goTo(total - 1); }
+      });
+
+      document.getElementById('btn-prev').addEventListener('click', () => goTo(current - 1));
+      document.getElementById('btn-next').addEventListener('click', () => goTo(current + 1));
+
+      let touchStartX = 0;
+      document.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; });
+      document.addEventListener('touchend', (e) => {
+        const diff = touchStartX - e.changedTouches[0].screenX;
+        if (Math.abs(diff) > 50) { diff > 0 ? goTo(current + 1) : goTo(current - 1); }
+      });
+
+      updateUI();
+    })();
+  </script>
+
+</body>
+</html>

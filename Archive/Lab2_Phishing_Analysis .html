@@ -1,0 +1,1912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab 2 – Phishing Analysis</title>
+  <meta name="description" content="Incident Detection and Response — Lab 2 Phishing Analysis." />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue-100: #c2d6ff;
+      --blue-200: #93b4fd;
+      --blue-300: #6b93f7;
+      --blue-400: #4a78f0;
+      --blue-500: #3563e9;
+      --blue-600: #2a4ec4;
+      --blue-700: #1e3a9e;
+      --blue-800: #152c78;
+      --blue-900: #0d1d52;
+      --purple-100: #dfc8ff;
+      --purple-200: #c5a0fc;
+      --purple-300: #a87bf5;
+      --purple-400: #8b5cf6;
+      --purple-500: #7c3aed;
+      --purple-600: #6626c9;
+      --purple-700: #4f1d96;
+      --purple-800: #3b1578;
+      --purple-900: #270f52;
+      --accent-green: #34d399;
+      --accent-red: #f87171;
+      --accent-amber: #fbbf24;
+      --bg: #03050a;
+      --bg-surface: #070a14;
+      --bg-card: rgba(8, 12, 24, 0.75);
+      --bg-card-hover: rgba(14, 20, 36, 0.9);
+      --text-primary: #e8ecf4;
+      --text-secondary: #a0aec4;
+      --text-muted: #5c6b84;
+      --text-dim: #3e4a62;
+      --border: rgba(99, 130, 241, 0.1);
+      --border-glow: rgba(99, 130, 241, 0.22);
+      --shadow-sm: 0 1px 4px rgba(0,0,0,0.25);
+      --shadow-md: 0 4px 20px rgba(0,0,0,0.35);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.4);
+      --gradient-main: linear-gradient(135deg, var(--blue-500), var(--purple-500));
+      --gradient-soft: linear-gradient(135deg, rgba(53,99,233,0.12), rgba(124,58,237,0.12));
+      --gradient-card: linear-gradient(160deg, rgba(16,22,42,0.8), rgba(30,20,70,0.35));
+      --font-heading: 'Space Grotesk', 'Outfit', system-ui, sans-serif;
+      --font-body: 'Outfit', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    html { font-size: 18px; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text-primary);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===== Static Background ===== */
+    .circuit-bg {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none; opacity: 0.03; overflow: hidden;
+    }
+
+    .orb {
+      position: fixed; border-radius: 50%; filter: blur(100px);
+      z-index: 0; pointer-events: none;
+    }
+    .orb--1 { width: 550px; height: 550px; top: -200px; right: -140px; background: radial-gradient(circle, rgba(53,99,233,0.12) 0%, rgba(124,58,237,0.06) 50%, transparent 70%); }
+    .orb--2 { width: 480px; height: 480px; bottom: -180px; left: -100px; background: radial-gradient(circle, rgba(124,58,237,0.09) 0%, rgba(53,99,233,0.04) 50%, transparent 70%); }
+    .orb--3 { width: 300px; height: 300px; top: 45%; left: 50%; background: radial-gradient(circle, rgba(53,99,233,0.06) 0%, transparent 65%); }
+
+    .shield-watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 0; pointer-events: none; opacity: 0.02; }
+
+    .side-accent { position: fixed; left: 0; top: 0; bottom: 0; width: 4px; background: var(--gradient-main); z-index: 10; }
+
+    /* ===== Top Header ===== */
+    .top-header {
+      position: fixed; top: 0; left: 4px; right: 0; height: 40px;
+      background: rgba(3, 5, 10, 0.85); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; z-index: 9;
+    }
+    .header-title {
+      font-family: var(--font-heading); font-size: 0.72rem; font-weight: 600;
+      color: var(--text-secondary); letter-spacing: 0.02em;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .header-title .title-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--blue-500); box-shadow: 0 0 8px rgba(53, 99, 233, 0.5); }
+    .header-title .title-sep { color: var(--text-dim); font-weight: 400; }
+    #header-slide-title { color: var(--text-muted); font-weight: 400; font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.04em; }
+    .header-right { display: flex; align-items: center; gap: 14px; }
+
+    /* ===== Lab Badge ===== */
+    .lab-badge {
+      font-family: var(--font-mono); font-size: 0.6rem; font-weight: 600;
+      padding: 0.2em 0.65em; border-radius: 5px; letter-spacing: 0.06em;
+      background: rgba(53,99,233,0.15); color: var(--blue-200);
+      border: 1px solid rgba(53,99,233,0.2);
+    }
+
+    /* ===== Progress Bar ===== */
+    #progress-bar {
+      position: fixed; top: 40px; left: 4px; height: 2px;
+      background: var(--gradient-main);
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 10; border-radius: 0 2px 2px 0;
+      box-shadow: 0 0 14px rgba(99, 102, 241, 0.25);
+    }
+
+    /* ===== Slide Container ===== */
+    #presentation { position: relative; width: 100%; height: 100%; z-index: 1; }
+
+    .slide {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 72px 100px 68px 100px;
+      opacity: 0; transform: translateY(16px);
+      transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+      overflow-y: auto; overflow-x: hidden;
+    }
+    .slide.active { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .slide-inner { max-width: 1060px; width: 100%; margin: auto 0; }
+
+    /* ===== Custom Scrollbar ===== */
+    .slide::-webkit-scrollbar { width: 8px; }
+    .slide::-webkit-scrollbar-track { background: rgba(8, 12, 24, 0.2); }
+    .slide::-webkit-scrollbar-thumb { background: rgba(99, 130, 241, 0.25); border-radius: 4px; }
+    .slide::-webkit-scrollbar-thumb:hover { background: rgba(99, 130, 241, 0.5); }
+
+    /* ===== Typography ===== */
+    h1 { font-family: var(--font-heading); font-size: 3rem; font-weight: 700; line-height: 1.1; margin-bottom: 0.4em; letter-spacing: -0.03em; }
+    h2 { font-family: var(--font-heading); font-size: 2.05rem; font-weight: 700; line-height: 1.18; margin-bottom: 0.5em; letter-spacing: -0.02em; }
+
+    .section-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: var(--font-mono); font-size: 0.66rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 0.9em;
+      padding: 0.35em 0.9em; border-radius: 6px;
+      background: var(--gradient-soft); border: 1px solid var(--border); color: var(--blue-300);
+    }
+    .section-label .label-icon { font-size: 0.8em; }
+
+    p, li { font-size: 1.08rem; line-height: 1.72; color: var(--text-secondary); }
+    ul { list-style: none; padding: 0; }
+    ul li { position: relative; padding-left: 1.8em; margin-bottom: 0.6em; }
+    ul li::before { content: ''; position: absolute; left: 0; top: 0.5em; width: 10px; height: 10px; border-radius: 3px; border: 2px solid var(--blue-600); background: transparent; transform: rotate(45deg); }
+    ul li::after { content: ''; position: absolute; left: 3px; top: calc(0.5em + 3px); width: 4px; height: 4px; border-radius: 1px; background: var(--gradient-main); transform: rotate(45deg); }
+
+    .gradient-text { background: var(--gradient-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .blue   { color: var(--blue-300); }
+    .purple { color: var(--purple-300); }
+    .green  { color: var(--accent-green); }
+    .red    { color: var(--accent-red); }
+    .amber  { color: var(--accent-amber); }
+    .mono   { font-family: var(--font-mono); font-size: 0.88em; }
+    .muted  { color: var(--text-muted); }
+    .dim    { color: var(--text-dim); }
+    .small  { font-size: 0.8rem; }
+
+    /* ===== Tags ===== */
+    .tag { display: inline-flex; align-items: center; gap: 5px; padding: 0.2em 0.7em; border-radius: 6px; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 600; letter-spacing: 0.04em; }
+    .tag--blue   { background: rgba(53,99,233,0.15);  color: var(--blue-200);   border: 1px solid rgba(53,99,233,0.2); }
+    .tag--purple { background: rgba(124,58,237,0.15); color: var(--purple-200); border: 1px solid rgba(124,58,237,0.2); }
+    .tag--red    { background: rgba(239,68,68,0.12);  color: #fca5a5;           border: 1px solid rgba(239,68,68,0.15); }
+    .tag--amber  { background: rgba(245,158,11,0.12); color: #fcd34d;           border: 1px solid rgba(245,158,11,0.15); }
+    .tag--green  { background: rgba(34,197,94,0.12);  color: #86efac;           border: 1px solid rgba(34,197,94,0.15); }
+    .tag-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+    /* ===== Cards ===== */
+    .card-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 1.1em; }
+    .card-row--2 { grid-template-columns: repeat(2, 1fr); }
+    .card-row--3 { grid-template-columns: repeat(3, 1fr); }
+    .card-row--4 { grid-template-columns: repeat(4, 1fr); }
+
+    .card {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.3em 1.35em; box-shadow: var(--shadow-sm);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative; overflow: hidden;
+    }
+    .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--gradient-main); opacity: 0; transition: opacity 0.35s ease; }
+    .card:hover { background: var(--bg-card-hover); box-shadow: var(--shadow-lg); transform: translateY(-3px); border-color: var(--border-glow); }
+    .card:hover::before { opacity: 1; }
+    .card h4 { font-family: var(--font-heading); font-size: 0.96rem; font-weight: 600; margin-bottom: 0.35em; color: var(--text-primary); }
+    .card p  { font-size: 0.86rem; color: var(--text-muted); line-height: 1.55; }
+    .card-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; margin-bottom: 0.75em; }
+    .card-icon--blue   { background: rgba(53,99,233,0.12);  border: 1px solid rgba(53,99,233,0.15); }
+    .card-icon--purple { background: rgba(124,58,237,0.12); border: 1px solid rgba(124,58,237,0.15); }
+    .card-icon--green  { background: rgba(52,211,153,0.12); border: 1px solid rgba(52,211,153,0.15); }
+    .card-icon--amber  { background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.15); }
+    .card-icon--red    { background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.15); }
+    .card-icon--mixed  { background: var(--gradient-soft); border: 1px solid var(--border); }
+
+    /* ===== Flow Diagram ===== */
+    .flow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 1.1em; }
+    .flow-step {
+      background: var(--bg-card); backdrop-filter: blur(8px);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 0.6em 1.1em; font-size: 0.88rem; font-weight: 500;
+      box-shadow: var(--shadow-sm); white-space: nowrap; transition: all 0.3s ease;
+    }
+    .flow-step:hover { box-shadow: var(--shadow-md); border-color: var(--border-glow); transform: translateY(-1px); }
+    .flow-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 6px; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600; margin-right: 6px; }
+    .flow-num--1 { background: rgba(53,99,233,0.18);  color: var(--blue-200); }
+    .flow-num--2 { background: rgba(124,58,237,0.18); color: var(--purple-200); }
+    .flow-num--3 { background: rgba(239,68,68,0.14);  color: #fca5a5; }
+    .flow-num--4 { background: rgba(245,158,11,0.14); color: #fcd34d; }
+    .flow-arrow { font-size: 1.1rem; color: var(--blue-600); }
+
+    /* ===== Title Slide ===== */
+    .slide--title { text-align: center; }
+    .slide--title h1 { font-size: 3.3rem; }
+    .slide--title .subtitle { font-size: 1.1rem; color: var(--text-muted); margin-top: 0.15em; max-width: 580px; margin-left: auto; margin-right: auto; }
+    .divider { width: 50px; height: 4px; background: var(--gradient-main); border-radius: 3px; margin: 1em auto; position: relative; }
+    .divider::after { content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 80px; height: 20px; background: var(--gradient-main); filter: blur(16px); opacity: 0.25; border-radius: 10px; }
+
+    /* ===== Instructor Line ===== */
+    .instructor-line {
+      margin-top: 1.6em;
+      font-size: 0.88rem; color: var(--text-muted);
+      font-family: var(--font-body); letter-spacing: 0.01em;
+    }
+    .instructor-line span { color: var(--text-secondary); font-weight: 500; }
+
+    /* ===== Info Box ===== */
+    .info-box {
+      display: flex; align-items: flex-start; gap: 1em;
+      background: var(--gradient-soft); border: 1px solid var(--border-glow);
+      border-radius: 12px; padding: 1em 1.3em; margin-top: 1.2em;
+    }
+    .info-box-icon { flex-shrink: 0; margin-top: 0.1em; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; }
+    .info-box-icon svg { width: 20px; height: 20px; }
+    .info-box p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
+    .info-box strong { color: var(--blue-300); }
+
+    /* ===== Warning Box (red variant of info-box) ===== */
+    .warn-box {
+      display: flex; align-items: flex-start; gap: 1em;
+      background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25);
+      border-radius: 12px; padding: 1em 1.3em; margin-top: 1.2em;
+    }
+    .warn-box .info-box-icon svg { stroke: var(--accent-red); }
+    .warn-box p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
+    .warn-box strong { color: var(--accent-red); }
+
+    /* ===== Cycle Row ===== */
+    .cycle-row {
+      display: flex; align-items: stretch; justify-content: center;
+      gap: 0; margin-top: 1.4em; border-radius: 14px; overflow: hidden;
+      border: 1px solid var(--border); box-shadow: var(--shadow-md);
+    }
+    .cycle-item {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 1.2em 0.8em; text-align: center;
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      position: relative; transition: background 0.3s ease;
+      border-right: 1px solid var(--border);
+    }
+    .cycle-item:last-child { border-right: none; }
+    .cycle-item:hover { background: var(--bg-card-hover); }
+    .cycle-item::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+    .cycle-item:hover::before { opacity: 1; }
+    .ci-1::before { background: linear-gradient(90deg, var(--blue-500), var(--blue-400)); }
+    .ci-2::before { background: linear-gradient(90deg, var(--blue-600), var(--blue-500)); }
+    .ci-3::before { background: linear-gradient(90deg, var(--purple-600), var(--purple-500)); }
+    .ci-4::before { background: linear-gradient(90deg, var(--accent-red), #fca5a5); }
+
+    .cycle-num {
+      width: 28px; height: 28px; border-radius: 8px; display: flex;
+      align-items: center; justify-content: center; font-family: var(--font-mono);
+      font-size: 0.7rem; font-weight: 700; margin-bottom: 0.6em;
+    }
+    .cycle-num--1 { background: rgba(53,99,233,0.2);  color: var(--blue-200); }
+    .cycle-num--2 { background: rgba(53,99,233,0.16); color: var(--blue-300); }
+    .cycle-num--3 { background: rgba(124,58,237,0.18); color: var(--purple-200); }
+    .cycle-num--4 { background: rgba(248,113,113,0.18); color: #fca5a5; }
+
+    .cycle-label {
+      font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700;
+      color: var(--text-primary); margin-bottom: 0.3em;
+    }
+    .cycle-desc { font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; }
+
+    /* ===== Two-column layout ===== */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 1em; }
+    .col-block {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.3em 1.4em; position: relative; overflow: hidden;
+    }
+    .col-block::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+    .col-block--blue::before   { background: linear-gradient(90deg, var(--blue-500), transparent); }
+    .col-block--purple::before { background: linear-gradient(90deg, var(--purple-500), transparent); }
+    .col-block--green::before  { background: linear-gradient(90deg, var(--accent-green), transparent); }
+    .col-block--red::before    { background: linear-gradient(90deg, var(--accent-red), transparent); }
+    .col-block h4 { font-family: var(--font-heading); font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.8em; }
+    .col-block ul { padding: 0; }
+    .col-block ul li { font-size: 0.88rem; margin-bottom: 0.45em; }
+
+    /* ===== Methodology Steps ===== */
+    .method-step { display: flex; align-items: flex-start; gap: 0.8em; margin-bottom: 1em; }
+    .method-step:last-child { margin-bottom: 0; }
+    .method-num {
+      flex-shrink: 0; width: 26px; height: 26px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700;
+      background: rgba(53,99,233,0.15); color: var(--blue-200);
+      border: 1px solid rgba(53,99,233,0.2); margin-top: 0.1em;
+    }
+    .method-step ul { margin-top: 0.2em; }
+    .method-step ul li { font-size: 0.84rem; margin-bottom: 0.3em; }
+
+    /* ===== Model / Profile Cards ===== */
+    .model-card {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 16px;
+      padding: 1.6em 1.5em; box-shadow: var(--shadow-md);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative; overflow: hidden;
+      display: flex; flex-direction: column; gap: 0.7em;
+    }
+    .model-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gradient-main); opacity: 0; transition: opacity 0.35s ease; }
+    .model-card:hover { background: var(--bg-card-hover); box-shadow: var(--shadow-lg); transform: translateY(-4px); border-color: var(--border-glow); }
+    .model-card:hover::before { opacity: 1; }
+    .model-card .model-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .model-card h4 { font-family: var(--font-heading); font-size: 1.0rem; font-weight: 700; color: var(--text-primary); }
+    .model-card p  { font-size: 0.86rem; color: var(--text-muted); line-height: 1.6; }
+    .model-card .model-tag { align-self: flex-start; }
+
+    /* ===== Case Study Card ===== */
+    .case-card {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 16px;
+      padding: 1.4em 1.5em; box-shadow: var(--shadow-md);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative; overflow: hidden; cursor: pointer;
+    }
+    .case-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gradient-main); opacity: 0.6; }
+    .case-card:hover { background: var(--bg-card-hover); box-shadow: var(--shadow-lg); transform: translateY(-4px); border-color: var(--border-glow); }
+    .case-card .case-year { font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: var(--blue-300); letter-spacing: 0.03em; margin-bottom: 0.5em; }
+    .case-card h4 { font-family: var(--font-heading); font-size: 1.05rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.5em; }
+    .case-card p { font-size: 0.84rem; color: var(--text-muted); line-height: 1.55; }
+    .case-card .case-impact { margin-top: 0.7em; padding-top: 0.7em; border-top: 1px solid var(--border); font-size: 0.78rem; color: var(--accent-red); font-weight: 600; }
+
+    /* ===== Case Study Detail Layout ===== */
+    .case-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 1em; flex-wrap: wrap; }
+    .case-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+    .case-stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 1.1em; }
+    .case-stat {
+      background: var(--gradient-card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1em 1.1em; text-align: center;
+    }
+    .case-stat .stat-value { font-family: var(--font-heading); font-size: 1.5rem; font-weight: 700; color: var(--text-primary); }
+    .case-stat .stat-value.red { color: var(--accent-red); }
+    .case-stat .stat-value.amber { color: var(--accent-amber); }
+    .case-stat .stat-value.blue { color: var(--blue-300); }
+    .case-stat .stat-label { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.3em; letter-spacing: 0.03em; }
+
+    .timeline-mini { display: flex; flex-direction: column; gap: 8px; margin-top: 1em; }
+    .tl-mini-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      background: var(--gradient-card); backdrop-filter: blur(12px);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 0.65em 1em; transition: all 0.3s ease;
+    }
+    .tl-mini-item:hover { border-color: var(--border-glow); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .tl-mini-time { font-family: var(--font-mono); font-size: 0.7rem; color: var(--blue-300); flex-shrink: 0; min-width: 88px; padding-top: 0.15em; }
+    .tl-mini-item p { font-size: 0.85rem; margin: 0; color: var(--text-secondary); }
+    .tl-mini-item strong { color: var(--text-primary); }
+
+    /* ===== Benefit grid (checklist) ===== */
+    .benefit-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 1em; }
+    .benefit-item {
+      background: var(--gradient-card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 0.8em 1em;
+      display: flex; align-items: center; gap: 10px;
+      transition: all 0.3s ease;
+    }
+    .benefit-item:hover { border-color: var(--border-glow); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .benefit-check {
+      width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0;
+      background: rgba(53,99,233,0.15); border: 1px solid rgba(53,99,233,0.2);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .benefit-check svg { width: 12px; height: 12px; }
+    .benefit-item span { font-size: 0.85rem; color: var(--text-secondary); }
+
+    /* ===== Bottom Bar ===== */
+    #bottom-bar {
+      position: fixed; bottom: 0; left: 4px; right: 0; height: 46px;
+      display: flex; align-items: center; justify-content: space-between; padding: 0 24px;
+      z-index: 10; background: rgba(3, 5, 10, 0.85); backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border);
+    }
+    .bottom-left { display: flex; align-items: center; gap: 14px; }
+    #slide-counter { font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-muted); letter-spacing: 0.04em; }
+    .nav-controls { display: flex; gap: 6px; }
+    .nav-btn {
+      background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary);
+      border-radius: 8px; width: 36px; height: 30px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 0.82rem; transition: all 0.25s ease; box-shadow: var(--shadow-sm);
+    }
+    .nav-btn:hover { background: var(--bg-card-hover); color: var(--blue-300); border-color: var(--border-glow); box-shadow: var(--shadow-md); }
+
+    /* ===== Slide element entrance animations ===== */
+    .slide.active li, .slide.active .card, .slide.active .flow-step, .slide.active .model-card,
+    .slide.active .cycle-item, .slide.active .col-block, .slide.active .case-card,
+    .slide.active .case-stat, .slide.active .tl-mini-item, .slide.active .benefit-item {
+      animation: fadeUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+    }
+    .slide.active li:nth-child(1), .slide.active .card:nth-child(1), .slide.active .flow-step:nth-child(1), .slide.active .model-card:nth-child(1), .slide.active .cycle-item:nth-child(1), .slide.active .col-block:nth-child(1), .slide.active .case-card:nth-child(1), .slide.active .case-stat:nth-child(1), .slide.active .tl-mini-item:nth-child(1), .slide.active .benefit-item:nth-child(1) { animation-delay: 0.06s; }
+    .slide.active li:nth-child(2), .slide.active .card:nth-child(2), .slide.active .flow-step:nth-child(2), .slide.active .model-card:nth-child(2), .slide.active .cycle-item:nth-child(2), .slide.active .col-block:nth-child(2), .slide.active .case-card:nth-child(2), .slide.active .case-stat:nth-child(2), .slide.active .tl-mini-item:nth-child(2), .slide.active .benefit-item:nth-child(2) { animation-delay: 0.12s; }
+    .slide.active li:nth-child(3), .slide.active .card:nth-child(3), .slide.active .flow-step:nth-child(3), .slide.active .model-card:nth-child(3), .slide.active .cycle-item:nth-child(3), .slide.active .col-block:nth-child(3), .slide.active .case-card:nth-child(3), .slide.active .case-stat:nth-child(3), .slide.active .tl-mini-item:nth-child(3), .slide.active .benefit-item:nth-child(3) { animation-delay: 0.18s; }
+    .slide.active li:nth-child(4), .slide.active .card:nth-child(4), .slide.active .flow-step:nth-child(4), .slide.active .cycle-item:nth-child(4), .slide.active .case-card:nth-child(4), .slide.active .tl-mini-item:nth-child(4), .slide.active .benefit-item:nth-child(4) { animation-delay: 0.24s; }
+    .slide.active li:nth-child(5), .slide.active .card:nth-child(5), .slide.active .flow-step:nth-child(5), .slide.active .tl-mini-item:nth-child(5), .slide.active .benefit-item:nth-child(5) { animation-delay: 0.30s; }
+    .slide.active li:nth-child(6), .slide.active .flow-step:nth-child(6), .slide.active .tl-mini-item:nth-child(6), .slide.active .benefit-item:nth-child(6) { animation-delay: 0.36s; }
+    .slide.active li:nth-child(7)  { animation-delay: 0.42s; }
+    .slide.active li:nth-child(8)  { animation-delay: 0.48s; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* =========================================================
+       MAIL AGENTS — Bob to Alice journey diagram
+       ========================================================= */
+    .mail-actor {
+      position: absolute;
+      display: flex; flex-direction: column; align-items: center;
+      width: 95px; text-align: center; z-index: 2;
+    }
+    .mail-actor-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 0.5em; box-shadow: var(--shadow-sm);
+    }
+    .mail-actor-icon--person { background: rgba(53,99,233,0.14); border: 1px solid rgba(53,99,233,0.22); }
+    .mail-actor-icon--server { background: rgba(124,58,237,0.14); border: 1px solid rgba(124,58,237,0.22); }
+    .mail-actor-label { font-family: var(--font-heading); font-size: 0.74rem; font-weight: 600; color: var(--text-primary); line-height: 1.35; }
+    .mail-actor-label .dim { font-family: var(--font-body); font-weight: 400; font-size: 0.92em; }
+    .mail-actor-tag { margin-top: 0.5em; }
+    .mail-proto-label {
+      position: absolute; font-family: var(--font-mono); font-size: 0.68rem;
+      color: var(--blue-300); white-space: nowrap; font-weight: 600; z-index: 2;
+    }
+    .mail-relay-label {
+      position: absolute; font-family: var(--font-mono); font-size: 0.62rem;
+      color: var(--text-dim); text-align: center; line-height: 1.4; z-index: 1; width: 140px;
+    }
+
+    /* =========================================================
+       ANIMATED ACTOR / PACKET WORKFLOW DIAGRAMS (Lab2 style)
+       ========================================================= */
+    .anim-container {
+      position: relative;
+      width: 100%; max-width: 900px;
+      margin: 1.2em auto 0;
+      background: rgba(8, 12, 24, 0.6);
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: inset 0 0 50px rgba(0,0,0,0.4);
+    }
+    .anim-actor {
+      position: absolute;
+      padding: 0.7rem 0.6rem;
+      background: rgba(14, 20, 36, 0.95);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+      width: 140px;
+      min-height: 70px;
+      z-index: 2;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      color: var(--text-primary);
+    }
+    .anim-actor.actor-client   { border-color: var(--blue-400); box-shadow: 0 0 18px rgba(74,120,240,0.15); }
+    .anim-actor.actor-smtp     { border-color: var(--purple-500); box-shadow: 0 0 18px rgba(124,58,237,0.15); }
+    .anim-actor.actor-dns      { border-color: var(--accent-amber); box-shadow: 0 0 18px rgba(251,191,36,0.15); }
+    .anim-actor.actor-recv     { border-color: var(--blue-500); box-shadow: 0 0 18px rgba(53,99,233,0.15); }
+    .anim-actor.actor-attacker { border-color: var(--accent-red); box-shadow: 0 0 18px rgba(248,113,113,0.15); }
+    .anim-actor.actor-victim   { border-color: var(--accent-green); box-shadow: 0 0 18px rgba(52,211,153,0.15); }
+    .anim-actor.actor-server   { border-color: var(--blue-400); box-shadow: 0 0 18px rgba(74,120,240,0.15); }
+
+    .anim-data-store {
+      min-height: 36px; display: flex; align-items: stretch; justify-content: center; width: 100%;
+    }
+    .anim-data-store::after {
+      content: attr(data-content);
+      display: flex; align-items: center; justify-content: center;
+      padding: 5px; border-radius: 4px; font-size: 0.62rem; font-weight: 500;
+      width: 100%; border: 1px dashed var(--text-dim);
+      background: rgba(1, 4, 9, 0.5); color: var(--text-muted);
+      transition: all 0.3s ease; white-space: pre-wrap; line-height: 1.4;
+    }
+
+    .anim-packet {
+      position: absolute; left: 0; top: 0;
+      padding: 0.4rem 0.8rem;
+      background: rgba(14, 20, 36, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      white-space: nowrap;
+      z-index: 3;
+      opacity: 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      display: flex; align-items: center; gap: 6px;
+      color: var(--text-primary);
+    }
+    .anim-packet::before { content: ""; width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .pkt-blue::before   { background: var(--blue-400); box-shadow: 0 0 8px var(--blue-400); }
+    .pkt-purple::before { background: var(--purple-400); box-shadow: 0 0 8px var(--purple-400); }
+    .pkt-green::before  { background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
+    .pkt-red::before    { background: var(--accent-red); box-shadow: 0 0 8px var(--accent-red); }
+    .pkt-amber::before  { background: var(--accent-amber); box-shadow: 0 0 8px var(--accent-amber); }
+
+    .slide:not(.active) .anim-packet,
+    .slide:not(.active) .anim-data-store::after { animation: none !important; }
+    .anim-packet { animation-iteration-count: infinite; animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+
+    /* ---- Email agent diagram (MUA/MTA/MDA) pulse ---- */
+    @keyframes agentPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(53,99,233,0.25); } 50% { box-shadow: 0 0 0 8px rgba(53,99,233,0); } }
+    .slide.active .agent-node { animation: agentPulse 2.2s ease-in-out infinite; }
+    .slide.active .agent-node:nth-child(1) { animation-delay: 0s; }
+    .slide.active .agent-node:nth-child(2) { animation-delay: 0.4s; }
+    .slide.active .agent-node:nth-child(3) { animation-delay: 0.8s; }
+
+    /* ===== Email Agent Flow Layout ===== */
+    .agent-flow { display: flex; align-items: center; justify-content: center; gap: 0; margin-top: 1.4em; flex-wrap: wrap; }
+    .agent-node {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.1em 1.3em; text-align: center; min-width: 150px;
+      box-shadow: var(--shadow-sm);
+    }
+    .agent-node .agent-icon { width: 40px; height: 40px; border-radius: 10px; margin: 0 auto 0.6em; display: flex; align-items: center; justify-content: center; }
+    .agent-node h5 { font-family: var(--font-heading); font-size: 0.92rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.2em; }
+    .agent-node .agent-full { font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-dim); letter-spacing: 0.02em; margin-bottom: 0.4em; }
+    .agent-node p { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; margin: 0; }
+    .agent-arrow { font-size: 1.4rem; color: var(--blue-600); padding: 0 0.5em; flex-shrink: 0; }
+
+    /* ===== Email Anatomy Diagram ===== */
+    .email-mockup {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 14px;
+      box-shadow: var(--shadow-md); margin-top: 1.2em; overflow: hidden;
+    }
+    .email-mockup-part {
+      padding: 0.85em 1.3em; border-bottom: 1px solid var(--border);
+      position: relative; transition: background 0.25s ease;
+    }
+    .email-mockup-part:last-child { border-bottom: none; }
+    .email-mockup-part:hover { background: rgba(53,99,233,0.06); }
+    .email-mockup-part .part-label {
+      position: absolute; top: 0.6em; right: 1.1em;
+      font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.06em;
+      padding: 0.15em 0.55em; border-radius: 5px;
+    }
+    .part-label--header { background: rgba(53,99,233,0.15); color: var(--blue-200); }
+    .part-label--body   { background: rgba(124,58,237,0.15); color: var(--purple-200); }
+    .part-label--url     { background: rgba(34,197,94,0.12); color: #86efac; }
+    .part-label--attach   { background: rgba(245,158,11,0.12); color: #fcd34d; }
+    .email-mockup-part .mock-line { font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 0.3em; }
+    .email-mockup-part .mock-line strong { color: var(--text-primary); }
+    .email-mockup-part .mock-body-text { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+    .email-mockup-part .mock-link { color: var(--blue-300); text-decoration: underline; font-family: var(--font-mono); font-size: 0.78rem; }
+    .email-mockup-part .mock-attach-chip {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.2);
+      border-radius: 8px; padding: 0.4em 0.8em; font-family: var(--font-mono); font-size: 0.72rem; color: #fcd34d;
+    }
+
+    /* ===== Address anatomy ===== */
+    .addr-anatomy { display: flex; justify-content: center; align-items: flex-end; gap: 4px; margin-top: 1.6em; flex-wrap: wrap; }
+    .addr-part { display: flex; flex-direction: column; align-items: center; gap: 0.5em; }
+    .addr-part .addr-chip {
+      font-family: var(--font-mono); font-size: 1.3rem; font-weight: 600;
+      padding: 0.3em 0.5em; border-radius: 8px;
+    }
+    .addr-chip--local { background: rgba(53,99,233,0.15); color: var(--blue-200); border: 1px solid rgba(53,99,233,0.25); }
+    .addr-chip--at     { background: transparent; color: var(--text-dim); font-size: 1.3rem; padding: 0; }
+    .addr-chip--domain { background: rgba(124,58,237,0.15); color: var(--purple-200); border: 1px solid rgba(124,58,237,0.25); }
+    .addr-chip--tld    { background: rgba(34,197,94,0.12); color: #86efac; border: 1px solid rgba(34,197,94,0.2); }
+    .addr-part .addr-tag { font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-muted); letter-spacing: 0.04em; }
+
+    /* ---- Image/Screenshot Placeholder ---- */
+    .screenshot-placeholder {
+      width: 100%; height: 260px;
+      border: 2px dashed var(--border-glow); border-radius: 12px;
+      background: rgba(8, 12, 24, 0.4);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 12px; padding: 20px; text-align: center;
+      color: var(--text-muted); transition: all 0.3s ease;
+      cursor: pointer; position: relative; overflow: hidden;
+    }
+    .screenshot-placeholder:hover { border-color: var(--blue-400); background: rgba(8, 12, 24, 0.6); color: var(--blue-300); }
+    .screenshot-placeholder-icon { color: var(--blue-500); opacity: 0.6; display: flex; align-items: center; justify-content: center; }
+    .screenshot-placeholder-icon svg { width: 34px; height: 34px; }
+    .screenshot-placeholder-text { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.04em; max-width: 280px; line-height: 1.45; }
+
+    /* ===== Icon inline ===== */
+    .icon-inline { display: inline-flex; align-items: center; justify-content: center; vertical-align: -3px; }
+    .icon-inline svg { width: 1em; height: 1em; }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 768px) {
+      .slide { padding: 60px 24px; }
+      h1 { font-size: 2rem; }
+      h2 { font-size: 1.4rem; }
+      .slide--title h1 { font-size: 2.2rem; }
+      .card-row, .card-row--2, .card-row--3, .card-row--4 { grid-template-columns: 1fr; }
+      .flow { flex-direction: column; align-items: flex-start; }
+      .flow-arrow { transform: rotate(90deg); }
+      .two-col { grid-template-columns: 1fr; }
+      .cycle-row { flex-direction: column; border-radius: 14px; }
+      .cycle-item { border-right: none; border-bottom: 1px solid var(--border); }
+      .cycle-item:last-child { border-bottom: none; }
+      .benefit-grid { grid-template-columns: 1fr; }
+      .case-stat-row { grid-template-columns: 1fr; }
+      .agent-flow { flex-direction: column; }
+      .agent-arrow { transform: rotate(90deg); }
+      .addr-anatomy { flex-direction: column; }
+    }
+  
+    /* ===== Speaker Notes Overlay ===== */
+    #speaker-notes-overlay {
+      position: fixed;
+      bottom: 58px;
+      right: 24px;
+      width: 480px;
+      max-width: calc(100vw - 48px);
+      max-height: 420px;
+      background: rgba(7, 10, 20, 0.96);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glow);
+      border-radius: 12px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65), 0 0 24px rgba(53, 99, 233, 0.2);
+      z-index: 99999 !important;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      animation: notesFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #speaker-notes-overlay.active { display: flex !important; }
+    @keyframes notesFadeIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .notes-header {
+      padding: 10px 14px;
+      background: linear-gradient(90deg, rgba(53, 99, 233, 0.18), rgba(124, 58, 237, 0.18));
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .notes-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--blue-200);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .notes-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.15rem;
+      padding: 0 4px;
+      transition: color 0.2s ease;
+      line-height: 1;
+    }
+    .notes-close:hover { color: var(--accent-red); }
+    .notes-body {
+      padding: 16px;
+      overflow-y: auto;
+      font-size: 0.95rem;
+      line-height: 1.65;
+      color: var(--text-primary);
+      font-family: var(--font-body);
+    }
+    .notes-empty { color: var(--text-muted); font-style: italic; }
+    .nav-btn--notes {
+      width: auto !important;
+      padding: 0 10px !important;
+      gap: 6px;
+      font-weight: 600;
+      font-size: 0.78rem !important;
+    }
+    .nav-btn--notes.active {
+      background: var(--blue-600) !important;
+      color: #fff !important;
+      border-color: var(--blue-400) !important;
+      box-shadow: 0 0 12px rgba(53, 99, 233, 0.5) !important;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ===== Background ===== -->
+  <div class="orb orb--1"></div>
+  <div class="orb orb--2"></div>
+  <div class="orb orb--3"></div>
+
+  <div class="circuit-bg">
+    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <pattern id="circuit" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse">
+        <path d="M0 100 h60 v-40 h30 v40 h20 v-60 h30" fill="none" stroke="#4a78f0" stroke-width="1"/>
+        <path d="M180 0 v50 h-40 v30 h40 v30" fill="none" stroke="#4a78f0" stroke-width="1"/>
+        <circle cx="60" cy="100" r="3" fill="#4a78f0"/>
+        <circle cx="90" cy="60"  r="2.5" fill="#7c3aed"/>
+        <circle cx="140" cy="100" r="3" fill="#4a78f0"/>
+        <circle cx="140" cy="50"  r="2.5" fill="#7c3aed"/>
+        <rect x="108" y="95" width="6" height="10" rx="1" fill="none" stroke="#4a78f0" stroke-width="0.8"/>
+      </pattern>
+      <rect width="100%" height="100%" fill="url(#circuit)" />
+    </svg>
+  </div>
+
+  <div class="shield-watermark">
+    <svg width="320" height="380" viewBox="0 0 100 120" fill="none">
+      <path d="M50 5 L90 25 L90 60 Q90 95 50 115 Q10 95 10 60 L10 25 Z" stroke="#4a78f0" stroke-width="1.5" fill="none"/>
+      <path d="M50 18 L78 33 L78 58 Q78 84 50 100 Q22 84 22 58 L22 33 Z" stroke="#7c3aed" stroke-width="0.8" fill="none"/>
+      <path d="M38 58 L48 68 L65 48" stroke="#4a78f0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <div class="side-accent"></div>
+
+  <!-- Top Header -->
+  <div class="top-header">
+    <div class="header-title">
+      <span class="title-dot"></span>
+      <span>Incident Detection &amp; Response</span>
+      <span class="title-sep">—</span>
+      <span id="header-slide-title">Lab 2</span>
+    </div>
+    <div class="header-right">
+      <span class="lab-badge">LAB 02</span>
+    </div>
+  </div>
+
+  <div id="progress-bar"></div>
+
+  <!-- ===== SLIDES ===== -->
+  <div id="presentation">
+
+    <!-- ==========================================
+         SLIDE 1 — Cover
+         ========================================== -->
+    <div class="slide slide--title active" data-slide="0" data-title="Introduction"
+         data-notes="Welcome students to Lab 2. This lab focuses specifically on phishing — one of the most common and effective initial-access techniques used by attackers.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> INCIDENT DETECTION &amp; RESPONSE</div>
+        <h1>Phishing<br /><span class="gradient-text">Analysis</span></h1>
+        <p class="subtitle">Understanding, identifying, and dissecting phishing attacks — from email anatomy to real-world breach case studies.</p>
+        <div class="divider"></div>
+        <div class="instructor-line">Lab 02 — <span>Email-Based Threat Analysis</span></div>
+        <div class="instructor-line">Instructor: <span>Hussein Al-Selwi</span></div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 2 — Domain Objectives
+         ========================================== -->
+    <div class="slide" data-slide="1" data-title="Domain Objectives"
+         data-notes="Walk through each objective briefly so students know what they should be able to do by the end of this lab.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> LAB OVERVIEW</div>
+        <h2>Domain Objectives</h2>
+        <ul style="margin-top: 1em;">
+          <li>Understand the <strong class="blue">fundamentals of phishing</strong> and its prevalence</li>
+          <li>Learn a strong <strong class="purple">methodology</strong> for analyzing phishing emails</li>
+          <li>Develop hands-on skills in analyzing email <strong class="blue">content</strong>, <strong class="blue">headers</strong>, and tracing <strong class="blue">senders</strong></li>
+          <li>Gain an understanding in identifying and analyzing <strong class="purple">malicious URLs and attachments</strong></li>
+          <li>Explore both <strong class="blue">proactive</strong> and <strong class="purple">reactive defense</strong> strategies against phishing</li>
+          <li>Learn to <strong class="blue">document</strong> and <strong class="purple">communicate</strong> phishing analysis findings proficiently</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 3 — Introduction to Phishing
+         ========================================== -->
+    <div class="slide" data-slide="2" data-title="Introduction to Phishing"
+         data-notes="Define phishing clearly, emphasize it relies on social engineering rather than purely technical exploitation, and introduce the attacker's underlying objective before going deeper into mechanics in the next slide.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> FOUNDATIONS</div>
+        <h2>Introduction to Phishing</h2>
+        <p><strong class="blue">Phishing</strong> is a social engineering attack in which an attacker impersonates a trusted entity to trick a victim into revealing sensitive information, clicking a malicious link, or executing malicious code.</p>
+
+        <div class="card-row" style="margin-top: 1.2em;">
+          <div class="card">
+            <div class="card-icon card-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></div>
+            <h4>Most Common Vector</h4>
+            <p>Phishing remains the #1 initial-access technique used in breaches, leading nearly every major attack chain.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a87bf5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M10.363 3.591 2.257 18.27A2 2 0 0 0 4 21h16a2 2 0 0 0 1.743-2.73L13.637 3.59a2 2 0 0 0-3.274 0z"/><circle cx="12" cy="16" r=".5" fill="#a87bf5"/></svg></div>
+            <h4>Exploits Trust, Not Code</h4>
+            <p>It targets human psychology — urgency, authority, fear, curiosity — rather than purely technical flaws.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a87bf5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg></div>
+            <h4>Low Cost, High Yield</h4>
+            <p>Attackers can send thousands of emails for almost no cost; even a tiny success rate yields valuable access.</p>
+          </div>
+        </div>
+
+        <div class="info-box">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>Objective of a phishing attack:</strong> the ultimate goal is almost always to gain unauthorized access — to an account, a network, or funds — by manipulating a person rather than breaking a system. This lab focuses primarily on <strong class="blue">email-based phishing</strong>.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 4 — How Phishing Works (psychology + chain)
+         ========================================== -->
+    <div class="slide" data-slide="3" data-title="How Phishing Works"
+         data-notes="Cover the psychological levers first (urgency, trust, fear, familiarity, scarcity) then walk through the attack chain step by step: attacker sends phishing email, victim clicks the link, credentials get harvested. Emphasize how fast and silent this chain is."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> ATTACK MECHANICS</div>
+        <h2>How Phishing Works</h2>
+        <p>Phishing works through psychological manipulation rather than technical hacking — attackers use deliberate psychological tricks and social-engineering techniques to exploit human emotion and judgment, pushing the victim to act before they stop to think.</p>
+
+        <div class="card-row card-row--3" style="margin-top: 1em;">
+          <div class="card">
+            <div class="card-icon card-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+            <h4>Urgency</h4>
+            <p>"Act within 24 hours" — artificial time pressure that short-circuits careful judgment.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a87bf5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+            <h4>Trust / Authority</h4>
+            <p>Impersonating IT, a bank, an executive, or a known brand to borrow their credibility.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M10.363 3.591 2.257 18.27A2 2 0 0 0 4 21h16a2 2 0 0 0 1.743-2.73L13.637 3.59a2 2 0 0 0-3.274 0z"/><circle cx="12" cy="16" r=".5" fill="#6b93f7"/></svg></div>
+            <h4>Fear</h4>
+            <p>Threats of account suspension, legal trouble, or financial loss to provoke a reflexive reaction.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a87bf5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+            <h4>Familiarity</h4>
+            <p>Mimicking a coworker, known vendor, or a tool the victim already uses daily, so the message feels routine rather than suspicious. Example: a fake "Slack: you have a new message" notification styled like the real thing, sent from a look-alike domain.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></svg></div>
+            <h4>Scarcity</h4>
+            <p>Implying a limited supply or a one-time chance, so the victim acts before thinking it through. Example: "Only 2 license renewals left at this price — confirm your Office 365 subscription now to avoid losing access."</p>
+          </div>
+        </div>
+
+
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 5 — Real-World Case Studies (all in one)
+         ========================================== -->
+    <div class="slide" data-slide="4" data-title="Real-World Case Studies"
+         data-notes="Walk through all four cases on this single slide. RSA SecurID (2011) is a textbook spear-phishing case: a malicious Excel attachment with an embedded Flash zero-day let attackers steal SecurID seed values, which were later used to attack defense contractors.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> REAL-WORLD IMPACT</div>
+        <h2>Real-World Case Studies</h2>
+        <p>A single email, link, or stolen credential can cascade into operational shutdowns, financial ruin, and even physical-world consequences.</p>
+
+        <div class="card-row card-row--2" style="margin-top: 1.1em;">
+          <div class="case-card">
+            <div class="case-year">MAR 2011 — RSA SECURID</div>
+            <h4>Spear-Phishing → Stolen Token Seeds</h4>
+            <p>A spear-phishing email titled "2011 Recruitment Plan" carried an Excel attachment with a hidden Adobe Flash zero-day, letting attackers exfiltrate SecurID seed values later used against defense contractors.</p>
+            <div class="case-impact">$66.3M remediation · 30K+ customers affected</div>
+          </div>
+          <div class="case-card">
+            <div class="case-year">SEP 2020 — LEVITAS CAPITAL</div>
+            <h4>Fake Zoom Invite</h4>
+            <p>A co-founder clicked a fake Zoom invite link, installing malware that gave attackers control of the firm's email and let them approve fraudulent wire transfers.</p>
+            <div class="case-impact">$781K lost · fund closed</div>
+          </div>
+          <div class="case-card">
+            <div class="case-year">DEC 2015 — UKRAINE'S POWER GRID</div>
+            <h4>Spear-Phishing → BlackEnergy</h4>
+            <p>Spear-phishing emails with malicious Office macro attachments delivered BlackEnergy malware seven months before Sandworm cut the power.</p>
+            <div class="case-impact">230,000 customers · 1–6 hrs outage</div>
+          </div>
+          <div class="case-card">
+            <div class="case-year">JUN 2015 — UBIQUITI NETWORKS</div>
+            <h4>CEO Fraud / BEC</h4>
+            <p>Attackers impersonated executives by email to trick the finance department into wiring funds overseas — no system breach required.</p>
+            <div class="case-impact">$46.7M stolen · $8.1M recovered</div>
+          </div>
+        </div>
+
+        <div class="info-box" style="margin-top: 1em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>Analyst's note:</strong> Even a security vendor specializing in authentication was breached by a deliberately unremarkable phishing email — proof that technical sophistication elsewhere doesn't compensate for one person opening one attachment.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 6 — Phishing Attack Types
+         ========================================== -->
+    <div class="slide" data-slide="5" data-title="Phishing Attack Types"
+         data-notes="Cover the channels/targeting-scope variants of phishing: generic email phishing, spear-phishing (targeted), whaling (targets executives), smishing (SMS), vishing (voice/phone), and quishing (malicious QR codes). Emphasize that these differ mainly by delivery channel and target specificity, not by underlying psychology."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> TAXONOMY</div>
+        <h2>Phishing Attack Types</h2>
+        <p>Phishing isn't one technique — it's a category with several variants, differing by delivery channel and how precisely the target is selected.</p>
+
+        <div class="card-row card-row--3" style="margin-top: 1.1em;">
+          <div class="card">
+            <div class="card-icon card-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></div>
+            <h4>Phishing</h4>
+            <p>Mass, generic emails cast wide to as many recipients as possible, hoping a small percentage bite.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a87bf5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 10v6M4.2 4.2l4.2 4.2m7.2 7.2 4.2 4.2M1 12h6m10 0h6M4.2 19.8l4.2-4.2m7.2-7.2 4.2-4.2"/></svg></div>
+            <h4>Spear-Phishing</h4>
+            <p>Targeted at a specific individual or organization, personalized with researched details to seem credible.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg></div>
+            <h4>Whaling</h4>
+            <p>Spear-phishing aimed specifically at "big fish" — executives, finance officers, or other high-value targets.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a87bf5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg></div>
+            <h4>Smishing</h4>
+            <p>Phishing delivered over SMS text messages, often with a malicious link disguised as a delivery or bank alert.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5a2 2 0 0 1 2-2h3l2 5-2.5 1.5a11 11 0 0 0 5 5L14 12l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 5Z"/></svg></div>
+            <h4>Vishing</h4>
+            <p>Voice-call phishing — attackers impersonate IT support, banks, or government over the phone to extract info.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a87bf5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM18 18h3v3h-3zM14 21v-3"/></svg></div>
+            <h4>Quishing</h4>
+            <p>QR-code phishing — a malicious QR code redirects a scanning phone to a credential-harvesting page.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 7 — Common Attacker Objectives
+         ========================================== -->
+    <div class="slide" data-slide="6" data-title="Common Attacker Objectives"
+         data-notes="Cover the three main 'why' categories behind a phishing attack: gathering information for later use, harvesting credentials directly, and delivering malware. These often overlap within a single campaign."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> ATTACKER MOTIVATION</div>
+        <h2>Common Attacker Objectives</h2>
+        <p>Regardless of the channel used, most phishing campaigns are working toward one of three underlying goals.</p>
+
+        <div class="card-row card-row--3" style="margin-top: 1.2em;">
+          <div class="card">
+            <div class="card-icon card-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></div>
+            <h4>Information Gathering</h4>
+            <p>Reconnaissance to map an organization's structure, vendors, or systems — fuel for a later, more convincing attack. Attackers favor this approach because it lets them collect intelligence without direct interaction whenever possible, staying unnoticed while they build a profile of the target.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a87bf5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+            <h4>Credential Harvesting</h4>
+            <p>Tricking the victim into typing their username and password into a fake login page the attacker controls.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></div>
+            <h4>Malware Delivery</h4>
+            <p>Using a link or attachment to get malicious code running directly on the victim's device.</p>
+          </div>
+        </div>
+
+        <div class="info-box">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>Note:</strong> These objectives often chain together — information gathering in one campaign can feed a more convincing spear-phish later, which then harvests credentials or delivers malware.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 8 — Phishing Attack Techniques
+         ========================================== -->
+    <div class="slide" data-slide="7" data-title="Phishing Attack Techniques"
+         data-notes="Cover the technical methods attackers use to make phishing convincing: spoofing/impersonation of sender identity, URL manipulation, encoding/obfuscation of malicious content, malicious attachments, and abuse of legitimate services to bypass filters."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> ATTACK TECHNIQUES</div>
+        <h2>Phishing Attack Techniques</h2>
+        <p>Beyond the message itself, attackers rely on specific technical tricks to make the deception convincing and to slip past filters.</p>
+
+        <div class="card" style="margin-top: 1.2em;">
+          <div class="card-icon card-icon--purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a87bf5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
+          <h4>URL Manipulation</h4>
+          <p>Look-alike domains, typosquatting, URL shorteners, and subdomain tricks that disguise a malicious link's real destination.</p>
+          <ul style="margin-top: 0.6em; padding-left: 1.1em; columns: 3; column-gap: 1.5em;">
+            <li style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.3em;"><strong class="purple">Typosquatting:</strong> <span class="mono">micros0ft.com</span> or <span class="mono">paypa1.com</span> — a slight misspelling close enough to pass a quick glance.</li>
+            <li style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.3em;"><strong class="purple">Homograph attack:</strong> <span class="mono">аpple.com</span> using a Cyrillic "а" instead of Latin "a" — visually identical, entirely different domain.</li>
+            <li style="font-size: 0.82rem; color: var(--text-muted);"><strong class="purple">URL shortener:</strong> <span class="mono">bit.ly/3xK9z2</span> hides the real destination until after the click.</li>
+          </ul>
+        </div>
+
+        <div class="card-row card-row--4" style="margin-top: 1em;">
+          <div class="card">
+            <div class="card-icon card-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></div>
+            <h4>Email Spoofing &amp; Impersonation</h4>
+            <p>Forging the From: address or display name so the message appears to come from a trusted sender, exploiting the lack of built-in sender verification in SMTP.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a87bf5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+            <h4>Encoding</h4>
+            <p>Obfuscating links or payloads with Base64, URL encoding, or HTML character entities so the malicious content is unreadable to filters but renders normally for the victim.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--amber"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></div>
+            <h4>Malicious Attachments</h4>
+            <p>Weaponized files — macro-enabled documents, double extensions, or password-protected archives — that deliver malware once the victim opens them.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg></div>
+            <h4>Abuse of Legitimate Services</h4>
+            <p>Hosting phishing pages on trusted platforms (Google Forms, SharePoint, cloud storage) so links pass reputation and spam filters undetected.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 9 — Email Structure Intro
+         ========================================== -->
+    <div class="slide" data-slide="8" data-title="Email Structure"
+         data-notes="Transition slide into the email-structure section. Walk through the labeled diagram top to bottom: header, body, URL, and attachment, pointing out that every email — legitimate or malicious — is built from these same basic parts."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> ANATOMY OF AN EMAIL</div>
+        <h2>Email Structure</h2>
+        <p>Every email — legitimate or malicious — is built from the same basic parts. Knowing what's normal in each makes anomalies easier to spot.</p>
+
+        <div class="email-mockup" style="margin-top: 1.2em;">
+          <div class="email-mockup-part">
+            <span class="part-label part-label--header">HEADER</span>
+            <div class="mock-line"><strong>From:</strong> "IT Support" &lt;support@accounts-secure-verify.com&gt;</div>
+            <div class="mock-line"><strong>To:</strong> j.doe@company.com &nbsp; <strong>Subject:</strong> Action Required: Verify Your Account</div>
+          </div>
+          <div class="email-mockup-part">
+            <span class="part-label part-label--body">BODY</span>
+            <div class="mock-body-text">Dear Customer, your access will be <strong>suspended within 24 hours</strong> unless you verify your identity immediately.</div>
+          </div>
+          <div class="email-mockup-part">
+            <span class="part-label part-label--url">URL</span>
+            <div class="mock-line"><span class="mock-link">Verify My Account →</span> <span class="dim">(hover reveals true destination)</span></div>
+          </div>
+          <div class="email-mockup-part">
+            <span class="part-label part-label--attach">ATTACHMENT</span>
+            <div class="mock-attach-chip">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fcd34d" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+              Invoice_2024.pdf
+            </div>
+          </div>
+        </div>
+
+        <div class="card-row card-row--4" style="margin-top: 0.9em;">
+          <div class="card" style="padding: 0.9em 1em;">
+            <h4 style="font-size: 0.85rem; margin-bottom: 0.3em;">↑ Header</h4>
+            <p style="font-size: 0.78rem;">Routing metadata: From, To, Subject, Received hops, and authentication results.</p>
+          </div>
+          <div class="card" style="padding: 0.9em 1em;">
+            <h4 style="font-size: 0.85rem; margin-bottom: 0.3em;">↑ Body</h4>
+            <p style="font-size: 0.78rem;">The visible message content — text, HTML formatting, and embedded social-engineering cues.</p>
+          </div>
+          <div class="card" style="padding: 0.9em 1em;">
+            <h4 style="font-size: 0.85rem; margin-bottom: 0.3em;">↑ URLs</h4>
+            <p style="font-size: 0.78rem;">Embedded links — often disguised, shortened, or pointing to look-alike domains.</p>
+          </div>
+          <div class="card" style="padding: 0.9em 1em;">
+            <h4 style="font-size: 0.85rem; margin-bottom: 0.3em;">↑ Attachments</h4>
+            <p style="font-size: 0.78rem;">Files riding along with the message — common vehicle for malware delivery.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 10 — Email Header Deep Dive
+         ========================================== -->
+    <div class="slide" data-slide="9" data-title="Email Header"
+         data-notes="Walk through each header field shown in the mockup. Emphasize that From: display names are trivially spoofable, while Received: chains and authentication results (SPF/DKIM/DMARC) are much harder to fake."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> COMPONENT 01</div>
+        <h2>Email Header</h2>
+        <p>The header carries routing and authentication metadata — usually hidden from the average user, but essential for an analyst.</p>
+
+        <div class="email-mockup">
+          <div class="email-mockup-part">
+            <span class="part-label part-label--header">HEADER</span>
+            <div class="mock-line"><strong>From:</strong> "IT Support" &lt;support@accounts-secure-verify.com&gt;</div>
+            <div class="mock-line"><strong>To:</strong> j.doe@company.com</div>
+            <div class="mock-line"><strong>Subject:</strong> Action Required: Verify Your Account</div>
+            <div class="mock-line"><strong>Received:</strong> from mail.accounts-secure-verify.com [203.0.113.42] ...</div>
+            <div class="mock-line"><strong>SPF:</strong> fail &nbsp; <strong>DKIM:</strong> none &nbsp; <strong>DMARC:</strong> fail</div>
+          </div>
+        </div>
+
+        <div class="card-row" style="margin-top: 1.2em;">
+          <div class="card">
+            <h4>From / Display Name</h4>
+            <p>Easily spoofed — attackers set any display name they like, regardless of the actual sending address.</p>
+          </div>
+          <div class="card">
+            <h4>Received Chain</h4>
+            <p>Each mail hop adds a line — read bottom-up to trace the message's true origin path.</p>
+          </div>
+          <div class="card">
+            <h4>SPF / DKIM / DMARC</h4>
+            <p>Authentication results that verify whether the sending server was actually authorized for that domain.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 11 — Email Body
+         ========================================== -->
+    <div class="slide" data-slide="10" data-title="Email Body"
+         data-notes="Discuss the body as the social-engineering surface: urgency language, spoofed branding, poor grammar (sometimes), and HTML tricks that hide the true destination of links."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> COMPONENT 02</div>
+        <h2>Email Body</h2>
+        <p>The body is where social engineering happens — the visible text and formatting designed to provoke a reaction.</p>
+
+        <div class="email-mockup">
+          <div class="email-mockup-part">
+            <span class="part-label part-label--body">BODY</span>
+            <div class="mock-body-text">Dear Customer,<br/><br/>We detected unusual activity on your account. Your access will be <strong>suspended within 24 hours</strong> unless you verify your identity immediately.<br/><br/><span class="mock-link">Verify My Account →</span></div>
+          </div>
+        </div>
+
+        <div class="two-col" style="margin-top: 1.2em;">
+          <div class="col-block col-block--purple">
+            <h4>Common Manipulation Tactics</h4>
+            <ul>
+              <li><strong>Urgency</strong> — artificial deadlines and threats of account loss</li>
+              <li><strong>Authority</strong> — impersonating IT, executives, or known brands</li>
+              <li><strong>Fear</strong> — warnings of security breaches or legal action</li>
+            </ul>
+          </div>
+          <div class="col-block col-block--blue">
+            <h4>What to Examine</h4>
+            <ul>
+              <li>Generic greetings ("Dear Customer") instead of your actual name</li>
+              <li>Mismatched branding, logos, or formatting quality</li>
+              <li>Hidden link destinations beneath styled button text</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 12 — Email Address Anatomy
+         ========================================== -->
+    <div class="slide" data-slide="11" data-title="URLs in Phishing Emails"
+         data-notes="Cover URL obfuscation techniques: look-alike domains, URL shorteners, subdomain tricks, and the importance of hovering to reveal the real destination before clicking."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> COMPONENT 03</div>
+        <h2>URLs in Phishing Emails</h2>
+        <p>Malicious links rarely look obviously malicious — attackers rely on visual tricks to disguise the real destination.</p>
+
+        <div class="email-mockup">
+          <div class="email-mockup-part">
+            <span class="part-label part-label--url">URL</span>
+            <div class="mock-line">Displayed text: <strong>www.paypal.com/account/verify</strong></div>
+            <div class="mock-line">Actual destination: <span class="mono red">hxxp://paypa1-secure.verify-account.ru/login.php</span></div>
+          </div>
+        </div>
+
+        <div class="card-row" style="margin-top: 1.2em;">
+          <div class="card">
+            <h4>Look-alike Domains</h4>
+            <p>Character substitution (paypa1.com), extra words (paypal-secure.com), or different TLDs (.ru, .cn, .xyz).</p>
+          </div>
+          <div class="card">
+            <h4>URL Shorteners</h4>
+            <p>bit.ly, tinyurl, and similar services hide the real destination behind a short, unreadable link.</p>
+          </div>
+          <div class="card">
+            <h4>Subdomain Abuse</h4>
+            <p>paypal.com.verify-login.net — the real domain is "verify-login.net"; "paypal.com" is just a subdomain label.</p>
+          </div>
+        </div>
+
+        <div class="info-box">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>Analyst's tip:</strong> Always hover over (never click) a link to preview the real URL, and read domains from right to left, identifying the actual registrable domain before trusting anything in front of it.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 18 — Attachments
+         ========================================== -->
+    <div class="slide" data-slide="12" data-title="Malicious Attachments"
+         data-notes="Cover common malicious file types and techniques: macro-enabled Office docs, double extensions, password-protected archives to evade scanning, and ISO/IMG files used to bypass mark-of-the-web protections."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> COMPONENT 04</div>
+        <h2>Malicious Attachments</h2>
+        <p>Attachments remain one of the most direct ways to deliver malware — once opened, the victim's own actions execute the payload.</p>
+
+        <div class="email-mockup">
+          <div class="email-mockup-part">
+            <span class="part-label part-label--attach">ATTACHMENT</span>
+            <div class="mock-attach-chip">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fcd34d" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+              Invoice_2024.pdf.exe (1.2 MB)
+            </div>
+          </div>
+        </div>
+
+        <div class="card-row" style="margin-top: 1.2em;">
+          <div class="card">
+            <h4>Double Extensions</h4>
+            <p>Invoice.pdf.exe — Windows hides the real extension by default, so it appears as a harmless PDF.</p>
+          </div>
+          <div class="card">
+            <h4>Macro-Enabled Office Files</h4>
+            <p>.docm / .xlsm files that prompt "Enable Content" to run a malicious macro on open — used in the Ukraine grid attack.</p>
+          </div>
+          <div class="card">
+            <h4>Password-Protected Archives</h4>
+            <p>ZIP files with the password inside the email body, specifically to evade automated antivirus/sandbox scanning.</p>
+          </div>
+          <div class="card">
+            <h4>ISO / IMG Containers</h4>
+            <p>Disk image files that bypass "Mark of the Web" browser-download warnings applied to regular files.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 19 — Phishing Analysis Methodology
+         ========================================== -->
+    <div class="slide" data-slide="13" data-title="Email Address Anatomy"
+         data-notes="Break down the anatomy of an email address into local part, domain, and TLD. This sets up the skill of spotting spoofed or look-alike sender addresses covered in earlier technique slides."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> EMAIL ADDRESSES</div>
+        <h2>Email Address Anatomy</h2>
+        <p>Every email address has three structural parts — and attackers manipulate each one to impersonate trusted senders.</p>
+
+        <div class="addr-anatomy">
+          <div class="addr-part">
+            <div class="addr-chip addr-chip--local">j.doe</div>
+            <div class="addr-tag">LOCAL PART</div>
+          </div>
+          <div class="addr-part">
+            <div class="addr-chip addr-chip--at">@</div>
+            <div class="addr-tag">&nbsp;</div>
+          </div>
+          <div class="addr-part">
+            <div class="addr-chip addr-chip--domain">company</div>
+            <div class="addr-tag">DOMAIN</div>
+          </div>
+          <div class="addr-part">
+            <div class="addr-chip addr-chip--at">.</div>
+            <div class="addr-tag">&nbsp;</div>
+          </div>
+          <div class="addr-part">
+            <div class="addr-chip addr-chip--tld">com</div>
+            <div class="addr-tag">TLD</div>
+          </div>
+        </div>
+
+        <div class="two-col" style="margin-top: 1.6em;">
+          <div class="col-block col-block--blue">
+            <h4>Legitimate</h4>
+            <ul>
+              <li><span class="mono">j.doe@company.com</span></li>
+              <li><span class="mono">support@microsoft.com</span></li>
+            </ul>
+          </div>
+          <div class="col-block col-block--purple">
+            <h4>Spoofed / Look-alike</h4>
+            <ul>
+              <li><span class="mono">j.doe@cornpany.com</span> <span class="dim">(rn instead of m)</span></li>
+              <li><span class="mono">support@microsoft-secure.com</span> <span class="dim">(wrong domain entirely)</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 13 — Email Fundamentals (communication flow intro)
+         ========================================== -->
+    <div class="slide" data-slide="14" data-title="Email Fundamentals"
+         data-notes="Transition slide into the technical/protocol section. Set up why understanding the underlying email communication flow matters for phishing analysis — you need to know what 'normal' looks like before you can spot what's abnormal in headers."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> TECHNICAL FOUNDATIONS</div>
+        <h2>Email Fundamentals</h2>
+        <p>To analyze a phishing email effectively, you first need to understand how legitimate email actually travels across the internet — the client, the mail servers, the DNS lookup, and the agents and protocols involved.</p>
+
+        <div class="info-box">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>Why this matters:</strong> Spoofed headers, mismatched routing, and forged sender fields are easiest to catch when you know what authentic email transmission looks like under the hood.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 14 — Email Communication Flow Animation
+         ========================================== -->
+    <div class="slide" data-slide="15" data-title="Email Communication Flow"
+         data-notes="Walk through the animation: the client sends mail via SMTP to its outgoing server, which performs a DNS MX lookup to find the recipient's mail server, delivers the message over SMTP, and the recipient retrieves it from their server using POP or IMAP."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> CLIENT → SERVER → DNS</div>
+        <h2>Email Communication Flow</h2>
+        <p>Sending an email involves a relay between the <strong class="blue">email client</strong>, the <strong class="blue">mail server</strong>, and a <strong class="purple">DNS lookup</strong> to find the right destination.</p>
+
+        <!-- Email Transfer Flow Diagram (static, clear) -->
+        <div class="anim-container" style="width: 900px; max-width: 100%; aspect-ratio: 900 / 260; margin: 1.2em auto 0; border-style: solid;">
+          <svg viewBox="0 0 900 260" width="100%" height="100%" style="position:absolute; inset:0;">
+            <path d="M 95 160 L 250 160" fill="none" stroke="var(--blue-600)" stroke-width="2" opacity="0.6"/>
+            <path d="M 350 150 C 370 90, 410 60, 450 50" fill="none" stroke="var(--accent-amber)" stroke-width="2" stroke-dasharray="6 6" opacity="0.6"/>
+            <path d="M 450 50 C 490 60, 530 90, 550 150" fill="none" stroke="var(--accent-amber)" stroke-width="2" stroke-dasharray="6 6" opacity="0.6"/>
+            <path d="M 650 160 L 805 160" fill="none" stroke="var(--purple-600)" stroke-width="2" opacity="0.6"/>
+          </svg>
+
+          <div class="mail-actor" style="left: 2.5%; top: 45%;">
+            <div class="mail-actor-icon mail-actor-icon--person">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4a78f0" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>
+            </div>
+            <div class="mail-actor-label">Sender<br/><span class="dim">Client</span></div>
+          </div>
+
+          <div class="mail-proto-label" style="left: 14%; top: 53%;">SMTP →</div>
+
+          <div class="mail-actor" style="left: 25%; top: 45%;">
+            <div class="mail-actor-icon mail-actor-icon--server">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a87bf5" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            </div>
+            <div class="mail-actor-label">SMTP Server<br/><span class="dim">(outgoing)</span></div>
+          </div>
+
+          <div class="mail-actor" style="left: 44%; top: 4%;">
+            <div class="mail-actor-icon mail-actor-icon--server" style="background: rgba(251,191,36,0.14); border-color: rgba(251,191,36,0.25);">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10"/></svg>
+            </div>
+            <div class="mail-actor-label">DNS<br/><span class="dim">MX Lookup</span></div>
+          </div>
+
+          <div class="mail-actor" style="left: 67%; top: 45%;">
+            <div class="mail-actor-icon mail-actor-icon--server">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            </div>
+            <div class="mail-actor-label">Recipient<br/><span class="dim">Mail Server</span></div>
+          </div>
+
+          <div class="mail-proto-label" style="left: 80%; top: 53%;">POP/IMAP →</div>
+
+          <div class="mail-actor" style="left: 90%; top: 45%;">
+            <div class="mail-actor-icon mail-actor-icon--person">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4a78f0" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>
+            </div>
+            <div class="mail-actor-label">Recipient<br/><span class="dim">Client</span></div>
+          </div>
+        </div>
+
+        <div class="flow" style="margin-top: 1.2em;">
+          <div class="flow-step"><span class="flow-num flow-num--1">1</span>Client → SMTP server</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-step"><span class="flow-num flow-num--2">2</span>SMTP queries DNS for recipient's MX record</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-step"><span class="flow-num flow-num--3">3</span>Delivered to recipient's mail server</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-step"><span class="flow-num flow-num--4">4</span>Client retrieves via POP/IMAP</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 15 — Mail Agents (MUA / MTA / MDA)
+         ========================================== -->
+    <div class="slide" data-slide="16" data-title="Mail Agents"
+         data-notes="Walk through the concrete Bob-to-Alice journey: Bob's client (MUA) hands the message to Bob's Gmail server over SMTP. Gmail's MTA relays it across several intermediate MTA hops on the internet until it reaches Alice's Yahoo server, where the MDA deposits it into her mailbox. Alice's client (MUA) then retrieves it via POP3/IMAP. Emphasize that MTA and MDA roles often live on the same physical mail server (Gmail, Yahoo) even though they are logically distinct agents."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> ARCHITECTURE</div>
+        <h2>Mail Agents</h2>
+        <p>Tracing one real email from Bob to Alice shows exactly where each agent type — <strong class="blue">MUA</strong>, <strong class="purple">MTA</strong>, and <strong class="blue">MDA</strong> — sits along the path.</p>
+
+        <div class="anim-container" style="width: 900px; max-width: 100%; aspect-ratio: 900 / 300; margin: 1em auto 0; border-style: solid;">
+          <svg viewBox="0 0 900 300" width="100%" height="100%" style="position:absolute; inset:0;">
+            <!-- relay path (dashed, mimics internet hops) -->
+            <path d="M 330 150 C 360 60, 420 50, 440 90 C 460 130, 400 140, 420 180 C 440 220, 500 230, 510 180 C 520 140, 470 120, 490 80 C 505 50, 560 60, 570 150"
+                  fill="none" stroke="var(--purple-600)" stroke-width="2" stroke-dasharray="6 6" opacity="0.55"/>
+            <!-- relay hop nodes -->
+            <g fill="var(--purple-500)" opacity="0.8">
+              <circle cx="365" cy="78" r="4"/>
+              <circle cx="445" cy="95" r="4"/>
+              <circle cx="415" cy="172" r="4"/>
+              <circle cx="500" cy="190" r="4"/>
+              <circle cx="487" cy="95" r="4"/>
+              <circle cx="540" cy="70" r="4"/>
+            </g>
+          </svg>
+
+          <!-- Bob (Sender / MUA) -->
+          <div class="mail-actor" style="left: 1.7%; top: 35%;">
+            <div class="mail-actor-icon mail-actor-icon--person">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div class="mail-actor-label">Bob<br/><span class="dim">(Sender)</span></div>
+            <span class="tag tag--blue mail-actor-tag">MUA</span>
+          </div>
+
+          <div class="mail-proto-label" style="left: 13.5%; top: 42.5%;">SMTP →</div>
+
+          <!-- Bob's Mail Server (Gmail) -->
+          <div class="mail-actor" style="left: 22.2%; top: 33%;">
+            <div class="mail-actor-icon mail-actor-icon--server">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a87bf5" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            </div>
+            <div class="mail-actor-label">Bob's Mail Server<br/><span class="dim">(Gmail)</span></div>
+            <span class="tag tag--purple mail-actor-tag">MTA</span>
+          </div>
+
+          <div class="mail-relay-label" style="left: 42.2%; top: 78%; transform: translateX(-30%);">relay across<br/>intermediate MTAs</div>
+
+          <!-- Alice's Mail Server (Yahoo) -->
+          <div class="mail-actor" style="left: 66.7%; top: 33%;">
+            <div class="mail-actor-icon mail-actor-icon--server">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            </div>
+            <div class="mail-actor-label">Alice's Mail Server<br/><span class="dim">(Yahoo)</span></div>
+            <div style="display:flex; gap:6px; margin-top:0.4em;">
+              <span class="tag tag--purple mail-actor-tag">MTA</span>
+              <span class="tag tag--blue mail-actor-tag">MDA</span>
+            </div>
+          </div>
+
+          <div class="mail-proto-label" style="left: 79.8%; top: 42.5%;">POP3/IMAP →</div>
+
+          <!-- Alice (Recipient / MUA) -->
+          <div class="mail-actor" style="left: 90.5%; top: 35%;">
+            <div class="mail-actor-icon mail-actor-icon--person">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div class="mail-actor-label">Alice<br/><span class="dim">(Recipient)</span></div>
+            <span class="tag tag--blue mail-actor-tag">MUA</span>
+          </div>
+        </div>
+
+        <div class="card-row card-row--3" style="margin-top: 1.1em;">
+          <div class="card">
+            <span class="tag tag--blue" style="margin-bottom: 0.6em;">MUA</span>
+            <h4>Mail User Agent</h4>
+            <p>The email client the person actually uses — Outlook, Gmail's web interface, Apple Mail. It composes, sends, and displays messages on behalf of the user.</p>
+          </div>
+          <div class="card">
+            <span class="tag tag--purple" style="margin-bottom: 0.6em;">MTA</span>
+            <h4>Mail Transfer Agent</h4>
+            <p>The server software that relays mail between servers using SMTP — it's what moves a message from Bob's provider, across the internet, to Alice's provider.</p>
+          </div>
+          <div class="card">
+            <span class="tag tag--blue" style="margin-bottom: 0.6em;">MDA</span>
+            <h4>Mail Delivery Agent</h4>
+            <p>Takes the message handed off by the final MTA and deposits it into the recipient's actual mailbox, where it waits to be retrieved via POP3/IMAP.</p>
+          </div>
+        </div>
+
+        <div class="info-box" style="margin-top: 1.1em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>Analyst's tip:</strong> Gmail and Yahoo each run both the MTA (relay) and MDA (mailbox delivery) roles on the same servers — they're logically distinct agents, but commonly bundled into one platform. Each MTA hop in between adds a <span class="mono">Received:</span> line you can trace in the header.</p>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==========================================
+         SLIDE 16 — Email Protocols
+         ========================================== -->
+    <div class="slide" data-slide="17" data-title="Email Protocols"
+         data-notes="Cover the core protocols by function: SMTP for sending/relaying, POP3 and IMAP for retrieval (and the difference between them), and DNS MX records for routing. This formalizes what students just saw in the animation."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> PROTOCOLS</div>
+        <h2>Email Protocols</h2>
+        <p>A small set of protocols, each with one job, work together to move and retrieve every email.</p>
+
+        <div class="card-row card-row--2" style="margin-top: 1.1em;">
+          <div class="card">
+            <div class="card-icon card-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></div>
+            <h4>SMTP <span class="mono small dim">(port 25 / 587)</span></h4>
+            <p>Simple Mail Transfer Protocol — used to send and relay mail between the client and outgoing servers, and between servers.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a87bf5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10"/></svg></div>
+            <h4>DNS (MX Record) <span class="mono small dim">(port 53)</span></h4>
+            <p>Resolves which mail server is responsible for a domain — checked before delivery so the message reaches the right destination.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M3 9l9 6 9-6"/></svg></div>
+            <h4>POP3 <span class="mono small dim">(port 110)</span></h4>
+            <p>Post Office Protocol — downloads mail to one device and typically removes it from the server.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a87bf5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M3 9l9 6 9-6"/></svg></div>
+            <h4>IMAP <span class="mono small dim">(port 143)</span></h4>
+            <p>Internet Message Access Protocol — keeps mail synced on the server, so multiple devices see the same mailbox state.</p>
+          </div>
+        </div>
+
+        <div class="info-box">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>Analyst's tip:</strong> None of these protocols verify sender identity by default — that's why SPF, DKIM, and DMARC exist as separate authentication layers checked at the header level.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 17 — URLs in Email
+         ========================================== -->
+    <div class="slide" data-slide="18" data-title="Analysis Methodology"
+         data-notes="Walk through the 8-step methodology in order: Initial Triage, Header and Sender Examination, Content Examination, URL Examination, Attachment Examination, Contextual Examination, Defense Measures, and Documentation and Reporting. This is the structured process students will apply during hands-on analysis."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> METHODOLOGY</div>
+        <h2>Phishing Analysis Methodology</h2>
+        <p>A structured, repeatable process for working through any suspicious email — from first triage to final report.</p>
+
+        <div class="two-col" style="margin-top: 1.1em; align-items: start;">
+          <div class="col-block col-block--blue">
+            <div class="method-step">
+              <span class="method-num">1</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;">Initial Triage</h4>
+                <ul><li>Quickly assess and prioritize</li></ul>
+              </div>
+            </div>
+            <div class="method-step">
+              <span class="method-num">2</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;">Header and Sender Examination</h4>
+                <ul>
+                  <li>Investigate MTAs, addresses, IPs, etc.</li>
+                  <li>Identify the true origin and check authenticity</li>
+                </ul>
+              </div>
+            </div>
+            <div class="method-step">
+              <span class="method-num">3</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;">Content Examination</h4>
+                <ul>
+                  <li>Analyze email content for language, formatting, etc.</li>
+                  <li>Look for social engineering red flags</li>
+                </ul>
+              </div>
+            </div>
+            <div class="method-step">
+              <span class="method-num">4</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;"> URL Examination</h4>
+                <ul>
+                  
+                  <li>Utilize tools to inspect URLs and domains</li>
+                </ul>
+              </div>
+            </div>
+            <div class="method-step">
+              <span class="method-num">5</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;">Attachment Examination</h4>
+                <ul>
+                  <li>Securely extract and analyze attachments</li>
+                  <li>Checking file reputation and sandboxing</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-block col-block--purple">
+            <div class="method-step">
+              
+              <div>
+                
+              </div>
+            </div>
+            <div class="method-step">
+              <span class="method-num">6</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;">Defense Measures</h4>
+                <ul>
+                  <li>Take reactive defense actions (if needed)</li>
+                  <li>Take proactive defense actions</li>
+                  <li>Communicate with users and stakeholders</li>
+                </ul>
+              </div>
+            </div>
+            <div class="method-step">
+              <span class="method-num">7</span>
+              <div>
+                <h4 style="margin-bottom:0.3em;">Documentation and Reporting</h4>
+                <ul>
+                  <li>Maintain records of findings, verdicts, and actions taken through detailed reports</li>
+                  <li>Close out alerts and tickets</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 20 — Header Analysis
+         ========================================== -->
+    <div class="slide" data-slide="19" data-title="Header Analysis"
+         data-notes="Deep-dive into step 2 of the methodology. Walk through reading the Received: chain bottom-up to trace true origin, checking From/Reply-To/Return-Path for mismatches, and cross-referencing the sending IP."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> METHOD DEEP DIVE </div>
+        <h2>Header Analysis</h2>
+        <p>The header is the first place to verify whether a message is what it claims to be — most of it is invisible to the average recipient.</p>
+
+        <div class="card-row card-row--2" style="margin-top: 1.1em;">
+          <div class="card">
+            <h4>Trace the Received: Chain</h4>
+            <p>Each mail hop prepends a <span class="mono">Received:</span> line. Read from the bottom up — the bottom-most entry is closest to the true origin, since every later hop is added on top.</p>
+          </div>
+          <div class="card">
+            <h4>Compare From / Reply-To / Return-Path</h4>
+            <p>Legitimate mail usually has these aligned to the same domain. A mismatch — e.g. From: your bank, Reply-To: a free webmail address — is a strong red flag.</p>
+          </div>
+          <div class="card">
+            <h4>Check the Sending IP</h4>
+            <p>Cross-reference the originating IP in the first <span class="mono">Received:</span> line against the domain's known mail infrastructure or a reputation/geolocation lookup.</p>
+          </div>
+          <div class="card">
+            <h4>Inspect the Display Name</h4>
+            <p>"IT Support" can sit in front of any address. Always check the actual address in angle brackets, not just the friendly name shown by the mail client.</p>
+          </div>
+        </div>
+
+        <div class="info-box" style="margin-top: 1.1em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>Analyst's tip:</strong> Header fields like From: are trivially spoofed because SMTP has no built-in sender verification — that's exactly why authentication protocols like SPF, DKIM, and DMARC exist as a separate check, covered next.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 21 — Authentication Analysis (SPF/DKIM/DMARC)
+         ========================================== -->
+    <div class="slide" data-slide="20" data-title="Authentication Analysis"
+         data-notes="Deep-dive into the email authentication protocols referenced earlier: SPF validates the sending server's IP against the domain's published list, DKIM verifies a cryptographic signature proving the message wasn't altered, and DMARC ties the two together with a policy telling receivers what to do on failure."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> METHOD DEEP DIVE </div>
+        <h2>Authentication Analysis</h2>
+        <p>SMTP never verified who a sender really was — SPF, DKIM, and DMARC were added afterward to close that gap. An analyst checks all three results in the header.</p>
+
+        <div class="card-row card-row--3" style="margin-top: 1.1em;">
+          <div class="card">
+            <div class="card-icon card-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+            <h4>SPF</h4>
+            <p>Sender Policy Framework — the domain publishes a DNS record listing which IPs are allowed to send mail for it. The receiving server checks the sending IP against that list.</p>
+            <p class="mono small dim" style="margin-top: 0.6em;">Result: pass / fail / softfail / none</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a87bf5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg></div>
+            <h4>DKIM</h4>
+            <p>DomainKeys Identified Mail — the sender signs the message with a private key; the receiver checks that signature against a public key published in DNS to confirm the message wasn't altered in transit.</p>
+            <p class="mono small dim" style="margin-top: 0.6em;">Result: pass / fail / none</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg></div>
+            <h4>DMARC</h4>
+            <p>Domain-based Message Authentication, Reporting &amp; Conformance — ties SPF and DKIM together and tells receiving servers what to do if both fail: monitor, quarantine, or reject.</p>
+            <p class="mono small dim" style="margin-top: 0.6em;">Result: pass / fail (policy: none / quarantine / reject)</p>
+          </div>
+        </div>
+
+        <div class="email-mockup" style="margin-top: 1.1em;">
+          <div class="email-mockup-part">
+            <span class="part-label part-label--header">HEADER</span>
+            <div class="mock-line"><strong>From:</strong> "IT Support" &lt;support@accounts-secure-verify.com&gt;</div>
+            <div class="mock-line"><strong>SPF:</strong> fail &nbsp; <strong>DKIM:</strong> none &nbsp; <strong>DMARC:</strong> fail (p=reject)</div>
+          </div>
+        </div>
+
+        <div class="info-box" style="margin-top: 1em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>Analyst's tip:</strong> All three failing at once, as above, is a near-certain spoof. But check individually — a forwarded legitimate email can fail SPF/DKIM for benign reasons, so always read the result in context rather than treating any single failure as definitive proof.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 22 — Content Analysis
+         ========================================== -->
+    <div class="slide" data-slide="21" data-title="Content Analysis"
+         data-notes="Deep-dive into step 3 of the methodology. Cover reading the body for grammar/spelling mistakes, urgency and pressure language, encoded or hidden content, and formatting/branding inconsistencies."
+        >
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> METHOD DEEP DIVE </div>
+        <h2>Content Analysis</h2>
+        <p>With the header and authentication checked, the next step is reading the body itself closely for signs it wasn't written — or wasn't meant to be read — the normal way.</p>
+
+        <div class="card-row card-row--2" style="margin-top: 1.1em;">
+          <div class="card">
+            <h4>Grammar & Spelling Errors</h4>
+            <p>Awkward phrasing, inconsistent tense, and spelling mistakes are common in phishing emails, especially those translated or template-generated rather than written natively by the claimed sender.</p>
+          </div>
+          <div class="card">
+            <h4>Urgency & Pressure Language</h4>
+            <p>Phrases like "act now," "your account will be suspended," or "verify immediately" are designed to short-circuit careful reading — a legitimate sender rarely needs a countdown.</p>
+          </div>
+          <div class="card">
+            <h4>Encoded or Hidden Content</h4>
+            <p>Check the raw source for Base64-encoded blocks, suspicious HTML entities, or zero-width/invisible characters used to hide text from spam filters while still rendering to the reader.</p>
+          </div>
+          <div class="card">
+            <h4>Formatting & Branding Inconsistencies</h4>
+            <p>Mismatched logos, off-brand colors or fonts, and a signature that doesn't match the claimed organization's usual style are easy to miss at a glance but stand out under close reading.</p>
+          </div>
+        </div>
+
+        <div class="info-box" style="margin-top: 1.1em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>Analyst's tip:</strong> Always view the raw source rather than the rendered email — hidden characters and encoded payloads are invisible in a normal mail client but stand out immediately in plain text.</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /presentation -->
+
+  <!-- Bottom Bar -->
+  <div id="bottom-bar">
+    <div class="bottom-left">
+      <span id="slide-counter">01 / 21</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <div class="nav-controls">
+        <button class="nav-btn nav-btn--notes" id="btn-notes" title="Speaker Notes (Key: N)">📝 Notes</button>
+        <button class="nav-btn" id="btn-prev" aria-label="Previous slide">←</button>
+        <button class="nav-btn" id="btn-next" aria-label="Next slide">→</button>
+      </div>
+    </div>
+  </div>
+
+  
+  <!-- Speaker Notes Overlay -->
+  <!-- Speaker Notes Overlay -->
+  <div id="speaker-notes-overlay" role="dialog" aria-label="Speaker Notes">
+    <div class="notes-header">
+      <div class="notes-title">
+        <span>📝</span> Speaker Notes
+        <span id="notes-slide-num" style="font-size:0.75rem; color:var(--text-muted); font-weight:normal; margin-left:6px;"></span>
+      </div>
+      <button class="notes-close" id="btn-close-notes" aria-label="Close notes">&times;</button>
+    </div>
+    <div class="notes-body" id="notes-content"></div>
+  </div>
+
+  <script>
+    (() => {
+      const slides = document.querySelectorAll('.slide');
+      const total = slides.length;
+      let current = 0;
+
+      const counterEl     = document.getElementById('slide-counter');
+      const progressEl    = document.getElementById('progress-bar');
+      const headerTitleEl = document.getElementById('header-slide-title');
+
+      
+      const notesOverlay   = document.getElementById('speaker-notes-overlay');
+      const notesBtn       = document.getElementById('btn-notes');
+      const notesCloseBtn  = document.getElementById('btn-close-notes');
+      const notesContent   = document.getElementById('notes-content');
+      const notesSlideNum  = document.getElementById('notes-slide-num');
+
+      function updateNotes() {
+        if (!notesOverlay) return;
+        const note = slides[current].getAttribute('data-notes');
+        const title = slides[current].getAttribute('data-title') || `Slide ${current + 1}`;
+        if (notesSlideNum) notesSlideNum.textContent = `(${String(current + 1).padStart(2, '0')}/${String(total).padStart(2, '0')} - ${title})`;
+        if (note && note.trim().length > 0) {
+          notesContent.innerHTML = `<p>${note.replace(/\n/g, '<br>')}</p>`;
+        } else {
+          notesContent.innerHTML = `<span class="notes-empty">No speaker notes recorded for this slide.</span>`;
+        }
+      }
+
+      function toggleNotes() {
+        const overlay = document.getElementById('speaker-notes-overlay');
+        const btn = document.getElementById('btn-notes');
+        if (!overlay) return;
+        const isActive = overlay.classList.toggle('active');
+        if (btn) btn.classList.toggle('active', isActive);
+        if (isActive) updateNotes();
+      }
+
+      if (notesBtn) notesBtn.addEventListener('click', toggleNotes);
+      if (notesCloseBtn) notesCloseBtn.addEventListener('click', () => {
+        notesOverlay.classList.remove('active');
+        if (notesBtn) notesBtn.classList.remove('active');
+      });
+
+      function goTo(index) {
+        if (index < 0 || index >= total || index === current) return;
+        slides[current].classList.remove('active');
+        slides[current].scrollTop = 0;
+        slides[index].classList.add('active');
+        slides[index].scrollTop = 0;
+        current = index;
+        updateUI();
+      }
+
+      function updateUI() {
+        counterEl.textContent = `${String(current + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`;
+        progressEl.style.width = `${((current + 1) / total) * 100}%`;
+        headerTitleEl.textContent = slides[current].getAttribute('data-title') || '';
+        if (notesOverlay && notesOverlay.classList.contains('active')) updateNotes();
+      }
+
+      document.addEventListener('keydown', (e) => {
+        if (e.code === 'KeyN' || e.key === 'n' || e.key === 'N' || e.key === 'ى') { e.preventDefault(); toggleNotes(); }
+        else if (e.key === 'Escape') {
+          if (notesOverlay && notesOverlay.classList.contains('active')) {
+            e.preventDefault();
+            notesOverlay.classList.remove('active');
+            if (notesBtn) notesBtn.classList.remove('active');
+          }
+        }
+        else if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); goTo(current + 1); }
+        else if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(current - 1); }
+        else if (e.key === 'ArrowDown') {
+          const s = slides[current];
+          if (s && s.scrollHeight > s.clientHeight && s.scrollTop + s.clientHeight < s.scrollHeight - 5) {
+            e.preventDefault(); s.scrollBy({ top: 100, behavior: 'smooth' });
+          } else { e.preventDefault(); goTo(current + 1); }
+        }
+        else if (e.key === 'ArrowUp') {
+          const s = slides[current];
+          if (s && s.scrollHeight > s.clientHeight && s.scrollTop > 5) {
+            e.preventDefault(); s.scrollBy({ top: -100, behavior: 'smooth' });
+          } else { e.preventDefault(); goTo(current - 1); }
+        }
+        else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+        else if (e.key === 'End')  { e.preventDefault(); goTo(total - 1); }
+      });
+
+      document.getElementById('btn-prev').addEventListener('click', () => goTo(current - 1));
+      document.getElementById('btn-next').addEventListener('click', () => goTo(current + 1));
+
+      let touchStartX = 0;
+      document.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; });
+      document.addEventListener('touchend', (e) => {
+        const diff = touchStartX - e.changedTouches[0].screenX;
+        if (Math.abs(diff) > 50) { diff > 0 ? goTo(current + 1) : goTo(current - 1); }
+      });
+
+      updateUI();
+    })();
+  </script>
+
+</body>
+</html>

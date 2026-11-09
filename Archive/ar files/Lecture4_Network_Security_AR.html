@@ -1,0 +1,1783 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>المعمل 4 – أمن الشبكات (Network Security)</title>
+  <meta name="description" content="كشف التهديدات والاستجابة للحوادث — المعمل 4: التقاط وتحليل حركة الشبكة (Network Traffic Capturing and Analyzing)." />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue-100: #c2d6ff;
+      --blue-200: #93b4fd;
+      --blue-300: #6b93f7;
+      --blue-400: #4a78f0;
+      --blue-500: #3563e9;
+      --blue-600: #2a4ec4;
+      --blue-700: #1e3a9e;
+      --blue-800: #152c78;
+      --blue-900: #0d1d52;
+      --purple-100: #dfc8ff;
+      --purple-200: #c5a0fc;
+      --purple-300: #a87bf5;
+      --purple-400: #8b5cf6;
+      --purple-500: #7c3aed;
+      --purple-600: #6626c9;
+      --purple-700: #4f1d96;
+      --purple-800: #3b1578;
+      --purple-900: #270f52;
+      --accent-green: #34d399;
+      --accent-red: #f87171;
+      --accent-amber: #fbbf24;
+      --bg: #03050a;
+      --bg-surface: #070a14;
+      --bg-card: rgba(8, 12, 24, 0.75);
+      --bg-card-hover: rgba(14, 20, 36, 0.9);
+      --text-primary: #e8ecf4;
+      --text-secondary: #a0aec4;
+      --text-muted: #5c6b84;
+      --text-dim: #3e4a62;
+      --border: rgba(99, 130, 241, 0.1);
+      --border-glow: rgba(99, 130, 241, 0.22);
+      --shadow-sm: 0 1px 4px rgba(0,0,0,0.25);
+      --shadow-md: 0 4px 20px rgba(0,0,0,0.35);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.4);
+      --gradient-main: linear-gradient(135deg, var(--blue-500), var(--purple-500));
+      --gradient-soft: linear-gradient(135deg, rgba(53,99,233,0.12), rgba(124,58,237,0.12));
+      --gradient-card: linear-gradient(160deg, rgba(16,22,42,0.8), rgba(30,20,70,0.35));
+      --font-heading: 'Cairo', 'Space Grotesk', system-ui, sans-serif;
+      --font-body: 'Cairo', 'Outfit', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    html { font-size: 18px; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text-primary);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===== Static Background ===== */
+    .circuit-bg {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none; opacity: 0.03; overflow: hidden;
+    }
+
+    .orb {
+      position: fixed; border-radius: 50%; filter: blur(100px);
+      z-index: 0; pointer-events: none;
+    }
+    .orb--1 { width: 550px; height: 550px; top: -200px; right: -140px; background: radial-gradient(circle, rgba(53,99,233,0.12) 0%, rgba(124,58,237,0.06) 50%, transparent 70%); }
+    .orb--2 { width: 480px; height: 480px; bottom: -180px; left: -100px; background: radial-gradient(circle, rgba(124,58,237,0.09) 0%, rgba(53,99,233,0.04) 50%, transparent 70%); }
+    .orb--3 { width: 300px; height: 300px; top: 45%; left: 50%; background: radial-gradient(circle, rgba(53,99,233,0.06) 0%, transparent 65%); }
+
+    .shield-watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 0; pointer-events: none; opacity: 0.02; }
+
+    .side-accent { position: fixed; left: 0; top: 0; bottom: 0; width: 4px; background: var(--gradient-main); z-index: 10; }
+
+    /* ===== Top Header ===== */
+    .top-header {
+      position: fixed; top: 0; left: 4px; right: 0; height: 40px;
+      background: rgba(3, 5, 10, 0.85); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; z-index: 9;
+    }
+    .header-title {
+      font-family: var(--font-heading); font-size: 0.72rem; font-weight: 600;
+      color: var(--text-secondary); letter-spacing: 0.02em;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .header-title .title-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--blue-500); box-shadow: 0 0 8px rgba(53, 99, 233, 0.5); }
+    .header-title .title-sep { color: var(--text-dim); font-weight: 400; }
+    #header-slide-title { color: var(--text-muted); font-weight: 400; font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.04em; }
+    .header-right { display: flex; align-items: center; gap: 14px; }
+
+    /* ===== Lab Badge ===== */
+    .lab-badge {
+      font-family: var(--font-mono); font-size: 0.6rem; font-weight: 600;
+      padding: 0.2em 0.65em; border-radius: 5px; letter-spacing: 0.06em;
+      background: rgba(53,99,233,0.15); color: var(--blue-200);
+      border: 1px solid rgba(53,99,233,0.2);
+    }
+
+    /* ===== Progress Bar ===== */
+    #progress-bar {
+      position: fixed; top: 40px; left: 4px; height: 2px;
+      background: var(--gradient-main);
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 10; border-radius: 0 2px 2px 0;
+      box-shadow: 0 0 14px rgba(99, 102, 241, 0.25);
+    }
+
+    /* ===== Slide Container ===== */
+    #presentation { position: relative; width: 100%; height: 100%; z-index: 1; }
+
+    .slide {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 72px 100px 68px 100px;
+      opacity: 0; transform: translateY(16px);
+      transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+      overflow-y: auto; overflow-x: hidden;
+    }
+    .slide.active { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .slide-inner { max-width: 1060px; width: 100%; margin: auto 0; }
+
+    /* ===== Custom Scrollbar ===== */
+    .slide::-webkit-scrollbar { width: 8px; }
+    .slide::-webkit-scrollbar-track { background: rgba(8, 12, 24, 0.2); }
+    .slide::-webkit-scrollbar-thumb { background: rgba(99, 130, 241, 0.25); border-radius: 4px; }
+    .slide::-webkit-scrollbar-thumb:hover { background: rgba(99, 130, 241, 0.5); }
+
+    /* ===== Typography ===== */
+    h1 { font-family: var(--font-heading); font-size: 3rem; font-weight: 700; line-height: 1.1; margin-bottom: 0.4em; letter-spacing: -0.03em; }
+    h2 { font-family: var(--font-heading); font-size: 2.05rem; font-weight: 700; line-height: 1.18; margin-bottom: 0.5em; letter-spacing: -0.02em; }
+
+    .section-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: var(--font-mono); font-size: 0.66rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 0.9em;
+      padding: 0.35em 0.9em; border-radius: 6px;
+      background: var(--gradient-soft); border: 1px solid var(--border); color: var(--blue-300);
+    }
+    .section-label .label-icon { font-size: 0.8em; }
+
+    p, li { font-size: 1.08rem; line-height: 1.72; color: var(--text-secondary); }
+    ul { list-style: none; padding: 0; }
+    ul li { position: relative; padding-left: 1.8em; margin-bottom: 0.6em; }
+    ul li::before { content: ''; position: absolute; left: 0; top: 0.5em; width: 10px; height: 10px; border-radius: 3px; border: 2px solid var(--blue-600); background: transparent; transform: rotate(45deg); }
+    ul li::after { content: ''; position: absolute; left: 3px; top: calc(0.5em + 3px); width: 4px; height: 4px; border-radius: 1px; background: var(--gradient-main); transform: rotate(45deg); }
+
+    .gradient-text { background: var(--gradient-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .blue   { color: var(--blue-300); }
+    .purple { color: var(--purple-300); }
+    .green  { color: var(--accent-green); }
+    .red    { color: var(--accent-red); }
+    .amber  { color: var(--accent-amber); }
+    .mono   { font-family: var(--font-mono); font-size: 0.88em; }
+    .muted  { color: var(--text-muted); }
+    .dim    { color: var(--text-dim); }
+    .small  { font-size: 0.8rem; }
+
+    /* ===== Tags ===== */
+    .tag { display: inline-flex; align-items: center; gap: 5px; padding: 0.2em 0.7em; border-radius: 6px; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 600; letter-spacing: 0.04em; }
+    .tag--blue   { background: rgba(53,99,233,0.15);  color: var(--blue-200);   border: 1px solid rgba(53,99,233,0.2); }
+    .tag--purple { background: rgba(124,58,237,0.15); color: var(--purple-200); border: 1px solid rgba(124,58,237,0.2); }
+    .tag--red    { background: rgba(239,68,68,0.12);  color: #fca5a5;           border: 1px solid rgba(239,68,68,0.15); }
+    .tag--amber  { background: rgba(245,158,11,0.12); color: #fcd34d;           border: 1px solid rgba(245,158,11,0.15); }
+    .tag--green  { background: rgba(34,197,94,0.12);  color: #86efac;           border: 1px solid rgba(34,197,94,0.15); }
+    .tag-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+    /* ===== Cards ===== */
+    .card-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 1.1em; }
+    .card-row--2 { grid-template-columns: repeat(2, 1fr); }
+    .card-row--3 { grid-template-columns: repeat(3, 1fr); }
+    .card-row--4 { grid-template-columns: repeat(4, 1fr); }
+
+    .card {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.3em 1.35em; box-shadow: var(--shadow-sm);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative; overflow: hidden;
+    }
+    .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--gradient-main); opacity: 0; transition: opacity 0.35s ease; }
+    .card:hover { background: var(--bg-card-hover); box-shadow: var(--shadow-lg); transform: translateY(-3px); border-color: var(--border-glow); }
+    .card:hover::before { opacity: 1; }
+    .card h4 { font-family: var(--font-heading); font-size: 0.96rem; font-weight: 600; margin-bottom: 0.35em; color: var(--text-primary); }
+    .card p  { font-size: 0.86rem; color: var(--text-muted); line-height: 1.55; }
+    .card-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; margin-bottom: 0.75em; }
+    .card-icon--blue   { background: rgba(53,99,233,0.12);  border: 1px solid rgba(53,99,233,0.15); }
+    .card-icon--purple { background: rgba(124,58,237,0.12); border: 1px solid rgba(124,58,237,0.15); }
+    .card-icon--green  { background: rgba(52,211,153,0.12); border: 1px solid rgba(52,211,153,0.15); }
+    .card-icon--amber  { background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.15); }
+    .card-icon--red    { background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.15); }
+    .card-icon--mixed  { background: var(--gradient-soft); border: 1px solid var(--border); }
+
+    /* ===== Flow Diagram ===== */
+    .flow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 1.1em; }
+    .flow-step {
+      background: var(--bg-card); backdrop-filter: blur(8px);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 0.6em 1.1em; font-size: 0.88rem; font-weight: 500;
+      box-shadow: var(--shadow-sm); white-space: nowrap; transition: all 0.3s ease;
+    }
+    .flow-step:hover { box-shadow: var(--shadow-md); border-color: var(--border-glow); transform: translateY(-1px); }
+    .flow-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 6px; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600; margin-right: 6px; }
+    .flow-num--1 { background: rgba(53,99,233,0.18);  color: var(--blue-200); }
+    .flow-num--2 { background: rgba(124,58,237,0.18); color: var(--purple-200); }
+    .flow-num--3 { background: rgba(239,68,68,0.14);  color: #fca5a5; }
+    .flow-num--4 { background: rgba(245,158,11,0.14); color: #fcd34d; }
+    .flow-arrow { font-size: 1.1rem; color: var(--blue-600); }
+
+    /* ===== Title Slide ===== */
+    .slide--title { text-align: center; }
+    .slide--title h1 { font-size: 3.3rem; }
+    .slide--title .subtitle { font-size: 1.1rem; color: var(--text-muted); margin-top: 0.15em; max-width: 580px; margin-left: auto; margin-right: auto; }
+    .divider { width: 50px; height: 4px; background: var(--gradient-main); border-radius: 3px; margin: 1em auto; position: relative; }
+    .divider::after { content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 80px; height: 20px; background: var(--gradient-main); filter: blur(16px); opacity: 0.25; border-radius: 10px; }
+
+    /* ===== Instructor Line ===== */
+    .instructor-line {
+      margin-top: 1.6em;
+      font-size: 0.88rem; color: var(--text-muted);
+      font-family: var(--font-body); letter-spacing: 0.01em;
+    }
+    .instructor-line span { color: var(--text-secondary); font-weight: 500; }
+
+    /* ===== Info Box ===== */
+    .info-box {
+      display: flex; align-items: flex-start; gap: 1em;
+      background: var(--gradient-soft); border: 1px solid var(--border-glow);
+      border-radius: 12px; padding: 1em 1.3em; margin-top: 1.2em;
+    }
+    .info-box-icon { flex-shrink: 0; margin-top: 0.1em; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; }
+    .info-box-icon svg { width: 20px; height: 20px; }
+    .info-box p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
+    .info-box strong { color: var(--blue-300); }
+
+    /* ===== Warning Box (red variant of info-box) ===== */
+    .warn-box {
+      display: flex; align-items: flex-start; gap: 1em;
+      background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25);
+      border-radius: 12px; padding: 1em 1.3em; margin-top: 1.2em;
+    }
+    .warn-box .info-box-icon svg { stroke: var(--accent-red); }
+    .warn-box p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
+    .warn-box strong { color: var(--accent-red); }
+
+    /* ===== Cycle Row ===== */
+    .cycle-row {
+      display: flex; align-items: stretch; justify-content: center;
+      gap: 0; margin-top: 1.4em; border-radius: 14px; overflow: hidden;
+      border: 1px solid var(--border); box-shadow: var(--shadow-md);
+    }
+    .cycle-item {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 1.2em 0.8em; text-align: center;
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      position: relative; transition: background 0.3s ease;
+      border-right: 1px solid var(--border);
+    }
+    .cycle-item:last-child { border-right: none; }
+    .cycle-item:hover { background: var(--bg-card-hover); }
+    .cycle-item::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+    .cycle-item:hover::before { opacity: 1; }
+    .ci-1::before { background: linear-gradient(90deg, var(--blue-500), var(--blue-400)); }
+    .ci-2::before { background: linear-gradient(90deg, var(--blue-600), var(--blue-500)); }
+    .ci-3::before { background: linear-gradient(90deg, var(--purple-600), var(--purple-500)); }
+    .ci-4::before { background: linear-gradient(90deg, var(--accent-red), #fca5a5); }
+
+    .cycle-num {
+      width: 28px; height: 28px; border-radius: 8px; display: flex;
+      align-items: center; justify-content: center; font-family: var(--font-mono);
+      font-size: 0.7rem; font-weight: 700; margin-bottom: 0.6em;
+    }
+    .cycle-num--1 { background: rgba(53,99,233,0.2);  color: var(--blue-200); }
+    .cycle-num--2 { background: rgba(53,99,233,0.16); color: var(--blue-300); }
+    .cycle-num--3 { background: rgba(124,58,237,0.18); color: var(--purple-200); }
+    .cycle-num--4 { background: rgba(248,113,113,0.18); color: #fca5a5; }
+
+    .cycle-label {
+      font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700;
+      color: var(--text-primary); margin-bottom: 0.3em;
+    }
+    .cycle-desc { font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; }
+
+    /* ===== Two-column layout ===== */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 1em; }
+    .col-block {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.3em 1.4em; position: relative; overflow: hidden;
+    }
+    .col-block::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+    .col-block--blue::before   { background: linear-gradient(90deg, var(--blue-500), transparent); }
+    .col-block--purple::before { background: linear-gradient(90deg, var(--purple-500), transparent); }
+    .col-block--green::before  { background: linear-gradient(90deg, var(--accent-green), transparent); }
+    .col-block--red::before    { background: linear-gradient(90deg, var(--accent-red), transparent); }
+    .col-block h4 { font-family: var(--font-heading); font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.8em; }
+    .col-block ul { padding: 0; }
+    .col-block ul li { font-size: 0.88rem; margin-bottom: 0.45em; }
+
+    /* ===== Methodology Steps ===== */
+    .method-step { display: flex; align-items: flex-start; gap: 0.8em; margin-bottom: 1em; }
+    .method-step:last-child { margin-bottom: 0; }
+    .method-num {
+      flex-shrink: 0; width: 26px; height: 26px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700;
+      background: rgba(53,99,233,0.15); color: var(--blue-200);
+      border: 1px solid rgba(53,99,233,0.2); margin-top: 0.1em;
+    }
+    .method-step ul { margin-top: 0.2em; }
+    .method-step ul li { font-size: 0.84rem; margin-bottom: 0.3em; }
+
+    /* ===== Model / Profile Cards ===== */
+    .model-card {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 16px;
+      padding: 1.6em 1.5em; box-shadow: var(--shadow-md);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative; overflow: hidden;
+      display: flex; flex-direction: column; gap: 0.7em;
+    }
+    .model-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gradient-main); opacity: 0; transition: opacity 0.35s ease; }
+    .model-card:hover { background: var(--bg-card-hover); box-shadow: var(--shadow-lg); transform: translateY(-4px); border-color: var(--border-glow); }
+    .model-card:hover::before { opacity: 1; }
+    .model-card .model-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .model-card h4 { font-family: var(--font-heading); font-size: 1.0rem; font-weight: 700; color: var(--text-primary); }
+    .model-card p  { font-size: 0.86rem; color: var(--text-muted); line-height: 1.6; }
+    .model-card .model-tag { align-self: flex-start; }
+
+    /* ===== Case Study Card ===== */
+    .case-card {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 16px;
+      padding: 1.4em 1.5em; box-shadow: var(--shadow-md);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative; overflow: hidden; cursor: pointer;
+    }
+    .case-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gradient-main); opacity: 0.6; }
+    .case-card:hover { background: var(--bg-card-hover); box-shadow: var(--shadow-lg); transform: translateY(-4px); border-color: var(--border-glow); }
+    .case-card .case-year { font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: var(--blue-300); letter-spacing: 0.03em; margin-bottom: 0.5em; }
+    .case-card h4 { font-family: var(--font-heading); font-size: 1.05rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.5em; }
+    .case-card p { font-size: 0.84rem; color: var(--text-muted); line-height: 1.55; }
+    .case-card .case-impact { margin-top: 0.7em; padding-top: 0.7em; border-top: 1px solid var(--border); font-size: 0.78rem; color: var(--accent-red); font-weight: 600; }
+
+    /* ===== Case Study Detail Layout ===== */
+    .case-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 1em; flex-wrap: wrap; }
+    .case-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+    .case-stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 1.1em; }
+    .case-stat {
+      background: var(--gradient-card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1em 1.1em; text-align: center;
+    }
+    .case-stat .stat-value { font-family: var(--font-heading); font-size: 1.5rem; font-weight: 700; color: var(--text-primary); }
+    .case-stat .stat-value.red { color: var(--accent-red); }
+    .case-stat .stat-value.amber { color: var(--accent-amber); }
+    .case-stat .stat-value.blue { color: var(--blue-300); }
+    .case-stat .stat-label { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.3em; letter-spacing: 0.03em; }
+
+    .timeline-mini { display: flex; flex-direction: column; gap: 8px; margin-top: 1em; }
+    .tl-mini-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      background: var(--gradient-card); backdrop-filter: blur(12px);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 0.65em 1em; transition: all 0.3s ease;
+    }
+    .tl-mini-item:hover { border-color: var(--border-glow); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .tl-mini-time { font-family: var(--font-mono); font-size: 0.7rem; color: var(--blue-300); flex-shrink: 0; min-width: 88px; padding-top: 0.15em; }
+    .tl-mini-item p { font-size: 0.85rem; margin: 0; color: var(--text-secondary); }
+    .tl-mini-item strong { color: var(--text-primary); }
+
+    /* ===== Benefit grid (checklist) ===== */
+    .benefit-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 1em; }
+    .benefit-item {
+      background: var(--gradient-card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 0.8em 1em;
+      display: flex; align-items: center; gap: 10px;
+      transition: all 0.3s ease;
+    }
+    .benefit-item:hover { border-color: var(--border-glow); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .benefit-check {
+      width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0;
+      background: rgba(53,99,233,0.15); border: 1px solid rgba(53,99,233,0.2);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .benefit-check svg { width: 12px; height: 12px; }
+    .benefit-item span { font-size: 0.85rem; color: var(--text-secondary); }
+
+    /* ===== Bottom Bar ===== */
+    #bottom-bar {
+      position: fixed; bottom: 0; left: 4px; right: 0; height: 46px;
+      display: flex; align-items: center; justify-content: space-between; padding: 0 24px;
+      z-index: 10; background: rgba(3, 5, 10, 0.85); backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border);
+    }
+    .bottom-left { display: flex; align-items: center; gap: 14px; }
+    #slide-counter { font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-muted); letter-spacing: 0.04em; }
+    .nav-controls { display: flex; gap: 6px; }
+    .nav-btn {
+      background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary);
+      border-radius: 8px; width: 36px; height: 30px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 0.82rem; transition: all 0.25s ease; box-shadow: var(--shadow-sm);
+    }
+    .nav-btn:hover { background: var(--bg-card-hover); color: var(--blue-300); border-color: var(--border-glow); box-shadow: var(--shadow-md); }
+
+    /* ===== Slide element entrance animations ===== */
+    .slide.active li, .slide.active .card, .slide.active .flow-step, .slide.active .model-card,
+    .slide.active .cycle-item, .slide.active .col-block, .slide.active .case-card,
+    .slide.active .case-stat, .slide.active .tl-mini-item, .slide.active .benefit-item {
+      animation: fadeUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+    }
+    .slide.active li:nth-child(1), .slide.active .card:nth-child(1), .slide.active .flow-step:nth-child(1), .slide.active .model-card:nth-child(1), .slide.active .cycle-item:nth-child(1), .slide.active .col-block:nth-child(1), .slide.active .case-card:nth-child(1), .slide.active .case-stat:nth-child(1), .slide.active .tl-mini-item:nth-child(1), .slide.active .benefit-item:nth-child(1) { animation-delay: 0.06s; }
+    .slide.active li:nth-child(2), .slide.active .card:nth-child(2), .slide.active .flow-step:nth-child(2), .slide.active .model-card:nth-child(2), .slide.active .cycle-item:nth-child(2), .slide.active .col-block:nth-child(2), .slide.active .case-card:nth-child(2), .slide.active .case-stat:nth-child(2), .slide.active .tl-mini-item:nth-child(2), .slide.active .benefit-item:nth-child(2) { animation-delay: 0.12s; }
+    .slide.active li:nth-child(3), .slide.active .card:nth-child(3), .slide.active .flow-step:nth-child(3), .slide.active .model-card:nth-child(3), .slide.active .cycle-item:nth-child(3), .slide.active .col-block:nth-child(3), .slide.active .case-card:nth-child(3), .slide.active .case-stat:nth-child(3), .slide.active .tl-mini-item:nth-child(3), .slide.active .benefit-item:nth-child(3) { animation-delay: 0.18s; }
+    .slide.active li:nth-child(4), .slide.active .card:nth-child(4), .slide.active .flow-step:nth-child(4), .slide.active .cycle-item:nth-child(4), .slide.active .case-card:nth-child(4), .slide.active .tl-mini-item:nth-child(4), .slide.active .benefit-item:nth-child(4) { animation-delay: 0.24s; }
+    .slide.active li:nth-child(5), .slide.active .card:nth-child(5), .slide.active .flow-step:nth-child(5), .slide.active .tl-mini-item:nth-child(5), .slide.active .benefit-item:nth-child(5) { animation-delay: 0.30s; }
+    .slide.active li:nth-child(6), .slide.active .flow-step:nth-child(6), .slide.active .tl-mini-item:nth-child(6), .slide.active .benefit-item:nth-child(6) { animation-delay: 0.36s; }
+    .slide.active li:nth-child(7)  { animation-delay: 0.42s; }
+    .slide.active li:nth-child(8)  { animation-delay: 0.48s; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* =========================================================
+       MAIL AGENTS — Bob to Alice journey diagram
+       ========================================================= */
+    .mail-actor {
+      position: absolute;
+      display: flex; flex-direction: column; align-items: center;
+      width: 95px; text-align: center; z-index: 2;
+    }
+    .mail-actor-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 0.5em; box-shadow: var(--shadow-sm);
+    }
+    .mail-actor-icon--person { background: rgba(53,99,233,0.14); border: 1px solid rgba(53,99,233,0.22); }
+    .mail-actor-icon--server { background: rgba(124,58,237,0.14); border: 1px solid rgba(124,58,237,0.22); }
+    .mail-actor-label { font-family: var(--font-heading); font-size: 0.74rem; font-weight: 600; color: var(--text-primary); line-height: 1.35; }
+    .mail-actor-label .dim { font-family: var(--font-body); font-weight: 400; font-size: 0.92em; }
+    .mail-actor-tag { margin-top: 0.5em; }
+    .mail-proto-label {
+      position: absolute; font-family: var(--font-mono); font-size: 0.68rem;
+      color: var(--blue-300); white-space: nowrap; font-weight: 600; z-index: 2;
+    }
+    .mail-relay-label {
+      position: absolute; font-family: var(--font-mono); font-size: 0.62rem;
+      color: var(--text-dim); text-align: center; line-height: 1.4; z-index: 1; width: 140px;
+    }
+
+    /* =========================================================
+       ANIMATED ACTOR / PACKET WORKFLOW DIAGRAMS (Lab2 style)
+       ========================================================= */
+    .anim-container {
+      position: relative;
+      width: 100%; max-width: 900px;
+      margin: 1.2em auto 0;
+      background: rgba(8, 12, 24, 0.6);
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: inset 0 0 50px rgba(0,0,0,0.4);
+    }
+    .anim-actor {
+      position: absolute;
+      padding: 0.7rem 0.6rem;
+      background: rgba(14, 20, 36, 0.95);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+      width: 140px;
+      min-height: 70px;
+      z-index: 2;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      color: var(--text-primary);
+    }
+    .anim-actor.actor-client   { border-color: var(--blue-400); box-shadow: 0 0 18px rgba(74,120,240,0.15); }
+    .anim-actor.actor-smtp     { border-color: var(--purple-500); box-shadow: 0 0 18px rgba(124,58,237,0.15); }
+    .anim-actor.actor-dns      { border-color: var(--accent-amber); box-shadow: 0 0 18px rgba(251,191,36,0.15); }
+    .anim-actor.actor-recv     { border-color: var(--blue-500); box-shadow: 0 0 18px rgba(53,99,233,0.15); }
+    .anim-actor.actor-attacker { border-color: var(--accent-red); box-shadow: 0 0 18px rgba(248,113,113,0.15); }
+    .anim-actor.actor-victim   { border-color: var(--accent-green); box-shadow: 0 0 18px rgba(52,211,153,0.15); }
+    .anim-actor.actor-server   { border-color: var(--blue-400); box-shadow: 0 0 18px rgba(74,120,240,0.15); }
+
+    .anim-data-store {
+      min-height: 36px; display: flex; align-items: stretch; justify-content: center; width: 100%;
+    }
+    .anim-data-store::after {
+      content: attr(data-content);
+      display: flex; align-items: center; justify-content: center;
+      padding: 5px; border-radius: 4px; font-size: 0.62rem; font-weight: 500;
+      width: 100%; border: 1px dashed var(--text-dim);
+      background: rgba(1, 4, 9, 0.5); color: var(--text-muted);
+      transition: all 0.3s ease; white-space: pre-wrap; line-height: 1.4;
+    }
+
+    .anim-packet {
+      position: absolute; left: 0; top: 0;
+      padding: 0.4rem 0.8rem;
+      background: rgba(14, 20, 36, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      white-space: nowrap;
+      z-index: 3;
+      opacity: 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      display: flex; align-items: center; gap: 6px;
+      color: var(--text-primary);
+    }
+    .anim-packet::before { content: ""; width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .pkt-blue::before   { background: var(--blue-400); box-shadow: 0 0 8px var(--blue-400); }
+    .pkt-purple::before { background: var(--purple-400); box-shadow: 0 0 8px var(--purple-400); }
+    .pkt-green::before  { background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
+    .pkt-red::before    { background: var(--accent-red); box-shadow: 0 0 8px var(--accent-red); }
+    .pkt-amber::before  { background: var(--accent-amber); box-shadow: 0 0 8px var(--accent-amber); }
+
+    .slide:not(.active) .anim-packet,
+    .slide:not(.active) .anim-data-store::after { animation: none !important; }
+    .anim-packet { animation-iteration-count: infinite; animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+
+    /* ---- البريد الإلكتروني agent diagram (MUA/MTA/MDA) pulse ---- */
+    @keyframes agentPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(53,99,233,0.25); } 50% { box-shadow: 0 0 0 8px rgba(53,99,233,0); } }
+    .slide.active .agent-node { animation: agentPulse 2.2s ease-in-out infinite; }
+    .slide.active .agent-node:nth-child(1) { animation-delay: 0s; }
+    .slide.active .agent-node:nth-child(2) { animation-delay: 0.4s; }
+    .slide.active .agent-node:nth-child(3) { animation-delay: 0.8s; }
+
+    /* ===== البريد الإلكتروني Agent Flow Layout ===== */
+    .agent-flow { display: flex; align-items: center; justify-content: center; gap: 0; margin-top: 1.4em; flex-wrap: wrap; }
+    .agent-node {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.1em 1.3em; text-align: center; min-width: 150px;
+      box-shadow: var(--shadow-sm);
+    }
+    .agent-node .agent-icon { width: 40px; height: 40px; border-radius: 10px; margin: 0 auto 0.6em; display: flex; align-items: center; justify-content: center; }
+    .agent-node h5 { font-family: var(--font-heading); font-size: 0.92rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.2em; }
+    .agent-node .agent-full { font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-dim); letter-spacing: 0.02em; margin-bottom: 0.4em; }
+    .agent-node p { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; margin: 0; }
+    .agent-arrow { font-size: 1.4rem; color: var(--blue-600); padding: 0 0.5em; flex-shrink: 0; }
+
+    /* ===== البريد الإلكتروني Anatomy Diagram ===== */
+    .email-mockup {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 14px;
+      box-shadow: var(--shadow-md); margin-top: 1.2em; overflow: hidden;
+    }
+    .email-mockup-part {
+      padding: 0.85em 1.3em; border-bottom: 1px solid var(--border);
+      position: relative; transition: background 0.25s ease;
+    }
+    .email-mockup-part:last-child { border-bottom: none; }
+    .email-mockup-part:hover { background: rgba(53,99,233,0.06); }
+    .email-mockup-part .part-label {
+      position: absolute; top: 0.6em; right: 1.1em;
+      font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.06em;
+      padding: 0.15em 0.55em; border-radius: 5px;
+    }
+    .part-label--header { background: rgba(53,99,233,0.15); color: var(--blue-200); }
+    .part-label--body   { background: rgba(124,58,237,0.15); color: var(--purple-200); }
+    .part-label--url     { background: rgba(34,197,94,0.12); color: #86efac; }
+    .part-label--attach   { background: rgba(245,158,11,0.12); color: #fcd34d; }
+    .email-mockup-part .mock-line { font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 0.3em; }
+    .email-mockup-part .mock-line strong { color: var(--text-primary); }
+    .email-mockup-part .mock-body-text { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+    .email-mockup-part .mock-link { color: var(--blue-300); text-decoration: underline; font-family: var(--font-mono); font-size: 0.78rem; }
+    .email-mockup-part .mock-attach-chip {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.2);
+      border-radius: 8px; padding: 0.4em 0.8em; font-family: var(--font-mono); font-size: 0.72rem; color: #fcd34d;
+    }
+
+    /* ===== Address anatomy ===== */
+    .addr-anatomy { display: flex; justify-content: center; align-items: flex-end; gap: 4px; margin-top: 1.6em; flex-wrap: wrap; }
+    .addr-part { display: flex; flex-direction: column; align-items: center; gap: 0.5em; }
+    .addr-part .addr-chip {
+      font-family: var(--font-mono); font-size: 1.3rem; font-weight: 600;
+      padding: 0.3em 0.5em; border-radius: 8px;
+    }
+    .addr-chip--local { background: rgba(53,99,233,0.15); color: var(--blue-200); border: 1px solid rgba(53,99,233,0.25); }
+    .addr-chip--at     { background: transparent; color: var(--text-dim); font-size: 1.3rem; padding: 0; }
+    .addr-chip--domain { background: rgba(124,58,237,0.15); color: var(--purple-200); border: 1px solid rgba(124,58,237,0.25); }
+    .addr-chip--tld    { background: rgba(34,197,94,0.12); color: #86efac; border: 1px solid rgba(34,197,94,0.2); }
+    .addr-part .addr-tag { font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-muted); letter-spacing: 0.04em; }
+
+    /* ---- Image/Screenshot Placeholder ---- */
+    .screenshot-placeholder {
+      width: 100%; height: 260px;
+      border: 2px dashed var(--border-glow); border-radius: 12px;
+      background: rgba(8, 12, 24, 0.4);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 12px; padding: 20px; text-align: center;
+      color: var(--text-muted); transition: all 0.3s ease;
+      cursor: pointer; position: relative; overflow: hidden;
+    }
+    .screenshot-placeholder:hover { border-color: var(--blue-400); background: rgba(8, 12, 24, 0.6); color: var(--blue-300); }
+    .screenshot-placeholder-icon { color: var(--blue-500); opacity: 0.6; display: flex; align-items: center; justify-content: center; }
+    .screenshot-placeholder-icon svg { width: 34px; height: 34px; }
+    .screenshot-placeholder-text { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.04em; max-width: 280px; line-height: 1.45; }
+
+    /* ===== Icon inline ===== */
+    .icon-inline { display: inline-flex; align-items: center; justify-content: center; vertical-align: -3px; }
+    .icon-inline svg { width: 1em; height: 1em; }
+
+    /* ===== Protocol Header Diagram ===== */
+    .hdr-diagram {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1.5px solid rgba(124,58,237,0.45); border-radius: 14px;
+      box-shadow: var(--shadow-md), 0 0 0 1px rgba(124,58,237,0.08); overflow: hidden; margin-top: 1.2em;
+    }
+    .hdr-row { display: flex; border-bottom: 1px solid rgba(53,99,233,0.28); }
+    .hdr-row:last-child { border-bottom: none; }
+    .hdr-field {
+      flex: 1 1 0; padding: 0.65em 0.5em; text-align: center;
+      border-right: 1px solid rgba(124,58,237,0.35); position: relative;
+    }
+    .hdr-field:last-child { border-right: none; }
+    .hdr-field--blue   { background: rgba(53,99,233,0.09); }
+    .hdr-field--purple { background: rgba(124,58,237,0.09); }
+    .hdr-field .fname { display: block; font-family: var(--font-heading); font-weight: 600; font-size: 0.78rem; color: var(--text-primary); line-height: 1.3; }
+    .hdr-field .fbits { display: block; font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-muted); margin-top: 0.2em; letter-spacing: 0.02em; }
+
+    /* ===== Field Definitions List ===== */
+    .field-defs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.55em 1.6em; margin-top: 1.1em; }
+    .field-def { font-size: 0.85rem; color: var(--text-muted); line-height: 1.55; }
+    .field-def .fd-term { display: inline-block; font-family: var(--font-mono); font-size: 0.78rem; font-weight: 600; color: var(--blue-300); margin-right: 0.45em; }
+
+    /* ===== Port Range Diagram ===== */
+    .port-range-bar { display: flex; margin-top: 1.4em; border-radius: 10px; overflow: hidden; box-shadow: var(--shadow-md); border: 1px solid var(--border-glow); }
+    .port-range-seg { flex: 1; padding: 1em 0.8em; text-align: center; position: relative; }
+    .port-range-seg--1 { background: rgba(53,99,233,0.16); border-right: 1px solid rgba(124,58,237,0.3); }
+    .port-range-seg--2 { background: rgba(124,58,237,0.14); border-right: 1px solid rgba(124,58,237,0.3); }
+    .port-range-seg--3 { background: rgba(53,99,233,0.09); }
+    .port-range-seg .pr-range { display: block; font-family: var(--font-mono); font-weight: 700; font-size: 0.95rem; color: var(--text-primary); }
+    .port-range-seg .pr-name { display: block; font-family: var(--font-heading); font-weight: 600; font-size: 0.82rem; margin-top: 0.35em; color: var(--blue-200); }
+    .port-range-seg .pr-desc { display: block; font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35em; line-height: 1.5; }
+
+    /* ===== Port List Grid ===== */
+    .port-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.65em 1.8em; margin-top: 1.1em; }
+    .port-entry { display: flex; align-items: flex-start; gap: 0.7em; }
+    .port-chip {
+      flex-shrink: 0; font-family: var(--font-mono); font-weight: 700; font-size: 0.78rem;
+      padding: 0.22em 0.55em; border-radius: 6px; min-width: 2.6em; text-align: center;
+    }
+    .port-chip--blue   { background: rgba(53,99,233,0.16);  color: var(--blue-200);   border: 1px solid rgba(53,99,233,0.25); }
+    .port-chip--purple { background: rgba(124,58,237,0.16); color: var(--purple-200); border: 1px solid rgba(124,58,237,0.25); }
+    .port-info .pname { display: block; font-family: var(--font-heading); font-weight: 600; font-size: 0.86rem; color: var(--text-primary); }
+    .port-info .pdesc { display: block; font-size: 0.76rem; color: var(--text-muted); line-height: 1.5; margin-top: 0.15em; }
+
+    /* ===== Handshake Sequence Diagram ===== */
+    .handshake-diagram { margin-top: 1.3em; }
+    .hs-lane-labels { display: flex; justify-content: space-between; padding: 0 4%; margin-bottom: 0.4em; }
+    .hs-lane-labels span { font-family: var(--font-heading); font-weight: 700; font-size: 0.95rem; color: var(--text-primary); }
+
+    /* ===== Packet Capture Demo Table ===== */
+    .capture-table {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glow); border-radius: 14px;
+      box-shadow: var(--shadow-md); margin-top: 1.2em; overflow: hidden;
+      font-family: var(--font-mono);
+    }
+    .capture-row {
+      display: grid; grid-template-columns: 34px 68px 108px 108px 62px 1fr;
+      gap: 10px; padding: 0.6em 1em; align-items: center;
+      border-bottom: 1px solid rgba(53,99,233,0.2);
+      font-size: 0.74rem; color: var(--text-secondary);
+    }
+    .capture-row:last-child { border-bottom: none; }
+    .capture-row--head {
+      background: rgba(53,99,233,0.08); color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.62rem;
+      font-family: var(--font-body); font-weight: 600;
+    }
+    .capture-row:not(.capture-row--head):hover { background: rgba(53,99,233,0.06); }
+    .cap-flag { display: inline-block; padding: 0.1em 0.5em; border-radius: 5px; font-weight: 700; font-size: 0.7rem; }
+    .cap-flag--syn { background: rgba(53,99,233,0.2); color: var(--blue-200); }
+    .cap-flag--synack { background: rgba(124,58,237,0.2); color: var(--purple-200); }
+    .cap-flag--ack { background: rgba(52,211,153,0.16); color: var(--accent-green); }
+
+    /* ===== Example Box ===== */
+    .example-box {
+      background: var(--gradient-card); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 14px;
+      box-shadow: var(--shadow-md); margin-top: 1.2em; padding: 1.1em 1.3em;
+    }
+    .example-box .example-label {
+      display: inline-block; font-family: var(--font-mono); font-size: 0.62rem;
+      letter-spacing: 0.08em; padding: 0.22em 0.6em; border-radius: 5px;
+      background: rgba(34,197,94,0.12); color: #86efac; margin-bottom: 0.75em;
+    }
+    .example-box .mock-line { font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 0.3em; }
+    .example-box .mock-line strong { color: var(--text-primary); }
+    .example-box .mock-body-text { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+    .example-box .mock-body-text em { color: var(--text-primary); font-style: normal; font-weight: 600; }
+
+    /* ===== Terminal / tcpdump Mockup ===== */
+    .terminal {
+      background: rgba(3, 5, 10, 0.9); border: 1px solid var(--border-glow);
+      border-radius: 12px; box-shadow: var(--shadow-md); margin-top: 1.2em; overflow: hidden;
+    }
+    .terminal-bar { display: flex; align-items: center; gap: 6px; padding: 0.6em 1em; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); }
+    .terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .terminal-dot--red { background: #f87171; }
+    .terminal-dot--amber { background: #fbbf24; }
+    .terminal-dot--green { background: #34d399; }
+    .terminal-label { margin-left: 8px; font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-muted); }
+    .terminal-body { padding: 1em 1.3em; font-family: var(--font-mono); font-size: 0.76rem; line-height: 1.75; color: var(--text-secondary); overflow-x: auto; }
+    .terminal-body::-webkit-scrollbar { height: 8px; }
+    .terminal-body::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); border-radius: 4px; }
+    .terminal-body::-webkit-scrollbar-thumb { background: linear-gradient(90deg, #3563e9, #7c3aed); border-radius: 4px; }
+    .terminal-body::-webkit-scrollbar-thumb:hover { background: linear-gradient(90deg, #4a78f0, #a87bf5); }
+    .terminal-body { scrollbar-width: thin; scrollbar-color: #7c3aed rgba(255,255,255,0.03); }
+    .terminal-body .t-prompt { color: var(--accent-green); }
+    .terminal-body .t-cmd { color: var(--text-primary); }
+    .terminal-body .t-line { white-space: pre; }
+    .terminal-body .t-comment { color: var(--text-dim); }
+
+    /* ===== Compact lists inside cards ===== */
+    .card ul { margin-top: 0.35em; }
+    .card ul li { font-size: 0.83rem; color: var(--text-muted); padding-left: 1.5em; margin-bottom: 0.4em; line-height: 1.5; }
+    .card ul li::before { width: 8px; height: 8px; top: 0.4em; }
+    .card ul li::after { top: calc(0.4em + 3px); }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 768px) {
+      .slide { padding: 60px 24px; }
+      h1 { font-size: 2rem; }
+      h2 { font-size: 1.4rem; }
+      .slide--title h1 { font-size: 2.2rem; }
+      .card-row, .card-row--2, .card-row--3, .card-row--4 { grid-template-columns: 1fr; }
+      .flow { flex-direction: column; align-items: flex-start; }
+      .flow-arrow { transform: rotate(90deg); }
+      .two-col { grid-template-columns: 1fr; }
+      .cycle-row { flex-direction: column; border-radius: 14px; }
+      .cycle-item { border-right: none; border-bottom: 1px solid var(--border); }
+      .cycle-item:last-child { border-bottom: none; }
+      .benefit-grid { grid-template-columns: 1fr; }
+      .case-stat-row { grid-template-columns: 1fr; }
+      .agent-flow { flex-direction: column; }
+      .agent-arrow { transform: rotate(90deg); }
+      .addr-anatomy { flex-direction: column; }
+      .field-defs { grid-template-columns: 1fr; }
+      .hdr-field .fname { font-size: 0.68rem; }
+      .hdr-field .fbits { font-size: 0.56rem; }
+      .port-range-bar { flex-direction: column; }
+      .port-range-seg--1, .port-range-seg--2 { border-right: none; border-bottom: 1px solid rgba(124,58,237,0.3); }
+      .port-grid { grid-template-columns: 1fr; }
+      .capture-row { grid-template-columns: 24px 60px 90px 90px 54px 1fr; font-size: 0.64rem; gap: 6px; padding: 0.55em 0.6em; }
+    }
+  
+    /* ===== Speaker Notes Overlay ===== */
+    #speaker-notes-overlay {
+      position: fixed;
+      bottom: 58px;
+      right: 24px;
+      width: 480px;
+      max-width: calc(100vw - 48px);
+      max-height: 420px;
+      background: rgba(7, 10, 20, 0.96);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glow);
+      border-radius: 12px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65), 0 0 24px rgba(53, 99, 233, 0.2);
+      z-index: 99999 !important;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      animation: notesFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #speaker-notes-overlay.active { display: flex !important; }
+    @keyframes notesFadeIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .notes-header {
+      padding: 10px 14px;
+      background: linear-gradient(90deg, rgba(53, 99, 233, 0.18), rgba(124, 58, 237, 0.18));
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .notes-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--blue-200);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .notes-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.15rem;
+      padding: 0 4px;
+      transition: color 0.2s ease;
+      line-height: 1;
+    }
+    .notes-close:hover { color: var(--accent-red); }
+    .notes-body {
+      padding: 16px;
+      overflow-y: auto;
+      font-size: 0.95rem;
+      line-height: 1.65;
+      color: var(--text-primary);
+      font-family: var(--font-body);
+    }
+    .notes-empty { color: var(--text-muted); font-style: italic; }
+    .nav-btn--notes {
+      width: auto !important;
+      padding: 0 10px !important;
+      gap: 6px;
+      font-weight: 600;
+      font-size: 0.78rem !important;
+    }
+    .nav-btn--notes.active {
+      background: var(--blue-600) !important;
+      color: #fff !important;
+      border-color: var(--blue-400) !important;
+      box-shadow: 0 0 12px rgba(53, 99, 233, 0.5) !important;
+    }
+
+  
+    body { direction: rtl; text-align: right; }
+    pre, code, .mono, .cmd-line, .terminal-window, .header-grid, .flag-pill { direction: ltr; text-align: left; display: inline-block; font-family: var(--font-mono); }
+    .section-label { letter-spacing: normal; }
+    #speaker-notes-overlay { left: 24px !important; right: auto !important; text-align: right; direction: rtl; }
+    .notes-header { direction: rtl; }
+    .notes-close { margin-right: auto; margin-left: 0; }
+
+  </style>
+</head>
+<body>
+
+  <!-- ===== Background ===== -->
+  <div class="orb orb--1"></div>
+  <div class="orb orb--2"></div>
+  <div class="orb orb--3"></div>
+
+  <div class="circuit-bg">
+    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <pattern id="circuit" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse">
+        <path d="M0 100 h60 v-40 h30 v40 h20 v-60 h30" fill="none" stroke="#4a78f0" stroke-width="1"/>
+        <path d="M180 0 v50 h-40 v30 h40 v30" fill="none" stroke="#4a78f0" stroke-width="1"/>
+        <circle cx="60" cy="100" r="3" fill="#4a78f0"/>
+        <circle cx="90" cy="60"  r="2.5" fill="#7c3aed"/>
+        <circle cx="140" cy="100" r="3" fill="#4a78f0"/>
+        <circle cx="140" cy="50"  r="2.5" fill="#7c3aed"/>
+        <rect x="108" y="95" width="6" height="10" rx="1" fill="none" stroke="#4a78f0" stroke-width="0.8"/>
+      </pattern>
+      <rect width="100%" height="100%" fill="url(#circuit)" />
+    </svg>
+  </div>
+
+  <div class="shield-watermark">
+    <svg width="320" height="380" viewBox="0 0 100 120" fill="none">
+      <path d="M50 5 L90 25 L90 60 Q90 95 50 115 Q10 95 10 60 L10 25 Z" stroke="#4a78f0" stroke-width="1.5" fill="none"/>
+      <path d="M50 18 L78 33 L78 58 Q78 84 50 100 Q22 84 22 58 L22 33 Z" stroke="#7c3aed" stroke-width="0.8" fill="none"/>
+      <path d="M38 58 L48 68 L65 48" stroke="#4a78f0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <div class="side-accent"></div>
+
+  <!-- Top Header -->
+  <div class="top-header">
+    <div class="header-title">
+      <span class="title-dot"></span>
+      <span>Incident Detection &amp; Response</span>
+      <span class="title-sep">—</span>
+      <span id="header-slide-title">Lab 4</span>
+    </div>
+    <div class="header-right">
+      <span class="lab-badge">LAB 04</span>
+    </div>
+  </div>
+
+  <div id="progress-bar"></div>
+
+  <!-- ===== SLIDES ===== -->
+  <div id="presentation">
+
+    <!-- ==========================================
+         SLIDE 1 — Cover
+         ========================================== -->
+    <div class="slide slide--title active" data-slide="0" data-title="المقدمة"
+         data-notes="رحب بالطلاب في المحاضرة 4. ينتقل هذا المعمل بتركيزنا من تهديدات البريد الإلكتروني إلى طبقة الشبكة نفسها — الوسيط الحيوي الذي تعتمد عليه كافة الأنظمة والخدمات في المؤسسة.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> كشف التهديدات والاستجابة للحوادث · IDR</div>
+        <h1>Network<br /><span class="gradient-text">Security</span></h1>
+        <p class="subtitle">فهم أساسيات الشبكات، والرؤية الشاملة على مستوى الحزم (Packets)، والضوابط الأمنية لكشف ومنع الهجمات أثناء انتقالها عبر الشبكة.</p>
+        <div class="divider"></div>
+        <div class="instructor-line">المعمل 04 – <span>التقاط وتحليل حركة مرور الشبكة</span></div>
+        <div class="instructor-line">المحاضر: <span>Hussein Al-Selwi</span></div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 2 — الأهداف التعليمية للمعمل
+         ========================================== -->
+    <div class="slide" data-slide="1" data-title="أهداف المعمل"
+         data-notes="استعرض أهداف المعمل بإيجاز ليعرف الطلاب ما سيكتسبونه بنهاية المحاضرة. أكد على التدرج المنطقي: فهم الأساسيات، التقاط الحزم، تحليل حركة المرور، ثم ضبط أنظمة كشف ومنع التطفل وكتابة القواعد الأمنية.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> نظرة عامة على المعمل</div>
+        <h2>الأهداف التعليمية للمعمل</h2>
+        <ul style="margin-top: 1em;">
+          <li>Understand fundamental <strong class="blue">network security principles</strong></li>
+          <li>Explore <strong class="blue">network packets</strong>, <strong class="purple">flows</strong>, and <strong class="blue">security controls</strong></li>
+          <li>Develop skills in performing live <strong class="purple">packet captures</strong> using various tools</li>
+          <li>Learn to investigate packet captures and perform <strong class="blue">network traffic analysis</strong></li>
+          <li>Configure and manage <strong class="purple">intrusion detection</strong> and <strong class="blue">prevention systems</strong></li>
+          <li>Learn to write and implement <strong class="blue">network prevention</strong> and <strong class="purple">detection rules</strong></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 3 — Why Network Security Matters
+         ========================================== -->
+    <div class="slide" data-slide="2" data-title="أهمية أمن الشبكات"
+         data-notes="قدّم الفكرة التأسيسية: الشبكة هي الشريان والوسيط المشترك الذي يربط كل جهاز ومستخدم وخادم وخدمة سحابية في المؤسسة، ولهذا السبب تعد نقطة التركيز الأهم في الدفاع السيبراني. وضح كيف تمر كل حركة المرور عبر نسيج الشبكة.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> WHY IT MATTERS</div>
+        <h2>كل شيء في المؤسسة يمر عبر الشبكة</h2>
+        <p>Every device, service, and user in an organization needs to communicate — and that communication happens over the <strong class="blue">network</strong>. It's the shared medium connecting everything together, which makes it one of the most important places to focus security attention.</p>
+
+        <!-- Hub-and-spoke network diagram -->
+        <svg viewBox="0 -20 900 430" style="width:100%; max-width:760px; display:block; margin: 1.3em auto 0;" xmlns="http://www.w3.org/2000/svg">
+          <!-- connecting lines -->
+          <g stroke="url(#lineGrad)" stroke-width="2" fill="none" opacity="0.55">
+            <line x1="450" y1="195" x2="450" y2="30"/>
+            <line x1="450" y1="195" x2="592.9" y2="112.5"/>
+            <line x1="450" y1="195" x2="592.9" y2="277.5"/>
+            <line x1="450" y1="195" x2="450" y2="360"/>
+            <line x1="450" y1="195" x2="307.1" y2="277.5"/>
+            <line x1="450" y1="195" x2="307.1" y2="112.5"/>
+          </g>
+          <defs>
+            <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#3563e9"/>
+              <stop offset="100%" stop-color="#7c3aed"/>
+            </linearGradient>
+          </defs>
+
+          <!-- center hub -->
+          <circle cx="450" cy="195" r="52" fill="rgba(53,99,233,0.14)" stroke="#4a78f0" stroke-width="2"/>
+          <circle cx="450" cy="195" r="52" fill="none" stroke="#7c3aed" stroke-width="1" opacity="0.4"/>
+          <text x="450" y="190" text-anchor="middle" fill="#e8ecf4" font-family="Space Grotesk, sans-serif" font-weight="700" font-size="17">NETWORK</text>
+          <text x="450" y="208" text-anchor="middle" fill="#a0aec4" font-family="JetBrains Mono, monospace" font-size="11">shared medium</text>
+
+          <!-- satellite: الأجهزة الطرفية (Endpoints) & Devices (top) -->
+          <g>
+            <circle cx="450" cy="30" r="38" fill="rgba(53,99,233,0.12)" stroke="#6b93f7" stroke-width="1.5"/>
+            <text x="450" y="26" text-anchor="middle" fill="#e8ecf4" font-family="Outfit, sans-serif" font-weight="600" font-size="12">الأجهزة الطرفية (Endpoints) &amp;</text>
+            <text x="450" y="40" text-anchor="middle" fill="#e8ecf4" font-family="Outfit, sans-serif" font-weight="600" font-size="12">Devices</text>
+          </g>
+
+          <!-- satellite: البريد الإلكتروني & Web Traffic -->
+          <g>
+            <circle cx="592.9" cy="112.5" r="38" fill="rgba(124,58,237,0.12)" stroke="#a87bf5" stroke-width="1.5"/>
+            <text x="592.9" y="108.5" text-anchor="middle" fill="#e8ecf4" font-family="Outfit, sans-serif" font-weight="600" font-size="12">البريد الإلكتروني &amp; Web</text>
+            <text x="592.9" y="122.5" text-anchor="middle" fill="#e8ecf4" font-family="Outfit, sans-serif" font-weight="600" font-size="12">Traffic</text>
+          </g>
+
+          <!-- satellite: السحابة (Cloud) Services -->
+          <g>
+            <circle cx="592.9" cy="277.5" r="38" fill="rgba(53,99,233,0.12)" stroke="#6b93f7" stroke-width="1.5"/>
+            <text x="592.9" y="281.5" text-anchor="middle" fill="#e8ecf4" font-family="Outfit, sans-serif" font-weight="600" font-size="12">السحابة (Cloud) Services</text>
+          </g>
+
+          <!-- satellite: الخوادم (Servers) & Databases -->
+          <g>
+            <circle cx="450" cy="360" r="38" fill="rgba(124,58,237,0.12)" stroke="#a87bf5" stroke-width="1.5"/>
+            <text x="450" y="356" text-anchor="middle" fill="#e8ecf4" font-family="Outfit, sans-serif" font-weight="600" font-size="12">الخوادم (Servers) &amp;</text>
+            <text x="450" y="370" text-anchor="middle" fill="#e8ecf4" font-family="Outfit, sans-serif" font-weight="600" font-size="12">Databases</text>
+          </g>
+
+          <!-- satellite: أجهزة IoT & OT Devices -->
+          <g>
+            <circle cx="307.1" cy="277.5" r="38" fill="rgba(53,99,233,0.12)" stroke="#6b93f7" stroke-width="1.5"/>
+            <text x="307.1" y="273.5" text-anchor="middle" fill="#e8ecf4" font-family="Outfit, sans-serif" font-weight="600" font-size="12">أجهزة IoT &amp; OT</text>
+            <text x="307.1" y="287.5" text-anchor="middle" fill="#e8ecf4" font-family="Outfit, sans-serif" font-weight="600" font-size="12">Devices</text>
+          </g>
+
+          <!-- satellite: الوصول عن بُعد (VPN) Users -->
+          <g>
+            <circle cx="307.1" cy="112.5" r="38" fill="rgba(124,58,237,0.12)" stroke="#a87bf5" stroke-width="1.5"/>
+            <text x="307.1" y="108.5" text-anchor="middle" fill="#e8ecf4" font-family="Outfit, sans-serif" font-weight="600" font-size="12">الوصول عن بُعد (VPN)</text>
+            <text x="307.1" y="122.5" text-anchor="middle" fill="#e8ecf4" font-family="Outfit, sans-serif" font-weight="600" font-size="12">Users</text>
+          </g>
+        </svg>
+
+        <div class="info-box" style="margin-top: 1.3em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>الخلاصة الأمنية:</strong> before diving into specific tools and techniques, it helps to see the bigger picture — the network is the foundation that everything else in this course connects to.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 4 — البروتوكولات الأساسية: IP و TCP و UDP
+         ========================================== -->
+    <div class="slide" data-slide="3" data-title="بروتوكولات الشبكة الأساسية"
+         data-notes="قدّم البروتوكولات الثلاثة الأساسية: IP للعنونة والتوجيه (IPv4 32-bit مقابل IPv6 128-bit). و TCP الموثوق والمعتمد على الاتصال والمصافحة الثلاثية (SYN, SYN-ACK, ACK) مع أرقام التسلسل لإعادة الإرسال عند الفقد. و UDP السريع بدون مصافحة أو ضمان وصول، المستخدم لخدمات مثل DNS والبث الصوتي والمرئي.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> NETWORKING BASICS</div>
+        <h2>البروتوكولات الأساسية: IP و TCP و UDP</h2>
+        <p>Before looking at packet captures, it helps to know the protocols doing the work underneath. <strong class="blue">IP</strong> handles addressing and routing, while <strong class="purple">TCP</strong> and <strong class="purple">UDP</strong> handle getting data to the right application — one favoring reliability, the other favoring speed.</p>
+
+        <div class="card-row card-row--3" style="margin-top: 1.1em;">
+          <div class="card">
+            <div class="card-icon card-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+            <h4>IP — Internet Protocol</h4>
+            <p>Responsible for <strong class="blue">addressing and routing</strong> — getting a packet from source to destination across networks.</p>
+            <p class="mono small dim" style="margin-top:0.5em;">IPv4: 32-bit address · version field = 4</p>
+            <p class="mono small dim">IPv6: 128-bit address · version field = 6</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a87bf5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg></div>
+            <h4>TCP — Transmission Control Protocol</h4>
+            <p><strong class="purple">Reliable</strong> and connection-oriented. Sets up a connection first, then uses <strong class="purple">sequence numbers</strong> to track and reorder every byte sent — so lost data can be detected and retransmitted.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+            <h4>UDP — User Datagram Protocol</h4>
+            <p><strong class="blue">Fast</strong> and connectionless. No handshake, no delivery guarantee — data is just sent. Ideal when speed matters more than perfection.</p>
+          </div>
+        </div>
+
+        <div class="info-box" style="margin-top: 1.2em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>لماذا تهمنا هذه الفروقات؟</strong> TCP's handshake confirms both sides are ready before any data flows, and the sequence numbers exchanged during it are what let TCP detect missing or out-of-order segments later on. We'll walk through the handshake in detail shortly.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 5 — تشريح ترويسة حزمة IPv4
+         ========================================== -->
+    <div class="slide" data-slide="4" data-title="ترويسة بروتوكول IPv4"
+         data-notes="استعرض ترويسة IPv4 حقلاً بحقل. أكد على Version (4 دائماً هنا)، و IHL (طول الترويسة بكلمات 32-bit)، و Total Length (طول الحزمة كاملة مع البيانات)، و TTL (عمر الحزمة)، وحقلي عنوان المصدر والوجهة (32 بت لكل منهما).">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> ترويسات البروتوكولات</div>
+        <h2>تشريح ترويسة حزمة IPv4</h2>
+        <p>تبدأ كل حزمة IPv4 بترويسة أساسية بحجم 20 بايت (قبل البيانات الفعلية). إليك وظيفة كل حقل:</p>
+
+        <div class="hdr-diagram">
+          <div class="hdr-row">
+            <div class="hdr-field hdr-field--blue" style="flex-grow:4;"><span class="fname">Version</span><span class="fbits">4 bits</span></div>
+            <div class="hdr-field hdr-field--purple" style="flex-grow:4;"><span class="fname">IHL</span><span class="fbits">4 bits</span></div>
+            <div class="hdr-field hdr-field--blue" style="flex-grow:8;"><span class="fname">Type of Service</span><span class="fbits">8 bits</span></div>
+            <div class="hdr-field hdr-field--purple" style="flex-grow:16;"><span class="fname">Total Length</span><span class="fbits">16 bits</span></div>
+          </div>
+          <div class="hdr-row">
+            <div class="hdr-field hdr-field--blue" style="flex-grow:16;"><span class="fname">Identification</span><span class="fbits">16 bits</span></div>
+            <div class="hdr-field hdr-field--purple" style="flex-grow:3;"><span class="fname">Flags</span><span class="fbits">3 bits</span></div>
+            <div class="hdr-field hdr-field--blue" style="flex-grow:13;"><span class="fname">Fragment Offset</span><span class="fbits">13 bits</span></div>
+          </div>
+          <div class="hdr-row">
+            <div class="hdr-field hdr-field--purple" style="flex-grow:8;"><span class="fname">TTL</span><span class="fbits">8 bits</span></div>
+            <div class="hdr-field hdr-field--blue" style="flex-grow:8;"><span class="fname">Protocol</span><span class="fbits">8 bits</span></div>
+            <div class="hdr-field hdr-field--purple" style="flex-grow:16;"><span class="fname">Header Checksum</span><span class="fbits">16 bits</span></div>
+          </div>
+          <div class="hdr-row">
+            <div class="hdr-field hdr-field--blue" style="flex-grow:32;"><span class="fname">Source IP Address</span><span class="fbits">32 bits</span></div>
+          </div>
+          <div class="hdr-row">
+            <div class="hdr-field hdr-field--purple" style="flex-grow:32;"><span class="fname">Destination IP Address</span><span class="fbits">32 bits</span></div>
+          </div>
+        </div>
+
+        <div class="field-defs">
+          <div class="field-def"><span class="fd-term">Version</span>IP version in use — 4 for IPv4.</div>
+          <div class="field-def"><span class="fd-term">IHL</span>Header length in 32-bit words; needed since Options can extend the header.</div>
+          <div class="field-def"><span class="fd-term">Type of Service</span>Requested priority/handling for the packet (e.g. low delay, high throughput).</div>
+          <div class="field-def"><span class="fd-term">Total Length</span>Full packet size in bytes, header plus data.</div>
+          <div class="field-def"><span class="fd-term">Identification</span>Unique ID used to reassemble a packet's fragments.</div>
+          <div class="field-def"><span class="fd-term">Flags</span>Controls whether the packet may be fragmented and if more fragments follow.</div>
+          <div class="field-def"><span class="fd-term">Fragment Offset</span>Position of this fragment within the original packet.</div>
+          <div class="field-def"><span class="fd-term">TTL</span>Hop limit — decremented by each router, packet is dropped at zero.</div>
+          <div class="field-def"><span class="fd-term">Protocol</span>Identifies the next-layer protocol — e.g. 6 for TCP, 17 for UDP.</div>
+          <div class="field-def"><span class="fd-term">Header Checksum</span>Verifies the header wasn't corrupted in transit.</div>
+          <div class="field-def"><span class="fd-term">Source Address</span>32-bit IP address of the sender.</div>
+          <div class="field-def"><span class="fd-term">Destination Address</span>32-bit IP address of the intended recipient.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 6 — تشريح ترويسة بروتوكول TCP
+         ========================================== -->
+    <div class="slide" data-slide="5" data-title="ترويسة بروتوكول TCP"
+         data-notes="اربط هذا بالمصافحة الثلاثية وأرقام التسلسل. بيّن للطلاب أين تقع أرقام التسلسل (Seq)، والإشعار بالاستلام (Ack)، والأعلام (Flags مثل SYN, ACK, FIN, RST) داخل ترويسة TCP.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> ترويسات البروتوكولات</div>
+        <h2>تشريح ترويسة بروتوكول TCP</h2>
+        <p>تحتوي ترويسة TCP على أرقام التسلسل والأعلام المسؤولة عن بناء الاتصال وضمان موثوقيته:</p>
+
+        <div class="hdr-diagram">
+          <div class="hdr-row">
+            <div class="hdr-field hdr-field--blue" style="flex-grow:16;"><span class="fname">Source Port</span><span class="fbits">16 bits</span></div>
+            <div class="hdr-field hdr-field--purple" style="flex-grow:16;"><span class="fname">Destination Port</span><span class="fbits">16 bits</span></div>
+          </div>
+          <div class="hdr-row">
+            <div class="hdr-field hdr-field--purple" style="flex-grow:32;"><span class="fname">Sequence Number</span><span class="fbits">32 bits</span></div>
+          </div>
+          <div class="hdr-row">
+            <div class="hdr-field hdr-field--blue" style="flex-grow:32;"><span class="fname">Acknowledgment Number</span><span class="fbits">32 bits</span></div>
+          </div>
+          <div class="hdr-row">
+            <div class="hdr-field hdr-field--purple" style="flex-grow:4;"><span class="fname">Data Offset</span><span class="fbits">4 bits</span></div>
+            <div class="hdr-field hdr-field--blue" style="flex-grow:6;"><span class="fname">Reserved</span><span class="fbits">6 bits</span></div>
+            <div class="hdr-field hdr-field--purple" style="flex-grow:6;"><span class="fname">Flags</span><span class="fbits">6 bits</span></div>
+            <div class="hdr-field hdr-field--blue" style="flex-grow:16;"><span class="fname">Window Size</span><span class="fbits">16 bits</span></div>
+          </div>
+          <div class="hdr-row">
+            <div class="hdr-field hdr-field--purple" style="flex-grow:16;"><span class="fname">Checksum</span><span class="fbits">16 bits</span></div>
+            <div class="hdr-field hdr-field--blue" style="flex-grow:16;"><span class="fname">Urgent Pointer</span><span class="fbits">16 bits</span></div>
+          </div>
+        </div>
+
+        <div class="field-defs">
+          <div class="field-def"><span class="fd-term">Source / Dest. Port</span>Identify the sending and receiving application (e.g. port 443 for HTTPS).</div>
+          <div class="field-def"><span class="fd-term">Sequence Number</span>Position of this segment's data in the overall byte stream — the core of TCP's reliability.</div>
+          <div class="field-def"><span class="fd-term">Acknowledgment Number</span>Next sequence number the sender expects to receive back.</div>
+          <div class="field-def"><span class="fd-term">Data Offset</span>Header length in 32-bit words, same idea as IHL in IPv4.</div>
+          <div class="field-def"><span class="fd-term">Flags</span>Control bits like SYN, ACK, and FIN that drive the handshake and connection teardown.</div>
+          <div class="field-def"><span class="fd-term">Window Size</span>How much data the receiver can accept before needing an acknowledgment.</div>
+          <div class="field-def"><span class="fd-term">Checksum</span>Verifies the segment (header and data) wasn't corrupted in transit.</div>
+          <div class="field-def"><span class="fd-term">Urgent Pointer</span>Marks priority data within the segment, used only when the URG flag is set.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 7 — تشريح ترويسة بروتوكول UDP (بسيطة وخفيفة)
+         ========================================== -->
+    <div class="slide" data-slide="6" data-title="ترويسة بروتوكول UDP"
+         data-notes="Contrast this directly with the TCP header — same job (get data to the right port) but a fraction of the fields, which is exactly why UDP is fast but offers no reliability guarantees on its own.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> ترويسات البروتوكولات</div>
+        <h2>تشريح ترويسة بروتوكول UDP (بسيطة وخفيفة)</h2>
+        <p>UDP's header is only 8 bytes — no sequence numbers, no handshake fields, nothing tracking reliability. That simplicity is exactly what makes it fast.</p>
+
+        <div class="hdr-diagram">
+          <div class="hdr-row">
+            <div class="hdr-field hdr-field--blue" style="flex-grow:16;"><span class="fname">Source Port</span><span class="fbits">16 bits</span></div>
+            <div class="hdr-field hdr-field--purple" style="flex-grow:16;"><span class="fname">Destination Port</span><span class="fbits">16 bits</span></div>
+          </div>
+          <div class="hdr-row">
+            <div class="hdr-field hdr-field--purple" style="flex-grow:16;"><span class="fname">Length</span><span class="fbits">16 bits</span></div>
+            <div class="hdr-field hdr-field--blue" style="flex-grow:16;"><span class="fname">Checksum</span><span class="fbits">16 bits</span></div>
+          </div>
+        </div>
+
+        <div class="field-defs">
+          <div class="field-def"><span class="fd-term">Source Port</span>Port the datagram was sent from (optional — can be zeroed if no reply is expected).</div>
+          <div class="field-def"><span class="fd-term">Destination Port</span>Port the datagram is addressed to on the receiving host.</div>
+          <div class="field-def"><span class="fd-term">Length</span>Size of the UDP header plus data, in bytes.</div>
+          <div class="field-def"><span class="fd-term">Checksum</span>Optional in IPv4 — verifies the datagram wasn't corrupted, but there's no retransmission if it fails.</div>
+        </div>
+
+        <div class="info-box" style="margin-top: 1.1em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>Compare to TCP:</strong> four simple fields versus TCP's sequence numbers, acknowledgments, and flags — the trade-off between UDP's speed and TCP's reliability, in header form.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 8 — Three-Way Handshake (Detailed)
+         ========================================== -->
+    <div class="slide" data-slide="7" data-title="المصافحة الثلاثية (TCP 3-Way Handshake)"
+         data-notes="Walk through each arrow in order. Point out that the client picks an initial sequence number (here 1000) in the SYN. The server acknowledges it with ack = 1001 (client's seq + 1) while sending its own sequence number (5000) in the SYN-ACK. The client then acknowledges the server's sequence number with ack = 5001. This is the mechanism that lets both sides confirm they're synchronized before any real data is sent.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> TCP IN DETAIL</div>
+        <h2>المصافحة الثلاثية لإنشاء اتصال TCP</h2>
+        <p>Before any data is exchanged, the client and server synchronize their sequence numbers through three TCP segments — this is what a SYN scan or a normal connection setup looks like at the packet level.</p>
+
+        <div class="handshake-diagram">
+          <svg viewBox="0 0 700 380" style="width:100%; max-width:680px; display:block; margin: 0 auto;" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="arrBlue" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#6b93f7"/></marker>
+              <marker id="arrPurple" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#a87bf5"/></marker>
+              <marker id="arrGreen" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#34d399"/></marker>
+            </defs>
+
+            <!-- Client & Server headers -->
+            <rect x="90" y="14" width="140" height="42" rx="9" fill="rgba(53,99,233,0.14)" stroke="#4a78f0" stroke-width="1.5"/>
+            <text x="160" y="40" text-anchor="middle" fill="#e8ecf4" font-family="Space Grotesk, sans-serif" font-weight="700" font-size="16">Client</text>
+            <rect x="470" y="14" width="140" height="42" rx="9" fill="rgba(124,58,237,0.14)" stroke="#7c3aed" stroke-width="1.5"/>
+            <text x="540" y="40" text-anchor="middle" fill="#e8ecf4" font-family="Space Grotesk, sans-serif" font-weight="700" font-size="16">Server</text>
+
+            <!-- lifelines -->
+            <line x1="160" y1="56" x2="160" y2="350" stroke="#3e4a62" stroke-width="1.5" stroke-dasharray="4 5"/>
+            <line x1="540" y1="56" x2="540" y2="350" stroke="#3e4a62" stroke-width="1.5" stroke-dasharray="4 5"/>
+
+            <!-- Arrow 1: Client -> Server (SYN) -->
+            <circle cx="160" cy="100" r="13" fill="rgba(53,99,233,0.2)" stroke="#6b93f7" stroke-width="1.5"/>
+            <text x="160" y="105" text-anchor="middle" fill="#c2d6ff" font-family="JetBrains Mono, monospace" font-weight="700" font-size="13">1</text>
+            <line x1="173" y1="100" x2="527" y2="100" stroke="#6b93f7" stroke-width="2" marker-end="url(#arrBlue)"/>
+            <text x="350" y="88" text-anchor="middle" fill="#93b4fd" font-family="JetBrains Mono, monospace" font-weight="700" font-size="13">SYN</text>
+            <text x="350" y="115" text-anchor="middle" fill="#a0aec4" font-family="JetBrains Mono, monospace" font-size="11.5">seq = 1000</text>
+
+            <!-- Arrow 2: Server -> Client (SYN, ACK) -->
+            <circle cx="540" cy="190" r="13" fill="rgba(124,58,237,0.2)" stroke="#a87bf5" stroke-width="1.5"/>
+            <text x="540" y="195" text-anchor="middle" fill="#dfc8ff" font-family="JetBrains Mono, monospace" font-weight="700" font-size="13">2</text>
+            <line x1="527" y1="190" x2="173" y2="190" stroke="#a87bf5" stroke-width="2" marker-end="url(#arrPurple)"/>
+            <text x="350" y="178" text-anchor="middle" fill="#c5a0fc" font-family="JetBrains Mono, monospace" font-weight="700" font-size="13">SYN, ACK</text>
+            <text x="350" y="205" text-anchor="middle" fill="#a0aec4" font-family="JetBrains Mono, monospace" font-size="11.5">seq = 5000 · ack = 1001</text>
+
+            <!-- Arrow 3: Client -> Server (ACK) -->
+            <circle cx="160" cy="280" r="13" fill="rgba(52,211,153,0.18)" stroke="#34d399" stroke-width="1.5"/>
+            <text x="160" y="285" text-anchor="middle" fill="#a7f3d0" font-family="JetBrains Mono, monospace" font-weight="700" font-size="13">3</text>
+            <line x1="173" y1="280" x2="527" y2="280" stroke="#34d399" stroke-width="2" marker-end="url(#arrGreen)"/>
+            <text x="350" y="268" text-anchor="middle" fill="#6ee7b7" font-family="JetBrains Mono, monospace" font-weight="700" font-size="13">ACK</text>
+            <text x="350" y="295" text-anchor="middle" fill="#a0aec4" font-family="JetBrains Mono, monospace" font-size="11.5">seq = 1001 · ack = 5001</text>
+
+            <!-- Established -->
+            <text x="350" y="335" text-anchor="middle" fill="#34d399" font-family="Space Grotesk, sans-serif" font-weight="700" font-size="14">✓ تم إنشاء الاتصال بنجاح — يبدأ تبادل البيانات</text>
+          </svg>
+        </div>
+
+        <div class="info-box" style="margin-top: 1.1em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>Reading the numbers:</strong> each side's <strong class="blue">sequence number</strong> marks where its byte stream starts, and each <strong class="purple">ack number</strong> confirms "I received everything up to this point, send the next byte." That's the whole trick behind TCP reliability.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 9 — تقسيم وتصنيف نطاقات منافذ الشبكة (Ports)
+         ========================================== -->
+    <div class="slide" data-slide="8" data-title="تقسيم وتصنيف منافذ الشبكة"
+         data-notes="Explain that a port is a 16-bit number (0-65535) that, combined with an IP address, identifies exactly which application on a host a connection belongs to. Then cover the three official ranges defined by IANA: well-known, registered, and dynamic/private.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> PORTS &amp; SERVICES</div>
+        <h2>تقسيم وتصنيف نطاقات منافذ الشبكة (Ports)</h2>
+        <p>A <strong class="blue">port</strong> is a 16-bit number (0–65535) that identifies which application or service on a host a connection belongs to. Combined with an IP address, it forms a full endpoint — e.g. <span class="mono">192.168.1.10:443</span>. Ports are divided into three ranges:</p>
+
+        <div class="port-range-bar">
+          <div class="port-range-seg port-range-seg--1">
+            <span class="pr-range">0 – 1023</span>
+            <span class="pr-name">المنافذ المعروفة (Well-Known Ports)</span>
+            <span class="pr-desc">Reserved for standard services (HTTP, DNS, SSH) and assigned by IANA.</span>
+          </div>
+          <div class="port-range-seg port-range-seg--2">
+            <span class="pr-range">1024 – 49151</span>
+            <span class="pr-name">المنافذ المسجلة (Registered Ports)</span>
+            <span class="pr-desc">Registered by vendors for specific applications, less strictly controlled.</span>
+          </div>
+          <div class="port-range-seg port-range-seg--3">
+            <span class="pr-range">49152 – 65535</span>
+            <span class="pr-name">المنافذ الديناميكية والمؤقتة (Ephemeral)</span>
+            <span class="pr-desc">Assigned temporarily by the OS for outgoing client connections.</span>
+          </div>
+        </div>
+
+        <div class="info-box" style="margin-top: 1.2em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>In practice:</strong> a server listens on a well-known port (like 443 for HTTPS), while your browser connects out from a random dynamic port — that pairing is what uniquely identifies the conversation.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 10 — Common Ports
+         ========================================== -->
+    <div class="slide" data-slide="9" data-title="أشهر المنافذ المستخدمة والمهددة"
+         data-notes="These are the ports analysts see constantly in captures and logs. Group mentally into: file transfer/remote access (21,22,23,3389), email (25,110,143), web (80,443,8080), Windows/directory services (135,139,389,445), and DNS (53).">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> PORTS &amp; SERVICES</div>
+        <h2>Common Ports</h2>
+        <p>The well-known ports you'll run into most often when reading traffic or logs:</p>
+
+        <div class="port-grid">
+          <div class="port-entry">
+            <span class="port-chip port-chip--blue">21</span>
+            <div class="port-info"><span class="pname">FTP</span><span class="pdesc">Transfers files between systems, usually without encryption.</span></div>
+          </div>
+          <div class="port-entry">
+            <span class="port-chip port-chip--purple">22</span>
+            <div class="port-info"><span class="pname">SSH</span><span class="pdesc">Encrypted remote command-line access and file transfer.</span></div>
+          </div>
+          <div class="port-entry">
+            <span class="port-chip port-chip--blue">23</span>
+            <div class="port-info"><span class="pname">Telnet</span><span class="pdesc">الوصول عن بُعد (VPN) command-line access sent entirely in plaintext, including credentials.</span></div>
+          </div>
+          <div class="port-entry">
+            <span class="port-chip port-chip--purple">25</span>
+            <div class="port-info"><span class="pname">SMTP</span><span class="pdesc">Sends email between mail servers.</span></div>
+          </div>
+          <div class="port-entry">
+            <span class="port-chip port-chip--blue">53</span>
+            <div class="port-info"><span class="pname">DNS</span><span class="pdesc">Resolves domain names into IP addresses.</span></div>
+          </div>
+          <div class="port-entry">
+            <span class="port-chip port-chip--purple">80</span>
+            <div class="port-info"><span class="pname">HTTP</span><span class="pdesc">Unencrypted web traffic between browser and server.</span></div>
+          </div>
+          <div class="port-entry">
+            <span class="port-chip port-chip--blue">110</span>
+            <div class="port-info"><span class="pname">POP3</span><span class="pdesc">Downloads email from a server, typically removing it afterward.</span></div>
+          </div>
+          <div class="port-entry">
+            <span class="port-chip port-chip--purple">135</span>
+            <div class="port-info"><span class="pname">RPC</span><span class="pdesc">Microsoft's remote procedure call, used for inter-process communication.</span></div>
+          </div>
+          <div class="port-entry">
+            <span class="port-chip port-chip--blue">139</span>
+            <div class="port-info"><span class="pname">NetBIOS</span><span class="pdesc">Legacy Windows protocol for file and printer sharing on a local network.</span></div>
+          </div>
+          <div class="port-entry">
+            <span class="port-chip port-chip--purple">143</span>
+            <div class="port-info"><span class="pname">IMAP</span><span class="pdesc">Retrieves email while keeping messages synced on the server.</span></div>
+          </div>
+          <div class="port-entry">
+            <span class="port-chip port-chip--blue">389</span>
+            <div class="port-info"><span class="pname">LDAP</span><span class="pdesc">Queries centralized directory services such as Active Directory.</span></div>
+          </div>
+          <div class="port-entry">
+            <span class="port-chip port-chip--purple">443</span>
+            <div class="port-info"><span class="pname">HTTPS</span><span class="pdesc">HTTP secured with TLS/SSL encryption.</span></div>
+          </div>
+          <div class="port-entry">
+            <span class="port-chip port-chip--blue">445</span>
+            <div class="port-info"><span class="pname">SMB</span><span class="pdesc">Modern Windows file and printer sharing, replacing NetBIOS.</span></div>
+          </div>
+          <div class="port-entry">
+            <span class="port-chip port-chip--purple">3389</span>
+            <div class="port-info"><span class="pname">RDP</span><span class="pdesc">Graphical remote access to a Windows system's desktop.</span></div>
+          </div>
+          <div class="port-entry">
+            <span class="port-chip port-chip--blue">8080</span>
+            <div class="port-info"><span class="pname">HTTP-Alt</span><span class="pdesc">Common alternate port for HTTP, often used by proxies or app servers.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 11 — Demo: Handshake with tcpdump
+         ========================================== -->
+    <div class="slide" data-slide="10" data-title="تطبيق عملي: المصافحة بـ tcpdump"
+         data-notes="This is a mock-up of tcpdump's default output capturing the same three-way handshake from the diagram. Walk through each line and connect the flags back to the diagram: [S] is SYN, [S.] is SYN-ACK, and [.] is a plain ACK. Point out the seq/ack numbers matching what was covered earlier.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> DEMO</div>
+        <h2>Handshake with tcpdump</h2>
+        <p>Here's the same three-way handshake as it would appear in <span class="mono">tcpdump</span> output — this is exactly what you'll be looking for once we start capturing traffic ourselves.</p>
+
+        <div class="terminal">
+          <div class="terminal-bar">
+            <span class="terminal-dot terminal-dot--red"></span>
+            <span class="terminal-dot terminal-dot--amber"></span>
+            <span class="terminal-dot terminal-dot--green"></span>
+            <span class="terminal-label">terminal</span>
+          </div>
+          <div class="terminal-body">
+<span class="t-line"><span class="t-prompt">$</span> <span class="t-cmd">sudo tcpdump -i eth0 host 93.184.216.34 and port 80 -n</span></span>
+<span class="t-line">09:14:02.000000 IP 192.168.1.10.51514 &gt; 93.184.216.34.80: Flags <span class="cap-flag cap-flag--syn">[S]</span>, seq 1000, win 64240, length 0</span>
+<span class="t-line">09:14:02.028000 IP 93.184.216.34.80 &gt; 192.168.1.10.51514: Flags <span class="cap-flag cap-flag--synack">[S.]</span>, seq 5000, ack 1001, win 65535, length 0</span>
+<span class="t-line">09:14:02.028100 IP 192.168.1.10.51514 &gt; 93.184.216.34.80: Flags <span class="cap-flag cap-flag--ack">[.]</span>, ack 5001, win 64240, length 0</span>
+          </div>
+        </div>
+
+        <div class="info-box" style="margin-top: 1.1em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>Reading tcpdump flags:</strong> <span class="mono">[S]</span> = SYN, <span class="mono">[S.]</span> = SYN-ACK, and <span class="mono">[.]</span> = an ACK with no other flags set — spotting this three-line pattern is the fastest way to find a handshake in raw output.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 12 — الالتقاط القائم على الحزم الكاملة (Packet Capture)
+         ========================================== -->
+    <div class="slide" data-slide="11" data-title="الالتقاط القائم على الحزم الكاملة"
+         data-notes="Explain that packet-based capture records the full contents of every packet — headers and payload — exactly as it crossed the wire. This is the most detailed level of visibility possible, which is why tools like tcpdump and Wireshark work this way. But that detail comes at a storage and processing cost, especially on high-throughput links.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> CAPTURE APPROACHES</div>
+        <h2>الالتقاط القائم على الحزم الكاملة (Packet Capture)</h2>
+        <p><strong class="blue">Packet-based capture</strong> records the full contents of every packet — headers and payload — exactly as it crossed the wire. It's the most detailed level of visibility available, since nothing is summarized or thrown away.</p>
+
+        <div class="example-box">
+          <span class="example-label">EXAMPLE</span>
+          <div class="mock-body-text">Capturing every segment of a login attempt with <em>tcpdump</em> — the full handshake, the request, and the response are each stored as individual packets, headers and all.</div>
+        </div>
+
+        <div class="card-row card-row--2" style="margin-top: 1.2em;">
+          <div class="card">
+            <div class="card-icon card-icon--green"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+            <h4>Advantages</h4>
+            <ul>
+              <li>Full visibility into headers <em>and</em> payload content</li>
+              <li>تفاصيل جنائية دقيقة للغاية — كل بايت محفوظ وموثق.</li>
+              <li>إمكانية إعادة بناء الأحداث بدقة متناهية (مثل استخراج الملفات المنقولة).</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--red"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+            <h4>Disadvantages</h4>
+            <ul>
+              <li>استهلاك هائل لمساحات التخزين في الشبكات النشطة.</li>
+              <li>يتطلب قدرات معالجة عالية عند التحليل على نطاق واسع.</li>
+              <li>حركة المرور المشفرة (TLS) تخفي محتوى الحمولة حتى مع التقاطها.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 13 — الالتقاط القائم على التدفقات (NetFlow / IPFIX)
+         ========================================== -->
+    <div class="slide" data-slide="12" data-title="الالتقاط القائم على التدفقات (Flows)"
+         data-notes="اشرح الالتقاط القائم على التدفقات (الالتقاط القائم على التدفقات (NetFlow / IPFIX)): تلخيص المحادثة بين جهازين في سجل واحد يوضح (من اتصل بمن، ومتى، وكمية البيانات) بدلاً من حفظ الحزم. اذكر NetFlow و IPFIX كأمثلة. يتوسع بسهولة في شبكات الشركات الكبرى لكنه يضحي برؤية محتوى البيانات.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> CAPTURE APPROACHES</div>
+        <h2>الالتقاط القائم على التدفقات (NetFlow / IPFIX)</h2>
+        <p><strong class="purple">Flow-based capture</strong> summarizes an entire conversation between two endpoints into a single record — source/destination IP and port, protocol, packet count, byte count, and duration — instead of storing every packet. Common implementations include NetFlow, IPFIX, and sFlow.</p>
+
+        <div class="example-box">
+          <span class="example-label">EXAMPLE</span>
+          <div class="mock-line">src=192.168.1.10:51514 &nbsp; dst=93.184.216.34:80 &nbsp; proto=TCP</div>
+          <div class="mock-line">packets=142 &nbsp; bytes=98,304 &nbsp; duration=4.2s</div>
+          <div class="mock-body-text" style="margin-top:0.5em;">One record for the <em>entire</em> session — not the individual SYN, SYN-ACK, or ACK packets.</div>
+        </div>
+
+        <div class="card-row card-row--2" style="margin-top: 1.2em;">
+          <div class="card">
+            <div class="card-icon card-icon--green"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+            <h4>Advantages</h4>
+            <ul>
+              <li>مساحة تخزين أصغر بكثير مقارنة بالالتقاط الكامل للحزم.</li>
+              <li>قابل للتطبيق والتوسع بسهولة في شبكات الشركات العملاقة.</li>
+              <li>ممتاز لرصد الأنماط الشاذة — أحجام النقل الضخمة والاتصال المتكرر (Beaconing).</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--red"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+            <h4>Disadvantages</h4>
+            <ul>
+              <li>لا يوفر رؤية لحمولة البيانات — لا يمكن رؤية محتوى ما تم نقله.</li>
+              <li>لا يمكن إعادة بناء الأحداث التفصيلية على مستوى الحزم الفردية.</li>
+              <li>لا يكشف التهديدات الخفية المعتمدة على محتوى الحمولة.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 14 — التحليل اللحظي المباشر في الوقت الفعلي (Online)
+         ========================================== -->
+    <div class="slide" data-slide="13" data-title="التحليل اللحظي المباشر (Online)"
+         data-notes="اشرح التحليل اللحظي المباشر (التحليل اللحظي المباشر في الوقت الفعلي (Online)): فحص حركة المرور مباشرة أثناء تدفقها في الشبكة لاتخاذ قرارات فورية مثل الحظر، كما تفعل أنظمة IDS/IPS. ميزته السرعة الفائقة، ولكن وقته محدود جداً لفحص كل حزمة بعمق.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> منهجيات التحليل</div>
+        <h2>التحليل اللحظي المباشر في الوقت الفعلي (Online)</h2>
+        <p><strong class="blue">Online analysis</strong> (also called live or real-time analysis) inspects traffic as it crosses the network, without necessarily saving it first. This is how tools that need to react immediately — like an IDS/IPS or a live monitoring dashboard — actually work.</p>
+
+        <div class="example-box">
+          <span class="example-label">EXAMPLE</span>
+          <div class="mock-body-text">Running <em>tcpdump -i eth0</em> and watching packets print to the screen live, or an IDS evaluating every connection attempt the moment it happens and firing an alert instantly.</div>
+        </div>
+
+        <div class="card-row card-row--2" style="margin-top: 1.2em;">
+          <div class="card">
+            <div class="card-icon card-icon--green"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+            <h4>Advantages</h4>
+            <ul>
+              <li>اكتشاف وتنبيه فوري لحظة وقوع الحدث الأمني.</li>
+              <li>يمكّن من اتخاذ إجراء فوري — مثل قطع اتصال الهجوم الجاري.</li>
+              <li>لا يشترط حفظ مساحات تخزين هائلة لمراجعة البيانات لاحقاً.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--red"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+            <h4>Disadvantages</h4>
+            <ul>
+              <li>وقت المعالجة المتاح لكل حزمة محدود جداً لتجنب تأخير الشبكة.</li>
+              <li>قد يعاني من صعوبة مواكبة السرعات الفائقة في الشبكات الضخمة.</li>
+              <li>يصعب عليه رصد الأنماط المعقدة البطيئة التي تتضح عبر فترات زمنية طويلة.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 15 — التحليل اللاحق المسترجع (Offline / Retrospective)
+         ========================================== -->
+    <div class="slide" data-slide="14" data-title="التحليل اللاحق المسترجع (Offline)"
+         data-notes="اشرح التحليل غير المباشر (التحليل اللاحق المسترجع (Offline / Retrospective)): حفظ حركة المرور في ملف PCAP أولاً، ثم تحليلها لاحقاً دون أي ضغط زمني. هذا هو مسار عمل التحقيق الجنائي والاستجابة للحوادث — سجل الآن، وحقق بعمق لاحقاً باستخدام أدوات مثل Wireshark.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> منهجيات التحليل</div>
+        <h2>التحليل اللاحق المسترجع (Offline / Retrospective)</h2>
+        <p><strong class="purple">Offline analysis</strong> (also called retrospective analysis) captures traffic to a file first and reviews it afterward, with no time pressure. This is the typical incident-response workflow when digging into what really happened.</p>
+
+        <div class="example-box">
+          <span class="example-label">EXAMPLE</span>
+          <div class="mock-body-text">Running <em>tcpdump -w capture.pcap</em> during an incident, then opening that file in Wireshark hours or days later to trace exactly what happened, packet by packet.</div>
+        </div>
+
+        <div class="card-row card-row--2" style="margin-top: 1.2em;">
+          <div class="card">
+            <div class="card-icon card-icon--green"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+            <h4>Advantages</h4>
+            <ul>
+              <li>لا يوجد ضغط وقت — يمكن إعادة تشغيل الحزم ومراجعتها مراراً وتكراراً.</li>
+              <li>يدعم التحقيقات الجنائية العميقة والمفصلة لجميع الأدلة.</li>
+              <li>إمكانية ربط الأحداث ببعضها عبر فترات زمنية متباعدة.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--red"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+            <h4>Disadvantages</h4>
+            <ul>
+              <li>يتطلب توفير مساحات تخزين كافية لملفات الالتقاط المحفوظة.</li>
+              <li>الكشف يكون متأخراً بعد وقوع الحادثة بالفعل.</li>
+              <li>لا يمنع الهجوم اللحظي أثناء حدوثه على أرض الواقع.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 16 — مقدمة إلى أداة التقاط الحزم tcpdump
+         ========================================== -->
+    <div class="slide" data-slide="15" data-title="مقدمة إلى أداة tcpdump"
+         data-notes="قدّم أداة tcpdump كأداة الالتقاط الأساسية التي سيستخدمها الطلاب عملياً. مبنية على مكتبة libpcap، ومتوفرة في كل توزيعات لينكس، خفيفة وقابلة للأتمتة عبر سطر الأوامر. اشرح البنية الأساسية والأعلام الأكثر استخداماً.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> الأدوات التطبيقية</div>
+        <h2>مقدمة إلى أداة التقاط الحزم tcpdump</h2>
+        <p><strong class="blue">tcpdump</strong> is a command-line, packet-based capture tool built on <span class="mono">libpcap</span>. It's available on nearly every Linux/Unix system, making it one of the fastest ways to capture and inspect traffic without installing anything extra.</p>
+
+        <div class="terminal">
+          <div class="terminal-bar">
+            <span class="terminal-dot terminal-dot--red"></span>
+            <span class="terminal-dot terminal-dot--amber"></span>
+            <span class="terminal-dot terminal-dot--green"></span>
+            <span class="terminal-label">basic syntax</span>
+          </div>
+          <div class="terminal-body">
+<span class="t-line"><span class="t-prompt">$</span> <span class="t-cmd">sudo tcpdump -i eth0 -n port 443</span></span>
+<span class="t-line t-comment"># -i eth0   → capture on interface eth0</span>
+<span class="t-line t-comment"># -n        → don't resolve hostnames (faster, cleaner output)</span>
+<span class="t-line t-comment"># port 443  → only show traffic on port 443</span>
+          </div>
+        </div>
+
+        <div class="field-defs">
+          <div class="field-def"><span class="fd-term">-i</span>Interface to capture on, e.g. <span class="mono">eth0</span>.</div>
+          <div class="field-def"><span class="fd-term">-n</span>Skip DNS/hostname resolution for faster output.</div>
+          <div class="field-def"><span class="fd-term">-c</span>Stop after capturing a set number of packets.</div>
+          <div class="field-def"><span class="fd-term">-w</span>Write captured packets to a file for later analysis.</div>
+          <div class="field-def"><span class="fd-term">-r</span>Read and display packets from a saved capture file.</div>
+          <div class="field-def"><span class="fd-term">-v / -vv</span>Increase output verbosity for more packet detail.</div>
+          <div class="field-def"><span class="fd-term">host / port</span>Filter traffic to a specific IP address or port.</div>
+          <div class="field-def"><span class="fd-term">and / or</span>Combine multiple filters, e.g. <span class="mono">host X and port 80</span>.</div>
+        </div>
+
+        <div class="info-box" style="margin-top: 1.1em;">
+          <div class="info-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6b93f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+          <p><strong>ما سنتناوله قريباً:</strong> the next lab puts this into practice — running live captures with tcpdump and reading the output the way we just walked through.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 17 — فلاتر الالتقاط في tcpdump بصيغة BPF
+         ========================================== -->
+    <div class="slide" data-slide="16" data-title="فلاتر الالتقاط في tcpdump (BPF)"
+         data-notes="اختم المعمل بشرح كيفية تضييق نطاق الالتقاط باستخدام فلاتر BPF (Berkeley Packet Filter). اشرح كلمات الفلترة: host, src, dst, port, net، ثم كلمات البروتوكولات tcp, udp, icmp، ثم أدوات الربط and, or, not لتركيب فلاتر دقيقة ومحكمة.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> الأدوات التطبيقية</div>
+        <h2>فلاتر الالتقاط في tcpdump بصيغة BPF</h2>
+        <p>Raw traffic is noisy — <strong class="blue">capture filters</strong> use Berkeley Packet Filter (BPF) syntax to narrow tcpdump down to exactly the traffic you care about.</p>
+
+        <div class="terminal">
+          <div class="terminal-bar">
+            <span class="terminal-dot terminal-dot--red"></span>
+            <span class="terminal-dot terminal-dot--amber"></span>
+            <span class="terminal-dot terminal-dot--green"></span>
+            <span class="terminal-label">example filter</span>
+          </div>
+          <div class="terminal-body">
+<span class="t-line"><span class="t-prompt">$</span> <span class="t-cmd">sudo tcpdump -i eth0 src 192.168.1.10 and dst port 443 and tcp</span></span>
+<span class="t-line t-comment"># only TCP traffic, from 192.168.1.10, headed to port 443</span>
+          </div>
+        </div>
+
+        <p style="margin-top: 1.2em; font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted);">كلمات الفلترة الأساسية</p>
+        <div class="field-defs">
+          <div class="field-def"><span class="fd-term">host &lt;ip&gt;</span>Match traffic to or from a specific address.</div>
+          <div class="field-def"><span class="fd-term">src &lt;ip&gt;</span>Match traffic only from a specific source address.</div>
+          <div class="field-def"><span class="fd-term">dst &lt;ip&gt;</span>Match traffic only to a specific destination address.</div>
+          <div class="field-def"><span class="fd-term">port &lt;num&gt;</span>Match traffic on a given port, in either direction.</div>
+          <div class="field-def"><span class="fd-term">src port / dst port</span>Narrow a port filter to just the source or destination side.</div>
+          <div class="field-def"><span class="fd-term">net &lt;subnet&gt;</span>Match traffic within a network, e.g. <span class="mono">net 192.168.1.0/24</span>.</div>
+        </div>
+
+        <p style="margin-top: 1.2em; font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted);">بروتوكولات الفلترة</p>
+        <div class="field-defs">
+          <div class="field-def"><span class="fd-term">tcp</span>Only TCP traffic — connections, handshakes, most application traffic.</div>
+          <div class="field-def"><span class="fd-term">udp</span>Only UDP traffic — DNS, streaming, VoIP, and similar.</div>
+          <div class="field-def"><span class="fd-term">icmp</span>Only ICMP traffic — pings and network diagnostic messages.</div>
+          <div class="field-def"><span class="fd-term">arp</span>Only ARP traffic — local address resolution requests and replies.</div>
+        </div>
+
+        <p style="margin-top: 1.2em; font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted);">أدوات دمج الفلاتر المركبة</p>
+        <div class="field-defs">
+          <div class="field-def"><span class="fd-term">and</span>يجب تحقق كلا الشرطين معاً (AND), e.g. <span class="mono">host X and port 80</span>.</div>
+          <div class="field-def"><span class="fd-term">or</span>Either condition may match, e.g. <span class="mono">port 80 or port 443</span>.</div>
+          <div class="field-def"><span class="fd-term">not</span>Excludes traffic matching a condition, e.g. <span class="mono">not port 22</span>.</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /presentation -->
+
+  <!-- Bottom Bar -->
+  <div id="bottom-bar">
+    <div class="bottom-left">
+      <span id="slide-counter">01 / 21</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <div class="nav-controls">
+        <button class="nav-btn nav-btn--notes" id="btn-notes" title="ملاحظات المحاضر (مفتاح: N)">📝 ملاحظات</button>
+        <button class="nav-btn" id="btn-prev" aria-label="الشريحة السابقة">→</button>
+        <button class="nav-btn" id="btn-next" aria-label="الشريحة التالية">←</button>
+      </div>
+    </div>
+  </div>
+
+  
+  <!-- Speaker Notes Overlay -->
+  <!-- Speaker Notes Overlay -->
+  <div id="speaker-notes-overlay" role="dialog" aria-label="Speaker Notes">
+    <div class="notes-header">
+      <div class="notes-title">
+        <span>📝</span> ملاحظات المحاضر
+        <span id="notes-slide-num" style="font-size:0.75rem; color:var(--text-muted); font-weight:normal; margin-left:6px;"></span>
+      </div>
+      <button class="notes-close" id="btn-close-notes" aria-label="إغلاق الملاحظات">&times;</button>
+    </div>
+    <div class="notes-body" id="notes-content"></div>
+  </div>
+
+  <script>
+    (() => {
+      const slides = document.querySelectorAll('.slide');
+      const total = slides.length;
+      let current = 0;
+
+      const counterEl     = document.getElementById('slide-counter');
+      const progressEl    = document.getElementById('progress-bar');
+      const headerTitleEl = document.getElementById('header-slide-title');
+
+      
+      const notesOverlay   = document.getElementById('speaker-notes-overlay');
+      const notesBtn       = document.getElementById('btn-notes');
+      const notesCloseBtn  = document.getElementById('btn-close-notes');
+      const notesContent   = document.getElementById('notes-content');
+      const notesSlideNum  = document.getElementById('notes-slide-num');
+
+      function updateNotes() {
+        if (!notesOverlay) return;
+        const note = slides[current].getAttribute('data-notes');
+        const title = slides[current].getAttribute('data-title') || `Slide ${current + 1}`;
+        if (notesSlideNum) notesSlideNum.textContent = `(${String(current + 1).padStart(2, '0')}/${String(total).padStart(2, '0')} - ${title})`;
+        if (note && note.trim().length > 0) {
+          notesContent.innerHTML = `<p>${note.replace(/\n/g, '<br>')}</p>`;
+        } else {
+          notesContent.innerHTML = `<span class="notes-empty">لا توجد ملاحظات مسجلة لهذه الشريحة.</span>`;
+        }
+      }
+
+      function toggleNotes() {
+        const overlay = document.getElementById('speaker-notes-overlay');
+        const btn = document.getElementById('btn-notes');
+        if (!overlay) return;
+        const isActive = overlay.classList.toggle('active');
+        if (btn) btn.classList.toggle('active', isActive);
+        if (isActive) updateNotes();
+      }
+
+      if (notesBtn) notesBtn.addEventListener('click', toggleNotes);
+      if (notesCloseBtn) notesCloseBtn.addEventListener('click', () => {
+        notesOverlay.classList.remove('active');
+        if (notesBtn) notesBtn.classList.remove('active');
+      });
+
+      function goTo(index) {
+        if (index < 0 || index >= total || index === current) return;
+        slides[current].classList.remove('active');
+        slides[current].scrollTop = 0;
+        slides[index].classList.add('active');
+        slides[index].scrollTop = 0;
+        current = index;
+        updateUI();
+      }
+
+      function updateUI() {
+        counterEl.textContent = `${String(current + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`;
+        progressEl.style.width = `${((current + 1) / total) * 100}%`;
+        headerTitleEl.textContent = slides[current].getAttribute('data-title') || '';
+        if (notesOverlay && notesOverlay.classList.contains('active')) updateNotes();
+      }
+
+      document.addEventListener('keydown', (e) => {
+        if (e.code === 'KeyN' || e.key === 'n' || e.key === 'N' || e.key === 'ى') { e.preventDefault(); toggleNotes(); }
+        else if (e.key === 'Escape') {
+          if (notesOverlay && notesOverlay.classList.contains('active')) {
+            e.preventDefault();
+            notesOverlay.classList.remove('active');
+            if (notesBtn) notesBtn.classList.remove('active');
+          }
+        }
+        else if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); goTo(current + 1); }
+        else if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(current - 1); }
+        else if (e.key === 'ArrowDown') {
+          const s = slides[current];
+          if (s && s.scrollHeight > s.clientHeight && s.scrollTop + s.clientHeight < s.scrollHeight - 5) {
+            e.preventDefault(); s.scrollBy({ top: 100, behavior: 'smooth' });
+          } else { e.preventDefault(); goTo(current + 1); }
+        }
+        else if (e.key === 'ArrowUp') {
+          const s = slides[current];
+          if (s && s.scrollHeight > s.clientHeight && s.scrollTop > 5) {
+            e.preventDefault(); s.scrollBy({ top: -100, behavior: 'smooth' });
+          } else { e.preventDefault(); goTo(current - 1); }
+        }
+        else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+        else if (e.key === 'End')  { e.preventDefault(); goTo(total - 1); }
+      });
+
+      document.getElementById('btn-prev').addEventListener('click', () => goTo(current - 1));
+      document.getElementById('btn-next').addEventListener('click', () => goTo(current + 1));
+
+      let touchStartX = 0;
+      document.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; });
+      document.addEventListener('touchend', (e) => {
+        const diff = touchStartX - e.changedTouches[0].screenX;
+        if (Math.abs(diff) > 50) { diff > 0 ? goTo(current + 1) : goTo(current - 1); }
+      });
+
+      updateUI();
+    })();
+  </script>
+
+</body>
+</html>

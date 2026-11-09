@@ -18,4 +18,4 @@ Legend: P = primary focus; S = supporting coverage.
 | Cross-source correlation and timeline | | S | S | S | S | S | S | S | S | P | P |
 | Analyst communication and reporting | P | S | S | S | S | S | S | P | S | P | P |
 
-This map is not a detailed assessment blueprint. Each module must map its own measurable outcomes to activities and observable evidence. Final proficiency levels and weights remain to be designed.
+This is a high-level map, not an assessment blueprint. Each module must map its measurable outcomes to activities and evidence. Final proficiency levels and weights remain to be designed.

@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab 2 – SOC Lab Environment Setup & Toolchain Deployment</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-primary: #070a14;
+      --bg-surface: #0e1326;
+      --bg-card: rgba(18, 26, 51, 0.7);
+      --bg-card-hover: rgba(28, 40, 77, 0.85);
+      --border: rgba(99, 130, 255, 0.15);
+      --border-glow: rgba(99, 130, 255, 0.35);
+      --blue-500: #3563e9;
+      --blue-400: #60a5fa;
+      --blue-300: #93c5fd;
+      --blue-600: #2563eb;
+      --purple-500: #7c3aed;
+      --purple-400: #a78bfa;
+      --cyan-400: #22d3ee;
+      --green-400: #4ade80;
+      --yellow-400: #facc15;
+      --red-400: #f87171;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --gradient-main: linear-gradient(135deg, #3563e9 0%, #7c3aed 100%);
+      --gradient-blue: linear-gradient(135deg, #60a5fa 0%, #3563e9 100%);
+      --gradient-card: linear-gradient(145deg, rgba(18, 26, 51, 0.8) 0%, rgba(10, 15, 30, 0.95) 100%);
+      --font-heading: 'Space Grotesk', 'Outfit', system-ui, sans-serif;
+      --font-body: 'Outfit', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+    .ambient-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .ambient-glow { position: absolute; border-radius: 50%; filter: blur(120px); pointer-events: none; }
+    .ambient-glow-1 { width: 500px; height: 500px; background: rgba(53, 99, 233, 0.12); top: -150px; left: -100px; }
+    .ambient-glow-2 { width: 600px; height: 600px; background: rgba(124, 58, 237, 0.1); bottom: -150px; right: -150px; }
+    
+    .top-bar {
+      position: relative;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 10;
+      border-bottom: 1px solid var(--border);
+      background: rgba(7, 10, 20, 0.8);
+      backdrop-filter: blur(12px);
+    }
+    .progress-bar { position: absolute; top: 0; left: 0; height: 3px; background: var(--gradient-main); z-index: 11; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .header-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--blue-400); }
+    .header-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--blue-400); box-shadow: 0 0 8px var(--blue-400); }
+    .header-slide-title { font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; }
+
+    .deck { position: relative; flex: 1; width: 100%; height: calc(100vh - 108px); overflow: hidden; }
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: 40px 60px;
+      display: none;
+      flex-direction: column;
+      justify-content: flex-start;
+      overflow-y: auto;
+      z-index: 1;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    .slide.active { display: flex; opacity: 1; transform: translateY(0); z-index: 2; }
+    .slide-inner { max-width: 1100px; width: 100%; margin: 0 auto; }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--blue-400);
+      margin-bottom: 8px;
+    }
+    .label-icon { font-size: 0.6rem; }
+    
+    h1 { font-family: var(--font-heading); font-size: 2.5rem; font-weight: 800; line-height: 1.2; margin-bottom: 12px; }
+    h2 { font-family: var(--font-heading); font-size: 1.85rem; font-weight: 700; line-height: 1.25; margin-bottom: 12px; }
+    h3 { font-family: var(--font-heading); font-size: 1.25rem; font-weight: 600; margin-bottom: 8px; }
+    h4 { font-family: var(--font-heading); font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
+    p { font-size: 0.95rem; line-height: 1.6; color: var(--text-secondary); margin-bottom: 12px; }
+    
+    .gradient-text { background: var(--gradient-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .blue { color: var(--blue-400); }
+    .purple { color: var(--purple-400); }
+    .yellow { color: var(--yellow-400); }
+    .green { color: var(--green-400); }
+    .red { color: var(--red-400); }
+    .mono { font-family: var(--font-mono); }
+
+    .card-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin: 16px 0; }
+    .card-row--2 { grid-template-columns: repeat(2, 1fr); }
+    .card-row--3 { grid-template-columns: repeat(3, 1fr); }
+    .card-row--4 { grid-template-columns: repeat(4, 1fr); }
+    .card {
+      background: var(--gradient-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .card:hover { transform: translateY(-3px); border-color: var(--border-glow); }
+    .card h4 { color: var(--text-primary); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .card p { font-size: 0.85rem; margin-bottom: 0; }
+
+    .tag { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; font-family: var(--font-mono); text-transform: uppercase; }
+    .tag--blue { background: rgba(53, 99, 233, 0.2); color: var(--blue-300); border: 1px solid rgba(53, 99, 233, 0.4); }
+    .tag--purple { background: rgba(124, 58, 237, 0.2); color: var(--purple-400); border: 1px solid rgba(124, 58, 237, 0.4); }
+    .tag--green { background: rgba(74, 222, 128, 0.15); color: var(--green-400); border: 1px solid rgba(74, 222, 128, 0.3); }
+    .tag--yellow { background: rgba(250, 204, 21, 0.15); color: var(--yellow-400); border: 1px solid rgba(250, 204, 21, 0.3); }
+    .tag--red { background: rgba(248, 113, 113, 0.15); color: var(--red-400); border: 1px solid rgba(248, 113, 113, 0.3); }
+
+    .terminal {
+      background: #030712;
+      border: 1px solid rgba(99, 130, 255, 0.25);
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 14px 0;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    .terminal-bar {
+      background: #0b1120;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+    .terminal-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .terminal-dot--red { background: #ef4444; }
+    .terminal-dot--yellow { background: #f59e0b; }
+    .terminal-dot--green { background: #10b981; }
+    .terminal-body {
+      padding: 12px 16px;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.55;
+      color: #e2e8f0;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .table-wrap { margin: 16px 0; overflow-x: auto; }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      background: var(--bg-card);
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    table.data-table th {
+      background: rgba(37, 99, 235, 0.15);
+      color: var(--blue-300);
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+    }
+    table.data-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+    }
+    table.data-table tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+    .callout-box {
+      background: rgba(37, 99, 235, 0.08);
+      border-left: 4px solid var(--blue-500);
+      border-radius: 0 8px 8px 0;
+      padding: 12px 18px;
+      margin: 14px 0;
+    }
+    .callout-box--warn { background: rgba(245, 158, 11, 0.08); border-left-color: var(--yellow-400); }
+    .callout-box--red { background: rgba(239, 68, 68, 0.08); border-left-color: var(--red-400); }
+    .callout-box h4 { font-size: 0.9rem; margin-bottom: 4px; }
+    .callout-box p { font-size: 0.85rem; margin-bottom: 0; color: var(--text-primary); }
+
+    .bottom-bar {
+      position: relative;
+      height: 56px;
+      background: rgba(7, 10, 20, 0.95);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 10;
+    }
+    .nav-controls { display: flex; align-items: center; gap: 8px; }
+    .nav-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      height: 32px;
+      padding: 0 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    }
+    .nav-btn:hover { background: rgba(255, 255, 255, 0.12); border-color: var(--blue-400); }
+    .nav-btn:active { transform: scale(0.97); }
+    .nav-btn--notes { background: rgba(53, 99, 233, 0.2); border-color: var(--blue-500); color: var(--blue-300); }
+    .nav-btn--notes.active { background: var(--blue-600) !important; color: #fff !important; box-shadow: 0 0 12px rgba(37, 99, 235, 0.5); }
+    .slide-counter { font-family: var(--font-mono); font-size: 0.82rem; color: var(--text-muted); }
+
+    /* Speaker Notes Overlay */
+    #speaker-notes-overlay {
+      position: fixed;
+      bottom: 68px;
+      right: 24px;
+      width: 480px;
+      max-width: calc(100vw - 48px);
+      max-height: 420px;
+      background: rgba(7, 10, 20, 0.96);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--blue-500);
+      border-radius: 12px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65), 0 0 24px rgba(53, 99, 233, 0.25);
+      z-index: 99999 !important;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      animation: notesFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #speaker-notes-overlay.active { display: flex !important; }
+    @keyframes notesFadeIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .notes-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .notes-title { font-size: 0.85rem; font-weight: 700; color: var(--blue-400); display: flex; align-items: center; gap: 6px; }
+    .notes-close { background: none; border: none; color: var(--text-muted); font-size: 1.25rem; cursor: pointer; padding: 0 4px; line-height: 1; border-radius: 4px; }
+    .notes-close:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
+    .notes-body { padding: 16px; overflow-y: auto; font-size: 0.95rem; line-height: 1.65; color: var(--text-primary); font-family: var(--font-body); }
+    .notes-empty { color: var(--text-muted); font-style: italic; }
+
+    
+  </style>
+</head>
+<body>
+  <div class="ambient-bg">
+    <div class="ambient-glow ambient-glow-1"></div>
+    <div class="ambient-glow ambient-glow-2"></div>
+  </div>
+
+  <div class="top-bar">
+    <div class="progress-bar" id="progress-bar"></div>
+    <div class="header-badge">Lab 2 – SOC Lab Environment Setup & Toolchain Deployment</div>
+    <div class="header-slide-title" id="header-slide-title"></div>
+  </div>
+
+  <div class="deck" id="deck">
+
+    <div class="slide" data-slide="0" data-title="SOC Lab Environment Setup" data-notes="Welcome students to Lab 2. Explain that today is our hands-on engineering lab: converting their personal laptops into fully equipped defensive security analyst workstations. Every tool we deploy today will be used throughout the remaining 10 weeks of the course.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> PRACTICAL WORKSTATION CONFIGURATION</div>
+        
+        <h1>SOC Lab Environment Setup &amp;<br /><span class="gradient-text">Toolchain Deployment</span></h1>
+        <p style="font-size: 1.15rem; margin-top: 10px;">A step-by-step practical guide to configuring Wireshark, Sysinternals Suite, CyberChef, and Splunk Enterprise Free on student laptops.</p>
+        <div style="margin-top: 24px; padding: 12px 18px; background: rgba(53,99,233,0.1); border: 1px solid var(--border-glow); border-radius: 8px; display: inline-block;">
+          <span style="color: var(--blue-300); font-weight: 600;">Lab 2 — Hands-On Environment &amp; Tooling Setup</span><br>
+          <span style="color: var(--text-muted); font-size: 0.85rem;">Instructor: <strong style="color: var(--text-primary);">Hussein Al-Selwi</strong></span>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="1" data-title="Lab 2 Objectives" data-notes="Review the session goals. By the end of this 2-hour lab, every student will have Wireshark capturing packets, Sysinternals analyzing processes, and Splunk ingesting local Windows Event logs on localhost:8000.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> SESSION GOALS</div>
+        
+        <h2>Lab 2 Deliverables &amp; Milestones</h2>
+        <p>By the end of today's hands-on session, every student workstation will be fully configured with the four core defensive layers:</p>
+        <div class="card-row card-row--2">
+          <div class="card">
+            <h4><span class="blue">1. Network Visibility Layer</span></h4>
+            <p>Deploy Wireshark + Npcap driver, verify interface bindings, and test packet capture filtering.</p>
+          </div>
+          <div class="card">
+            <h4><span class="purple">2. Host &amp; Process Inspection Layer</span></h4>
+            <p>Deploy Sysinternals Suite (Process Explorer, Process Hacker, Autoruns), enable VirusTotal integration.</p>
+          </div>
+          <div class="card">
+            <h4><span class="cyan">3. Central SIEM &amp; Search Layer</span></h4>
+            <p>Install Splunk Enterprise Free locally on port 8000, connect Windows Security Event logs, and run initial SPL queries.</p>
+          </div>
+          <div class="card">
+            <h4><span class="yellow">4. Phishing &amp; Triage Utilities</span></h4>
+            <p>Set up CyberChef offline, email header dissection tools, and safe URL defanging bookmarks.</p>
+          </div>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="2" data-title="Student Laptop Prerequisites & Architecture" data-notes="Address hardware considerations. Students bring varied laptops. Reassure them that our setup is designed to run natively and smoothly on machines with 8GB RAM without burning their CPU with multiple heavy virtual machines.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> HARDWARE & OS REQUIREMENTS</div>
+        
+        <h2>Workstation Requirements &amp; Architecture</h2>
+        <p>Our lab setup is engineered to be lightweight, high-performance, and compatible with typical student hardware:</p>
+        
+        <div class="card-row card-row--3">
+          <div class="card">
+            <h4>Hardware Specifications</h4>
+            <p><strong>RAM:</strong> 8 GB minimum (16 GB recommended).<br><strong>Storage:</strong> 10 GB free disk space (SSD preferred).<br><strong>CPU:</strong> 64-bit x86 Dual-core or higher.</p>
+          </div>
+          <div class="card">
+            <h4>Operating System Support</h4>
+            <p><strong>Primary:</strong> Windows 10 / 11 64-bit.<br><strong>macOS:</strong> Intel &amp; Apple Silicon (M1/M2/M3) supported via native builds or UTM.<br><strong>Linux:</strong> Ubuntu / Kali / Fedora native.</p>
+          </div>
+          <div class="card">
+            <h4>Privilege Requirements</h4>
+            <p><strong>Local Administrator:</strong> Students must have Administrator / root privileges on their laptops to install drivers and read security logs.</p>
+          </div>
+        </div>
+
+        <div class="callout-box" style="margin-top: 14px;">
+          <h4>💡 Why Native Host-Based Tooling?</h4>
+          <p>Running 3 heavy VMs (Windows Server + Kali + Splunk) crushes 8GB RAM laptops. Instead, running tools natively on the host provides instant response times, zero virtualization overhead, and direct access to real system telemetry!</p>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="3" data-title="The Student SOC Workstation Architecture" data-notes="Walk through the diagram. The student's laptop becomes both the monitoring subject and the analyst console: Wireshark monitors the network interface, Sysinternals monitors memory/processes, and Splunk ingests local event logs on port 8000.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> SYSTEM ARCHITECTURE</div>
+        
+        <h2>The Complete Student SOC Workstation Blueprint</h2>
+        <p>How the components interconnect on your local machine to simulate a miniature corporate SOC:</p>
+        
+        <div class="card-row card-row--3" style="margin-top: 16px;">
+          <div class="card">
+            <h4>1. Network Layer</h4>
+            <p><strong>Wireshark + Npcap</strong> binds to the Wi-Fi or Ethernet adapter, capturing live packets and inspecting protocol handshakes.</p>
+          </div>
+          <div class="card">
+            <h4>2. Endpoint Layer</h4>
+            <p><strong>Process Hacker &amp; Autoruns</strong> monitor OS process trees, memory spaces, and persistence registry keys.</p>
+          </div>
+          <div class="card">
+            <h4>3. SIEM Layer</h4>
+            <p><strong>Splunk Enterprise Free</strong> runs as a background service, collecting event logs and serving the analytical web GUI on <code>localhost:8000</code>.</p>
+          </div>
+        </div>
+
+        <div class="terminal" style="margin-top: 14px;">
+          <div class="terminal-bar"><span class="terminal-dot terminal-dot--green"></span> Local Port Bindings &amp; Services</div>
+          <div class="terminal-body">http://127.0.0.1:8000       --> Splunk Web Console (GUI)
+splunkd.exe:8089             --> Splunk Management API
+Npcap Packet Driver          --> Kernel-level NDIS Packet Filter
+Sysinternals Procexp64       --> Ring-3 Process Inspection & Memory Mapping</div>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="4" data-title="Installing Wireshark & Npcap Packet Driver" data-notes="Guide students through installing Wireshark. Emphasize that Npcap is the critical component — without Npcap, Wireshark cannot capture any live packets on Windows. Ensure they do NOT check 'Install WinPcap in API-compatible Mode' unless required by older tools.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> STEP 1: NETWORK VISIBILITY</div>
+        
+        <h2>Step 1: Installing Wireshark &amp; Npcap Driver</h2>
+        <p>Wireshark is the world's foremost network protocol analyzer. It allows us to see network traffic at microscopic detail:</p>
+        
+        <div class="cycle-row" style="margin-top: 14px;">
+          <div class="cycle-item">
+            <div class="cycle-num">1</div>
+            <h4>Download Installer</h4>
+            <p>Navigate to <code>wireshark.org/download.html</code> and download the <strong>Windows Installer (64-bit)</strong>.</p>
+          </div>
+          <div class="cycle-item">
+            <div class="cycle-num">2</div>
+            <h4>Component Selection</h4>
+            <p>Keep all default tools selected: Wireshark, TShark, Plugins/Extensions, and File Type associations.</p>
+          </div>
+          <div class="cycle-item">
+            <div class="cycle-num">3</div>
+            <h4>Install Npcap</h4>
+            <p><strong>Crucial Step!</strong> Check "Install Npcap". In the Npcap wizard, check: <br><em>"Support raw 802.11 traffic"</em> and <em>"Restrict Npcap driver's access to Administrators only"</em>.</p>
+          </div>
+          <div class="cycle-item">
+            <div class="cycle-num">4</div>
+            <h4>Complete &amp; Reboot</h4>
+            <p>Finish installation. If prompted by Npcap, reboot or restart network services to bind the driver.</p>
+          </div>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="5" data-title="Verifying Wireshark & First Packet Capture" data-notes="Have students open Wireshark and look at the interface sparklines. Double click on Wi-Fi or Ethernet. Apply a simple display filter like 'dns || http'. Open a browser and visit a website to see the live packets streaming in.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> VERIFICATION & TESTING</div>
+        
+        <h2>Verifying Wireshark Functionality</h2>
+        <p>Verify that your network interface is correctly capturing packets and responding to display filters:</p>
+        
+        <div class="card-row card-row--2">
+          <div class="card">
+            <h4>1. Select Active Adapter</h4>
+            <p>Launch Wireshark. Look for the adapter with active traffic sparklines (usually <strong>Wi-Fi</strong> or <strong>Ethernet</strong>). Double-click to begin capturing.</p>
+          </div>
+          <div class="card">
+            <h4>2. Generate Test Traffic</h4>
+            <p>Open your web browser and navigate to <code>example.com</code> or ping a public DNS server from your terminal: <br><code>ping 8.8.8.8</code>.</p>
+          </div>
+        </div>
+
+        <h4>Testing Core Display Filters in the Filter Bar:</h4>
+        <div class="terminal">
+          <div class="terminal-bar"><span class="terminal-dot terminal-dot--green"></span> Wireshark Display Filter Testing</div>
+          <div class="terminal-body"># Filter 1: Show only DNS queries and responses
+dns
+
+# Filter 2: Show only web HTTP requests
+http.request.method == "GET" || http.request.method == "POST"
+
+# Filter 3: Show only TCP SYN packets (Connection Initiation)
+tcp.flags.syn == 1 && tcp.flags.ack == 0</div>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="6" data-title="Deploying the Sysinternals Suite" data-notes="Walk through deploying Sysinternals. It is a standalone set of portable utilities by Mark Russinovich from Microsoft. Tell students to create C:\Tools\Sysinternals, extract the zip there, and optionally add it to their system PATH so they can run tools from any cmd terminal.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> STEP 2: ENDPOINT VISIBILITY</div>
+        
+        <h2>Step 2: Deploying the Sysinternals Suite</h2>
+        <p>The <strong class="blue">Sysinternals Suite</strong> is the gold standard toolkit for Windows internals, process analysis, and forensic troubleshooting:</p>
+        
+        <div class="cycle-row" style="margin-top: 14px;">
+          <div class="cycle-item">
+            <div class="cycle-num">1</div>
+            <h4>Download Suite ZIP</h4>
+            <p>Visit <code>learn.microsoft.com/sysinternals</code> and download <strong>SysinternalsSuite.zip</strong> (~50 MB).</p>
+          </div>
+          <div class="cycle-item">
+            <div class="cycle-num">2</div>
+            <h4>Extract to Dedicated Folder</h4>
+            <p>Create a dedicated folder: <code>C:\Tools\Sysinternals</code> and extract all contents there.</p>
+          </div>
+          <div class="cycle-item">
+            <div class="cycle-num">3</div>
+            <h4>Add to System PATH</h4>
+            <p>Add <code>C:\Tools\Sysinternals</code> to your Windows Environment System PATH variable for instant terminal access.</p>
+          </div>
+          <div class="cycle-item">
+            <div class="cycle-num">4</div>
+            <h4>Accept EULA Script</h4>
+            <p>Run from admin terminal to suppress prompts: <br><code>reg add HKCU\Software\Sysinternals /v EulaAccepted /t REG_DWORD /d 1 /f</code></p>
+          </div>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="7" data-title="Configuring Process Explorer & Process Hacker" data-notes="Show students how to run Process Explorer or Process Hacker as Administrator. Crucial step: Enable Options -> VirusTotal.com -> Check VirusTotal.com. This submits hashes of every running process to VirusTotal in real time to immediately spot known malware with 0/70 vs 55/70 flags!">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> HOST INSPECTION SETUP</div>
+        
+        <h2>Configuring Process Explorer with VirusTotal</h2>
+        <p>Transform Process Explorer from a basic task manager into a live malware hunting console:</p>
+        
+        <div class="card-row card-row--2">
+          <div class="card">
+            <h4>1. Run as Administrator</h4>
+            <p>Right-click <code>procexp64.exe</code> and select <strong>"Run as administrator"</strong>. Admin privileges are mandatory to view system-level services and handle tables.</p>
+          </div>
+          <div class="card">
+            <h4>2. Enable VirusTotal.com Integration</h4>
+            <p>Click <strong>Options -> VirusTotal.com -> Check VirusTotal.com</strong>. Accept terms. Process Explorer will hash every running binary and query VirusTotal!</p>
+          </div>
+        </div>
+
+        <div class="callout-box" style="margin-top: 14px;">
+          <h4>🎯 What to Look for in the VirusTotal Column</h4>
+          <p><strong>0 / 75 (Green):</strong> Clean, verified executable known by all commercial antivirus engines.<br><strong>N / 75 (Red, e.g. 48/75):</strong> Flagged as malicious trojan/ransomware by 48 vendors — investigate immediately!<br><strong>Unknown / Hash not found:</strong> Unseen custom binary or newly compiled payload — high suspicion!</p>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="8" data-title="Configuring Sysinternals Autoruns" data-notes="Show how to set up Autoruns. Tell students to run Autoruns64.exe as Administrator. The most critical setting: Options -> Hide Microsoft Entries and Hide Windows Entries. This filters out 95% of the legitimate OS noise, leaving only user-installed and potential attacker persistence mechanisms!">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> HOST INSPECTION SETUP</div>
+        
+        <h2>Configuring Autoruns for Persistence Hunting</h2>
+        <p>Autoruns shows every program, DLL, driver, and task configured to execute automatically at boot or user logon:</p>
+        
+        <div class="card-row card-row--2">
+          <div class="card">
+            <h4>1. Run Autoruns64 as Administrator</h4>
+            <p>Launch <code>Autoruns64.exe</code> with Administrator privileges so it can inspect machine-wide keys in <code>HKLM</code> and hidden drivers.</p>
+          </div>
+          <div class="card">
+            <h4>2. The Golden Filter Setting</h4>
+            <p>In the top menu, click <strong>Options -> Scan Options</strong>. Check: <br>✅ <strong>Hide Microsoft Entries</strong><br>✅ <strong>Hide Windows Entries</strong><br>✅ <strong>Verify Code Signatures</strong></p>
+          </div>
+        </div>
+
+        <div class="callout-box callout-box--warn" style="margin-top: 14px;">
+          <h4>⚡ The Magic of Filtering OS Noise</h4>
+          <p>By hiding Microsoft and Windows entries, you reduce the list from 2,000+ entries down to ~20 third-party items! Any persistence mechanism installed by an attacker (malicious service, Run key, or scheduled task) will stand out immediately in bold red/yellow!</p>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="9" data-title="Choosing the Student SIEM: Why Splunk Enterprise Free?" data-notes="Explain why we chose Splunk Enterprise Free for their laptops. It is the enterprise market leader. The free license includes 500 MB per day of log ingestion, forever. It installs as a native Windows application in under 5 minutes without needing a virtual machine.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> STEP 3: SIEM SELECTION</div>
+        
+        <h2>Why Splunk Enterprise Free for Our Hands-On SOC Lab?</h2>
+        <p>Selecting the right SIEM platform for student laptops requires balancing enterprise realism with hardware efficiency:</p>
+        
+        <div class="card-row card-row--3">
+          <div class="card">
+            <h4>1. Industry Market Leader</h4>
+            <p>Splunk is deployed in over 85% of Fortune 100 SOCs. Learning Splunk SPL gives students immediately marketable job skills.</p>
+          </div>
+          <div class="card">
+            <h4>2. Generous Free License</h4>
+            <p>Includes a perpetual <strong>500 MB/day</strong> free ingestion license — more than enough for ingesting local event logs and lab exercise PCAPs!</p>
+          </div>
+          <div class="card">
+            <h4>3. Zero VM Overhead</h4>
+            <p>Installs directly on Windows and macOS as a background service. Consumes &lt; 400 MB of idle RAM vs 8+ GB for virtualized SIEMs!</p>
+          </div>
+        </div>
+
+        <div class="callout-box" style="margin-top: 14px;">
+          <h4>🔄 Alternative Options Available</h4>
+          <p>For students interested in Open Source: <strong>Wazuh (SIEM/XDR)</strong> can be deployed via a lightweight cloud trial sandbox. For cloud-native EDR: <strong>LimaCharlie</strong> (which we use in Lab 10) requires zero server installation.</p>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="10" data-title="Step-by-Step Splunk Installation on Laptop" data-notes="Walk through the Splunk installer steps: download MSI, run installer, specify username/password (write it down!), keep default port 8000, and wait ~3 minutes for the service to start.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> SPLUNK INSTALLATION</div>
+        
+        <h2>Step-by-Step Splunk Enterprise Installation</h2>
+        <p>Follow these exact steps to deploy the local Splunk instance on your machine:</p>
+        
+        <div class="cycle-row" style="margin-top: 14px;">
+          <div class="cycle-item">
+            <div class="cycle-num">1</div>
+            <h4>Download MSI Installer</h4>
+            <p>Go to <code>splunk.com/download</code> -> Splunk Enterprise -> Windows (64-bit) <code>.msi</code> (~480 MB).</p>
+          </div>
+          <div class="cycle-item">
+            <div class="cycle-num">2</div>
+            <h4>Run Installer Wizard</h4>
+            <p>Double-click the MSI. Accept the license agreement. Keep default install path: <br><code>C:\Program Files\Splunk</code>.</p>
+          </div>
+          <div class="cycle-item">
+            <div class="cycle-num">3</div>
+            <h4>Set Admin Credentials</h4>
+            <p><strong>Important!</strong> Create administrator credentials: <br>Username: <code>admin</code> <br>Password: <code>SOCLab2026!</code> <em>(Write this down!)</em></p>
+          </div>
+          <div class="cycle-item">
+            <div class="cycle-num">4</div>
+            <h4>Finish &amp; Launch Web</h4>
+            <p>Click Install. Once finished, check "Launch Splunk Enterprise" and click Finish. It opens your browser to port 8000.</p>
+          </div>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="11" data-title="Accessing Splunk Web Console & Navigation" data-notes="Show how to access http://127.0.0.1:8000 in Chrome or Edge. Log in with admin and the password. Point out the 'Search & Reporting' app on the left navigation bar — that is where analysts spend their time querying logs.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> SPLUNK INTERACTION</div>
+        
+        <h2>Logging into Splunk Web &amp; Orientation</h2>
+        <p>Splunk runs a local web server providing full access to its search and visualization engine:</p>
+        
+        <div class="card-row card-row--2">
+          <div class="card">
+            <h4>1. Open Web Browser</h4>
+            <p>Open Google Chrome, Firefox, or Edge and navigate to: <br><strong class="blue"><a href="http://127.0.0.1:8000" target="_blank" style="color:var(--blue-300);">http://127.0.0.1:8000</a></strong> (or <code>http://localhost:8000</code>).</p>
+          </div>
+          <div class="card">
+            <h4>2. Authenticate</h4>
+            <p>Enter the credentials you created during installation: <br><strong>Username:</strong> <code>admin</code> <br><strong>Password:</strong> <code>SOCLab2026!</code></p>
+          </div>
+        </div>
+
+        <div class="callout-box" style="margin-top: 14px;">
+          <h4>🧭 Key Interface Landmark: "Search &amp; Reporting"</h4>
+          <p>On the left-hand navigation panel, click the green icon labeled <strong>"Search &amp; Reporting"</strong>. This is the primary analyst interface where we execute SPL (Search Processing Language) queries, filter logs, and generate alert dashboards.</p>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="12" data-title="Ingesting Local Windows Security Event Logs" data-notes="Guide students through onboarding their first real log source into Splunk: Settings -> Data Inputs -> Local Event Log Collection -> Choose 'Security', 'System', and 'Application'. Set the index to 'wineventlog'. In under 60 seconds, their personal machine's live security events stream into Splunk!">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> DATA ONBOARDING</div>
+        
+        <h2>Connecting Your First Data Source: Local Event Logs</h2>
+        <p>Configure Splunk to ingest real-time Windows Event Logs directly from your laptop:</p>
+        
+        <div class="cycle-row" style="margin-top: 14px;">
+          <div class="cycle-item">
+            <div class="cycle-num">1</div>
+            <h4>Navigate to Data Inputs</h4>
+            <p>In top menu: click <strong>Settings</strong> -> under Data section, click <strong>Data Inputs</strong>.</p>
+          </div>
+          <div class="cycle-item">
+            <div class="cycle-num">2</div>
+            <h4>Select Windows Logs</h4>
+            <p>Find <strong>"Local event log collection"</strong> and click <strong>"Add New"</strong>.</p>
+          </div>
+          <div class="cycle-item">
+            <div class="cycle-num">3</div>
+            <h4>Choose Channels</h4>
+            <p>Under Select Event Logs, select: <br>✅ <strong>Security</strong> <br>✅ <strong>System</strong> <br>✅ <strong>Application</strong></p>
+          </div>
+          <div class="cycle-item">
+            <div class="cycle-num">4</div>
+            <h4>Save &amp; Ingest</h4>
+            <p>Keep index as default or select <code>wineventlog</code>, click <strong>Review -> Submit</strong>. Your local events are now streaming live into Splunk!</p>
+          </div>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="13" data-title="Executing Your First SPL Queries in Splunk" data-notes="Have students open Search & Reporting and run their first query. Show them how to query successful logons (EventCode=4624) and failed logons (EventCode=4625). Demonstrate pipes (|) and the stats command. This is their first true hands-on SOC analyst experience!">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> HANDS-ON SPL QUERYING</div>
+        
+        <h2>Executing Your First Search Processing Language (SPL) Queries</h2>
+        <p>Go to <strong>Search &amp; Reporting</strong>. Set time range to "All time" or "Last 24 hours" and run these fundamental queries:</p>
+        
+        <h4>Query 1: Find All Successful Logons (Event ID 4624)</h4>
+        <div class="terminal">
+          <div class="terminal-bar"><span class="terminal-dot terminal-dot--green"></span> SPL Query 1 — Successful Logons by User</div>
+          <div class="terminal-body">source="WinEventLog:Security" EventCode=4624
+| stats count by user, Logon_Type
+| sort - count</div>
+        </div>
+
+        <h4>Query 2: Hunt for Failed Logon Attempts (Event ID 4625)</h4>
+        <div class="terminal">
+          <div class="terminal-bar"><span class="terminal-dot terminal-dot--red"></span> SPL Query 2 — Failed Logons Triage</div>
+          <div class="terminal-body">source="WinEventLog:Security" EventCode=4625
+| table _time, user, Sub_Status, Source_Network_Address
+| sort - _time</div>
+        </div>
+
+        <h4>Query 3: Detect Newly Created Processes (Event ID 4688)</h4>
+        <div class="terminal">
+          <div class="terminal-bar"><span class="terminal-dot terminal-dot--blue"></span> SPL Query 3 — Process Creation Hunting</div>
+          <div class="terminal-body">source="WinEventLog:Security" EventCode=4688
+| stats count by New_Process_Name
+| sort - count</div>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="14" data-title="Setting up Phishing & Triage Tools (CyberChef)" data-notes="Introduce CyberChef (The Cyber Swiss Army Knife by GCHQ). Students should download the standalone offline HTML bundle (cyberchef.htm) so they can decode Base64, defang URLs, and inspect payloads safely without sending sensitive data to external web services.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> STEP 4: TRIAGE UTILITIES</div>
+        
+        <h2>Step 4: Setting up CyberChef &amp; Phishing Analysis Utilities</h2>
+        <p>A SOC analyst frequently analyzes suspicious strings, encoded payloads, and phishing links. We use dedicated offline utilities:</p>
+        
+        <div class="card-row card-row--3">
+          <div class="card">
+            <h4><span class="blue">CyberChef (GCHQ)</span></h4>
+            <p>The "Cyber Swiss Army Knife". Download the offline standalone bundle from <code>github.com/gchq/CyberChef</code>. Runs 100% locally in your browser.</p>
+          </div>
+          <div class="card">
+            <h4><span class="purple">Defang Utilities</span></h4>
+            <p>Converts dangerous live URLs into safe non-clickable text for ticketing systems: <br><code>http://evil.com</code> ➡️ <code>hxxp://evil[.]com</code>.</p>
+          </div>
+          <div class="card">
+            <h4><span class="yellow">Header Analyzers</span></h4>
+            <p>Save bookmarks for: <strong>Microsoft Message Header Analyzer</strong> (mha.azurewebsites.net) and <strong>MXToolbox</strong> for SPF/DKIM verification.</p>
+          </div>
+        </div>
+
+        <div class="callout-box" style="margin-top: 14px;">
+          <h4>🔒 The Cardinal Rule of Phishing Triage</h4>
+          <p><strong>Never open live malicious URLs in your personal browser!</strong> Always defang URLs before pasting into ticketing tools, and detonate or analyze samples inside sandboxes or offline decoders like CyberChef.</p>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="15" data-title="Alternative Free Cloud Sandbox Options" data-notes="Mention alternative cloud-based options for students whose laptops are underpowered or running locked-down corporate OS. Highlight LimaCharlie (already used in Lab 10) and Wazuh Cloud trial sandbox.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> CLOUD LAB ALTERNATIVES</div>
+        
+        <h2>Cloud-Based Alternatives for Constrained Hardware</h2>
+        <p>If a student has a restricted device (e.g. Chromebook or locked enterprise laptop), these cloud options provide full access:</p>
+        
+        <div class="card-row card-row--2">
+          <div class="card">
+            <h4><span class="blue">LimaCharlie Cloud EDR / SecOps Cloud</span></h4>
+            <p><strong>Used in Lab 10.</strong> Free tier includes up to 2 active sensors forever. Cloud-hosted web console — requires installing only a tiny 15 MB sensor on the endpoint. Zero server setup required!</p>
+          </div>
+          <div class="card">
+            <h4><span class="purple">Wazuh Cloud Trial Sandbox</span></h4>
+            <p>Full Open-Source SIEM + XDR platform. Offers free 14-day cloud sandbox environments with pre-loaded alert scenarios without requiring local installation.</p>
+          </div>
+        </div>
+
+        <div class="callout-box" style="margin-top: 14px;">
+          <h4>💡 Recommended Course Path</h4>
+          <p>We stick with <strong>Native Wireshark + Sysinternals + Splunk Enterprise Free</strong> as our primary workstation stack for maximum speed, offline independence, and direct hands-on control!</p>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="16" data-title="The 6-Point Readiness Verification Checklist" data-notes="Before students leave Lab 2, have them verify this 6-point checklist. When all 6 items are checked off, their laptop is officially certified as a ready SOC Analyst Workstation.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> LAB READINESS AUDIT</div>
+        
+        <h2>The 6-Point Workstation Readiness Checklist</h2>
+        <p>Before concluding today's lab, verify that all six operational components are functional on your laptop:</p>
+        
+        <div class="card-row card-row--3">
+          <div class="card">
+            <h4>✅ 1. Wireshark Capture</h4>
+            <p>Wireshark launches and captures live packets from your network interface without Npcap errors.</p>
+          </div>
+          <div class="card">
+            <h4>✅ 2. Process Explorer Admin</h4>
+            <p><code>procexp64.exe</code> runs as Administrator and displays live VirusTotal reputation scores.</p>
+          </div>
+          <div class="card">
+            <h4>✅ 3. Autoruns Configured</h4>
+            <p><code>Autoruns64.exe</code> launches and successfully filters out Microsoft and Windows OS entries.</p>
+          </div>
+          <div class="card">
+            <h4>✅ 4. Splunk Web Online</h4>
+            <p><code>http://127.0.0.1:8000</code> opens in your browser and accepts your admin login credentials.</p>
+          </div>
+          <div class="card">
+            <h4>✅ 5. Live Events Ingested</h4>
+            <p>Executing <code>source="WinEventLog:Security"</code> in Splunk returns real event records from your system.</p>
+          </div>
+          <div class="card">
+            <h4>✅ 6. CyberChef Operational</h4>
+            <p>CyberChef loads in your browser offline and successfully decodes a sample Base64 test string.</p>
+          </div>
+        </div>
+            
+      </div>
+    </div>
+
+    <div class="slide" data-slide="17" data-title="Summary & Preparation for Week 3" data-notes="Congratulate students. Their environment is now fully deployed. Preview Week 3: Phishing Analysis Part 1, where we examine real phishing email headers and dissect social engineering tactics.">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> CONCLUSION & NEXT STEPS</div>
+        
+        <h2>Summary: Ready for Practical Cyber Operations</h2>
+        <p>Congratulations! Your personal machine is now fully equipped as a defensive security operations workstation:</p>
+        <div class="card-row card-row--2" style="margin-top: 16px;">
+          <div class="card">
+            <h4>Milestone Achieved</h4>
+            <p>You have deployed the complete SOC analyst triage stack: packet-level network visibility, process &amp; persistence host inspection, and centralized SIEM log collection.</p>
+          </div>
+          <div class="card">
+            <h4>Preview: Week 3 — Phishing Analysis Part I</h4>
+            <p>Next week, we enter active threat analysis: dissecting real phishing emails, validating SPF/DKIM/DMARC headers, and uncovering malicious links!</p>
+          </div>
+        </div>
+        <div class="callout-box" style="margin-top: 16px;">
+          <h4>Homework / Action Item</h4>
+          <p>Keep your Splunk service running. Generate daily traffic on your laptop so your Splunk index builds a rich baseline of normal activity for our upcoming triage exercises.</p>
+        </div>
+            
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Navigation Bar -->
+  <div class="bottom-bar">
+    <div class="slide-counter" id="slide-counter">-- / --</div>
+    <div class="nav-controls">
+      <button class="nav-btn nav-btn--notes" id="btn-notes" title="Speaker Notes (Key: N)">📝 Notes</button>
+      <button class="nav-btn" id="btn-prev" aria-label="Previous slide">←</button>
+      <button class="nav-btn" id="btn-next" aria-label="Next slide">→</button>
+    </div>
+  </div>
+
+  <!-- Speaker Notes Overlay -->
+  <div id="speaker-notes-overlay" role="dialog" aria-label="Speaker Notes">
+    <div class="notes-header">
+      <div class="notes-title">
+        <span>📝</span> Speaker Notes
+        <span id="notes-slide-num" style="font-size:0.75rem; color:var(--text-muted); font-weight:normal; margin-left:6px; margin-right:6px;"></span>
+      </div>
+      <button class="notes-close" id="btn-close-notes" aria-label="Close notes">&times;</button>
+    </div>
+    <div class="notes-body" id="notes-content">
+      <span class="notes-empty">No speaker notes recorded for this slide.</span>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const slides = document.querySelectorAll('.slide');
+      const total = slides.length;
+      let current = 0;
+
+      const progressBar = document.getElementById('progress-bar');
+      const slideCounter = document.getElementById('slide-counter');
+      const headerTitle = document.getElementById('header-slide-title');
+
+      function getOverlay() { return document.getElementById('speaker-notes-overlay'); }
+      function getNotesBtn() { return document.getElementById('btn-notes'); }
+
+      function updateNotes() {
+        const overlay = getOverlay();
+        if (!overlay) return;
+        const notesContent = document.getElementById('notes-content');
+        const notesSlideNum = document.getElementById('notes-slide-num');
+        const slide = slides[current];
+        if (!slide) return;
+        const note = slide.getAttribute('data-notes');
+        const title = slide.getAttribute('data-title') || `Slide ${current + 1}`;
+        if (notesSlideNum) {
+          notesSlideNum.textContent = `(${String(current + 1).padStart(2, '0')}/${String(total).padStart(2, '0')} - ${title})`;
+        }
+        if (notesContent) {
+          if (note && note.trim().length > 0) {
+            notesContent.innerHTML = `<p>${note.replace(/\n/g, '<br>')}</p>`;
+          } else {
+            const isAr = document.documentElement.lang === 'ar' || document.documentElement.dir === 'rtl';
+            notesContent.innerHTML = `<span class="notes-empty">${isAr ? 'لا توجد ملاحظات مسجلة لهذه الشريحة.' : 'No speaker notes recorded for this slide.'}</span>`;
+          }
+        }
+      }
+
+      function toggleNotes() {
+        const overlay = getOverlay();
+        const btn = getNotesBtn();
+        if (!overlay) return;
+        const isActive = overlay.classList.toggle('active');
+        if (btn) btn.classList.toggle('active', isActive);
+        if (isActive) updateNotes();
+      }
+
+      function updateUI() {
+        slides.forEach((s, idx) => {
+          s.classList.toggle('active', idx === current);
+        });
+        if (progressBar) progressBar.style.width = `${((current + 1) / total) * 100}%`;
+        if (slideCounter) slideCounter.textContent = `${String(current + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`;
+        const title = slides[current].getAttribute('data-title') || '';
+        if (headerTitle) headerTitle.textContent = title;
+        
+        const overlay = getOverlay();
+        if (overlay && overlay.classList.contains('active')) {
+          updateNotes();
+        }
+      }
+
+      function goTo(index) {
+        if (index < 0 || index >= total) return;
+        current = index;
+        updateUI();
+      }
+
+      const notesBtn = document.getElementById('btn-notes');
+      if (notesBtn) notesBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleNotes(); });
+
+      const notesCloseBtn = document.getElementById('btn-close-notes');
+      if (notesCloseBtn) notesCloseBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const overlay = getOverlay();
+        const btn = getNotesBtn();
+        if (overlay) overlay.classList.remove('active');
+        if (btn) btn.classList.remove('active');
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.code === 'KeyN' || e.key === 'n' || e.key === 'N' || e.key === 'ى') {
+          e.preventDefault();
+          toggleNotes();
+          return;
+        }
+        if (e.key === 'Escape' || e.code === 'Escape') {
+          const overlay = getOverlay();
+          const btn = getNotesBtn();
+          if (overlay && overlay.classList.contains('active')) {
+            overlay.classList.remove('active');
+            if (btn) btn.classList.remove('active');
+          }
+          return;
+        }
+        if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ' || e.code === 'Space') {
+          e.preventDefault();
+          goTo(current + 1);
+        } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+          e.preventDefault();
+          goTo(current - 1);
+        } else if (e.key === 'Home') {
+          e.preventDefault();
+          goTo(0);
+        } else if (e.key === 'End') {
+          e.preventDefault();
+          goTo(total - 1);
+        }
+      });
+
+      document.getElementById('btn-prev').addEventListener('click', () => goTo(current - 1));
+      document.getElementById('btn-next').addEventListener('click', () => goTo(current + 1));
+
+      updateUI();
+    })();
+  </script>
+</body>
+</html>

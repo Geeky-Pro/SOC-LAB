@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab 1 – Introduction to SOC, Logs & Events</title>
+  <meta name="description" content="Week 1: SOC Fundamentals, Logs, Events, Sources, and Centralization." />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* [سيتم استخدام نفس الأنماط الموجودة في ملفك الأصلي lab1_IDR.html] */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue-100: #c2d6ff; --blue-200: #93b4fd; --blue-300: #6b93f7; --blue-400: #4a78f0; --blue-500: #3563e9; --blue-600: #2a4ec4; --blue-700: #1e3a9e; --blue-800: #152c78; --blue-900: #0d1d52;
+      --purple-100: #dfc8ff; --purple-200: #c5a0fc; --purple-300: #a87bf5; --purple-400: #8b5cf6; --purple-500: #7c3aed; --purple-600: #6626c9; --purple-700: #4f1d96; --purple-800: #3b1578; --purple-900: #270f52;
+      --accent-green: #34d399; --accent-red: #f87171; --accent-amber: #fbbf24;
+      --bg: #03050a; --bg-surface: #070a14; --bg-card: rgba(8, 12, 24, 0.75); --bg-card-hover: rgba(14, 20, 36, 0.9);
+      --text-primary: #e8ecf4; --text-secondary: #a0aec4; --text-muted: #5c6b84; --text-dim: #3e4a62;
+      --border: rgba(99, 130, 241, 0.1); --border-glow: rgba(99, 130, 241, 0.22);
+      --shadow-sm: 0 1px 4px rgba(0,0,0,0.25); --shadow-md: 0 4px 20px rgba(0,0,0,0.35); --shadow-lg: 0 12px 40px rgba(0,0,0,0.4);
+      --gradient-main: linear-gradient(135deg, var(--blue-500), var(--purple-500));
+      --gradient-soft: linear-gradient(135deg, rgba(53,99,233,0.12), rgba(124,58,237,0.12));
+      --gradient-card: linear-gradient(160deg, rgba(16,22,42,0.8), rgba(30,20,70,0.35));
+      --font-heading: 'Space Grotesk', 'Outfit', system-ui, sans-serif;
+      --font-body: 'Outfit', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+    html { font-size: 18px; }
+    body { font-family: var(--font-body); background: var(--bg); color: var(--text-primary); overflow: hidden; height: 100vh; width: 100vw; user-select: none; -webkit-font-smoothing: antialiased; }
+    .orb { position: fixed; border-radius: 50%; filter: blur(100px); z-index: 0; pointer-events: none; }
+    .orb--1 { width: 550px; height: 550px; top: -200px; right: -140px; background: radial-gradient(circle, rgba(53,99,233,0.12) 0%, rgba(124,58,237,0.06) 50%, transparent 70%); }
+    .orb--2 { width: 480px; height: 480px; bottom: -180px; left: -100px; background: radial-gradient(circle, rgba(124,58,237,0.09) 0%, rgba(53,99,233,0.04) 50%, transparent 70%); }
+    .side-accent { position: fixed; left: 0; top: 0; bottom: 0; width: 4px; background: var(--gradient-main); z-index: 10; }
+    .top-header { position: fixed; top: 0; left: 4px; right: 0; height: 40px; background: rgba(3, 5, 10, 0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; z-index: 9; }
+    .header-title { font-family: var(--font-heading); font-size: 0.72rem; font-weight: 600; color: var(--text-secondary); display: flex; align-items: center; gap: 10px; }
+    .header-title .title-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--blue-500); box-shadow: 0 0 8px rgba(53, 99, 233, 0.5); }
+    .header-title .title-sep { color: var(--text-dim); }
+    #header-slide-title { color: var(--text-muted); font-family: var(--font-mono); font-size: 0.65rem; }
+    .lab-badge { font-family: var(--font-mono); font-size: 0.6rem; font-weight: 600; padding: 0.2em 0.65em; border-radius: 5px; background: rgba(53,99,233,0.15); color: var(--blue-200); border: 1px solid rgba(53,99,233,0.2); }
+    #progress-bar { position: fixed; top: 40px; left: 4px; height: 2px; background: var(--gradient-main); transition: width 0.5s; z-index: 10; }
+    #presentation { position: relative; width: 100%; height: 100%; z-index: 1; }
+    .slide { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; padding: 72px 100px 68px 100px; opacity: 0; transform: translateY(16px); transition: opacity 0.5s, transform 0.5s; pointer-events: none; overflow-y: auto; }
+    .slide.active { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .slide-inner { max-width: 1060px; width: 100%; margin: auto 0; }
+    h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; line-height: 1.2; letter-spacing: -0.02em; }
+    h1 { font-size: 2.8rem; margin-bottom: 0.4em; }
+    h2 { font-size: 2rem; margin-bottom: 0.5em; }
+    h3 { font-size: 1.3rem; margin-bottom: 0.6em; color: var(--blue-200); }
+    .section-label { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 0.66rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 0.9em; padding: 0.35em 0.9em; border-radius: 6px; background: var(--gradient-soft); border: 1px solid var(--border); color: var(--blue-300); }
+    p, li { font-size: 1.02rem; line-height: 1.7; color: var(--text-secondary); }
+    strong { color: var(--text-primary); }
+    .gradient-text { background: var(--gradient-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .blue { color: var(--blue-300); } .purple { color: var(--purple-300); } .green { color: var(--accent-green); } .amber { color: var(--accent-amber); }
+    .mono { font-family: var(--font-mono); font-size: 0.85em; }
+    .card-row { display: grid; gap: 16px; margin-top: 1.1em; }
+    .card-row--2 { grid-template-columns: repeat(2, 1fr); }
+    .card-row--3 { grid-template-columns: repeat(3, 1fr); }
+    .card-row--4 { grid-template-columns: repeat(4, 1fr); }
+    .card { background: var(--gradient-card); border: 1px solid var(--border); border-radius: 14px; padding: 1.2em 1.3em; box-shadow: var(--shadow-sm); transition: all 0.3s; }
+    .card:hover { background: var(--bg-card-hover); box-shadow: var(--shadow-md); border-color: var(--border-glow); transform: translateY(-3px); }
+    .card h4 { font-family: var(--font-heading); font-size: 0.95rem; font-weight: 600; margin-bottom: 0.35em; color: var(--text-primary); }
+    .card p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.55; }
+    .card-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; margin-bottom: 0.7em; }
+    .card-icon--blue { background: rgba(53,99,233,0.12); border: 1px solid rgba(53,99,233,0.15); }
+    .card-icon--purple { background: rgba(124,58,237,0.12); border: 1px solid rgba(124,58,237,0.15); }
+    .card-icon--green { background: rgba(52,211,153,0.12); border: 1px solid rgba(52,211,153,0.15); }
+    .card-icon--amber { background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.15); }
+    .info-box { display: flex; align-items: flex-start; gap: 1em; background: var(--gradient-soft); border: 1px solid var(--border-glow); border-radius: 12px; padding: 1em 1.3em; margin-top: 1.2em; }
+    .info-box p { font-size: 0.9rem; color: var(--text-secondary); }
+    .info-box strong { color: var(--blue-300); }
+    .flow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 1em; }
+    .flow-step { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 0.5em 1em; font-size: 0.85rem; font-weight: 500; }
+    .flow-arrow { font-size: 1rem; color: var(--blue-600); }
+    .tag { display: inline-flex; align-items: center; gap: 5px; padding: 0.15em 0.6em; border-radius: 5px; font-family: var(--font-mono); font-size: 0.65rem; font-weight: 600; }
+    .tag--blue { background: rgba(53,99,233,0.15); color: var(--blue-200); border: 1px solid rgba(53,99,233,0.2); }
+    .tag--purple { background: rgba(124,58,237,0.15); color: var(--purple-200); border: 1px solid rgba(124,58,237,0.2); }
+    .tag--red { background: rgba(239,68,68,0.12); color: #fca5a5; border: 1px solid rgba(239,68,68,0.15); }
+    .tag--green { background: rgba(34,197,94,0.12); color: #86efac; border: 1px solid rgba(34,197,94,0.15); }
+    .tag--amber { background: rgba(245,158,11,0.12); color: #fcd34d; border: 1px solid rgba(245,158,11,0.15); }
+    .code-block { background: #010206; border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.6; color: var(--blue-200); margin: 0.8em 0; overflow-x: auto; white-space: pre-wrap; direction: ltr; text-align: left; }
+    .code-block .comment { color: var(--text-muted); }
+    .code-block .cmd { color: var(--accent-green); }
+    #bottom-bar { position: fixed; bottom: 0; left: 4px; right: 0; height: 46px; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; z-index: 10; background: rgba(3, 5, 10, 0.85); backdrop-filter: blur(16px); border-top: 1px solid var(--border); }
+    #slide-counter { font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-muted); }
+    .nav-controls { display: flex; gap: 6px; }
+    .nav-btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary); border-radius: 8px; width: 36px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.8rem; transition: all 0.25s; }
+    .nav-btn:hover { background: var(--bg-card-hover); color: var(--blue-300); border-color: var(--border-glow); }
+    @media (max-width: 768px) {
+      .slide { padding: 60px 20px; } h1 { font-size: 2rem; } h2 { font-size: 1.4rem; }
+      .card-row--2, .card-row--3, .card-row--4 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="orb orb--1"></div>
+  <div class="orb orb--2"></div>
+  <div class="side-accent"></div>
+
+  <div class="top-header">
+    <div class="header-title">
+      <span class="title-dot"></span>
+      <span>Security Operations &amp; IR</span>
+      <span class="title-sep">—</span>
+      <span id="header-slide-title">Week 1</span>
+    </div>
+    <div class="header-right">
+      <span class="lab-badge">LAB 01</span>
+    </div>
+  </div>
+
+  <div id="progress-bar" style="width: 0%;"></div>
+
+  <div id="presentation">
+
+    <!-- الشريحة 1: الغلاف -->
+    <div class="slide slide--title active" data-slide="0" data-title="Introduction">
+      <div class="slide-inner" style="text-align: center;">
+        <div class="section-label"><span class="label-icon">◆</span> WEEK 1 — FOUNDATIONS</div>
+        <h1>مقدمة في <span class="gradient-text">مركز العمليات الأمنية</span><br>والسجلات والأحداث</h1>
+        <div style="width: 50px; height: 4px; background: var(--gradient-main); border-radius: 3px; margin: 1.5em auto;"></div>
+        <p style="font-size: 1.1rem; color: var(--text-muted); max-width: 600px; margin: 0 auto;">من المادة الخام (Logs) إلى الرؤية المركزية (SIEM) — كيف يرى محلل SOC المؤسسة؟</p>
+        <p style="margin-top: 2em; font-size: 0.9rem; color: var(--text-muted);">Instructor: <span style="color: var(--text-secondary);">Hussein Al-Selwi</span></p>
+      </div>
+    </div>
+
+    <!-- الشريحة 2: أهداف الأسبوع -->
+    <div class="slide" data-slide="1" data-title="Objectives">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> OBJECTIVES</div>
+        <h2>ماذا سنتعلم اليوم؟</h2>
+        <ul style="margin-top: 1em;">
+          <li>فهم دورة عمل SOC والمفاهيم الأساسية: <strong class="blue">Log, Event, Alert, Incident</strong>.</li>
+          <li>التعرف على <strong class="purple">مصادر السجلات</strong> في أنظمة التشغيل، الشبكات، وخوادم الويب.</li>
+          <li>لماذا نحتاج إلى <strong class="blue">جمع السجلات مركزياً</strong> (Centralization)؟</li>
+          <li>مقدمة عملية لأدوات التحليل: <strong class="green">Event Viewer, journalctl, grep</strong>.</li>
+          <li>فهم دور <strong class="amber">SIEM, EDR, Sysmon</strong> وكيفية ارتباطها ببعضها.</li>
+          <li>البدء في تجهيز بيئة المختبر (Wazuh) استعداداً للأسابيع القادمة.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- الشريحة 3: ما هو SOC؟ -->
+    <div class="slide" data-slide="2" data-title="What is a SOC?">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> SOC FUNDAMENTALS</div>
+        <h2>ما هو مركز العمليات الأمنية (SOC)؟</h2>
+        <p>هو وحدة مركزية مسؤولة عن <strong class="blue">المراقبة، الاكتشاف، التحليل، والاستجابة</strong> للتهديدات السيبرانية على مدار الساعة.</p>
+        <div class="card-row card-row--3" style="margin-top: 1.2em;">
+          <div class="card">
+            <div class="card-icon card-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg></div>
+            <h4>المراقبة المستمرة</h4>
+            <p>مراقبة الأنظمة والشبكات والهوية على مدار الساعة (24/7) لاكتشاف أي نشاط غير طبيعي.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+            <h4>حماية الأصول</h4>
+            <p>حماية البيانات والأنظمة والبنية التحتية من التهديدات الداخلية والخارجية.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--green"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+            <h4>الاستجابة السريعة</h4>
+            <p>تقليل المخاطر من خلال الاحتواء والاستئصال والتعافي من الحوادث.</p>
+          </div>
+        </div>
+        <div class="info-box" style="margin-top: 1.2em;">
+          <span class="info-box-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+          <p>دورة SOC الأساسية: <strong class="blue">Monitor → Detect → Analyze → Respond</strong> — وهي مستمرة لا تتوقف.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- الشريحة 4: Log / Event / Alert / Incident -->
+    <div class="slide" data-slide="3" data-title="Log vs Event vs Alert vs Incident">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> CORE TERMS</div>
+        <h2>الفرق بين Log, Event, Alert, Incident</h2>
+        <p>هذه المصطلحات ليست مترادفة — فهمها هو أساس عمل المحلل.</p>
+        <div class="card-row card-row--4" style="margin-top: 1.2em;">
+          <div class="card">
+            <span class="tag tag--blue"><span class="tag-dot"></span> LOG</span>
+            <h4 style="margin-top: 0.5em;">السجل</h4>
+            <p>سجل خام (Record) يُنشئه نظام أو تطبيق أو جهاز يوثّق نشاطاً معيناً.</p>
+            <p style="margin-top: 0.4em; font-size: 0.75rem; color: var(--text-muted);" class="mono">مثال: تسجيل دخول مستخدم في Windows Security Log.</p>
+          </div>
+          <div class="card">
+            <span class="tag tag--purple"><span class="tag-dot"></span> EVENT</span>
+            <h4 style="margin-top: 0.5em;">الحدث</h4>
+            <p>أي واقعة يمكن ملاحظتها وقد تكون ذات دلالة أمنية.</p>
+            <p style="margin-top: 0.4em; font-size: 0.75rem; color: var(--text-muted);" class="mono">مثال: محاولات تسجيل دخول فاشلة متعددة.</p>
+          </div>
+          <div class="card">
+            <span class="tag tag--green"><span class="tag-dot"></span> ALERT</span>
+            <h4 style="margin-top: 0.5em;">التنبيه</h4>
+            <p>إشعار يُنشأ عندما يطابق نشاط مشبوه قاعدة كشف أو شرطاً محدداً.</p>
+            <p style="margin-top: 0.4em; font-size: 0.75rem; color: var(--text-muted);" class="mono">مثال: اكتشاف هجوم تخمين كلمات مرور (Brute Force).</p>
+          </div>
+          <div class="card">
+            <span class="tag tag--red"><span class="tag-dot"></span> INCIDENT</span>
+            <h4 style="margin-top: 0.5em;">الحادث</h4>
+            <p>حدث أمني مؤكد يتطلب تحقيقاً واستجابة.</p>
+            <p style="margin-top: 0.4em; font-size: 0.75rem; color: var(--text-muted);" class="mono">مثال: اختراق حساب مستخدم بنجاح.</p>
+          </div>
+        </div>
+        <div class="info-box" style="margin-top: 1.2em;">
+          <span class="info-box-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 00-4 12.74V17a1 1 0 001 1h6a1 1 0 001-1v-2.26A7 7 0 0012 2z"/></svg></span>
+          <p>ليس كل Log يصبح Event، وليس كل Event يصبح Alert، وليس كل Alert يصبح Incident. وظيفة SOC هي الفرز (Triage) في كل مرحلة.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- الشريحة 5: لماذا نجمع السجلات؟ (نحو المركزية) -->
+    <div class="slide" data-slide="4" data-title="Why Centralize Logs?">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> THE WHY</div>
+        <h2>لماذا نحتاج جمع السجلات مركزياً؟</h2>
+        <p>سجلات موزعة على عشرات الأنظمة = عمى أمني. السجلات المركزية تعطينا <strong class="blue">الرؤية الكاملة</strong>.</p>
+        <div class="card-row card-row--2" style="margin-top: 1.2em;">
+          <div class="card" style="border-right: 3px solid var(--accent-red);">
+            <h4 class="amber">التحدي: السجلات الموزعة</h4>
+            <ul style="margin-top: 0.5em; font-size: 0.85rem; padding-left: 1.2em;">
+              <li>كل نظام يحتفظ بسجلاته محلياً.</li>
+              <li>صعوبة ربط الأحداث عبر أنظمة مختلفة.</li>
+              <li>فقدان السجلات عند إعادة تشغيل الجهاز أو حذفها.</li>
+              <li>لا يمكن اكتشاف هجوم متعدد المراحل.</li>
+            </ul>
+          </div>
+          <div class="card" style="border-right: 3px solid var(--accent-green);">
+            <h4 class="green">الحل: المركزية (Centralization)</h4>
+            <ul style="margin-top: 0.5em; font-size: 0.85rem; padding-left: 1.2em;">
+              <li><strong>رؤية موحدة (Single Pane of Glass)</strong> لكل الأحداث.</li>
+              <li><strong>ربط (Correlation)</strong> بين حدث على الشبكة وحدث على الجهاز.</li>
+              <li>الاحتفاظ بالسجلات لفترة أطول والبحث فيها.</li>
+              <li>تمكين الكشف والتحقيق والتحليل المتقدم.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="flow" style="margin-top: 1.2em; justify-content: center;">
+          <div class="flow-step">Endpoint Logs</div> <span class="flow-arrow">+</span>
+          <div class="flow-step">Network Logs</div> <span class="flow-arrow">+</span>
+          <div class="flow-step">App/Web Logs</div> <span class="flow-arrow">→</span>
+          <div class="flow-step" style="border-color: var(--blue-500); background: rgba(53,99,233,0.1);"><strong class="blue">SIEM / Central Platform</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- الشريحة 6: مصادر السجلات (1) — أنظمة التشغيل -->
+    <div class="slide" data-slide="5" data-title="Log Sources: Operating Systems">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> LOG SOURCES</div>
+        <h2>مصادر السجلات: أنظمة التشغيل</h2>
+        <div class="card-row card-row--2">
+          <div class="card">
+            <div class="card-icon card-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
+            <h4>Windows Event Logs</h4>
+            <p>سجلات منظمة في قنوات (Channels) رئيسية:</p>
+            <ul style="margin-top: 0.5em; font-size: 0.85rem;">
+              <li><strong>Security</strong>: تسجيل الدخول، التغييرات الأمنية، الوصول للكائنات.</li>
+              <li><strong>System</strong>: أحداث نظام التشغيل، بدء/إيقاف الخدمات، تعريفات الأجهزة.</li>
+              <li><strong>Application</strong>: أحداث التطبيقات.</li>
+              <li><strong>PowerShell/Operational</strong>: أوامر PowerShell (مهم جداً للكشف).</li>
+              <li><strong>Sysmon/Operational</strong>: سجلات تفصيلية للعمليات والشبكة (سنشرحه لاحقاً).</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><path d="M6 6h.01M6 18h.01"/></svg></div>
+            <h4>Linux Logs</h4>
+            <p>ملفات نصية في <span class="mono">/var/log/</span> أو سجلات systemd:</p>
+            <ul style="margin-top: 0.5em; font-size: 0.85rem;">
+              <li><strong class="mono">/var/log/auth.log</strong> (Debian/Ubuntu) أو <strong class="mono">/var/log/secure</strong> (RHEL): المصادقة، sudo، SSH.</li>
+              <li><strong class="mono">/var/log/syslog</strong> أو <strong class="mono">messages</strong>: رسائل النظام العامة.</li>
+              <li><strong class="mono">/var/log/audit/audit.log</strong>: سجلات auditd (رقابة على مستوى النواة).</li>
+              <li><strong class="mono">journalctl</strong>: عرض سجلات systemd-journald.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="info-box" style="margin-top: 1em;">
+          <span class="info-box-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
+          <p>في Linux، السجلات نصية ويمكن قراءتها بأدوات بسيطة مثل <strong class="mono">cat, tail, grep, less</strong> — وهذا يجعل التحليل اليدوي أسهل للمبتدئين.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- الشريحة 7: مصادر السجلات (2) — الشبكة والويب -->
+    <div class="slide" data-slide="6" data-title="Log Sources: Network & Web">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> LOG SOURCES</div>
+        <h2>مصادر السجلات: الشبكة والويب</h2>
+        <div class="card-row card-row--3">
+          <div class="card">
+            <div class="card-icon card-icon--green"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></div>
+            <h4>Firewall & Network Flow</h4>
+            <p>سجلات حركة المرور (Traffic/Flow)، الاتصالات المسموحة والمرفوضة، وعناوين IP المصدر والوجهة والمنافذ.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--amber"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></div>
+            <h4>Proxy & DNS</h4>
+            <p>سجلات الوصول إلى الإنترنت عبر البروكسي، واستعلامات DNS (مصدر ممتاز لكشف الاتصالات الخبيثة بـ C2).</p>
+          </div>
+          <div class="card">
+            <div class="card-icon card-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg></div>
+            <h4>Web Server (Apache/Nginx)</h4>
+            <p>سجلات <strong>Access</strong> (كل طلب HTTP: IP, URL, الحالة) و<strong>Error</strong> (أخطاء الخادم). تكشف هجمات الويب مثل SQLi وXSS.</p>
+          </div>
+        </div>
+        <div class="code-block" style="margin-top: 1em;">
+          <span class="comment"># مثال: سطر من Nginx Access Log</span>
+          <br><span class="cmd">192.168.1.10</span> - - [10/Oct/2026:13:55:36 +0300] "GET /login.php HTTP/1.1" <span class="cmd">200</span> 1234 "-" "Mozilla/5.0..."
+          <br><span class="comment"># الحقول: IP العميل، التاريخ، الطلب، رمز الحالة، حجم الاستجابة</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- الشريحة 8: عملي — استكشاف السجلات -->
+    <div class="slide" data-slide="7" data-title="Hands-on: Exploring Logs">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> HANDS-ON</div>
+        <h2>عملي: استكشاف السجلات</h2>
+        <p>سنتدرب على قراءة السجلات يدوياً في بيئتينا (Windows وLinux) قبل الانتقال إلى الأدوات المركزية.</p>
+        <div class="card-row card-row--2" style="margin-top: 1em;">
+          <div class="card">
+            <h4>🪟 Windows — Event Viewer</h4>
+            <p style="font-size: 0.85rem;">افتح <span class="mono">eventvwr.msc</span> من قائمة Start.</p>
+            <div class="code-block">
+              <span class="comment"># عرض سجلات المصادقة الفاشلة</span>
+              <br>Windows Logs → Security → Filter → Event ID <span class="cmd">4625</span>
+              <br><span class="comment"># عرض إنشاء عملية جديدة</span>
+              <br>Event ID <span class="cmd">4688</span> (New Process Created)
+            </div>
+          </div>
+          <div class="card">
+            <h4>🐧 Linux — Terminal</h4>
+            <p style="font-size: 0.85rem;">استخدم أوامر الطرفية لقراءة السجلات مباشرة.</p>
+            <div class="code-block">
+              <span class="comment"># محاولات SSH الفاشلة</span>
+              <br><span class="cmd">grep</span> "Failed password" /var/log/auth.log
+              <br><span class="comment"># متابعة السجلات في الوقت الفعلي</span>
+              <br><span class="cmd">tail -f</span> /var/log/syslog
+              <br><span class="comment"># سجلات خدمة SSH عبر systemd</span>
+              <br><span class="cmd">journalctl -u sshd</span> --no-pager
+            </div>
+          </div>
+        </div>
+        <div class="info-box" style="margin-top: 1em;">
+          <span class="info-box-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
+          <p><strong>النشاط:</strong> افتح Event Viewer على جهازك وابحث عن Event ID 4625. كم محاولة فاشلة لديك اليوم؟ ثم على Linux، جرّب <span class="mono">journalctl --since "1 hour ago" | grep -i error</span>.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- الشريحة 9: الحلول المركزية — SIEM, EDR, Sysmon -->
+    <div class="slide" data-slide="8" data-title="Centralized Solutions: SIEM, EDR, Sysmon">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> THE TOOLS</div>
+        <h2>كيف نجمع كل هذا؟ (SIEM, EDR, Sysmon)</h2>
+        <p>بعد أن رأينا السجلات الموزعة، نحتاج إلى أدوات تجمعها وتثريها وتحللها.</p>
+        <div class="card-row card-row--3">
+          <div class="card" style="border-top: 3px solid var(--blue-500);">
+            <h4>SIEM</h4>
+            <p><strong>Security Information and Event Management</strong></p>
+            <p style="margin-top: 0.4em; font-size: 0.82rem;">منصة مركزية تجمع السجلات من كل المصادر، تطبعها (Normalize)، تربط الأحداث (Correlate)، وتُظهر تنبيهات. <strong>مثال:</strong> Wazuh, Splunk, Elastic.</p>
+          </div>
+          <div class="card" style="border-top: 3px solid var(--purple-500);">
+            <h4>EDR</h4>
+            <p><strong>Endpoint Detection and Response</strong></p>
+            <p style="margin-top: 0.4em; font-size: 0.82rem;">وكيل (Agent) يُثبّت على الجهاز ويسجل تفاصيل دقيقة: العمليات، الملفات، الشبكة، الريجستري. يوفر كشفاً واستجابة. <strong>مثال:</strong> CrowdStrike, Defender for Endpoint.</p>
+          </div>
+          <div class="card" style="border-top: 3px solid var(--accent-green);">
+            <h4>Sysmon</h4>
+            <p><strong>System Monitor (Microsoft)</strong></p>
+            <p style="margin-top: 0.4em; font-size: 0.82rem;">أداة مجانية من Sysinternals توفر سجلات تفصيلية جداً (Process, Network, File, Registry) وتُرسَل إلى Event Log ثم إلى SIEM. هي "EDR مجاني" لكن بدون استجابة آلية.</p>
+          </div>
+        </div>
+        <div class="flow" style="margin-top: 1.2em; justify-content: center;">
+          <div class="flow-step">Sysmon / EDR Agent</div> <span class="flow-arrow">→</span>
+          <div class="flow-step">Forwarder (Agentless/Syslog)</div> <span class="flow-arrow">→</span>
+          <div class="flow-step" style="border-color: var(--blue-500);"><strong class="blue">SIEM (Wazuh)</strong></div> <span class="flow-arrow">→</span>
+          <div class="flow-step" style="border-color: var(--purple-500);"><strong class="purple">Alerts & Dashboards</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- الشريحة 10: مقدمة Lab والواجب -->
+    <div class="slide" data-slide="9" data-title="Lab Setup & Homework">
+      <div class="slide-inner">
+        <div class="section-label"><span class="label-icon">◆</span> NEXT STEPS</div>
+        <h2>مقدمة Lab والواجب المنزلي</h2>
+        <div class="card-row card-row--2">
+          <div class="card">
+            <h4>🛠️ تجهيز بيئة المختبر (الأسبوع القادم)</h4>
+            <p>سنقوم بتثبيت <strong class="blue">Wazuh</strong> (SIEM مفتوح المصدر) باستخدام Docker Compose. جهّز جهازك بـ:</p>
+            <ul style="margin-top: 0.5em; font-size: 0.85rem;">
+              <li>Docker Desktop (Windows/Mac) أو Docker Engine (Linux).</li>
+              <li>8GB RAM على الأقل (يفضل 16GB).</li>
+              <li>20GB مساحة تخزين حرة.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>📝 الواجب المنزلي (TryHackMe)</h4>
+            <p>أكمل الغرفتين التاليتين قبل الأسبوع القادم:</p>
+            <ul style="margin-top: 0.5em; font-size: 0.85rem;">
+              <li><strong>Intro to Logs</strong> — لفهم أساسيات السجلات.</li>
+              <li><strong>Intro to SIEM</strong> — لفهم دور SIEM قبل التطبيق.</li>
+            </ul>
+            <p style="margin-top: 0.4em; font-size: 0.8rem; color: var(--text-muted);">سلّم لقطة شاشة لإتمام الغرفتين.</p>
+          </div>
+        </div>
+        <div class="info-box" style="margin-top: 1.2em;">
+          <span class="info-box-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 00-4 12.74V17a1 1 0 001 1h6a1 1 0 001-1v-2.26A7 7 0 0012 2z"/></svg></span>
+          <p>تذكر: الأسبوع القادم هو <strong>تطبيق عملي مباشر</strong>. إذا واجهت مشكلة في تثبيت Docker، تواصل معي قبل الجلسة.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="bottom-bar">
+    <div class="bottom-left">
+      <span id="slide-counter">1 / 10</span>
+      <div class="nav-controls">
+        <button class="nav-btn" id="prev-btn" title="Previous">◀</button>
+        <button class="nav-btn" id="next-btn" title="Next">▶</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const slides = document.querySelectorAll('.slide');
+      const totalSlides = slides.length;
+      const progressBar = document.getElementById('progress-bar');
+      const slideCounter = document.getElementById('slide-counter');
+      const headerTitle = document.getElementById('header-slide-title');
+      let currentSlide = 0;
+
+      function showSlide(index) {
+        if (index < 0) index = 0;
+        if (index >= totalSlides) index = totalSlides - 1;
+        slides.forEach((s, i) => s.classList.toggle('active', i === index));
+        currentSlide = index;
+        const pct = ((index + 1) / totalSlides) * 100;
+        progressBar.style.width = pct + '%';
+        slideCounter.textContent = (index + 1) + ' / ' + totalSlides;
+        headerTitle.textContent = slides[index].dataset.title || 'Week 1';
+      }
+
+      document.getElementById('next-btn').addEventListener('click', () => showSlide(currentSlide + 1));
+      document.getElementById('prev-btn').addEventListener('click', () => showSlide(currentSlide - 1));
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); showSlide(currentSlide - 1); }
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); showSlide(currentSlide + 1); }
+      });
+
+      showSlide(0);
+    })();
+  </script>
+</body>
+</html>
