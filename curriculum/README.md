@@ -8,6 +8,7 @@ This directory is the source of truth for the learning pathway, outcomes, module
 ## Documents
 - [Overview](curriculum-overview.md)
 - [Detailed curriculum design — all 11 modules](detailed-curriculum-design.md)
+- [Independent detailed curriculum quality review (2026-11-10)](reviews/2026-11-10-detailed-curriculum-quality-review.md)
 - [Module map](module-map.md)
 - [Competency matrix](competency-matrix.md)
 - [Prerequisite map](prerequisite-map.md)
