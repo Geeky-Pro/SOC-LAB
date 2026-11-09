@@ -84,13 +84,15 @@ Before publication, the corresponding lab/scenario asset must add exact steps, t
 
 **Primary assessment evidence:** LAB-01-A, LAB-01-B — see the practical activity blueprint above and the [common SOC-LAB assessment rubric](../../curriculum/assessment-rubric.md).
 
-| Learning outcome | Lesson(s) introducing/practicing/assessing | Observable assessment evidence |
+| Learning outcome | Lesson mapping (I/P/A) | Observable assessment evidence |
 |---|---|---|
-| LO-01-01 | L01-01, L01-04 | Prioritized queue and escalation/handoff message with rationale. |
-| LO-01-02 | L01-02, L01-03 | Triage record: scope, facts, hypotheses, unknowns, confidence, impact, urgency. |
-| LO-01-03 | L01-03, L01-06 | Team case disposition plus individually authored triage rationale and handoff. |
-| LO-01-04 | L01-04, L01-06 | Team case disposition plus individually authored triage rationale and handoff. |
-| LO-01-05 | L01-05, L01-06 | Team case disposition plus individually authored triage rationale and handoff. |
+| LO-01-01 | L01-01 (I/P), L01-04 (A) | Prioritized queue and escalation/handoff message with rationale. |
+| LO-01-02 | L01-02 (I/P), L01-03 (A) | Triage record: scope, facts, hypotheses, unknowns, confidence, impact, urgency. |
+| LO-01-03 | L01-03 (I/P), L01-06 (A) | Team case disposition plus individually authored triage rationale and handoff. |
+| LO-01-04 | L01-04 (I/P), L01-06 (A) | Team case disposition plus individually authored triage rationale and handoff. |
+| LO-01-05 | L01-05 (I/P), L01-06 (A) | Team case disposition plus individually authored triage rationale and handoff. |
+
+**Mapping legend:** I = introduces the outcome; P = provides guided/independent practice; A = contains the observable assessment evidence. A single-lesson outcome is marked I/P/A in that lesson. These labels are the proposed instructional design and must be confirmed when the lecture and lab assets are authored.
 
 Assessment conditions:
 - The student brief must state permitted dataset/environment, time limit, allowed references, and submission format before delivery.
