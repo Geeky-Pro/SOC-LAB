@@ -1,0 +1,47 @@
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+credentials/
+
+# Local editor and operating-system files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary and generated files
+.tmp/
+temp/
+tmp/
+.cache/
+*.log
+*.bak
+*.orig
+
+# Large virtual machine and capture artifacts
+*.vmdk
+*.vdi
+*.vhd
+*.vhdx
+*.ova
+*.ovf
+*.qcow2
+*.pcap
+*.pcapng
+
+# Python and Node artifacts
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+node_modules/
+dist/
+build/
