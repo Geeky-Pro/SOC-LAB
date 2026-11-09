@@ -33,42 +33,42 @@ By the end of this module, learners should be able to:
 - **Duration:** 60 minutes
 - **Core content:** NIST SP 800-61r3; CSF 2.0; roles; incident governance; authority and coordination.
 - **Learning activity:** Classify example cases and map decision authority.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed classify example cases and map decision authority artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L08-02 — Incident intake, triage, and severity
 
 - **Duration:** 75 minutes
 - **Core content:** Validation; scope; severity versus priority; impact; confidence; escalation thresholds.
 - **Learning activity:** Create triage and severity record.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed create triage and severity record artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L08-03 — Investigation scope, evidence, and timeline
 
 - **Duration:** 75 minutes
 - **Core content:** Evidence provenance; timestamps; chain-of-custody concepts; timeline; unknowns.
 - **Learning activity:** Build a sourced timeline and evidence matrix.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed build a sourced timeline and evidence matrix artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L08-04 — Containment, eradication, recovery, and verification
 
 - **Duration:** 90 minutes
 - **Core content:** Containment options; business trade-offs; eradication criteria; trusted recovery; monitoring; rollback.
 - **Learning activity:** Compare response options in a decision log.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed compare response options in a decision log artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L08-05 — Escalation, communications, closure, and improvement
 
 - **Duration:** 60 minutes
 - **Core content:** Situation reports; stakeholder updates; closure criteria; lessons learned; corrective actions.
 - **Learning activity:** Write incident update and after-action items.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed write incident update and after-action items artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L08-06 — Suspicious Web Server Activity tabletop
 
 - **Duration:** 120 minutes
 - **Core content:** Staged injects; evidence-led decisions; no assumed compromise; instructor-controlled actions.
 - **Learning activity:** Team tabletop, incident record, response plan, debrief.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed team tabletop, incident record, response plan, debrief artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ## 5. Practical learning activities
 
