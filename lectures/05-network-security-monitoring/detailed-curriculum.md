@@ -19,12 +19,12 @@ By the end of this module, learners should be able to:
 
 | ID | Learning outcome | Lesson alignment | Evidence |
 |---|---|---|---|
-| LO-05-01 | Explain packet, flow, session, and application-layer visibility and their limitations. | L05-01, L05-02, L05-03, L05-04, L05-05, L05-06 | Practical artifact |
-| LO-05-02 | Interpret Ethernet/IP/TCP/UDP/DNS/HTTP/TLS metadata relevant to investigations. | L05-01, L05-02, L05-03, L05-04, L05-05, L05-06 | Mapped lesson activity and assessment evidence |
-| LO-05-03 | Use packet-capture tools to filter, follow, and summarize conversations. | L05-01, L05-02, L05-03, L05-04, L05-05, L05-06 | Mapped lesson activity and assessment evidence |
-| LO-05-04 | Identify unusual connection patterns, scanning-like behavior, and suspicious egress hypotheses. | L05-01, L05-02, L05-03, L05-04, L05-05, L05-06 | Mapped lesson activity and assessment evidence |
-| LO-05-05 | Correlate PCAP observations with firewall, endpoint, and SIEM context. | L05-01, L05-02, L05-03, L05-04, L05-05, L05-06 | Mapped lesson activity and assessment evidence |
-| LO-05-06 | Document network findings with packet/time references and confidence. | L05-01, L05-02, L05-03, L05-04, L05-05, L05-06 | Mapped lesson activity and assessment evidence |
+| LO-05-01 | Explain packet, flow, session, and application-layer visibility and their limitations. | L05-01, L05-02 | Protocol worksheet with packet/time references and TCP/UDP/DNS/HTTP/TLS interpretation. |
+| LO-05-02 | Interpret Ethernet/IP/TCP/UDP/DNS/HTTP/TLS metadata relevant to investigations. | L05-02, L05-04 | DNS/web/TLS timeline with encrypted-payload limitations. |
+| LO-05-03 | Use packet-capture tools to filter, follow, and summarize conversations. | L05-03 | PCAP analysis record with scope, filters, packet references, and sanitized export if required. |
+| LO-05-04 | Identify unusual connection patterns, scanning-like behavior, and suspicious egress hypotheses. | L05-04, L05-05 | Traffic-pattern comparison, baseline, competing hypotheses, and confidence. |
+| LO-05-05 | Correlate PCAP observations with firewall, endpoint, and SIEM context. | L05-05, L05-06 | Network investigation report correlating PCAP with available firewall/endpoint/SIEM records. |
+| LO-05-06 | Document network findings with packet/time references and confidence. | L05-03, L05-06 | Network investigation report correlating PCAP with available firewall/endpoint/SIEM records. |
 
 ## 4. Detailed lesson sequence
 
@@ -72,20 +72,34 @@ By the end of this module, learners should be able to:
 
 ## 5. Practical learning activities
 
-Analyze instructor-provided PCAPs; identify conversations and anomalies; correlate packet and firewall context.
+The following are curriculum-level activity blueprints, not final student lab instructions. Convert each activity into its module-specific lab/scenario asset before delivery.
 
-Activities must be delivered only within the authorized lab or with instructor-provided sanitized/synthetic artifacts. If required telemetry is unavailable, disclose the substitution and its limitations.
+| Activity ID | Learner task | Required input / environment | Expected output | Safety, cleanup, and recovery |
+|---|---|---|---|---|
+| LAB-05-A | Analyze a supplied PCAP to answer protocol and traffic questions. | Sanitized PCAP; Wireshark. | Packet/time references, protocol worksheet, filters, conversation summary. | Use approved captures only; do not capture unrelated physical LAN traffic. |
+| LAB-05-B | Correlate traffic patterns with firewall/endpoint logs. | Sanitized PCAP and matching logs, or isolated lab traffic under instructor direction. | Cross-source timeline, competing hypotheses, confidence, visibility limits. | No scanning outside isolated lab; define target allowlist and stop condition. |
+
+Before publication, the corresponding lab/scenario asset must add exact steps, tested versions, instructor preparation, troubleshooting, reset procedure, expected outputs, and evidence-capture instructions. If a telemetry source is unavailable, use a clearly labeled instructor-provided dataset and record the substitution.
 
 ## 6. Assessment plan
 
-**Primary assessment evidence:** PCAP analysis worksheet, protocol findings, anomalous-traffic hypothesis, and source-referenced timeline.
+**Primary assessment evidence:** LAB-05-A, LAB-05-B — see the practical activity blueprint above and the [common SOC-LAB assessment rubric](../../curriculum/assessment-rubric.md).
 
-Assessment design rules:
-- Map every scored task to one or more LO identifiers.
-- Require source references, timestamps where available, reasoning, limitations, and uncertainty.
-- Score analytical process and evidence quality, not merely the final verdict.
-- Do not require a single severity/verdict when multiple evidence-supported conclusions are reasonable.
-- Keep instructor answer keys separate from student-facing instructions.
+| Learning outcome | Lesson(s) introducing/practicing/assessing | Observable assessment evidence |
+|---|---|---|
+| LO-05-01 | L05-01, L05-02 | Protocol worksheet with packet/time references and TCP/UDP/DNS/HTTP/TLS interpretation. |
+| LO-05-02 | L05-02, L05-04 | DNS/web/TLS timeline with encrypted-payload limitations. |
+| LO-05-03 | L05-03 | PCAP analysis record with scope, filters, packet references, and sanitized export if required. |
+| LO-05-04 | L05-04, L05-05 | Traffic-pattern comparison, baseline, competing hypotheses, and confidence. |
+| LO-05-05 | L05-05, L05-06 | Network investigation report correlating PCAP with available firewall/endpoint/SIEM records. |
+| LO-05-06 | L05-03, L05-06 | Network investigation report correlating PCAP with available firewall/endpoint/SIEM records. |
+
+Assessment conditions:
+- The student brief must state permitted dataset/environment, time limit, allowed references, and submission format before delivery.
+- Score only rubric criteria relevant to the outcomes assessed; weighting and pass threshold remain pending Project Owner decision.
+- Require source/time references, reasoning, alternatives, uncertainty, and limitations where relevant.
+- Identify individual versus team-produced evidence; team output alone does not establish individual mastery.
+- Keep instructor answer keys and expected reasoning separate from student-facing materials.
 
 ## 7. Lab and resource dependencies
 
@@ -118,7 +132,7 @@ The proposed 8-hour allocation is a planning estimate. It must be checked agains
 
 ## 11. References
 
-Use authoritative, versioned sources appropriate to the lesson. Record the publication/version and access date during content development. Do not add references that were not consulted or that do not support the relevant claims.
+Use the lesson-mapped [Module Reference Catalog](../../curriculum/references/module-reference-catalog.md) as the research starting point. During lesson production, record the exact page/edition and access date for every technical claim. The catalog does not imply that lab-specific versions or configurations have been validated.
 
 ## 12. Change history
 
