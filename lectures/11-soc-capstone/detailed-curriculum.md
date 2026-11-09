@@ -19,12 +19,12 @@ By the end of this module, learners should be able to:
 
 | ID | Learning outcome | Lesson alignment | Evidence |
 |---|---|---|---|
-| LO-11-01 | Independently scope an assigned SOC case and develop a defensible investigation plan. | L11-01, L11-02, L11-03, L11-04, L11-05 | Practical artifact |
-| LO-11-02 | Collect, preserve, interpret, and correlate evidence from the sources made available. | L11-01, L11-02, L11-03, L11-04, L11-05 | Mapped lesson activity and assessment evidence |
-| LO-11-03 | Prioritize the case and test competing hypotheses with explicit uncertainty. | L11-01, L11-02, L11-03, L11-04, L11-05 | Mapped lesson activity and assessment evidence |
-| LO-11-04 | Evaluate relevant telemetry and detection behavior without overstating coverage. | L11-01, L11-02, L11-03, L11-04, L11-05 | Mapped lesson activity and assessment evidence |
-| LO-11-05 | Recommend proportionate response and recovery actions with approval and verification criteria. | L11-01, L11-02, L11-03, L11-04, L11-05 | Mapped lesson activity and assessment evidence |
-| LO-11-06 | Deliver a complete incident package and concise technical/stakeholder briefing. | L11-01, L11-02, L11-03, L11-04, L11-05 | Mapped lesson activity and assessment evidence |
+| LO-11-01 | Independently scope an assigned SOC case and develop a defensible investigation plan. | L11-01, L11-02 | Investigation plan and scope statement, including permitted sources, boundaries, and initial hypotheses. |
+| LO-11-02 | Collect, preserve, interpret, and correlate evidence from the sources made available. | L11-02 | Individual evidence matrix and journal with source identifiers, timestamps, provenance, and interpretation. |
+| LO-11-03 | Prioritize the case and test competing hypotheses with explicit uncertainty. | L11-02 | Hypothesis register showing supporting/contradicting evidence, alternatives, confidence, and priority rationale. |
+| LO-11-04 | Evaluate relevant telemetry and detection behavior without overstating coverage. | L11-03 | Detection/telemetry assessment separating source visibility, parsing, search/detection behavior, and unvalidated gaps. |
+| LO-11-05 | Recommend proportionate response and recovery actions with approval and verification criteria. | L11-03, L11-04 | Response/recovery decision log with authority, impact, rollback, verification, and residual risk. |
+| LO-11-06 | Deliver a complete incident package and concise technical/stakeholder briefing. | L11-04, L11-05 | Complete incident package, oral briefing, Q&A response, and individual reflection. |
 
 ## 4. Detailed lesson sequence
 
@@ -65,21 +65,32 @@ By the end of this module, learners should be able to:
 
 ## 5. Practical learning activities
 
-Individual or instructor-approved team capstone with independent investigation, report, and briefing.
+The capstone is an independently assessed case, not a guided demonstration. The instructor assigns a case variant and provides a source-availability manifest, permitted-resource list, rules of engagement, submission brief, and common rubric.
 
-Activities must be delivered only within the authorized lab or with instructor-provided sanitized/synthetic artifacts. If required telemetry is unavailable, disclose the substitution and its limitations.
+| Activity ID | Learner task | Required input / environment | Expected output | Safety, cleanup, and recovery |
+|---|---|---|---|---|
+| CAP-11-A | Complete an independently assigned case from scope through briefing. | Instructor-approved scenario pack, source manifest, published brief and rubric; isolated lab or sanitized evidence pack. | Individual journal, evidence matrix, timeline, report, response plan, detection assessment, oral briefing. | Authorized assets/datasets only; clarify individual/team boundaries; no disruptive actions without approval; preserve provenance. |
 
+Before delivery, the instructor must verify that each case variant provides a fair opportunity to demonstrate all assessed outcomes. If a source is unavailable, supply a labeled alternative artifact and adjust the assessed outcome only through an approved accommodation.
 ## 6. Assessment plan
 
-**Primary assessment evidence:** Complete case package: plan, journal, evidence matrix, timeline, findings, response plan, detection assessment, final report, and briefing.
+**Primary assessment evidence:** CAP-11-A — complete individual case package, scored with the [common SOC-LAB assessment rubric](../../curriculum/assessment-rubric.md).
 
-Assessment design rules:
-- Map every scored task to one or more LO identifiers.
-- Require source references, timestamps where available, reasoning, limitations, and uncertainty.
-- Score analytical process and evidence quality, not merely the final verdict.
-- Do not require a single severity/verdict when multiple evidence-supported conclusions are reasonable.
-- Keep instructor answer keys separate from student-facing instructions.
+| Learning outcome | Lesson(s) introducing/practicing/assessing | Observable assessment evidence |
+|---|---|---|
+| LO-11-01 | L11-01, L11-02 | Investigation plan and scope statement, including permitted sources, boundaries, and initial hypotheses. |
+| LO-11-02 | L11-02 | Individual evidence matrix and journal with source identifiers, timestamps, provenance, and interpretation. |
+| LO-11-03 | L11-02 | Hypothesis register showing supporting/contradicting evidence, alternatives, confidence, and priority rationale. |
+| LO-11-04 | L11-03 | Detection/telemetry assessment separating source visibility, parsing, search/detection behavior, and unvalidated gaps. |
+| LO-11-05 | L11-03, L11-04 | Response/recovery decision log with authority, impact, rollback, verification, and residual risk. |
+| LO-11-06 | L11-04, L11-05 | Complete incident package, oral briefing, Q&A response, and individual reflection. |
 
+Assessment conditions:
+- Individual competence must be evidenced separately even if learners discuss approaches in teams.
+- Publish the case brief, source manifest, allowed tools/references, time limits, submission format, and rubric before assessment.
+- Score only criteria relevant to the case's available evidence. If a source is absent, do not penalize the learner for unavailable telemetry; record the limitation.
+- Project Owner decisions on weighting, pass threshold, retake/remediation, and accommodations remain pending.
+- Keep instructor case keys and expected evidence separate from student materials.
 ## 7. Lab and resource dependencies
 
 Refer to [Lab Dependency Map](../../curriculum/lab-dependency-map.md) and the shared [Lab Environment](../../lab-environment/README.md). Exact indexes, sourcetypes, fields, ports, versions, export methods, and collection paths must be verified against the deployed lab before being taught as facts.
@@ -111,7 +122,7 @@ The proposed 12-hour allocation is a planning estimate. It must be checked again
 
 ## 11. References
 
-Use authoritative, versioned sources appropriate to the lesson. Record the publication/version and access date during content development. Do not add references that were not consulted or that do not support the relevant claims.
+Use the [Module Reference Catalog](../../curriculum/references/module-reference-catalog.md), plus references specific to the evidence domains included in the assigned capstone case. The instructor must attach the actual source list to each case pack.
 
 ## 12. Change history
 
