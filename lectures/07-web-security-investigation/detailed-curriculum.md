@@ -19,12 +19,12 @@ By the end of this module, learners should be able to:
 
 | ID | Learning outcome | Lesson alignment | Evidence |
 |---|---|---|---|
-| LO-07-01 | Explain web request flow and the roles of web server, application, reverse proxy, and firewall logs. | L07-01, L07-02, L07-03, L07-04, L07-05, L07-06 | Practical artifact |
-| LO-07-02 | Interpret access-log fields, HTTP methods, status codes, paths, user agents, and client context. | L07-01, L07-02, L07-03, L07-04, L07-05, L07-06 | Mapped lesson activity and assessment evidence |
-| LO-07-03 | Identify suspicious request patterns while distinguishing probes, errors, and confirmed impact. | L07-01, L07-02, L07-03, L07-04, L07-05, L07-06 | Mapped lesson activity and assessment evidence |
-| LO-07-04 | Reconstruct a web activity timeline and correlate it with network and endpoint evidence. | L07-01, L07-02, L07-03, L07-04, L07-05, L07-06 | Mapped lesson activity and assessment evidence |
-| LO-07-05 | Assess common web attack indicators at a monitoring/investigation level without conducting unsafe exploitation. | L07-01, L07-02, L07-03, L07-04, L07-05, L07-06 | Mapped lesson activity and assessment evidence |
-| LO-07-06 | Produce a web security investigation with evidence, uncertainty, and recommended next steps. | L07-01, L07-02, L07-03, L07-04, L07-05, L07-06 | Mapped lesson activity and assessment evidence |
+| LO-07-01 | Explain web request flow and the roles of web server, application, reverse proxy, and firewall logs. | L07-01 | Web data-flow diagram mapping access, application, proxy, and firewall log sources. |
+| LO-07-02 | Interpret access-log fields, HTTP methods, status codes, paths, user agents, and client context. | L07-02, L07-04 | Reproducible Splunk worksheet using observed fields and sample event references. |
+| LO-07-03 | Identify suspicious request patterns while distinguishing probes, errors, and confirmed impact. | L07-03, L07-05 | Cross-source request timeline with confirmed/unconfirmed impact distinction. |
+| LO-07-04 | Reconstruct a web activity timeline and correlate it with network and endpoint evidence. | L07-04, L07-05 | Cross-source request timeline with confirmed/unconfirmed impact distinction. |
+| LO-07-05 | Assess common web attack indicators at a monitoring/investigation level without conducting unsafe exploitation. | L07-03, L07-05 | Cross-source request timeline with confirmed/unconfirmed impact distinction. |
+| LO-07-06 | Produce a web security investigation with evidence, uncertainty, and recommended next steps. | L07-05, L07-06 | Concise web investigation report and analyst handoff with limitations. |
 
 ## 4. Detailed lesson sequence
 
@@ -72,20 +72,34 @@ By the end of this module, learners should be able to:
 
 ## 5. Practical learning activities
 
-Analyze Ubuntu web access/application logs; classify suspicious requests; correlate with network and endpoint records.
+The following are curriculum-level activity blueprints, not final student lab instructions. Convert each activity into its module-specific lab/scenario asset before delivery.
 
-Activities must be delivered only within the authorized lab or with instructor-provided sanitized/synthetic artifacts. If required telemetry is unavailable, disclose the substitution and its limitations.
+| Activity ID | Learner task | Required input / environment | Expected output | Safety, cleanup, and recovery |
+|---|---|---|---|---|
+| LAB-07-A | Analyze sanitized web logs and classify suspicious requests. | Instructor-provided Ubuntu web logs or isolated web server logs. | Parsed request table, classification, source references. | No real targets or exploitation; synthetic requests or isolated local services only. |
+| LAB-07-B | Correlate web requests with network/IDS records and assess impact. | Matched web logs, PCAP, firewall/Suricata sample records. | Request timeline, impact assessment, report with uncertainty. | Do not infer exploitation from a path/status alone; reset only approved lab data. |
+
+Before publication, the corresponding lab/scenario asset must add exact steps, tested versions, instructor preparation, troubleshooting, reset procedure, expected outputs, and evidence-capture instructions. If a telemetry source is unavailable, use a clearly labeled instructor-provided dataset and record the substitution.
 
 ## 6. Assessment plan
 
-**Primary assessment evidence:** Web request timeline, suspicious-pattern assessment, cross-source correlation, and incident handoff.
+**Primary assessment evidence:** LAB-07-A, LAB-07-B — see the practical activity blueprint above and the [common SOC-LAB assessment rubric](../../curriculum/assessment-rubric.md).
 
-Assessment design rules:
-- Map every scored task to one or more LO identifiers.
-- Require source references, timestamps where available, reasoning, limitations, and uncertainty.
-- Score analytical process and evidence quality, not merely the final verdict.
-- Do not require a single severity/verdict when multiple evidence-supported conclusions are reasonable.
-- Keep instructor answer keys separate from student-facing instructions.
+| Learning outcome | Lesson(s) introducing/practicing/assessing | Observable assessment evidence |
+|---|---|---|
+| LO-07-01 | L07-01 | Web data-flow diagram mapping access, application, proxy, and firewall log sources. |
+| LO-07-02 | L07-02, L07-04 | Reproducible Splunk worksheet using observed fields and sample event references. |
+| LO-07-03 | L07-03, L07-05 | Cross-source request timeline with confirmed/unconfirmed impact distinction. |
+| LO-07-04 | L07-04, L07-05 | Cross-source request timeline with confirmed/unconfirmed impact distinction. |
+| LO-07-05 | L07-03, L07-05 | Cross-source request timeline with confirmed/unconfirmed impact distinction. |
+| LO-07-06 | L07-05, L07-06 | Concise web investigation report and analyst handoff with limitations. |
+
+Assessment conditions:
+- The student brief must state permitted dataset/environment, time limit, allowed references, and submission format before delivery.
+- Score only rubric criteria relevant to the outcomes assessed; weighting and pass threshold remain pending Project Owner decision.
+- Require source/time references, reasoning, alternatives, uncertainty, and limitations where relevant.
+- Identify individual versus team-produced evidence; team output alone does not establish individual mastery.
+- Keep instructor answer keys and expected reasoning separate from student-facing materials.
 
 ## 7. Lab and resource dependencies
 
@@ -118,7 +132,7 @@ The proposed 7-hour allocation is a planning estimate. It must be checked agains
 
 ## 11. References
 
-Use authoritative, versioned sources appropriate to the lesson. Record the publication/version and access date during content development. Do not add references that were not consulted or that do not support the relevant claims.
+Use the lesson-mapped [Module Reference Catalog](../../curriculum/references/module-reference-catalog.md) as the research starting point. During lesson production, record the exact page/edition and access date for every technical claim. The catalog does not imply that lab-specific versions or configurations have been validated.
 
 ## 12. Change history
 
