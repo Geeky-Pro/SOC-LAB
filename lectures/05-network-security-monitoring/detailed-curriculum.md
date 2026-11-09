@@ -33,42 +33,42 @@ By the end of this module, learners should be able to:
 - **Duration:** 60 minutes
 - **Core content:** Packets, flows, logs; SPAN/TAP concepts; metadata versus payload; encryption and blind spots.
 - **Learning activity:** Select the best evidence source for investigation questions.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed select the best evidence source for investigation questions artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L05-02 — Protocols and conversation reconstruction
 
 - **Duration:** 90 minutes
 - **Core content:** Ethernet; IP; TCP handshake/flags; UDP; ports; DNS; HTTP; TLS handshake metadata.
 - **Learning activity:** Interpret protocol sequences from supplied captures.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed interpret protocol sequences from supplied captures artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L05-03 — Packet capture workflow and filtering
 
 - **Duration:** 90 minutes
 - **Core content:** Capture scope; display/capture filters; stream following; timestamps; reassembly; export objects safely.
 - **Learning activity:** Answer structured questions from a PCAP.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed answer structured questions from a pcap artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L05-04 — DNS, web, and encrypted traffic analysis
 
 - **Duration:** 75 minutes
 - **Core content:** Queries/responses; NXDOMAIN; TTL; HTTP methods/status; TLS SNI/cert metadata where present; encrypted payload limits.
 - **Learning activity:** Build a destination and request timeline.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed build a destination and request timeline artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L05-05 — Scanning, beaconing, and anomalous traffic hypotheses
 
 - **Duration:** 75 minutes
 - **Core content:** Connection frequency; fan-out; periodicity; volume; failed connections; baseline and false positives.
 - **Learning activity:** Compare normal and suspicious traffic patterns.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed compare normal and suspicious traffic patterns artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L05-06 — Network investigation and cross-source correlation
 
 - **Duration:** 90 minutes
 - **Core content:** PCAP with pfSense logs, endpoint events, and Splunk; time normalization; evidence limits.
 - **Learning activity:** Produce a network case summary and timeline.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed produce a network case summary and timeline artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ## 5. Practical learning activities
 
