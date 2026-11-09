@@ -1,77 +1,74 @@
 # Incident Response
 
-> **Status:** draft — pending module design and Project Owner approval  
+> **Status:** draft — pending independent review and Project Owner approval  
 > **Module ID:** 08-incident-response  
-> **Curriculum version:** 0.1
+> **Curriculum version:** 0.1  
+> **Learning package version:** 0.1
 
 ## Purpose
+
 Develop the judgment and operational discipline required to assess, scope, coordinate, contain, remediate, recover from, and document cybersecurity incidents.
 
-## Target audience
-Learners following the SOC-LAB program. Final entry level and prerequisites remain to be confirmed.
+## Audience and prerequisites
 
-## Proposed learning outcomes
-By the end of this module, learners should be able to:
-- Distinguish events, alerts, investigations, suspected incidents, and confirmed incidents.
-- Validate an incident hypothesis using corroborated evidence and identify important unknowns.
-- Classify an incident and justify a provisional severity based on impact, scope, urgency, exposure, and confidence.
-- Build an incident timeline and maintain traceable evidence references.
-- Recommend proportionate containment and recovery options, including operational trade-offs and approval requirements.
-- Communicate status, escalate appropriately, and document decisions and lessons learned.
+Learners following SOC-LAB. Proposed prerequisites come from SOC fundamentals, lab operations, endpoint investigation, network monitoring, intrusion detection, and web security investigation. Confirm readiness against the curriculum prerequisite map.
 
-These outcomes are preliminary and require measurable criteria and mapping to lessons and assessments.
+## Measurable learning outcomes
 
-## Prerequisites
-[To be finalized against `curriculum/prerequisite-map.md`. Likely dependencies include SOC fundamentals, endpoint investigation, network monitoring, and web security investigation.]
+See [Learning Outcomes](learning-outcomes.md). Eight outcomes cover terminology, triage, evidence/timeline, severity, response decisions, communications, incident records, and improvement.
 
-## Proposed topic sequence
-1. Incident response purpose, terminology, and governance.
-2. NIST CSF 2.0 and SP 800-61 Rev. 3 conceptual model.
-3. Incident intake, validation, triage, and severity.
-4. Investigation scope, evidence provenance, and incident timeline.
-5. Decision authority, escalation, and communications.
-6. Containment strategy and operational trade-offs.
-7. Eradication, remediation, recovery, and monitoring.
-8. Closure, lessons learned, and tabletop exercise.
+## Lesson sequence
 
-Sequence and depth remain subject to curriculum review.
+See [Lesson Plan](lesson-plan.md) for the proposed 6-hour teaching sequence, 2-hour tabletop, and 30-minute debrief. Timing is provisional.
+
+1. L08-01 — Incident response foundations, terminology, and authority.
+2. L08-02 — Incident intake, triage, and severity.
+3. L08-03 — Investigation scope, evidence, and timeline.
+4. L08-04 — Containment, eradication, recovery, and verification.
+5. L08-05 — Escalation, communications, closure, and improvement.
+6. L08-06 — Suspicious Web Server Compromise tabletop.
+
+## Practical scenario
+
+The first tabletop is [Suspicious Web Server Activity — Student Brief](scenarios/student-brief.md). The instructor-controlled [Tabletop Master](scenarios/tabletop-suspicious-web-server-compromise.md) contains injects and facilitator guidance; do not distribute it to learners.
+
+The exercise is discussion-based by default. Use synthetic evidence unless the instructor supplies verified, sanitized lab telemetry. Do not assert successful compromise, exfiltration, or persistence without supporting evidence.
+
+## Learning materials
+
+- [Student Guide](student/student-guide.md)
+- [Instructor Guide](instructor/instructor-guide.md)
+- [Assessment](assessments/incident-response-assessment.md)
+- [Learning Outcomes](learning-outcomes.md)
+- [Lesson Plan](lesson-plan.md)
 
 ## Shared response guidance
-Use the reusable procedures in [incident-response/](../../incident-response/README.md):
-- Framework and incident lifecycle
-- Classification and severity
-- Triage procedures
-- Containment, eradication, and recovery
-- Evidence and recordkeeping
-- Communications and escalation
-- Playbook standard and templates
 
-## Practical activities
-[To be designed. Exercises must remain inside the authorized isolated lab. Students should recommend disruptive actions; the instructor controls whether any action is actually executed.]
+Use the reusable procedures in [incident-response](../../incident-response/README.md): framework, classification/severity, lifecycle, triage, containment/eradication/recovery, evidence, communications/escalation, and playbook standards.
+
+## Lab and telemetry dependencies
+
+Potential sources include Windows/Sysmon, Splunk Enterprise, pfSense/Suricata, Ubuntu web-server logs, and optional packet-capture metadata. Verify availability, field names, indexes, sourcetypes, export paths, and time semantics before publishing tool-specific steps. Do not assume EDR, SOAR, Splunk Enterprise Security, or automated response.
+
+## Safety boundaries
+
+Students analyze evidence and recommend actions. The instructor controls disruptive actions such as VM isolation, firewall changes, account disablement, service restart, deletion, or restoration. Any live demonstration requires explicit scope, approval, impact assessment, rollback, and reset.
 
 ## Assessment
-Map assessments to the proposed outcomes and the program assessment framework. Include evidence-based triage, severity rationale, decision log, incident record, and recovery/closure reasoning.
 
-## Dependencies
-- Relevant prior module outcomes and investigation skills.
-- Verified Windows/Sysmon, Splunk Enterprise, pfSense/Suricata, network, and web telemetry.
-- Lab reset and recovery documentation.
-- Shared incident response procedures.
-
-Do not assume that telemetry or response controls are available until verified in the deployed lab.
-
-## References
-- NIST SP 800-61 Rev. 3 (April 2025): https://doi.org/10.6028/NIST.SP.800-61r3
-- NIST Incident Response project: https://csrc.nist.gov/projects/incident-response
-- CISA Federal Government Cybersecurity Incident and Vulnerability Response Playbooks: https://www.cisa.gov/resources-tools/resources/federal-government-cybersecurity-incident-and-vulnerability-response-playbooks
+The proposed tabletop assessment is 100 points, with a suggested 70% pass mark subject to Project Owner approval. Safety and evidence integrity are mandatory.
 
 ## Validation and review
-- Technical validation: not validated
-- Instructional review: not reviewed
-- Lab execution: not executed
-- Open decisions: final prerequisites, lesson breakdown, practical scenarios, assessment rubric, and exercise authority.
 
-## Change history
-| Version | Date | Change | Status |
-|---|---|---|---|
-| 0.1 | 2026-11-10 | Initial module charter | Draft |
+- Technical validation: not validated.
+- Instructional review: pending.
+- Tabletop delivery: not conducted.
+- Lab execution: not performed.
+- Independent Quality Reviewer review: pending.
+- Project Owner approval: pending.
+
+## References
+
+- NIST SP 800-61 Rev. 3 (April 2025): https://doi.org/10.6028/NIST.SP.800-61r3
+- NIST CSF 2.0: https://doi.org/10.6028/NIST.CSWP.29
+- NIST Incident Response project: https://csrc.nist.gov/projects/incident-response
