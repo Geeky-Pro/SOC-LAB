@@ -43,10 +43,12 @@ Relevant lessons: L04-01 to L04-06.
 - RFC 5321 SMTP — https://www.rfc-editor.org/rfc/rfc5321
 - RFC 5322 Internet Message Format — https://www.rfc-editor.org/rfc/rfc5322
 - RFC 7208 SPF — https://www.rfc-editor.org/rfc/rfc7208
-- RFC 6376 DKIM — https://www.rfc-editor.org/rfc/rfc6376
-- RFC 7489 DMARC — https://www.rfc-editor.org/rfc/rfc7489
+- RFC 6376 DKIM — https://www.rfc-editor.org/rfc/rfc6376 (consult its update/errata references)
+- RFC 9989 DMARC — https://www.rfc-editor.org/rfc/rfc9989 (2026; supersedes RFC 7489)
+- RFC 9990 DMARC aggregate reporting — https://www.rfc-editor.org/rfc/rfc9990
+- RFC 9991 DMARC failure reporting — https://www.rfc-editor.org/rfc/rfc9991
 - Mailpit documentation — https://mailpit.axllent.org/docs/
-Use defanged URLs and inert/sanitized attachment metadata. Never ask learners to open unknown links or execute attachments.
+Use the current DMARC specification (RFC 9989) and reporting specifications (RFC 9990/9991), not obsolete RFC 7489. RFC 9989 explains that SPF/DKIM alignment validates domain authorization but does not guarantee message safety. Use defanged URLs and inert/sanitized attachment metadata. Never ask learners to open unknown links or execute attachments.
 
 ## Module 05 — Network Security Monitoring & Analysis
 Relevant lessons: L05-01 to L05-06.
