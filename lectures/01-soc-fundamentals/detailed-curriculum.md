@@ -32,42 +32,42 @@ By the end of this module, learners should be able to:
 - **Duration:** 45 minutes
 - **Core content:** SOC tiers and functions; internal, outsourced, hybrid models; analyst responsibilities; ethics and authorization.
 - **Learning activity:** Role-to-task mapping; classify operational responsibilities.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed role-to-task mapping; classify operational responsibilities artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L01-02 — Security events, alerts, incidents, and the monitoring lifecycle
 
 - **Duration:** 45 minutes
 - **Core content:** Telemetry-to-alert pipeline; event versus alert versus incident; case lifecycle; signal versus conclusion.
 - **Learning activity:** Classify sample records and explain what each does not prove.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed classify sample records and explain what each does not prove artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L01-03 — Alert triage and analytical reasoning
 
 - **Duration:** 60 minutes
 - **Core content:** Validate source and context; scope; severity versus priority; false positives; confidence; competing hypotheses.
 - **Learning activity:** Triage a synthetic alert bundle and record facts, hypotheses, unknowns.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed triage a synthetic alert bundle and record facts, hypotheses, unknowns artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L01-04 — SOC workflow, escalation, and communication
 
 - **Duration:** 60 minutes
 - **Core content:** Queue ownership; SLAs as concepts; escalation; shift handoff; stakeholder communication.
 - **Learning activity:** Prioritize a queue and prepare a concise handoff.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed prioritize a queue and prepare a concise handoff artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L01-05 — Analyst documentation and evidence discipline
 
 - **Duration:** 60 minutes
 - **Core content:** Case notes; timestamps; provenance; reproducibility; privacy and safe handling.
 - **Learning activity:** Complete an evidence-referenced case record.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed complete an evidence-referenced case record artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L01-06 — Integrated triage exercise
 
 - **Duration:** 90 minutes
 - **Core content:** End-to-end application of workflow and communication.
 - **Learning activity:** Team triage of mixed benign/suspicious signals; individual rationale.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed team triage of mixed benign/suspicious signals; individual rationale artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ## 5. Practical learning activities
 
