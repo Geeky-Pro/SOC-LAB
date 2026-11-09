@@ -92,15 +92,17 @@ Before publication, the corresponding lab/scenario asset must add exact steps, t
 
 **Primary assessment evidence:** SCN-10-A — see the practical activity blueprint above and the [common SOC-LAB assessment rubric](../../curriculum/assessment-rubric.md).
 
-| Learning outcome | Lesson(s) introducing/practicing/assessing | Observable assessment evidence |
+| Learning outcome | Lesson mapping (I/P/A) | Observable assessment evidence |
 |---|---|---|
-| LO-10-01 | L10-01, L10-05 | Normalized timeline and hypothesis disposition using endpoint, network, web, SIEM, and sanitized email evidence. |
-| LO-10-02 | L10-02, L10-03, L10-04, L10-05 | Normalized timeline and hypothesis disposition using endpoint, network, web, SIEM, and sanitized email evidence. |
-| LO-10-03 | L10-05 | Normalized timeline and hypothesis disposition using endpoint, network, web, SIEM, and sanitized email evidence. |
-| LO-10-04 | L10-02, L10-03, L10-04, L10-05 | Normalized timeline and hypothesis disposition using endpoint, network, web, SIEM, and sanitized email evidence. |
-| LO-10-05 | L10-05, L10-07 | Detection/telemetry gap matrix and after-action recommendations with evidence provenance. |
-| LO-10-06 | L10-06 | Incident assessment, response decision log, and technical/stakeholder briefing. |
-| LO-10-07 | L10-01, L10-05 | Normalized timeline and hypothesis disposition using endpoint, network, web, SIEM, and sanitized email evidence. |
+| LO-10-01 | L10-01 (I/P), L10-05 (A) | Normalized timeline and hypothesis disposition using endpoint, network, web, SIEM, and sanitized email evidence. |
+| LO-10-02 | L10-02 (I), L10-03 (P), L10-04 (P), L10-05 (A) | Normalized timeline and hypothesis disposition using endpoint, network, web, SIEM, and sanitized email evidence. |
+| LO-10-03 | L10-05 (I/P/A) | Normalized timeline and hypothesis disposition using endpoint, network, web, SIEM, and sanitized email evidence. |
+| LO-10-04 | L10-02 (I), L10-03 (P), L10-04 (P), L10-05 (A) | Normalized timeline and hypothesis disposition using endpoint, network, web, SIEM, and sanitized email evidence. |
+| LO-10-05 | L10-05 (I/P), L10-07 (A) | Detection/telemetry gap matrix and after-action recommendations with evidence provenance. |
+| LO-10-06 | L10-06 (I/P/A) | Incident assessment, response decision log, and technical/stakeholder briefing. |
+| LO-10-07 | L10-01 (I/P), L10-05 (A) | Normalized timeline and hypothesis disposition using endpoint, network, web, SIEM, and sanitized email evidence. |
+
+**Mapping legend:** I = introduces the outcome; P = provides guided/independent practice; A = contains the observable assessment evidence. A single-lesson outcome is marked I/P/A in that lesson. These labels are the proposed instructional design and must be confirmed when the lecture and lab assets are authored.
 
 Assessment conditions:
 - The student brief must state permitted dataset/environment, time limit, allowed references, and submission format before delivery.
