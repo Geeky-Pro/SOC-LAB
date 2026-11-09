@@ -29,7 +29,7 @@ Do not silently substitute Splunk ES, Wazuh, standalone Suricata, or any other o
 - Shared lab infrastructure belongs in `lab-environment/`; module-specific exercises belong in `lectures/<module>/`.
 - Shared detection standards and reusable detections belong in `detection-engineering/`; module-specific detections stay with the module.
 - Shared response procedures belong in `incident-response/`; scenario-specific playbooks stay with the relevant module.
-- Canonical general templates live in `templates/`; detection specifications and test-record templates live in `detection-engineering/templates/`.
+- Canonical general templates live in `templates/`; detection specifications and test-record templates live in `detection-engineering/templates/`; incident response templates live in `incident-response/templates/`.
 - Reusable agent skills belong in `.agents/skills/`; provider-specific agent definitions and Copilot instructions belong in `.github/`.
 - Historical assets remain in `Archive/` until reviewed and deliberately promoted.
 
@@ -53,6 +53,17 @@ Do not silently substitute Splunk ES, Wazuh, standalone Suricata, or any other o
 - A query that has not been executed is not a validated detection. Record the exact environment and tests actually run.
 - Follow `detection-engineering/standards/` and `.github/instructions/detections.instructions.md`.
 
+## Incident response rules
+- Use NIST CSF 2.0 and NIST SP 800-61 Rev. 3 (2025) as the current conceptual baseline; do not present Rev. 2 as current.
+- Treat repository severity levels as educational proposals, not production policy or universal SLAs.
+- Distinguish events, alerts, investigations, suspected incidents, and confirmed incidents.
+- State response roles, decision authority, escalation, and communication boundaries explicitly.
+- Separate observed facts, hypotheses, unknowns, and conclusions; preserve evidence provenance and timestamps.
+- Gate disruptive actions behind explicit authority and document impact, rollback, and lab reset.
+- Do not assume EDR, SOAR, automated response, Splunk Enterprise Security, or unverified lab capabilities.
+- Keep legal, privacy, regulatory, and external notification decisions with qualified authorized personnel.
+- Follow `incident-response/` and `.github/instructions/incident-response.instructions.md`.
+
 ## Agent workflow
 - Use `.github/agents/soc-lab-content-engineer.agent.md` for drafting and content maintenance.
 - Use `.github/agents/soc-lab-quality-reviewer.agent.md` for independent review.
@@ -60,7 +71,7 @@ Do not silently substitute Splunk ES, Wazuh, standalone Suricata, or any other o
 - The Quality Reviewer reports findings and a review status; it does not grant release approval.
 - The Project Owner decides acceptance, scope changes, and release.
 - Use prompts in `.github/prompts/` as task starters, adapting them to the actual request.
-- Skills in `.agents/skills/` are reusable procedures. Read a skill's `SKILL.md` when its task applies; do not duplicate its full method in prompts or agent definitions.
+- Skills in `.agents/skills/` are reusable procedures. Read the matching `SKILL.md` when its task applies.
 
 ## Change discipline
-Make focused changes. Inspect before editing. Preserve history. Validate links, formatting, and structure where possible. Report changed files, evidence, limitations, and decisions needed. Never merge or release without explicit authorization.
+Make focused changes. Inspect before editing. Preserve history. Validate links, Markdown, and structure where possible. Report changed files, evidence, limitations, and decisions needed. Never merge or release without explicit authorization.

@@ -13,6 +13,7 @@ SOC-LAB is organized around a competency-based curriculum, reproducible practica
 - [Module map](curriculum/module-map.md)
 - [SOC lab environment](lab-environment/README.md)
 - [Detection engineering](detection-engineering/README.md)
+- [Incident response](incident-response/README.md)
 - [Canonical templates](templates/README.md)
 - [Reusable agent skills](.agents/skills/README.md)
 - [Archive](Archive/README.md)
@@ -34,12 +35,13 @@ Content moves through planned → draft → in-review → approved → released.
 - Use English and lowercase kebab-case for paths and filenames unless a proper name or upstream filename must be preserved.
 - Keep shared lab infrastructure in lab-environment/; unit-specific exercises belong inside their module.
 - Keep shared detection standards and reusable detections in detection-engineering/; module-specific detection exercises stay with their module.
+- Keep shared incident response procedures in incident-response/; scenario-specific playbooks remain inside the relevant module.
 - Keep canonical reusable templates in templates/ and reusable agent procedures in .agents/skills/.
 - Keep historical source material in Archive/ until reviewed.
 - Never commit credentials, tokens, private keys, student personal data, or large VM images.
 
 ## Current status
-The repository foundation, AI workflow, initial skills, templates, curriculum baseline, module charters, lab environment architecture, and detection engineering foundation are being established on architecture/v2-foundation. Curriculum, lab, and detection documentation remain drafts. No release or Project Owner approval is implied.
+The repository foundation, AI workflow, initial skills, templates, curriculum baseline, module charters, lab environment architecture, detection engineering foundation, and incident response documentation foundation are being established on architecture/v2-foundation. Curriculum, lab, detection, and incident response documentation remain drafts. No release or Project Owner approval is implied.
 
 ## Contributing
 Read CONTRIBUTING.md, governance policies, and applicable quality standards before proposing changes.

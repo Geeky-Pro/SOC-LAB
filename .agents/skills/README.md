@@ -18,11 +18,12 @@ This directory contains reusable, task-focused Agent Skills. Skills define repea
 | `soc-lab-development` | Reproducible hands-on exercises | Content Engineer |
 | `soc-scenario-development` | Investigation scenarios and evidence design | Content Engineer |
 | `soc-detection-engineering` | Detection specifications, SPL, data readiness, ATT&CK mapping, validation | Content Engineer |
+| `soc-incident-response` | Incident response frameworks, triage, severity, playbooks, evidence records, and safe response exercises | Content Engineer |
 | `soc-quality-review` | Independent evidence-based quality review | Quality Reviewer |
 
 ## Boundaries
 - Keep skills small, reusable, and non-overlapping.
-- Keep canonical deliverable formats in `templates/` and domain-specific canonical detection templates in `detection-engineering/templates/`; do not embed competing copies in skills.
+- Keep canonical deliverable formats in `templates/`, domain-specific detection templates in `detection-engineering/templates/`, and incident response templates in `incident-response/templates/`; do not embed competing copies in skills.
 - Keep project authority and role boundaries in `.github/agents/` and governance documents.
 - Keep task-specific prompt scaffolds in `.github/prompts/`.
 - Add supporting `references/`, `examples/`, or `scripts/` only when they materially improve the skill.
