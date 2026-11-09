@@ -30,21 +30,21 @@ By the end of this module, learners should be able to:
 
 ### L02-01 — Requirements, architecture, trust boundaries, and topology
 
-- **Duration:** 75 minutes
+- **Duration:** 60 minutes
 - **Core content:** Functional requirements; threat boundaries; management/SOC/DMZ/endpoint/Kali zones; data-flow diagrams.
 - **Learning activity:** Annotate topology and justify each boundary.
 - **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
 
 ### L02-02 — VMware Workstation networking and VM resource planning
 
-- **Duration:** 75 minutes
+- **Duration:** 60 minutes
 - **Core content:** Virtual switches/NAT/host-only concepts; isolation; CPU/RAM/storage; snapshots; host overlap risks.
 - **Learning activity:** Build and verify isolated virtual networks.
 - **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
 
 ### L02-03 — pfSense routing, segmentation, and firewall policy
 
-- **Duration:** 105 minutes
+- **Duration:** 90 minutes
 - **Core content:** Interfaces; gateways; rules; least privilege; logging; rule order; safe rollback.
 - **Learning activity:** Implement baseline rules and test allowed/blocked paths.
 - **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
@@ -58,7 +58,7 @@ By the end of this module, learners should be able to:
 
 ### L02-05 — Endpoint and infrastructure telemetry onboarding
 
-- **Duration:** 105 minutes
+- **Duration:** 90 minutes
 - **Core content:** Windows/Sysmon, pfSense, Suricata and Ubuntu log paths; forwarder/collector choices; timestamp and parsing validation.
 - **Learning activity:** Onboard one source at a time and record observed metadata.
 - **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
