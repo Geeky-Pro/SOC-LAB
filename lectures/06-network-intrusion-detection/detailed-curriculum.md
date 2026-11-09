@@ -24,7 +24,7 @@ By the end of this module, learners should be able to:
 | LO-06-03 | Interpret Suricata alert fields, rule metadata, flow context, and alert limitations. | L06-03, L06-06 | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
 | LO-06-04 | Validate an alert against packet and environmental context and identify likely false positives. | L06-04, L06-06 | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
 | LO-06-05 | Explain rule tuning, suppression, updates, and change-control considerations. | L06-05, L06-06 | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
-| LO-06-07 | Evaluate a prevention control decision, verify an authorized lab-only effect, and document impact and rollback requirements. | L06-01, L06-03, L06-05, L06-06 | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
+| LO-06-07 | Evaluate a prevention control decision, verify an authorized lab-only effect, and document impact and rollback requirements. | L06-01, L06-03, L06-05, L06-06 | Prevention decision record, allowed/denied flow test evidence, rollback and verification record. |
 | LO-06-07 | Evaluate a prevention control decision, verify an authorized lab-only effect, and document impact and rollback requirements. | L06-01, L06-03, L06-05, L06-06 | Prevention decision record, allowed/denied flow test evidence, rollback and verification record. |
 | LO-06-06 | Document detection test outcomes separately from telemetry visibility and analyst conclusions. | L06-06 | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
 
@@ -35,42 +35,42 @@ By the end of this module, learners should be able to:
 - **Duration:** 60 minutes
 - **Core content:** Detection models; sensor placement; passive/inline; false positives/negatives; performance and risk.
 - **Learning activity:** Choose sensor placement for example topologies.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed choose sensor placement for example topologies artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L06-02 — Suricata architecture, alerts, and rule anatomy
 
 - **Duration:** 75 minutes
 - **Core content:** EVE JSON concept; alert/signature/flow metadata; rule structure; classifications; reference links.
 - **Learning activity:** Read sanitized alert examples and identify required context.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed read sanitized alert examples and identify required context artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L06-03 — Suricata in pfSense: operational integration
 
 - **Duration:** 75 minutes
 - **Core content:** Package role; interface selection; HOME_NET/EXTERNAL_NET concepts; updates; logging/export path verification.
 - **Learning activity:** Inspect configured sensor status and document actual export behavior.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed inspect configured sensor status and document actual export behavior artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L06-04 — Alert triage and PCAP validation
 
 - **Duration:** 90 minutes
 - **Core content:** Alert context; flow direction; packet evidence; protocol context; asset criticality; benign triggers.
 - **Learning activity:** Validate seeded alert records against matching packet evidence.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed validate seeded alert records against matching packet evidence artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L06-05 — Tuning, suppression, prevention policy, and change management
 
 - **Duration:** 75 minutes
 - **Core content:** Thresholds; suppressions; rule updates; regression risk; rollback; test cases.
 - **Learning activity:** Propose a tuning change with before/after validation criteria.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed propose a tuning change with before/after validation criteria artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L06-06 — Detection validation report
 
 - **Duration:** 45 minutes
 - **Core content:** Coverage versus visibility versus logic versus runtime validation; limitations.
 - **Learning activity:** Complete a detection validation record.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed complete a detection validation record artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ## 5. Practical learning activities
 
