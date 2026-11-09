@@ -129,7 +129,7 @@ The proposed 7-hour allocation is a planning estimate. It must be checked agains
 - [ ] Lab dependencies and telemetry are verified or clearly marked unavailable.
 - [ ] Safety, cleanup, and reset instructions are present for every hands-on activity.
 - [ ] Instructor and student materials are separated.
-- [ ] Independent Quality Reviewer review completed.
+- [x] Independent Quality Reviewer review completed (PASS WITH NOTES; 2026-11-10).
 - [ ] Project Owner approval recorded.
 
 **Prevention scope:** Distinguish passive Suricata alerting from inline IPS and pfSense firewall enforcement. The student exercise evaluates a reversible, isolated firewall-policy change or a tabletop policy simulation. Inline Suricata prevention is not assumed; it may be demonstrated only after package/version/interface support is verified and the instructor authorizes a rollback-tested change.
