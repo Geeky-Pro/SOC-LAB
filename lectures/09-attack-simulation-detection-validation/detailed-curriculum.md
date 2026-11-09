@@ -85,14 +85,16 @@ Before publication, the corresponding lab/scenario asset must add exact steps, t
 
 **Primary assessment evidence:** LAB-09-A, LAB-09-B — see the practical activity blueprint above and the [common SOC-LAB assessment rubric](../../curriculum/assessment-rubric.md).
 
-| Learning outcome | Lesson(s) introducing/practicing/assessing | Observable assessment evidence |
+| Learning outcome | Lesson mapping (I/P/A) | Observable assessment evidence |
 |---|---|---|
-| LO-09-01 | L09-01, L09-02 | Test plan with target allowlist, preconditions, stop conditions, cleanup, rollback, and approval. |
-| LO-09-02 | L09-03, L09-05 | Execution or supplied-evidence record with operator, timestamps, target, output, cleanup, deviations. |
-| LO-09-03 | L09-04 | Pre-execution expected telemetry matrix with source, event hypothesis, field assumptions, ATT&CK version. |
-| LO-09-04 | L09-05, L09-06 | Validation matrix separating execution, telemetry, parsing, search match, alert, prevention, and gaps. |
-| LO-09-05 | L09-04, L09-06 | Validation matrix separating execution, telemetry, parsing, search match, alert, prevention, and gaps. |
-| LO-09-06 | L09-02, L09-06 | Validation matrix separating execution, telemetry, parsing, search match, alert, prevention, and gaps. |
+| LO-09-01 | L09-01 (I/P), L09-02 (A) | Test plan with target allowlist, preconditions, stop conditions, cleanup, rollback, and approval. |
+| LO-09-02 | L09-03 (I/P), L09-05 (A) | Execution or supplied-evidence record with operator, timestamps, target, output, cleanup, deviations. |
+| LO-09-03 | L09-04 (I/P/A) | Pre-execution expected telemetry matrix with source, event hypothesis, field assumptions, ATT&CK version. |
+| LO-09-04 | L09-05 (I/P), L09-06 (A) | Validation matrix separating execution, telemetry, parsing, search match, alert, prevention, and gaps. |
+| LO-09-05 | L09-04 (I/P), L09-06 (A) | Validation matrix separating execution, telemetry, parsing, search match, alert, prevention, and gaps. |
+| LO-09-06 | L09-02 (I/P), L09-06 (A) | Validation matrix separating execution, telemetry, parsing, search match, alert, prevention, and gaps. |
+
+**Mapping legend:** I = introduces the outcome; P = provides guided/independent practice; A = contains the observable assessment evidence. A single-lesson outcome is marked I/P/A in that lesson. These labels are the proposed instructional design and must be confirmed when the lecture and lab assets are authored.
 
 Assessment conditions:
 - The student brief must state permitted dataset/environment, time limit, allowed references, and submission format before delivery.
