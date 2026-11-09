@@ -10,7 +10,7 @@ SOC-LAB is being reorganized around a competency-based curriculum, reproducible 
 
 - [Project charter](governance/project-charter.md)
 - [Repository architecture](governance/architecture/repository-architecture.md)
-- [Curriculum overview](curriculum/curriculum-overview.md) — planned for a later implementation phase
+- [AI system architecture](governance/architecture/ai-system-architecture.md)
 - [Archive](Archive/README.md) — historical material retained for review and controlled reuse
 
 ## AI-assisted content workflow
@@ -20,7 +20,7 @@ The project is designed around two complementary AI roles:
 1. **SOC-LAB Content Engineer** — drafts and improves instructional and technical materials.
 2. **SOC-LAB Quality Reviewer** — independently reviews accuracy, safety, reproducibility, and instructional quality.
 
-AI-generated content is not automatically approved. The Project Owner retains final approval authority. See [AI system architecture](governance/architecture/ai-system-architecture.md).
+AI-generated content is not automatically approved. The Project Owner retains final approval authority.
 
 ## Content lifecycle
 
@@ -36,7 +36,7 @@ Content moves through: `planned` → `draft` → `in-review` → `approved` → 
 
 ## Project status
 
-The repository foundation is being established on the `architecture/v2-foundation` branch. The curriculum, AI agent definitions, skills, templates, and module content will be introduced in subsequent phases.
+The repository foundation is being established on the `architecture/v2-foundation` branch. Curriculum, AI agent definitions, skills, templates, and module content will be introduced in subsequent phases.
 
 ## Contributing
 
