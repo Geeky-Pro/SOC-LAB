@@ -19,12 +19,12 @@ By the end of this module, learners should be able to:
 
 | ID | Learning outcome | Lesson alignment | Evidence |
 |---|---|---|---|
-| LO-04-01 | Explain email delivery components and the purpose and limits of common authentication results. | L04-01, L04-02, L04-03, L04-04, L04-05, L04-06 | Practical artifact |
-| LO-04-02 | Parse message headers and reconstruct sender, relay, and timestamp context. | L04-01, L04-02, L04-03, L04-04, L04-05, L04-06 | Mapped lesson activity and assessment evidence |
-| LO-04-03 | Assess sender identity, URLs, domains, and message content using multiple independent indicators. | L04-01, L04-02, L04-03, L04-04, L04-05, L04-06 | Mapped lesson activity and assessment evidence |
-| LO-04-04 | Handle attachments and URLs safely using offline or controlled analysis methods. | L04-01, L04-02, L04-03, L04-04, L04-05, L04-06 | Mapped lesson activity and assessment evidence |
-| LO-04-05 | Determine likely phishing disposition, user exposure, and confidence without overclaiming attribution. | L04-01, L04-02, L04-03, L04-04, L04-05, L04-06 | Mapped lesson activity and assessment evidence |
-| LO-04-06 | Write a concise phishing investigation and user/operations recommendation. | L04-01, L04-02, L04-03, L04-04, L04-05, L04-06 | Mapped lesson activity and assessment evidence |
+| LO-04-01 | Explain email delivery components and the purpose and limits of common authentication results. | L04-01, L04-02 | Header trace with Received-chain interpretation, authentication results, and trust limitations. |
+| LO-04-02 | Parse message headers and reconstruct sender, relay, and timestamp context. | L04-02, L04-05 | Phishing disposition with exposure, corroborating indicators, alternative explanation, and confidence. |
+| LO-04-03 | Assess sender identity, URLs, domains, and message content using multiple independent indicators. | L04-02, L04-03, L04-05 | Phishing disposition with exposure, corroborating indicators, alternative explanation, and confidence. |
+| LO-04-04 | Handle attachments and URLs safely using offline or controlled analysis methods. | L04-04, L04-06 | Mailpit local trace or supplied sanitized .eml analysis; state that simulation is not external delivery. |
+| LO-04-05 | Determine likely phishing disposition, user exposure, and confidence without overclaiming attribution. | L04-03, L04-04, L04-05, L04-06 | Mailpit local trace or supplied sanitized .eml analysis; state that simulation is not external delivery. |
+| LO-04-06 | Write a concise phishing investigation and user/operations recommendation. | L04-05, L04-06 | Mailpit local trace or supplied sanitized .eml analysis; state that simulation is not external delivery. |
 
 ## 4. Detailed lesson sequence
 
@@ -72,20 +72,34 @@ By the end of this module, learners should be able to:
 
 ## 5. Practical learning activities
 
-Analyze sanitized email headers, defanged URLs, and inert attachment metadata; optional Mailpit local mail exercise.
+The following are curriculum-level activity blueprints, not final student lab instructions. Convert each activity into its module-specific lab/scenario asset before delivery.
 
-Activities must be delivered only within the authorized lab or with instructor-provided sanitized/synthetic artifacts. If required telemetry is unavailable, disclose the substitution and its limitations.
+| Activity ID | Learner task | Required input / environment | Expected output | Safety, cleanup, and recovery |
+|---|---|---|---|---|
+| LAB-04-A | Analyze sanitized .eml files, headers, URLs, and inert attachment metadata. | Sanitized messages; offline text tools; no live browsing. | Header trace, authentication interpretation, URL table, artifact triage. | Do not open links or execute attachments; use defanged URLs and inert metadata. |
+| LAB-04-B | Trace a benign message through optional Mailpit or a supplied capture. | Mailpit local-only instance or supplied message artifact. | Message trace and phishing disposition report. | Mailpit must remain local and non-relaying; verify no outbound SMTP route. |
+
+Before publication, the corresponding lab/scenario asset must add exact steps, tested versions, instructor preparation, troubleshooting, reset procedure, expected outputs, and evidence-capture instructions. If a telemetry source is unavailable, use a clearly labeled instructor-provided dataset and record the substitution.
 
 ## 6. Assessment plan
 
-**Primary assessment evidence:** Header analysis, indicator assessment, safe-handling record, verdict, confidence, and user guidance.
+**Primary assessment evidence:** LAB-04-A, LAB-04-B — see the practical activity blueprint above and the [common SOC-LAB assessment rubric](../../curriculum/assessment-rubric.md).
 
-Assessment design rules:
-- Map every scored task to one or more LO identifiers.
-- Require source references, timestamps where available, reasoning, limitations, and uncertainty.
-- Score analytical process and evidence quality, not merely the final verdict.
-- Do not require a single severity/verdict when multiple evidence-supported conclusions are reasonable.
-- Keep instructor answer keys separate from student-facing instructions.
+| Learning outcome | Lesson(s) introducing/practicing/assessing | Observable assessment evidence |
+|---|---|---|
+| LO-04-01 | L04-01, L04-02 | Header trace with Received-chain interpretation, authentication results, and trust limitations. |
+| LO-04-02 | L04-02, L04-05 | Phishing disposition with exposure, corroborating indicators, alternative explanation, and confidence. |
+| LO-04-03 | L04-02, L04-03, L04-05 | Phishing disposition with exposure, corroborating indicators, alternative explanation, and confidence. |
+| LO-04-04 | L04-04, L04-06 | Mailpit local trace or supplied sanitized .eml analysis; state that simulation is not external delivery. |
+| LO-04-05 | L04-03, L04-04, L04-05, L04-06 | Mailpit local trace or supplied sanitized .eml analysis; state that simulation is not external delivery. |
+| LO-04-06 | L04-05, L04-06 | Mailpit local trace or supplied sanitized .eml analysis; state that simulation is not external delivery. |
+
+Assessment conditions:
+- The student brief must state permitted dataset/environment, time limit, allowed references, and submission format before delivery.
+- Score only rubric criteria relevant to the outcomes assessed; weighting and pass threshold remain pending Project Owner decision.
+- Require source/time references, reasoning, alternatives, uncertainty, and limitations where relevant.
+- Identify individual versus team-produced evidence; team output alone does not establish individual mastery.
+- Keep instructor answer keys and expected reasoning separate from student-facing materials.
 
 ## 7. Lab and resource dependencies
 
@@ -118,7 +132,7 @@ The proposed 7-hour allocation is a planning estimate. It must be checked agains
 
 ## 11. References
 
-Use authoritative, versioned sources appropriate to the lesson. Record the publication/version and access date during content development. Do not add references that were not consulted or that do not support the relevant claims.
+Use the lesson-mapped [Module Reference Catalog](../../curriculum/references/module-reference-catalog.md) as the research starting point. During lesson production, record the exact page/edition and access date for every technical claim. The catalog does not imply that lab-specific versions or configurations have been validated.
 
 ## 12. Change history
 
