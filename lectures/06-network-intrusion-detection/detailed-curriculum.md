@@ -25,7 +25,6 @@ By the end of this module, learners should be able to:
 | LO-06-04 | Validate an alert against packet and environmental context and identify likely false positives. | L06-04, L06-06 | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
 | LO-06-05 | Explain rule tuning, suppression, updates, and change-control considerations. | L06-05, L06-06 | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
 | LO-06-07 | Evaluate a prevention control decision, verify an authorized lab-only effect, and document impact and rollback requirements. | L06-01, L06-03, L06-05, L06-06 | Prevention decision record, allowed/denied flow test evidence, rollback and verification record. |
-| LO-06-07 | Evaluate a prevention control decision, verify an authorized lab-only effect, and document impact and rollback requirements. | L06-01, L06-03, L06-05, L06-06 | Prevention decision record, allowed/denied flow test evidence, rollback and verification record. |
 | LO-06-06 | Document detection test outcomes separately from telemetry visibility and analyst conclusions. | L06-06 | Validation report separating traffic generated, sensor visibility, alert generation, and prevention result. |
 
 ## 4. Detailed lesson sequence
