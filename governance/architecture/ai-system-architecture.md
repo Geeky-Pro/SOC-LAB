@@ -6,17 +6,30 @@ The project uses two focused AI roles rather than a large collection of narrowly
 
 ### SOC-LAB Content Engineer
 
-Responsible for drafting, organizing, and improving curriculum and learning assets: lectures, slides, labs, scenarios, installation guides, instructor/student materials, assessments, diagrams, and supporting documentation.
+Defined in `.github/agents/soc-lab-content-engineer.agent.md`. Responsible for drafting, organizing, and improving curriculum and learning assets: lectures, slides, labs, scenarios, installation guides, instructor/student materials, assessments, diagrams, and supporting documentation.
 
 ### SOC-LAB Quality Reviewer
 
-Responsible for independent review of technical accuracy, safety, reproducibility, instructional quality, completeness, references, and consistency. It reports evidence and findings; it does not silently rewrite and approve its own review target.
+Defined in `.github/agents/soc-lab-quality-reviewer.agent.md`. Responsible for independent review of technical accuracy, safety, reproducibility, instructional quality, completeness, references, and consistency. It reports evidence and findings; it does not silently rewrite and approve its own review target.
 
 ## Skills
 
 Reusable skills provide task-specific methods and checklists. They should be composable and discoverable, with a clear `SKILL.md` entry point and supporting references, templates, or examples where justified.
 
-Initial skill candidates include curriculum design, lecture development, slide development, lab development, installation documentation, scenario development, instructor/student material development, visual and diagram development, assessment development, security validation, technical documentation, and quality review.
+Skills are not additional agents. An agent reads and applies a relevant skill when the task requires it. Skills should contain reusable procedures/checklists; agent definitions establish role, authority, workflow, and boundaries; prompts provide task-specific starting instructions; path-scoped instructions provide format/domain rules. Avoid copying the same long procedure into all four layers.
+
+Initial skill candidates include curriculum design, lecture development, slide development, lab development, installation documentation, scenario development, instructor/student material development, visual and diagram development, assessment development, security validation, technical documentation, and quality review. Create only the skills that have a clear reusable method and meaningful benefit.
+
+## Instruction layers
+
+1. Root `AGENTS.md`: repository-wide authority, safety, and working rules.
+2. `.github/copilot-instructions.md`: Copilot-specific project context and routing.
+3. `.github/instructions/*.instructions.md`: path-scoped authoring constraints.
+4. `.github/agents/*.agent.md`: focused role definitions and authority boundaries.
+5. `.github/prompts/*.prompt.md`: repeatable task starters.
+6. `.agents/skills/*/SKILL.md`: reusable task methods and checklists.
+
+If instructions conflict, follow the higher-level governance and human Project Owner decisions. Provider-specific discovery behavior must be configured and verified rather than assumed.
 
 ## Authority boundaries
 
@@ -28,8 +41,12 @@ Initial skill candidates include curriculum design, lecture development, slide d
 
 ## Workflow
 
-Request → context inspection → draft → self-check → independent review → revision → Project Owner approval → release preparation.
+Request → context inspection → draft plan → authoring → author self-check → independent quality review → revision → re-review as needed → Project Owner approval → release preparation.
 
-## Implementation note
+A review status of PASS or PASS WITH NOTES is a recommendation, not approval. A practical lab execution record is separate evidence and must not be inferred from a documentation review.
 
-Agent definitions and provider-specific instructions belong under `.github/` where appropriate. Reusable skills belong under `.agents/skills/`. Provider-specific discovery behavior must be configured and verified rather than assumed.
+## Implementation status
+
+The initial GitHub Copilot agent definitions, repository instructions, path-scoped instructions, and prompt starters are maintained under `.github/`. Their presence in the repository does not prove that every Copilot client or third-party agent runtime discovers or enforces them identically. Verify behavior in the target environment.
+
+Reusable skills are intentionally a later implementation step. Their invocation and ownership boundaries are defined here to prevent duplication with agent and prompt instructions.
