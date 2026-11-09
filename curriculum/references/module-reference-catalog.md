@@ -20,8 +20,10 @@ Use these to frame security functions, workforce capabilities, incident terminol
 
 ## Module 02 — SOC Lab Architecture & Deployment
 Relevant lessons: L02-01 to L02-06.
-- VMware Workstation Pro documentation — https://docs.vmware.com/en/VMware-Workstation-Pro/
+- Broadcom: Installing VMware Workstation Pro — https://knowledge.broadcom.com/external/article/387947
+- Broadcom: Download and license VMware Desktop Hypervisor — https://knowledge.broadcom.com/external/article/368667
 - Netgate pfSense Documentation — https://docs.netgate.com/pfsense/en/latest/
+- Netgate package list (includes Suricata) — https://docs.netgate.com/pfsense/en/latest/packages/list.html
 - Splunk Enterprise documentation — https://help.splunk.com/en/splunk-enterprise
 - Splunk Search Tutorial — https://help.splunk.com/en/splunk-enterprise/search/search-tutorial/9.2/introduction/about-the-search-tutorial
 - Microsoft Sysmon overview — https://learn.microsoft.com/en-us/windows/security/operating-system-security/sysmon/overview
@@ -60,6 +62,7 @@ Check RFC status/updates during production. Distinguish packet visibility from a
 Relevant lessons: L06-01 to L06-06.
 - Suricata User Guide — https://docs.suricata.io/
 - Suricata rules documentation — https://docs.suricata.io/en/latest/rules/
+- Suricata EVE JSON output — https://docs.suricata.io/en/latest/output/eve/eve-json-output.html
 - Netgate pfSense Documentation — https://docs.netgate.com/pfsense/en/latest/
 Verify the current pfSense Suricata package documentation and supported IPS/inline mode for the exact pfSense release, interface, and platform. Do not infer prevention capability from alert-only telemetry.
 
