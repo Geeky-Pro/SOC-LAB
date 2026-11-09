@@ -19,12 +19,12 @@ By the end of this module, learners should be able to:
 
 | ID | Learning outcome | Lesson alignment | Evidence |
 |---|---|---|---|
-| LO-08-01 | Distinguish event, alert, investigation, suspected incident, and confirmed incident. | L08-01, L08-02, L08-03, L08-04, L08-05, L08-06 | Practical artifact |
-| LO-08-02 | Validate an incident hypothesis and define scope, facts, unknowns, and confidence. | L08-01, L08-02, L08-03, L08-04, L08-05, L08-06 | Mapped lesson activity and assessment evidence |
-| LO-08-03 | Classify and prioritize an incident using impact, scope, urgency, exposure, and confidence. | L08-01, L08-02, L08-03, L08-04, L08-05, L08-06 | Mapped lesson activity and assessment evidence |
-| LO-08-04 | Construct a source-referenced timeline and maintain evidence provenance. | L08-01, L08-02, L08-03, L08-04, L08-05, L08-06 | Mapped lesson activity and assessment evidence |
-| LO-08-05 | Compare proportionate containment, eradication, and recovery options with authority, impact, rollback, and verification. | L08-01, L08-02, L08-03, L08-04, L08-05, L08-06 | Mapped lesson activity and assessment evidence |
-| LO-08-06 | Communicate status, escalate, maintain an incident record, and identify measurable improvements. | L08-01, L08-02, L08-03, L08-04, L08-05, L08-06 | Mapped lesson activity and assessment evidence |
+| LO-08-01 | Distinguish event, alert, investigation, suspected incident, and confirmed incident. | L08-01, L08-02 | Incident intake, scope, severity/priority rationale, confidence, and escalation record. |
+| LO-08-02 | Validate an incident hypothesis and define scope, facts, unknowns, and confidence. | L08-02, L08-03, L08-06 | Tabletop incident record, team decision log, inject responses, individual rationale, and after-action review. |
+| LO-08-03 | Classify and prioritize an incident using impact, scope, urgency, exposure, and confidence. | L08-02, L08-06 | Tabletop incident record, team decision log, inject responses, individual rationale, and after-action review. |
+| LO-08-04 | Construct a source-referenced timeline and maintain evidence provenance. | L08-03, L08-06 | Tabletop incident record, team decision log, inject responses, individual rationale, and after-action review. |
+| LO-08-05 | Compare proportionate containment, eradication, and recovery options with authority, impact, rollback, and verification. | L08-04, L08-06 | Tabletop incident record, team decision log, inject responses, individual rationale, and after-action review. |
+| LO-08-06 | Communicate status, escalate, maintain an incident record, and identify measurable improvements. | L08-05, L08-06 | Tabletop incident record, team decision log, inject responses, individual rationale, and after-action review. |
 
 ## 4. Detailed lesson sequence
 
@@ -72,20 +72,34 @@ By the end of this module, learners should be able to:
 
 ## 5. Practical learning activities
 
-Suspicious Web Server Activity tabletop using synthetic or verified sanitized evidence; response decisions remain instructor-controlled.
+The following are curriculum-level activity blueprints, not final student lab instructions. Convert each activity into its module-specific lab/scenario asset before delivery.
 
-Activities must be delivered only within the authorized lab or with instructor-provided sanitized/synthetic artifacts. If required telemetry is unavailable, disclose the substitution and its limitations.
+| Activity ID | Learner task | Required input / environment | Expected output | Safety, cleanup, and recovery |
+|---|---|---|---|---|
+| LAB-08-A | Run a staged suspicious-web-activity tabletop and make response decisions. | Instructor-controlled inject pack and sanitized evidence. | Incident record, severity rationale, timeline, response decision log, stakeholder update. | No real containment; recommendations only unless instructor authorizes reversible lab demonstration. |
+| LAB-08-B | Complete an after-action review and improvement plan. | Tabletop records and incident templates. | Closure criteria, lessons learned, prioritized corrective actions. | Keep personal information out; label assumptions and simulated decisions. |
+
+Before publication, the corresponding lab/scenario asset must add exact steps, tested versions, instructor preparation, troubleshooting, reset procedure, expected outputs, and evidence-capture instructions. If a telemetry source is unavailable, use a clearly labeled instructor-provided dataset and record the substitution.
 
 ## 6. Assessment plan
 
-**Primary assessment evidence:** Triage note, severity rationale, evidence matrix, decision log, situation report, incident record, and after-action items.
+**Primary assessment evidence:** LAB-08-A, LAB-08-B — see the practical activity blueprint above and the [common SOC-LAB assessment rubric](../../curriculum/assessment-rubric.md).
 
-Assessment design rules:
-- Map every scored task to one or more LO identifiers.
-- Require source references, timestamps where available, reasoning, limitations, and uncertainty.
-- Score analytical process and evidence quality, not merely the final verdict.
-- Do not require a single severity/verdict when multiple evidence-supported conclusions are reasonable.
-- Keep instructor answer keys separate from student-facing instructions.
+| Learning outcome | Lesson(s) introducing/practicing/assessing | Observable assessment evidence |
+|---|---|---|
+| LO-08-01 | L08-01, L08-02 | Incident intake, scope, severity/priority rationale, confidence, and escalation record. |
+| LO-08-02 | L08-02, L08-03, L08-06 | Tabletop incident record, team decision log, inject responses, individual rationale, and after-action review. |
+| LO-08-03 | L08-02, L08-06 | Tabletop incident record, team decision log, inject responses, individual rationale, and after-action review. |
+| LO-08-04 | L08-03, L08-06 | Tabletop incident record, team decision log, inject responses, individual rationale, and after-action review. |
+| LO-08-05 | L08-04, L08-06 | Tabletop incident record, team decision log, inject responses, individual rationale, and after-action review. |
+| LO-08-06 | L08-05, L08-06 | Tabletop incident record, team decision log, inject responses, individual rationale, and after-action review. |
+
+Assessment conditions:
+- The student brief must state permitted dataset/environment, time limit, allowed references, and submission format before delivery.
+- Score only rubric criteria relevant to the outcomes assessed; weighting and pass threshold remain pending Project Owner decision.
+- Require source/time references, reasoning, alternatives, uncertainty, and limitations where relevant.
+- Identify individual versus team-produced evidence; team output alone does not establish individual mastery.
+- Keep instructor answer keys and expected reasoning separate from student-facing materials.
 
 ## 7. Lab and resource dependencies
 
@@ -118,7 +132,7 @@ The proposed 8-hour allocation is a planning estimate. It must be checked agains
 
 ## 11. References
 
-Use authoritative, versioned sources appropriate to the lesson. Record the publication/version and access date during content development. Do not add references that were not consulted or that do not support the relevant claims.
+Use the lesson-mapped [Module Reference Catalog](../../curriculum/references/module-reference-catalog.md) as the research starting point. During lesson production, record the exact page/edition and access date for every technical claim. The catalog does not imply that lab-specific versions or configurations have been validated.
 
 ## 12. Change history
 
