@@ -77,7 +77,7 @@ All attack simulation stays within the authorized isolated lab. No public target
 
 ## 9. Review and validation status
 - Curriculum design: draft, revision 0.3.
-- Independent review of revision 0.3: pending.
+- Independent re-review of revision 0.3: PASS WITH NOTES (2026-11-10); Project Owner approval pending.
 - Technical lab validation: not performed by this design.
 - Classroom pilot: not conducted.
 - Project Owner approval: pending.
