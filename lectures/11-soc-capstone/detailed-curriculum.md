@@ -76,14 +76,16 @@ Before delivery, the instructor must verify that each case variant provides a fa
 
 **Primary assessment evidence:** CAP-11-A — complete individual case package, scored with the [common SOC-LAB assessment rubric](../../curriculum/assessment-rubric.md).
 
-| Learning outcome | Lesson(s) introducing/practicing/assessing | Observable assessment evidence |
+| Learning outcome | Lesson mapping (I/P/A) | Observable assessment evidence |
 |---|---|---|
-| LO-11-01 | L11-01, L11-02 | Investigation plan and scope statement, including permitted sources, boundaries, and initial hypotheses. |
-| LO-11-02 | L11-02 | Individual evidence matrix and journal with source identifiers, timestamps, provenance, and interpretation. |
-| LO-11-03 | L11-02 | Hypothesis register showing supporting/contradicting evidence, alternatives, confidence, and priority rationale. |
-| LO-11-04 | L11-03 | Detection/telemetry assessment separating source visibility, parsing, search/detection behavior, and unvalidated gaps. |
-| LO-11-05 | L11-03, L11-04 | Response/recovery decision log with authority, impact, rollback, verification, and residual risk. |
-| LO-11-06 | L11-04, L11-05 | Complete incident package, oral briefing, Q&A response, and individual reflection. |
+| LO-11-01 | L11-01 (I/P), L11-02 (A) | Investigation plan and scope statement, including permitted sources, boundaries, and initial hypotheses. |
+| LO-11-02 | L11-02 (I/P/A) | Individual evidence matrix and journal with source identifiers, timestamps, provenance, and interpretation. |
+| LO-11-03 | L11-02 (I/P/A) | Hypothesis register showing supporting/contradicting evidence, alternatives, confidence, and priority rationale. |
+| LO-11-04 | L11-03 (I/P/A) | Detection/telemetry assessment separating source visibility, parsing, search/detection behavior, and unvalidated gaps. |
+| LO-11-05 | L11-03 (I/P), L11-04 (A) | Response/recovery decision log with authority, impact, rollback, verification, and residual risk. |
+| LO-11-06 | L11-04 (I/P), L11-05 (A) | Complete incident package, oral briefing, Q&A response, and individual reflection. |
+
+**Mapping legend:** I = introduces the outcome; P = provides guided/independent practice; A = contains the observable assessment evidence. A single-lesson outcome is marked I/P/A in that lesson. These labels are proposed instructional design and must be confirmed when lecture and lab assets are authored.
 
 Assessment conditions:
 - Individual competence must be evidenced separately even if learners discuss approaches in teams.
