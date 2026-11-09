@@ -33,42 +33,42 @@ By the end of this module, learners should be able to:
 - **Duration:** 75 minutes
 - **Core content:** Windows logs; channels; event schema; Security auditing; Sysmon purpose/configuration; collection limitations.
 - **Learning activity:** Map questions to relevant telemetry sources.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed map questions to relevant telemetry sources artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L03-02 — Process execution, parent-child relationships, and command lines
 
 - **Duration:** 90 minutes
 - **Core content:** Process creation; image path; hashes; parent process; user/session; command-line context; normal administration.
 - **Learning activity:** Analyze a synthetic process tree and identify anomalies.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed analyze a synthetic process tree and identify anomalies artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L03-03 — Logon, privilege, service, and scheduled execution signals
 
 - **Duration:** 90 minutes
 - **Core content:** Authentication context; logon types; account activity; services/tasks as persistence concepts; audit gaps.
 - **Learning activity:** Build an account/process timeline and assess alternative causes.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed build an account/process timeline and assess alternative causes artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L03-04 — File, registry, script, and network activity
 
 - **Duration:** 90 minutes
 - **Core content:** File creation/modification; registry telemetry; PowerShell/script signals; process network connections; Sysmon coverage limits.
 - **Learning activity:** Pivot between related events and distinguish evidence from inference.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed pivot between related events and distinguish evidence from inference artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L03-05 — Endpoint investigation in Splunk Enterprise
 
 - **Duration:** 75 minutes
 - **Core content:** Search workflow; time bounds; field validation; pivots; event grouping; saved searches.
 - **Learning activity:** Investigate a prepared dataset using discovered fields, not assumed schema.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed investigate a prepared dataset using discovered fields, not assumed schema artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L03-06 — Endpoint case investigation and reporting
 
 - **Duration:** 60 minutes
 - **Core content:** Hypothesis testing; timeline; scope; confidence; escalation; handoff.
 - **Learning activity:** Complete an endpoint case pack and peer review.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed complete an endpoint case pack and peer review artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ## 5. Practical learning activities
 
