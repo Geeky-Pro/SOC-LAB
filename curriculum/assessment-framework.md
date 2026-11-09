@@ -1,41 +1,33 @@
 # Assessment Framework
 
-> **Status:** draft — policy to be finalized
+> **Status:** draft — policy to be finalized.
 
 ## Purpose
 Assess whether learners can explain SOC concepts, collect and interpret evidence, investigate alerts, validate hypotheses, make proportionate response decisions, and communicate findings.
 
 ## Assessment layers
-
 | Layer | Purpose | Examples |
 |---|---|---|
-| Diagnostic | Identify prior knowledge and gaps | Baseline quiz, discussion |
-| Formative | Check understanding during instruction | Knowledge checks, lab checkpoints |
-| Practical | Verify hands-on capability | Endpoint, network, email, IDS, web investigation |
-| Scenario-based | Assess cross-domain reasoning | Operation Shadow Access |
-| Summative | Assess integrated performance | SOC Capstone |
+| Diagnostic | Identify prior knowledge and gaps | Entry diagnostic and [Learner Readiness Checklist](learner-readiness-checklist.md) |
+| Formative | Check understanding during instruction | Knowledge checks, guided case notes, lab checkpoints |
+| Practical | Verify hands-on capability | Endpoint, email, network, IDS, web, and lab-validation artifacts |
+| Scenario-based | Assess cross-domain reasoning | Incident-response tabletop and Operation Shadow Access |
+| Summative | Assess integrated performance | Individual SOC Capstone package and briefing |
+
+## Common rubric
+Use the [SOC-LAB Assessment Rubric](assessment-rubric.md) as the common performance-descriptor baseline. Each module identifies only criteria relevant to its outcomes. The rubric remains draft until Project Owner approval.
 
 ## Design rules
-- Map each assessment to measurable learning outcomes.
+- Map every assessment task to explicit LO IDs and lesson IDs.
 - Assess observable evidence and reasoning, not tool memorization alone.
-- State permitted resources, environment, time, submission format, and safety scope.
-- Use consistent rubrics and performance descriptors.
+- State permitted dataset/environment, time, submission format, individual/team status, and safety scope.
+- Give students the brief and rubric before assessment.
 - Distinguish evidence-based analysis from a correct guess.
-- Assess documentation, communication, and uncertainty handling where relevant.
-- Separate answer keys from student-facing materials.
-
-## Suggested rubric dimensions
-1. Scope awareness and safe handling.
-2. Evidence collection and source selection.
-3. Technical interpretation and accuracy.
-4. Hypothesis development and testing.
-5. Cross-source correlation and timeline construction.
-6. Severity assessment and response decisions.
-7. Documentation and communication.
-8. Validation, limitations, and lessons learned.
+- Assess documentation, communication, uncertainty, and validation limits where relevant.
+- Separate instructor answer keys from student-facing materials.
 
 ## Evidence expectations
-Submissions should identify what was observed and where, relevant timestamps/fields, how evidence supports or contradicts a hypothesis, alternative explanations, remaining uncertainty, and recommended action.
+Submissions identify what was observed and where, relevant timestamps/fields, how evidence supports or contradicts a hypothesis, alternatives, uncertainty, and recommended action. Distinguish captured, synthetic, simulated, inferred, and runtime-validated material.
 
-## Open decisions
-Assessment weighting, passing threshold, individual/group rules, time limits, retake/remediation policy, and evidence retention require instructor and Project Owner decisions.
+## Decisions reserved for Project Owner
+Assessment weighting, pass threshold, individual/group rules, time limits, retake/remediation, accommodations, evidence retention, and progression requirements.
