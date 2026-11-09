@@ -33,42 +33,42 @@ By the end of this module, learners should be able to:
 - **Duration:** 60 minutes
 - **Core content:** SMTP flow; envelope versus header; MIME; spoofing, impersonation, credential lures, malicious links/attachments.
 - **Learning activity:** Label message components and classify threat patterns.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed label message components and classify threat patterns artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L04-02 — Header analysis and sender authentication
 
 - **Duration:** 90 minutes
 - **Core content:** Received chain; Message-ID; Return-Path; From/Reply-To; SPF/DKIM/DMARC outcomes and limitations.
 - **Learning activity:** Parse a sanitized header and explain trust gaps.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed parse a sanitized header and explain trust gaps artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L04-03 — URL, domain, and infrastructure assessment
 
 - **Duration:** 75 minutes
 - **Core content:** URL components; redirects; lookalike domains; DNS context; reputation caveats; safe browsing controls.
 - **Learning activity:** Analyze defanged URLs and record observable indicators.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed analyze defanged urls and record observable indicators artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L04-04 — Attachment triage and safe artifact handling
 
 - **Duration:** 75 minutes
 - **Core content:** File types; hashes; metadata; archive risks; sandbox concepts; no execution on host.
 - **Learning activity:** Classify inert sample metadata and propose safe next steps.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed classify inert sample metadata and propose safe next steps artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L04-05 — Email investigation workflow and disposition
 
 - **Duration:** 75 minutes
 - **Core content:** Correlating artifacts; user interaction; scope; confidence; false positives; escalation.
 - **Learning activity:** Investigate a synthetic phishing report.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed investigate a synthetic phishing report artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L04-06 — Mailpit-based local exercise and case report
 
 - **Duration:** 45 minutes
 - **Core content:** Optional local mail capture; controlled test messages; evidence and reporting.
 - **Learning activity:** Trace a benign test message and distinguish simulation from real delivery.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed trace a benign test message and distinguish simulation from real delivery artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ## 5. Practical learning activities
 
