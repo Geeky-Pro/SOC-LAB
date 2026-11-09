@@ -20,11 +20,12 @@ By the end of this module, learners should be able to:
 | ID | Learning outcome | Lesson alignment | Evidence |
 |---|---|---|---|
 | LO-10-01 | Define investigation scope and competing hypotheses from an ambiguous initial alert. | L10-01, L10-05 | Normalized timeline and hypothesis disposition using endpoint, network, web, SIEM, and sanitized email evidence. |
-| LO-10-02 | Collect and correlate endpoint, network, IDS, web, and SIEM evidence using source-aware methods. | L10-02, L10-03, L10-04, L10-05 | Normalized timeline and hypothesis disposition using endpoint, network, web, SIEM, and sanitized email evidence. |
+| LO-10-02 | Collect and correlate endpoint, email, network, IDS, web, and SIEM evidence using source-aware methods. | L10-02, L10-03, L10-04, L10-05 | Evidence matrix with artifact identifiers, source provenance, timestamps, and cross-source pivots. |
 | LO-10-03 | Construct a normalized timeline and distinguish observed facts from inferred stages. | L10-05 | Normalized timeline and hypothesis disposition using endpoint, network, web, SIEM, and sanitized email evidence. |
 | LO-10-04 | Assess attack progression, affected assets, potential impact, and confidence without unsupported attribution. | L10-02, L10-03, L10-04, L10-05 | Normalized timeline and hypothesis disposition using endpoint, network, web, SIEM, and sanitized email evidence. |
 | LO-10-05 | Evaluate detection coverage and identify visibility or validation gaps. | L10-05, L10-07 | Detection/telemetry gap matrix and after-action recommendations with evidence provenance. |
 | LO-10-06 | Recommend proportionate response actions and communicate a defensible incident assessment. | L10-06 | Incident assessment, response decision log, and technical/stakeholder briefing. |
+| LO-10-07 | Interpret sanitized email evidence and correlate sender/header/URL observations with the wider case while stating authentication and attribution limits. | L10-01, L10-05 | Email artifact analysis linked to the unified timeline and hypothesis register. |
 
 ## 4. Detailed lesson sequence
 
@@ -33,49 +34,49 @@ By the end of this module, learners should be able to:
 - **Duration:** 60 minutes
 - **Core content:** Scenario brief; assets; evidence availability; scope boundaries; hypothesis register.
 - **Learning activity:** Create investigation plan and initial hypotheses.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed create investigation plan and initial hypotheses artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L10-02 — Endpoint evidence investigation
 
 - **Duration:** 90 minutes
 - **Core content:** Process ancestry; logon; script/process activity; host timeline.
 - **Learning activity:** Produce endpoint findings with source references.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed produce endpoint findings with source references artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L10-03 — Network and IDS evidence investigation
 
 - **Duration:** 90 minutes
 - **Core content:** PCAP/flow; firewall events; Suricata alerts; corroboration and alert limits.
 - **Learning activity:** Correlate network activity and assess alert significance.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed correlate network activity and assess alert significance artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L10-04 — Web evidence and request reconstruction
 
 - **Duration:** 75 minutes
 - **Core content:** Access logs; request sequences; response codes; impact indicators.
 - **Learning activity:** Reconstruct web activity and alternative explanations.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed reconstruct web activity and alternative explanations artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L10-05 — Cross-source timeline, email evidence, and hypothesis testing
 
 - **Duration:** 105 minutes
 - **Core content:** Time normalization; entity pivots; sanitized .eml/header/URL evidence; contradictions; confidence; ATT&CK mapping only when supported.
 - **Learning activity:** Build unified timeline and hypothesis disposition across endpoint, network, web, SIEM, and email evidence.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed build unified timeline and hypothesis disposition across endpoint, network, web, siem, and email evidence artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L10-06 — Response decision and stakeholder briefing
 
 - **Duration:** 90 minutes
 - **Core content:** Severity; containment trade-offs; residual risk; situation report; executive briefing.
 - **Learning activity:** Present evidence-led incident assessment.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed present evidence-led incident assessment artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L10-07 — Detection coverage and lessons learned
 
 - **Duration:** 90 minutes
 - **Core content:** Scenario versus telemetry versus detection versus validation; improvements.
 - **Learning activity:** Submit gap analysis and after-action review.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed submit gap analysis and after-action review artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ## 5. Practical learning activities
 
