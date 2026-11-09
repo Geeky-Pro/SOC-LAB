@@ -12,6 +12,7 @@ Use MITRE ATT&CK as a shared vocabulary for adversary behaviors represented in S
 - Record the ATT&CK release/version when maintaining detailed mappings.
 - Do not claim detection merely because a technique appears in a scenario.
 - Separate scenario coverage, telemetry visibility, detection logic, and successful validation.
+- Do not force a mapping when the observed behavior is too generic or ambiguous.
 
 ## Coverage dimensions
 
@@ -26,8 +27,11 @@ Use MITRE ATT&CK as a shared vocabulary for adversary behaviors represented in S
 ## Candidate learning themes
 Suspicious process execution, script/interpreter activity, persistence indicators, credential-access signals, command-and-control-like network patterns, and web exploitation indicators may be considered where supported by the isolated lab. These are candidates, not approved technique mappings.
 
-## Locations
-Scenario-specific mappings belong with module scenarios. Shared detection validation evidence belongs in `detection-engineering/` and the relevant module validation record.
+## Locations and ownership
+- Scenario-specific mappings belong with module scenarios.
+- Shared detection specifications and validation records belong in [detection-engineering](../detection-engineering/README.md).
+- Source readiness and field assumptions belong in detection-engineering/data-sources/.
+- Shared validation methodology belongs in detection-engineering/validation/.
 
 ## Release criteria
-Each published mapping must include technique identifier/name, supporting scenario behavior, evidence source, ATT&CK version, and an accurate validation state.
+Each published mapping must include technique identifier/name, supporting scenario behavior, evidence source, ATT&CK version, and an accurate validation state. Report scenario coverage, telemetry visibility, detection availability, and validation separately.

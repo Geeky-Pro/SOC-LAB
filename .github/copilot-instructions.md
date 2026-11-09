@@ -3,7 +3,6 @@
 These instructions apply to GitHub Copilot throughout this repository. They complement, and do not replace, the root `AGENTS.md`.
 
 ## First read
-
 Before making substantive changes, inspect:
 1. `AGENTS.md`
 2. `governance/project-charter.md`
@@ -12,7 +11,6 @@ Before making substantive changes, inspect:
 5. The target module's README and existing files, if present
 
 ## Project context
-
 SOC-LAB is an instructor-led, hands-on SOC learning program. The curriculum is organized around 11 capability-based units, from SOC fundamentals through an integrated investigation and capstone. Module titles describe competencies, not vendor products.
 
 Current lab baseline:
@@ -27,17 +25,15 @@ Current lab baseline:
 Do not silently substitute Splunk ES, Wazuh, standalone Suricata, or any other optional component for the current baseline.
 
 ## Source of truth and file placement
-
 - Follow `governance/architecture/repository-architecture.md` and `governance/architecture/module-architecture.md`.
 - Shared lab infrastructure belongs in `lab-environment/`; module-specific exercises belong in `lectures/<module>/`.
 - Shared detection standards and reusable detections belong in `detection-engineering/`; module-specific detections stay with the module.
 - Shared response procedures belong in `incident-response/`; scenario-specific playbooks stay with the relevant module.
-- Canonical templates live in `templates/`. Do not create competing copies.
+- Canonical general templates live in `templates/`; detection specifications and test-record templates live in `detection-engineering/templates/`.
 - Reusable agent skills belong in `.agents/skills/`; provider-specific agent definitions and Copilot instructions belong in `.github/`.
 - Historical assets remain in `Archive/` until reviewed and deliberately promoted.
 
 ## Authoring rules
-
 - Use English `kebab-case` for paths and filenames.
 - Keep technical concepts vendor-neutral where possible; document tool-specific implementation separately.
 - Align learning content with measurable outcomes and assessments.
@@ -48,8 +44,16 @@ Do not silently substitute Splunk ES, Wazuh, standalone Suricata, or any other o
 - Keep attack simulations within the authorized isolated lab and document scope and impact.
 - Do not commit secrets, private information, malware samples, or unlicensed content.
 
-## Agent workflow
+## Detection engineering rules
+- Current SIEM baseline is Splunk Enterprise only; do not require Splunk Enterprise Security features.
+- Verify index, sourcetype, field names, event-time semantics, and source readiness against sanitized observed events. Never invent schema.
+- Document observable behavior, SPL assumptions, false positives, triage, limitations, and test cases.
+- Separate detection specification, Project Owner approval, implementation, and runtime validation.
+- Map to MITRE ATT&CK only when supported by behavior evidence and record the framework release/version.
+- A query that has not been executed is not a validated detection. Record the exact environment and tests actually run.
+- Follow `detection-engineering/standards/` and `.github/instructions/detections.instructions.md`.
 
+## Agent workflow
 - Use `.github/agents/soc-lab-content-engineer.agent.md` for drafting and content maintenance.
 - Use `.github/agents/soc-lab-quality-reviewer.agent.md` for independent review.
 - The Content Engineer must not self-approve.
@@ -59,5 +63,4 @@ Do not silently substitute Splunk ES, Wazuh, standalone Suricata, or any other o
 - Skills in `.agents/skills/` are reusable procedures. Read a skill's `SKILL.md` when its task applies; do not duplicate its full method in prompts or agent definitions.
 
 ## Change discipline
-
 Make focused changes. Inspect before editing. Preserve history. Validate links, formatting, and structure where possible. Report changed files, evidence, limitations, and decisions needed. Never merge or release without explicit authorization.
