@@ -33,42 +33,42 @@ By the end of this module, learners should be able to:
 - **Duration:** 60 minutes
 - **Core content:** Purple-team loop; ATT&CK as behavior vocabulary; simulation versus real attack; safety and scope.
 - **Learning activity:** Map a learning objective to a bounded test.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed map a learning objective to a bounded test artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L09-02 — Test planning, authorization, and safety controls
 
 - **Duration:** 75 minutes
 - **Core content:** Rules of engagement; target allowlist; preconditions; blast radius; snapshots; stop conditions; rollback.
 - **Learning activity:** Write and peer-review a test plan.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed write and peer-review a test plan artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L09-03 — Emulation frameworks and test-case selection
 
 - **Duration:** 75 minutes
 - **Core content:** Atomic Red Team concepts; Caldera concepts; prerequisites; test metadata; avoid tool-first learning.
 - **Learning activity:** Select a low-risk test and identify expected side effects.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed select a low-risk test and identify expected side effects artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L09-04 — Expected telemetry and detection hypothesis
 
 - **Duration:** 90 minutes
 - **Core content:** Behavior-to-source mapping; expected events; field validation; detection logic; ATT&CK mapping version.
 - **Learning activity:** Create an expected-versus-observed matrix before test.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed create an expected-versus-observed matrix before test artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L09-05 — Controlled execution and evidence capture
 
 - **Duration:** 90 minutes
 - **Core content:** Instructor-supervised execution; event collection; timestamps; cleanup; reset; no external targets.
 - **Learning activity:** Execute approved benign test or analyze instructor-captured evidence.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed execute approved benign test or analyze instructor-captured evidence artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L09-06 — Detection validation and gap analysis
 
 - **Duration:** 90 minutes
 - **Core content:** Behavior executed; telemetry visible; fields parsed; logic matched; alert delivered; limitations.
 - **Learning activity:** Complete validation report and recommend next action.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed complete validation report and recommend next action artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ## 5. Practical learning activities
 
