@@ -33,35 +33,35 @@ By the end of this module, learners should be able to:
 - **Duration:** 60 minutes
 - **Core content:** Assessment scope; permitted tools; evidence handling; submission requirements; fairness.
 - **Learning activity:** Confirm scope and submit investigation plan.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed confirm scope and submit investigation plan artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L11-02 — Independent investigation work period
 
 - **Duration:** 240 minutes
 - **Core content:** Student-led triage, collection, analysis, correlation, and hypothesis testing.
 - **Learning activity:** Maintain investigation journal and evidence matrix.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed maintain investigation journal and evidence matrix artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L11-03 — Response planning and detection assessment
 
 - **Duration:** 120 minutes
 - **Core content:** Severity; decision options; detection gaps; remediation and recovery verification.
 - **Learning activity:** Submit response plan and detection assessment.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed submit response plan and detection assessment artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L11-04 — Final report and technical briefing
 
 - **Duration:** 120 minutes
 - **Core content:** Executive summary; timeline; evidence; limitations; recommendations; Q&A.
 - **Learning activity:** Submit case package and deliver briefing.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed submit case package and deliver briefing artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ### L11-05 — Review, reflection, and remediation
 
 - **Duration:** 180 minutes
 - **Core content:** Rubric feedback; self-assessment; remediation planning; portfolio evidence.
 - **Learning activity:** Complete individual reflection and improvement plan.
-- **Evidence:** learner worksheet, notes, or practical artifact aligned to the lesson outcomes.
+- **Evidence:** Completed complete individual reflection and improvement plan artifact with source/time references, the learner's reasoning, and at least one stated limitation or uncertainty.
 
 ## 5. Practical learning activities
 
