@@ -20,8 +20,8 @@
 | Zone | Subnet | Main workload |
 |---|---|---|
 | Management | 10.0.10.0/24 | Controlled administration |
-| SOC | 10.0.20.0/24 | Splunk Enterprise and collectors |
-| DMZ | 10.0.30.0/24 | Ubuntu web server |
+| SOC | 10.0.30.0/24 | Splunk Enterprise and collectors |
+| DMZ | 10.0.20.0/24 | Ubuntu web server |
 | Endpoint | 10.0.40.0/24 | Windows + Sysmon |
 | Kali | 10.0.90.0/24 | Kali Linux |
 
