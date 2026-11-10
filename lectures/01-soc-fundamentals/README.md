@@ -65,4 +65,5 @@ See the [Module Reference Catalog](../../curriculum/references/module-reference-
 | Version | Date | Change | Status |
 |---|---|---|---|
 | 0.1 | 2026-11-10 | Initial module charter | Draft |
-| 0.2 | 2026-11-10 | Added lecture plan, six lesson content files, instructor/student guides, practical activities, and assessment brief | Draft |\n| 0.3 | 2026-11-10 | Added independent quality review (PASS WITH NOTES) and recorded public-repository instructor-material boundary | Draft |
+| 0.2 | 2026-11-10 | Added lecture plan, six lesson content files, instructor/student guides, practical activities, and assessment brief | Draft |
+| 0.3 | 2026-11-10 | Added independent quality review (PASS WITH NOTES) and recorded public-repository instructor-material boundary | Draft |
