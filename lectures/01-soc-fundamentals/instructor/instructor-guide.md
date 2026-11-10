@@ -100,16 +100,9 @@ No virtual machines, Splunk, or live systems are needed for Module 01.
 
 ### L01-06 — Integrated workshop
 
-Use the scenario's intended reasoning boundaries in the student guide and lesson file. Do not reveal the answer guidance before learners submit their individual work.
+Use the synthetic records and facilitation prompts in the student guide and lesson file. Do not reveal instructor debrief guidance before learners submit their individual work. The detailed answer key is intentionally excluded from this public repository.
 
-**Expected reasoning**
-- A-01: validate the success and source context; do not claim compromise.
-- A-02/A-06: the change record is relevant context but does not verify all task details.
-- A-03: 404 volume alone does not establish exploitation.
-- A-04: a denied connection is not proof of successful access.
-- A-05: known training file context is relevant; verify host and exercise alignment.
-
-## 6. Assessment guidance
+## 6. Instructor-material access boundary\n\nThe SOC-LAB GitHub repository is public. A folder named instructor/ does not provide access control. This guide is therefore a public-safe instructor guide and intentionally excludes protected answer keys and scoring solutions. Before student delivery, keep answer keys, assessment solutions, and unreleased instructor-only materials in a private repository or another access-controlled instructor distribution. Do not assume GitHub path placement hides content.\n\n## 7. Assessment guidance
 
 Use the common rubric in [curriculum/assessment-rubric.md](../../../curriculum/assessment-rubric.md). Assess only criteria relevant to Module 01:
 - Evidence provenance.
@@ -121,7 +114,7 @@ Use the common rubric in [curriculum/assessment-rubric.md](../../../curriculum/a
 
 Do not assign official grade weights or pass thresholds until the Project Owner approves them. Team products must be paired with individual triage rationale to establish individual understanding.
 
-## 7. Common misconceptions and remediation
+## 8. Common misconceptions and remediation
 
 | Misconception | How to identify it | Remediation |
 |---|---|---|
@@ -133,7 +126,7 @@ Do not assign official grade weights or pass thresholds until the Project Owner 
 | A hash proves chain of custody | Student overstates file-hash value | Explain integrity identifier versus provenance record |
 | A SOC analyst can isolate any host | Student proposes disruption without authority | Review role boundaries, approval, impact, and rollback |
 
-## 8. Debrief questions
+## 9. Debrief questions
 
 1. Which alert was easiest to misinterpret, and why?
 2. What fact most changed your initial assessment?
@@ -142,7 +135,7 @@ Do not assign official grade weights or pass thresholds until the Project Owner 
 5. How did your team separate confidence from impact?
 6. What would you put in a handoff so the next analyst does not repeat your work?
 
-## 9. Accessibility and learner support
+## 10. Accessibility and learner support
 
 - Define acronyms at first use.
 - Provide a glossary and worked example before independent work.
@@ -150,7 +143,7 @@ Do not assign official grade weights or pass thresholds until the Project Owner 
 - Offer additional time or an equivalent format where approved accommodations require it.
 - Use the readiness checklist to plan support, not to shame or exclude learners.
 
-## 10. Validation and revision record
+## 11. Validation and revision record
 
 - Content alignment: mapped to Module 01 outcomes and proposed 6-hour duration.
 - Synthetic data: authored for training; no real organizational data used.
