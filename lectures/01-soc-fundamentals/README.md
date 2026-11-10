@@ -2,7 +2,8 @@
 
 > **Status:** draft — pending module design and Project Owner approval  
 > **Module ID:** 01-soc-fundamentals  
-> **Curriculum version:** 0.4
+> **Package version:** 0.1  
+> **Curriculum baseline:** 0.3
 
 ## Purpose
 Introduce the SOC mission, roles, operating model, alert triage, prioritization, escalation, evidence handling, and analyst communication.
@@ -25,37 +26,31 @@ Introduce the SOC mission, roles, operating model, alert triage, prioritization,
 6. [L01-06 — Integrated triage workshop](content/l01-06-integrated-triage-workshop.md)
 
 ## Target audience
-Learners following the SOC-LAB program. Final entry level and prerequisites remain to be confirmed.
+Entry-level learners with general computer literacy. No prior SOC employment or security certification is required. Use the [learner readiness checklist](../../curriculum/learner-readiness-checklist.md) as a diagnostic and remediation aid.
 
-## Proposed learning outcomes
-By the end of this module, learners should be able to:
-- Explain SOC roles and workflows
-- classify and prioritize a basic alert
-- document triage reasoning
-- identify escalation criteria.
-
-These outcomes are preliminary and require measurable criteria and mapping to lessons and assessments.
+## Measurable learning outcomes
+The five measurable outcomes and their lesson/evidence mapping are defined in [detailed curriculum](detailed-curriculum.md): SOC mission and roles; event/alert/incident distinctions; repeatable triage; defensible prioritization and escalation; evidence-referenced analyst documentation.
 
 ## Prerequisites
-[To be finalized against `curriculum/prerequisite-map.md`.]
+None beyond general computer literacy. A diagnostic baseline is recommended; use the [learner readiness checklist](../../curriculum/learner-readiness-checklist.md) to identify support needs.
 
 ## Topics and teaching sequence
-[To be designed around the capability, not a vendor product.]
+See the [six-lesson plan](planning/lesson-plan.md) and lesson content above. The 360-minute sequence is tool-neutral.
 
 ## Practical activities
 Two synthetic tabletop activities are drafted: LAB-01-A (alert triage) and LAB-01-B (queue prioritization and handoff). They do not require the deployed VMware/Splunk environment.
 
 ## Assessment
-See [Module 01 practical assessment](assessments/module-01-practical-assessment.md) and the common rubric in `curriculum/assessment-rubric.md`. Weighting and pass threshold remain pending Project Owner decision.
+See [Module 01 practical assessment](assessments/module-01-practical-assessment.md) and the common rubric in [curriculum/assessment-rubric.md](../../curriculum/assessment-rubric.md). Weighting and pass threshold remain pending Project Owner decision.
 
 ## Module structure
-Create only required subdirectories, following `governance/architecture/module-architecture.md` and canonical templates in `templates/`.
+Create only required subdirectories, following [module architecture](../../governance/architecture/module-architecture.md) and canonical templates in [templates](../../templates/).
 
 ## Dependencies
-[Prior modules, lab components, telemetry, shared detections/procedures, references.]
+Module 01 requires no deployed SOC lab or SIEM. It uses synthetic evidence only. References are listed in the lesson materials and [Module Reference Catalog](../../curriculum/references/module-reference-catalog.md).
 
 ## References
-[Add authoritative sources during content development.]
+See the [Module Reference Catalog](../../curriculum/references/module-reference-catalog.md) and lesson-specific references.
 
 ## Validation and review
 - Authoring status: initial package drafted
@@ -70,3 +65,4 @@ Create only required subdirectories, following `governance/architecture/module-a
 | Version | Date | Change | Status |
 |---|---|---|---|
 | 0.1 | 2026-11-10 | Initial module charter | Draft |
+| 0.2 | 2026-11-10 | Added lecture plan, six lesson content files, instructor/student guides, practical activities, and assessment brief | Draft |
