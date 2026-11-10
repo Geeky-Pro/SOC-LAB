@@ -111,7 +111,7 @@ Use the scenario's intended reasoning boundaries in the student guide and lesson
 
 ## 6. Assessment guidance
 
-Use the common rubric in curriculum/assessment-rubric.md. Assess only criteria relevant to Module 01:
+Use the common rubric in [curriculum/assessment-rubric.md](../../../curriculum/assessment-rubric.md). Assess only criteria relevant to Module 01:
 - Evidence provenance.
 - Technical interpretation of the supplied records.
 - Hypothesis testing.
