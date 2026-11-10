@@ -97,15 +97,9 @@ A priority order supported by clear assumptions and evidence. Multiple orders ma
 
 No systems are changed. Reset by redistributing the four case cards and blank handoff worksheet.
 
-## 10. Instructor guidance
+## 10. Instructor facilitation
 
-Expected considerations:
-- Q-01 deserves rapid validation because a privileged account has an unrecognized successful sign-in context. Escalation to the identity/security lead is appropriate while validating the source.
-- Q-03 may also require rapid service-owner engagement because a critical customer-facing service is involved, even though maintenance is approved.
-- Q-02 appears lower urgency on the supplied facts but should still be validated.
-- Q-04 is likely routine closure after confirming the training context matches; retain the evidence and rationale.
-
-Accept different orderings when assumptions, impact, urgency, and confidence are explicit.
+Ask learners to explain their assumptions and distinguish confidence, impact, and urgency. Accept different priority orders when the reasoning is evidence-based and escalation triggers are explicit. Detailed answer keys are intentionally excluded from this public-facing lab file; keep them in an access-controlled instructor distribution.
 
 ## 11. Validation record
 
