@@ -1,6 +1,6 @@
 # SOC Fundamentals & Security Operations
 
-> **Status:** draft — initial teaching package authored; pending independent review and Project Owner approval  
+> **Status:** draft — initial teaching package reviewed with notes; pending Project Owner approval  
 > **Module ID:** 01-soc-fundamentals  
 > **Package version:** 0.2  
 > **Curriculum baseline:** 0.3
@@ -55,14 +55,14 @@ See the [Module Reference Catalog](../../curriculum/references/module-reference-
 ## Validation and review
 - Authoring status: initial package drafted
 - Static consistency checks: completed (lesson timing, outcome mapping, package links, and draft-state checks)
-- Independent Quality Reviewer: pending
+- Independent Quality Reviewer: PASS WITH NOTES — [review report](validation/2026-11-10-module-01-content-quality-review.md)
 - Classroom pilot: not performed
 - Live lab execution: not applicable for Module 01 tabletop exercises
-- Project Owner approval: pending
+- Project Owner approval: pending; reviewer status is not approval
 - Open decisions: cohort entry profile, assessment weighting/pass threshold, final delivery accommodations
 
 ## Change history
 | Version | Date | Change | Status |
 |---|---|---|---|
 | 0.1 | 2026-11-10 | Initial module charter | Draft |
-| 0.2 | 2026-11-10 | Added lecture plan, six lesson content files, instructor/student guides, practical activities, and assessment brief | Draft |
+| 0.2 | 2026-11-10 | Added lecture plan, six lesson content files, instructor/student guides, practical activities, and assessment brief | Draft |\n| 0.3 | 2026-11-10 | Added independent quality review (PASS WITH NOTES) and recorded public-repository instructor-material boundary | Draft |
