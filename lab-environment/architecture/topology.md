@@ -10,8 +10,8 @@ flowchart TB
   NAT["VMware NAT uplink"]
   FW["pfSense + integrated Suricata"]
   MGMT["Management 10.0.10.0/24"]
-  SOC["SOC 10.0.20.0/24"]
-  DMZ["DMZ 10.0.30.0/24"]
+  SOC["SOC 10.0.30.0/24"]
+  DMZ["DMZ 10.0.20.0/24"]
   ENDPOINT["Endpoint 10.0.40.0/24"]
   KALI["Kali 10.0.90.0/24"]
   SPLUNK["Splunk Enterprise"]
@@ -41,8 +41,8 @@ Dashed lines represent logical telemetry paths, not a confirmed protocol or port
 |---|---|---|
 | WAN | VMware NAT uplink | VMware-assigned |
 | MGMT | Management | 10.0.10.1/24 |
-| SOC | SOC | 10.0.20.1/24 |
-| DMZ | DMZ | 10.0.30.1/24 |
+| SOC | SOC | 10.0.30.1/24 |
+| DMZ | DMZ | 10.0.20.1/24 |
 | ENDPOINT | Endpoint | 10.0.40.1/24 |
 | KALI | Kali | 10.0.90.1/24 |
 
