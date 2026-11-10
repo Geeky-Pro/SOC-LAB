@@ -5,8 +5,8 @@
 | Zone | Network | Gateway | Suggested host |
 |---|---|---|---|
 | Management | 10.0.10.0/24 | 10.0.10.1 | Admin test host .10 if required |
-| SOC | 10.0.20.0/24 | 10.0.20.1 | Splunk .10 |
-| DMZ | 10.0.30.0/24 | 10.0.30.1 | Ubuntu web .10 |
+| SOC | 10.0.30.0/24 | 10.0.30.1 | Splunk .10 |
+| DMZ | 10.0.20.0/24 | 10.0.20.1 | Ubuntu web .10 |
 | Endpoint | 10.0.40.0/24 | 10.0.40.1 | Windows .10 |
 | Kali | 10.0.90.0/24 | 10.0.90.1 | Kali .10 |
 
