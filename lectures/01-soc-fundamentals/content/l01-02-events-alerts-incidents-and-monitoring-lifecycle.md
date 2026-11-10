@@ -102,13 +102,7 @@ For each item, choose the best label: event, indicator, alert, case, incident, o
 5. A company confirms unauthorized access and begins its incident-response process.
 6. After validating approved maintenance, the analyst concludes the unusual process was expected.
 
-**Instructor answer guide:**
-1. Event.
-2. Indicator (with source and confidence context required).
-3. Alert.
-4. Case.
-5. Incident (subject to the organization's incident definition).
-6. Finding/disposition; retain the evidence and rationale.
+**Instructor note:** The classification exercise is formative. Keep the worked answer key in the private instructor distribution, not in this public-facing lesson file.
 
 ## 8. Knowledge check
 
