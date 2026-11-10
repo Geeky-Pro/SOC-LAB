@@ -116,14 +116,9 @@ A complete triage record that:
 
 No systems are changed. Reset by providing a fresh copy of the synthetic evidence bundle and a blank worksheet.
 
-## 11. Instructor guidance
+## 11. Instructor facilitation
 
-Expected reasoning for A-01:
-- The failures and later success are observations.
-- Password guessing is possible, but user error and stale credentials remain alternatives.
-- The source identity and successful sign-in context are unknown.
-- The next action should validate source ownership and sign-in context.
-- Escalate sooner if the account is privileged, activity is ongoing, or additional evidence indicates unauthorized access.
+Use a think-aloud to model how to distinguish facts from hypotheses. Ask learners to identify what additional evidence would support or weaken each hypothesis. Detailed answer keys are intentionally excluded from this public-facing lab file; keep them in an access-controlled instructor distribution.
 
 ## 12. Validation record
 
