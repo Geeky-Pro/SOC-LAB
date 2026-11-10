@@ -93,16 +93,17 @@ The instructor reveals the intended reasoning boundaries, compares alternative d
 - One escalation/handoff message.
 - Individual reflection: one uncertainty and one next investigative action.
 
-## 7. Expected reasoning boundaries
+## 7. Instructor debrief boundary
 
-- A-01 warrants validation because failures are followed by success; compromise is not established without source and sign-in context.
-- A-02 may be expected because of A-06, but the change record alone does not prove every detail of the task was authorized.
-- A-03 requires application and request context; repeated 404 responses alone do not prove exploitation.
-- A-04 is a denied attempt; do not claim the destination was reached.
-- A-05 is consistent with a known training artifact, but learners should confirm that the host and exercise context match.
-- A-07 and A-08 are contextual records, not proof that the associated activity is safe.
+The instructor should evaluate whether learners:
+- Avoid claiming account compromise from failed sign-ins and a later success without source and sign-in context.
+- Treat an approved maintenance window as relevant context, not proof that every configuration detail was authorized.
+- Avoid claiming web exploitation from repeated 404 responses alone.
+- Understand that a denied connection does not prove the destination was reached.
+- Verify that the test-file and host context match before closing the related case.
+- Treat asset and identity records as context rather than proof that activity is safe.
 
-The instructor may accept different priority orders when the learner identifies the assumptions and explains the risk trade-offs.
+Detailed expected answers are intentionally not embedded in this public-facing exercise file. Store any protected answer key in an access-controlled instructor repository or private distribution.
 
 ## 8. Safety, cleanup, and reset
 
