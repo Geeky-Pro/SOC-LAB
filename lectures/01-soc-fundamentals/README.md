@@ -1,8 +1,8 @@
 # SOC Fundamentals & Security Operations
 
-> **Status:** draft — pending module design and Project Owner approval  
+> **Status:** draft — initial teaching package authored; pending independent review and Project Owner approval  
 > **Module ID:** 01-soc-fundamentals  
-> **Package version:** 0.1  
+> **Package version:** 0.2  
 > **Curriculum baseline:** 0.3
 
 ## Purpose
@@ -54,7 +54,7 @@ See the [Module Reference Catalog](../../curriculum/references/module-reference-
 
 ## Validation and review
 - Authoring status: initial package drafted
-- Static consistency checks: pending
+- Static consistency checks: completed (lesson timing, outcome mapping, package links, and draft-state checks)
 - Independent Quality Reviewer: pending
 - Classroom pilot: not performed
 - Live lab execution: not applicable for Module 01 tabletop exercises
