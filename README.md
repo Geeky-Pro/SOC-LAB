@@ -1,5 +1,7 @@
 # SOC-LAB
 
+> النسخة العربية من هذا المستودع قيد الإعداد في فرع `arabic-content`. تُضاف ترجمات الملفات بصيغة `*-ar.md` وفق سياسة تسمية الملفات؛ وتظل النسخ الإنجليزية مرجعاً مقابلاً.
+
 A structured, hands-on Security Operations Center (SOC) learning environment and curriculum.
 
 ## Project direction
