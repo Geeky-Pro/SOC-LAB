@@ -1,5 +1,7 @@
 # Student Guide — Module 01: SOC Fundamentals & Security Operations
 
+[النسخة العربية](./student-guide-ar.md)
+
 > **Status:** draft  
 > **Audience:** Student  
 > **Related assets:** lesson content L01-01 to L01-06  
