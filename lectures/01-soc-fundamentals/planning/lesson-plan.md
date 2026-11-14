@@ -1,5 +1,7 @@
 # Module 01 — Lecture Plan
 
+[الخطة باللغة العربية](lesson-plan-ar.md)
+
 > **Status:** draft — content-engineer working draft; not approved for delivery  
 > **Module:** 01-soc-fundamentals  
 > **Proposed contact time:** 6 hours (360 minutes)  
