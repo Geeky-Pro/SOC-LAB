@@ -1,5 +1,7 @@
 # Assessment — Incident Response Tabletop and Case Record
 
+[النسخة العربية](./incident-response-assessment-ar.md)
+
 > **Status:** draft  
 > **Assessment ID:** IR-ASSESS-01  
 > **Type:** team practical / individual reflection  
