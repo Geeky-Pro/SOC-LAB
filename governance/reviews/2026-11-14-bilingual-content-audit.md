@@ -18,7 +18,7 @@ The repository contains a substantial Arabic counterpart set, but bilingual cove
 | Arabic files without an English basename counterpart | 0 |
 | English files without an `-ar.md` counterpart | 81 |
 
-At the initial audit snapshot, 81 English files lacked a `-ar.md` counterpart: 16 active instructional documents, 24 agent/developer support documents, and 41 archived/historical documents. After the first remediation batch, nine Module 01 counterparts were added. The current snapshot is 318 Markdown files: 195 English-named files and 123 Arabic files; 72 English files still have no `-ar.md` counterpart. Of these, seven are active instructional documents, 24 are agent/developer support documents, and 41 are archived/historical documents.
+At the initial audit snapshot, 81 English files lacked a `-ar.md` counterpart: 16 active instructional documents, 24 agent/developer support documents, and 41 archived/historical documents. After remediation, the current snapshot is 325 Markdown files: 195 English-named files and 130 Arabic files. Sixty-five English files still have no `-ar.md` counterpart: 24 agent/developer support documents and 41 archived/historical documents; no active module teaching documents remain unmatched.
 
 ## 2. Audit method and limits
 
@@ -33,7 +33,7 @@ This is an initial structural and targeted parity audit. It is **not** a line-by
 
 ## 3. Missing Arabic counterparts — active instructional content
 
-At the initial audit snapshot, 16 active learner-facing or instructor-facing documents lacked the expected Arabic `-ar.md` counterpart. The nine Module 01 gaps listed below have since been translated. The seven remaining active gaps are in Module 08.
+At the initial audit snapshot, 16 active learner-facing or instructor-facing documents lacked the expected Arabic `-ar.md` counterpart: nine in Module 01 and seven in Module 08. All 16 have since been translated. The lists below are retained as a record of discovered and remediated gaps.
 
 ### Module 01 — SOC Fundamentals (9 files)
 
@@ -117,7 +117,7 @@ The lesson plan says independent review is pending. The package-level independen
 
 **Structural pairing:** strong but incomplete. At the initial audit snapshot, all 113 Arabic `-ar.md` files had an English basename counterpart.
 
-**Learner-facing bilingual completeness:** improved. The nine identified Module 01 gaps have been translated; seven active instructional documents remain without Arabic counterparts, all in Module 08.
+**Learner-facing bilingual completeness:** structural coverage is complete for active Markdown teaching assets in the modules; all active instructional files in the `lectures/` tree now have Arabic counterparts.
 
 **Semantic parity:** partially spot-checked only; not yet established across the repository.
 
@@ -133,6 +133,18 @@ The lesson plan says independent review is pending. The package-level independen
 - Updated the curriculum index and detailed curriculum status to reflect the existing v0.3 re-review result: PASS WITH NOTES, pending Project Owner decisions and approval.
 - Created an Arabic curriculum index that links to all 11 Arabic detailed-curriculum files.
 
-**Current inventory after remediation:** 349 repository files, 318 Markdown files, 195 English-named Markdown files, 123 Arabic `-ar.md` files, and 72 English Markdown files without a `-ar.md` counterpart. Seven active learner/instructor documents remain unmatched, all listed under Module 08.
+**Current inventory after remediation:** 356 repository files, 325 Markdown files, 195 English-named Markdown files, 130 Arabic `-ar.md` files, and 65 English Markdown files without a `-ar.md` counterpart. No active module teaching documents remain unmatched; the remaining unmatched files are 24 agent/developer support documents and 41 archived documents.
 
-The new Arabic translations are draft assets. They have not yet received independent bilingual parity review. The initial 16-gap count remains as a historical baseline, not the current outstanding count.
+The new Arabic translations are draft assets. They have not yet received independent bilingual parity review. The initial 16-gap count remains as a historical baseline; all 16 have been remediated.
+
+
+## 10. Module 08 remediation and metadata harmonization
+
+The seven missing Arabic Module 08 counterparts were added: lesson plan, learning outcomes, instructor guide, student guide, student brief, tabletop scenario design, and assessment. Reciprocal links were added and the Arabic module index was updated.
+
+Translation work exposed and remediated two internal inconsistencies in the English and Arabic Module 08 drafts:
+- `learning-outcomes.md` used LO-01 through LO-08 while the detailed curriculum defines canonical LO-08-01 through LO-08-06. The outcomes file was aligned to the six canonical outcomes and given operational success criteria.
+- The lesson plan and some delivery guides described 8.5 hours while the detailed curriculum specifies 8 hours. The lesson plan, instructor guide, student guide, scenario, and assessment were aligned to 480 minutes, with the debrief included in the tabletop.
+- Some instructor materials were labeled instructor-only despite residing in a public repository. Public-repository boundaries were clarified and detailed expected analyst reasoning was removed from the public scenario design. The inject sequence itself remains visible in the public repository; use a private access-controlled copy if concealment is required.
+
+No independent bilingual content review, tabletop delivery, or operational lab validation has yet been performed.
