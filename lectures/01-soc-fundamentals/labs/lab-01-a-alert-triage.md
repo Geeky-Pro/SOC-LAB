@@ -1,5 +1,7 @@
 # LAB-01-A — Synthetic Alert Classification and Triage
 
+[النسخة العربية](./lab-01-a-alert-triage-ar.md)
+
 > **Status:** draft — authored, not classroom-tested  
 > **Module:** 01-soc-fundamentals  
 > **Lab ID:** LAB-01-A  
