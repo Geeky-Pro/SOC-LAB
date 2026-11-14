@@ -1,5 +1,7 @@
 # Student Guide — Module 08: Incident Response
 
+[النسخة العربية](./student-guide-ar.md)
+
 > **Status:** draft — student-facing  
 > **Estimated time:** 8 hours (480 minutes) (proposed; instructor may adjust)  
 > **Version:** 0.1
