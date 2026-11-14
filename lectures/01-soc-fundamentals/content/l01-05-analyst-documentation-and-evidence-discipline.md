@@ -1,5 +1,7 @@
 # L01-05 — Analyst Documentation and Evidence Discipline
 
+[النسخة العربية](./l01-05-analyst-documentation-and-evidence-discipline-ar.md)
+
 > **Status:** draft  
 > **Module:** 01-soc-fundamentals  
 > **Duration:** 60 minutes  
