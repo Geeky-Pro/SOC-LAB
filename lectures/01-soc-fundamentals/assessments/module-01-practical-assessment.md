@@ -1,5 +1,7 @@
 # Module 01 — Practical Assessment: Alert Triage and Shift Handoff
 
+[النسخة العربية](./module-01-practical-assessment-ar.md)
+
 > **Status:** draft — assessment brief and criteria for review  
 > **Module:** 01-soc-fundamentals  
 > **Assessment ID:** ASMT-01-A  
