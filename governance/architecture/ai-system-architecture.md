@@ -50,3 +50,8 @@ A review status of PASS or PASS WITH NOTES is a recommendation, not approval. A 
 The initial GitHub Copilot agent definitions, repository instructions, path-scoped instructions, and prompt starters are maintained under `.github/`. Their presence in the repository does not prove that every Copilot client or third-party agent runtime discovers or enforces them identically. Verify behavior in the target environment.
 
 Reusable skills are intentionally a later implementation step. Their invocation and ownership boundaries are defined here to prevent duplication with agent and prompt instructions.
+
+
+## Bilingual authoring and review
+
+Both AI roles operate across English and Arabic. The Content Engineer maintains paired variants with equivalent instructional and technical meaning. The Quality Reviewer checks language quality, terminology, stable identifiers, omissions, contradictions, and cross-language parity. Findings identify the affected language file and its counterpart. Language review does not replace technical review, lab validation, or Project Owner approval. If only one language is completed, the other remains explicitly pending. Normative rules are in `governance/policies/bilingual-content-policy.md`.
