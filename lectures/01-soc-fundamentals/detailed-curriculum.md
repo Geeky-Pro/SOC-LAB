@@ -1,5 +1,7 @@
 # Detailed Curriculum — Module 01: SOC Fundamentals & Security Operations
 
+[النسخة العربية](./detailed-curriculum-ar.md)
+
 > **Status:** draft — pending independent review and Project Owner approval  
 > **Module ID:** 01-soc-fundamentals  
 > **Curriculum version:** 0.3  
