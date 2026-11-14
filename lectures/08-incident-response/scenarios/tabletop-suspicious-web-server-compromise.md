@@ -1,14 +1,14 @@
 # Tabletop Master — Suspicious Web Server Compromise
 
-> **Status:** draft — instructor-controlled  
+> **Status:** draft — public-safe scenario design; protected answer guidance excluded  
 > **Scenario ID:** IR-TTX-01  
 > **Difficulty:** foundational / intermediate  
-> **Duration:** 120 minutes + 30-minute debrief  
+> **Duration:** 120 minutes total, including debrief  
 > **Evidence status:** synthetic scenario design; no lab execution claimed
 
 ## 1. Purpose and outcomes
 
-Assess LO-01 through LO-08: signal validation, triage, timeline, classification/severity, proportionate response, communication, incident recordkeeping, and improvement.
+Assess LO-08-01 through LO-08-06: signal validation, triage, timeline, classification/severity, proportionate response, communication, incident recordkeeping, and improvement.
 
 ## 2. Narrative
 
@@ -34,14 +34,14 @@ Incident lead; SOC analyst; technical owner; recorder; communications lead; inst
 
 Do not reveal the full schedule to students. Pause between injects until teams record their current assessment.
 
-| Inject | Time | Information released | Facilitator question | Expected behavior |
+| Inject | Time | Information released | Facilitator question |
 |---|---:|---|---|---|
-| I-01 Initial report | T+00 | At 09:20, an analyst reports a burst of unusual requests to the DMZ web server and an application error. Service remains available. | What is known directly? What do you need? | Register case, preserve report, identify asset/time window, request relevant context. |
-| I-02 Web evidence | T+15 | Synthetic web-log excerpt shows repeated requests to an unusual path followed by HTTP 500 responses. No successful authentication or payload execution is established. | Does this prove compromise? What alternatives exist? | Treat as suspicious; correlate request timing and application/change context. |
-| I-03 Network context | T+35 | Synthetic pfSense/Suricata summary reports an outbound connection shortly after the errors. Alert is generic and has no payload confirmation. | What does this alert prove and not prove? | Correlate endpoints/times; seek supporting metadata or PCAP if available; avoid unsupported C2/exfiltration claims. |
-| I-04 Scope challenge | T+55 | Service owner reports no approved deployment in the window. A separate note says an administrator performed routine maintenance earlier, but exact time and source host are unknown. | How can the maintenance claim be verified? | Seek change record and authorized session context; preserve alternative explanation. |
-| I-05 Decision point | T+75 | Taking the server offline would interrupt a classroom exercise. Two discussion options are offered: narrow restriction under approval, or temporary VM isolation under approval. Neither action is executed. | Which is proportionate? Who approves? What is rollback? | Compare risk reduction, business impact, approver, dependencies, rollback, verification. |
-| I-06 Recovery | T+95 | A synthetic update says a known-good VM snapshot is available, but the team has not established whether the activity is understood or credentials need review. | What must be true before restoration? | Define trusted restore checks, credential-review escalation, monitoring, closure criteria, residual risk. |
+| I-01 Initial report | T+00 | At 09:20, an analyst reports a burst of unusual requests to the DMZ web server and an application error. Service remains available. | What is known directly? What do you need? |
+| I-02 Web evidence | T+15 | Synthetic web-log excerpt shows repeated requests to an unusual path followed by HTTP 500 responses. No successful authentication or payload execution is established. | Does this prove compromise? What alternatives exist? |
+| I-03 Network context | T+35 | Synthetic pfSense/Suricata summary reports an outbound connection shortly after the errors. Alert is generic and has no payload confirmation. | What does this alert prove and not prove? |
+| I-04 Scope challenge | T+55 | Service owner reports no approved deployment in the window. A separate note says an administrator performed routine maintenance earlier, but exact time and source host are unknown. | How can the maintenance claim be verified? |
+| I-05 Decision point | T+75 | Taking the server offline would interrupt a classroom exercise. Two discussion options are offered: narrow restriction under approval, or temporary VM isolation under approval. Neither action is executed. | Which is proportionate? Who approves? What is rollback? |
+| I-06 Recovery | T+95 | A synthetic update says a known-good VM snapshot is available, but the team has not established whether the activity is understood or credentials need review. | What must be true before restoration? |
 
 ## 6. Evidence pack specification
 
@@ -59,16 +59,9 @@ All synthetic artifacts must be labeled **SYNTHETIC — FOR TRAINING** and use r
 
 Do not fabricate Splunk indexes, sourcetypes, fields, event IDs, or exact log formats. If Splunk is used, attach a source manifest based on observed lab events. Otherwise provide evidence cards without claiming live telemetry.
 
-## 7. Expected analyst reasoning — instructor only
+## 7. Public-repository boundary
 
-- I-01 supports opening an investigation, not confirming compromise.
-- I-02 strengthens suspicion but has plausible benign explanations.
-- I-03 adds another source, but a generic alert does not prove successful compromise or data loss.
-- I-04 introduces an alternative hypothesis that must be tested.
-- I-05 requires explicit authority and business-impact comparison; reflexive shutdown should not be rewarded.
-- I-06 requires recovery prerequisites, verification, monitoring, and residual-risk communication.
-
-There is no single mandatory severity. P2 or P3 may be defensible depending on assumptions and evidence confidence. Reward rationale and reassessment, not guessing the instructor's preferred rating.
+This file is a public scenario design document. It intentionally excludes protected answer keys and detailed expected analyst conclusions. Store any unreleased facilitator answer guidance in an access-controlled instructor repository or private distribution; the public GitHub path does not restrict access.
 
 ## 8. Response options
 
