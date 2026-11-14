@@ -1,5 +1,7 @@
 # Instructor Guide — Module 08: Incident Response
 
+[النسخة العربية](./instructor-guide-ar.md)
+
 > **Status:** draft — instructor-facing, public-safe; protected answer keys are excluded  
 > **Version:** 0.2
 > **Estimated contact time:** 8 hours (480 minutes; tabletop debrief included)  
