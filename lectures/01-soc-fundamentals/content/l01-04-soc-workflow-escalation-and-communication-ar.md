@@ -1,5 +1,7 @@
 # L01-04 — سير عمل مركز العمليات الأمنية والتصعيد والتواصل
 
+[English version](./l01-04-soc-workflow-escalation-and-communication.md)
+
 > **الحالة:** مسودة  
 > **الوحدة:** 01-soc-fundamentals  
 > **المدة:** 60 دقيقة  
