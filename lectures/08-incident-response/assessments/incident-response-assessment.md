@@ -3,21 +3,19 @@
 > **Status:** draft  
 > **Assessment ID:** IR-ASSESS-01  
 > **Type:** team practical / individual reflection  
-> **Duration:** 120 minutes + 20-minute reflection  
+> **Duration:** 120 minutes total, including the 20-minute individual reflection  
 > **Total:** 100 points
 
 ## 1. Purpose and outcome alignment
 
 | Outcome | Evidence |
 |---|---|
-| LO-01 | Classification and incident-threshold rationale |
-| LO-02 | Triage note |
-| LO-03 | Timeline and evidence matrix |
-| LO-04 | Category/severity record and reassessment |
-| LO-05 | Response decision log |
-| LO-06 | Situation report |
-| LO-07 | Incident record and evidence references |
-| LO-08 | After-action improvements |
+| LO-08-01 | Classification and incident-threshold rationale |
+| LO-08-02 | Triage note; validated hypothesis, scope, facts, unknowns, and confidence |
+| LO-08-03 | Category/severity record, priority rationale, and reassessment |
+| LO-08-04 | Timeline and evidence matrix with provenance |
+| LO-08-05 | Response decision log |
+| LO-08-06 | Situation report, incident record, and after-action improvements |
 
 ## 2. Candidate instructions
 
@@ -74,7 +72,7 @@ Use only evidence released by the instructor. Submit the artifacts below. Distin
 
 ## 8. Validation and fairness
 
-- Outcome alignment: mapped to LO-01–LO-08.
+- Outcome alignment: mapped to LO-08-01–LO-08-06.
 - Clarity and accessibility review: pending.
 - Timing/load: proposed, not piloted.
 - Technical validation: not performed.
