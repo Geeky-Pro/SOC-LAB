@@ -2,7 +2,7 @@
 
 > **الحالة:** مسودة — روجعت حزمة التدريس الأولية مع ملاحظات؛ وبانتظار اعتماد مالك المشروع  
 > **معرّف الوحدة:** 01-soc-fundamentals  
-> **إصدار الحزمة:** 0.2  
+> **إصدار الحزمة:** 0.3  
 > **خط أساس المنهج:** 0.3
 
 ## الغرض
@@ -11,22 +11,22 @@
 
 ## حزمة الوحدة
 
-- [المنهج التفصيلي](detailed-curriculum.md)
-- [خطة المحاضرات](planning/lesson-plan.md)
-- [دليل المدرب](instructor/instructor-guide.md)
-- [دليل الطالب](student/student-guide.md)
-- [التقييم العملي](assessments/module-01-practical-assessment.md)
-- [LAB-01-A — تصنيف تنبيه اصطناعي وفرزه](labs/lab-01-a-alert-triage.md)
-- [LAB-01-B — ترتيب أولوية قائمة الانتظار وتسليم الوردية](labs/lab-01-b-queue-prioritization-and-handoff.md)
+- [المنهج التفصيلي بالعربية](detailed-curriculum-ar.md)
+- [خطة المحاضرات — النسخة الإنجليزية، والترجمة العربية قيد الإعداد](planning/lesson-plan.md)
+- [دليل المدرب — النسخة الإنجليزية، والترجمة العربية قيد الإعداد](instructor/instructor-guide.md)
+- [دليل الطالب — النسخة الإنجليزية، والترجمة العربية قيد الإعداد](student/student-guide.md)
+- [التقييم العملي — النسخة الإنجليزية، والترجمة العربية قيد الإعداد](assessments/module-01-practical-assessment.md)
+- [LAB-01-A — النسخة الإنجليزية، والترجمة العربية قيد الإعداد](labs/lab-01-a-alert-triage.md)
+- [LAB-01-B — النسخة الإنجليزية، والترجمة العربية قيد الإعداد](labs/lab-01-b-queue-prioritization-and-handoff.md)
 
 ### محتوى الدروس
 
-1. [L01-01 — رسالة SOC ونماذج التشغيل والأدوار](content/l01-01-soc-mission-operating-models-and-roles.md)
-2. [L01-02 — الأحداث والتنبيهات والحوادث ودورة المراقبة](content/l01-02-events-alerts-incidents-and-monitoring-lifecycle.md)
-3. [L01-03 — فرز التنبيهات والاستدلال التحليلي](content/l01-03-alert-triage-and-analytical-reasoning.md)
-4. [L01-04 — سير عمل SOC والتصعيد والتواصل](content/l01-04-soc-workflow-escalation-and-communication.md)
-5. [L01-05 — توثيق المحلل والانضباط في التعامل مع الأدلة](content/l01-05-analyst-documentation-and-evidence-discipline.md)
-6. [L01-06 — ورشة فرز متكاملة](content/l01-06-integrated-triage-workshop.md)
+1. [L01-01 — رسالة SOC ونماذج التشغيل والأدوار](content/l01-01-soc-mission-operating-models-and-roles-ar.md)
+2. [L01-02 — الأحداث والتنبيهات والحوادث ودورة المراقبة](content/l01-02-events-alerts-incidents-and-monitoring-lifecycle-ar.md)
+3. [L01-03 — فرز التنبيهات والاستدلال التحليلي](content/l01-03-alert-triage-and-analytical-reasoning-ar.md)
+4. [L01-04 — سير عمل SOC والتصعيد والتواصل](content/l01-04-soc-workflow-escalation-and-communication-ar.md)
+5. [L01-05 — النسخة الإنجليزية، والترجمة العربية قيد الإعداد](content/l01-05-analyst-documentation-and-evidence-discipline.md)
+6. [L01-06 — النسخة الإنجليزية، والترجمة العربية قيد الإعداد](content/l01-06-integrated-triage-workshop.md)
 
 ## الجمهور المستهدف
 
@@ -50,6 +50,9 @@
 
 ## التقييم
 
+[التدقيق الثنائي اللغة للحزمة](../../governance/reviews/2026-11-14-bilingual-content-audit-ar.md).
+
+
 راجع [التقييم العملي للوحدة 01](assessments/module-01-practical-assessment.md) والمقياس المشترك في [منهج التقييم](../../curriculum/assessment-rubric-ar.md). يظل وزن التقييم وحد النجاح بانتظار قرار مالك المشروع.
 
 ## بنية الوحدة
@@ -68,7 +71,7 @@
 
 - حالة التأليف: صيغت الحزمة الأولية.
 - فحوص الاتساق الثابتة: مكتملة (توقيت الدروس ومواءمة المخرجات وروابط الحزمة وفحوص حالة المسودة).
-- مراجع الجودة المستقل: اجتياز مع ملاحظات — [تقرير المراجعة](validation/2026-11-10-module-01-content-quality-review.md).
+- مراجع الجودة المستقل: اجتياز مع ملاحظات — [تقرير المراجعة — النسخة الإنجليزية، والملخص العربي قيد الإعداد](validation/2026-11-10-module-01-content-quality-review.md).
 - التجربة الصفية: لم تُجرَ.
 - تنفيذ المختبر الحي: لا ينطبق على تمارين الطاولة للوحدة 01.
 - اعتماد مالك المشروع: بانتظار التسجيل؛ حالة المراجع ليست اعتماداً.
