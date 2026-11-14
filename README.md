@@ -26,6 +26,11 @@ A structured, hands-on Security Operations Center (SOC) learning environment and
 
 SOC-LAB is organized around a competency-based curriculum, reproducible practical labs, realistic investigation scenarios, and independently reviewed learning materials. Module titles describe security capabilities and investigative skills rather than vendor products.
 
+## Bilingual Content Audit
+
+- [Initial bilingual content audit — current remediation status](governance/reviews/2026-11-14-bilingual-content-audit.md)
+- [Arabic audit report](governance/reviews/2026-11-14-bilingual-content-audit-ar.md)
+
 ## Curriculum
 
 The proposed curriculum contains 11 capability-based modules, from SOC fundamentals through an integrated investigation and capstone. Module charters and curriculum maps remain drafts pending Project Owner approval.
