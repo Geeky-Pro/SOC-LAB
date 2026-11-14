@@ -7,7 +7,7 @@ This directory is the source of truth for the learning pathway, outcomes, module
 
 ## Documents
 
-- [Bilingual content audit — 2026-11-14](reviews/../reviews/../reviews/2026-11-14-bilingual-content-audit.md)
+- [Bilingual content audit — 2026-11-14](../governance/reviews/2026-11-14-bilingual-content-audit.md)
 - [Arabic curriculum index](README-ar.md)
 - [Overview](curriculum-overview.md)
 - [Detailed curriculum design — all 11 modules](detailed-curriculum-design.md)
