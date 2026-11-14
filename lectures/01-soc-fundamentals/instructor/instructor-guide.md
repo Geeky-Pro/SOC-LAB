@@ -1,5 +1,7 @@
 # Instructor Guide — Module 01: SOC Fundamentals & Security Operations
 
+[النسخة العربية](./instructor-guide-ar.md)
+
 > **Status:** draft — instructor-facing material  
 > **Audience:** Instructor only  
 > **Related assets:** [Lecture Plan](../planning/lesson-plan.md), [Student Guide](../student/student-guide.md)  
