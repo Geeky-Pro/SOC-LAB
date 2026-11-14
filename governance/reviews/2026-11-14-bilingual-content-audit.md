@@ -79,26 +79,23 @@ The four existing lesson pairs (L01-01 through L01-04) have matching heading cou
 
 ### 5.2 Module 01 README
 
-The English and Arabic README files have the same 15 heading sections and five tables. Their package navigation is not fully bilingual yet: the Arabic README currently links several items to English filenames where Arabic counterparts are absent. The README also reports package version 0.2 while its change history includes version 0.3 for the addition of the independent review record. The historical review itself correctly identifies the reviewed initial package as v0.2; it must not be rewritten to claim that it reviewed v0.3.
+At the initial audit snapshot, the English and Arabic README files had the same 15 heading sections and five tables, but the Arabic package navigation pointed to some English-only files. The package version in the README was also 0.2 while its change history included 0.3. Both issues were corrected: the Arabic README now links to available Arabic counterparts and the package version is 0.3. The historical review remains correctly scoped to the initial v0.2 package and must not be rewritten to imply it reviewed v0.3.
 
 ### 5.3 Curriculum index and status metadata
 
-- `curriculum/README.md` still says the curriculum is awaiting re-review even though the v0.3 re-review report exists and records **PASS WITH NOTES**.
-- `curriculum/detailed-curriculum-design.md` and its Arabic counterpart carry the same stale status wording.
-- The Arabic curriculum README says several documents are still available only in English, although corresponding Arabic files now exist. Its document navigation is incomplete compared with the English index.
-- The Arabic and English versions should report the same review result and approval boundary.
+At the initial audit snapshot, the curriculum index and detailed design carried stale status wording and did not reflect the v0.3 re-review report's **PASS WITH NOTES** result. The Arabic curriculum README also described several documents as English-only despite existing Arabic counterparts. These issues were corrected by updating both status fields and completing the Arabic index and links. Project Owner approval remains pending.
 
 ### 5.4 Module 01 lesson plan review status
 
-The lesson plan says independent review is pending. The package-level independent review has already been completed with **PASS WITH NOTES** and explicitly checked the plan's timing and package links. The plan should describe this accurately as a package-level review, not imply a separate standalone review.
+At the initial audit snapshot, the lesson plan said independent review was pending. Its status was corrected to state that it was included in the Module 01 package review (**PASS WITH NOTES**), without claiming a separate standalone review of the plan.
 
 ## 6. Required remediation order
 
 1. **Completed:** Corrected stale curriculum status and bilingual index links.
 2. **Completed:** Corrected Module 01 package version metadata while preserving the historical v0.2 review scope.
 3. **Completed:** Added the nine missing Arabic counterparts in Module 01.
-4. **Next:** Run an independent Arabic/English parity review of the complete Module 01 package.
-5. **Pending:** Complete the seven missing Arabic counterparts in Module 08.
+4. **Completed:** Added the seven missing Arabic counterparts in Module 08 and updated its index and links.
+5. **Next:** Conduct an independent Arabic/English parity review of the complete Module 01 and Module 08 packages.
 6. Review the remaining paired governance, curriculum, lab-environment, detection-engineering, incident-response, and template documents in risk-prioritized batches.
 7. Keep agent configuration and archived material out of learner-facing translation scope unless the Project Owner requests otherwise.
 
