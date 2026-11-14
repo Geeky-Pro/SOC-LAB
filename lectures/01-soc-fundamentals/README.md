@@ -2,8 +2,10 @@
 
 > **Status:** draft — initial teaching package reviewed with notes; pending Project Owner approval  
 > **Module ID:** 01-soc-fundamentals  
-> **Package version:** 0.2  
+> **Package version:** 0.3  
 > **Curriculum baseline:** 0.3
+
+[Arabic module guide](README-ar.md) · [Bilingual audit](../../governance/reviews/2026-11-14-bilingual-content-audit.md)
 
 ## Purpose
 Introduce the SOC mission, roles, operating model, alert triage, prioritization, escalation, evidence handling, and analyst communication.
