@@ -1,7 +1,8 @@
 # Instructor Guide — Module 08: Incident Response
 
-> **Status:** draft — instructor-only  
-> **Version:** 0.1  
+> **Status:** draft — instructor-facing, public-safe; protected answer keys are excluded  
+> **Version:** 0.2
+> **Estimated contact time:** 8 hours (480 minutes; tabletop debrief included)  
 > **Validation:** NOT VALIDATED
 
 ## 1. Teaching purpose
@@ -15,10 +16,9 @@ Develop disciplined response judgment. Learners validate signals, scope what is 
 | Foundations and terminology | 60 min | Facilitate classification examples | Classify events, alerts, incidents |
 | Triage and severity | 75 min | Model a triage note | Assign provisional category/priority |
 | Evidence and timeline | 75 min | Provide labeled evidence cards | Build sourced timeline |
-| Response decisions | 75 min | Introduce operational trade-offs | Compare options and approval gates |
-| Communications and closure | 75 min | Review situation report | Produce incident record |
-| Tabletop | 120 min | Release staged injects | Collaborate and document decisions |
-| Debrief | 30 min | Facilitate reflection | Identify improvements |
+| Response decisions | 90 min | Introduce operational trade-offs | Compare options and approval gates |
+| Communications and closure | 60 min | Review situation report | Produce incident record |
+| Tabletop and debrief | 120 min | Release staged injects and facilitate debrief | Collaborate, document decisions, and identify improvements |
 
 ## 3. Preparation checklist
 
@@ -54,9 +54,9 @@ Develop disciplined response judgment. Learners validate signals, scope what is 
 | I-05 | Authority and proportionality | Who approves the outage and rollback? | Isolating without authority |
 | I-06 | Recovery verification | What makes restoration trustworthy? | Closing immediately after service returns |
 
-## 6. Expected answer guidance
+## 6. Public-repository boundary
 
-There is no single mandatory incident severity. P2 or P3 may be defensible if assumptions, evidence confidence, and potential impact are explicit. A suspected incident or blocked-pending-evidence outcome can be correct. Confirmation requires evidence meeting the exercise threshold; the injects do not independently prove exploitation or data theft.
+This repository is public. This guide is a public-safe instructor-facing document and does not contain a protected answer key or private scoring solution. Any unreleased facilitator notes, detailed expected answers, or protected assessment solutions must be stored in an access-controlled instructor repository or private distribution. A folder name does not provide access control.
 
 ## 7. Common misconceptions
 
@@ -72,7 +72,7 @@ There is no single mandatory incident severity. P2 or P3 may be defensible if as
 
 ## 8. Assessment guidance
 
-Use the module assessment rubric. Accept different conclusions where reasoning is defensible. Penalize unsupported certainty, missing provenance, ignored authority, and unsafe actions. Fabricated evidence or claims of unperformed actions require remediation.
+Use the module assessment rubric. Do not treat the proposed point threshold or severity examples as approved policy; obtain Project Owner approval before formal grading. Accept different conclusions where reasoning is defensible. Penalize unsupported certainty, missing provenance, ignored authority, and unsafe actions. Fabricated evidence or claims of unperformed actions require remediation.
 
 ## 9. Safety and classroom operations
 
