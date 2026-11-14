@@ -1,28 +1,30 @@
 # Module 08 — Measurable Learning Outcomes
 
-> **Status:** draft — proposed for instructional review  
-> **Version:** 0.1  
+> **Status:** draft — aligned to the Module 08 detailed curriculum v0.3; pending Project Owner approval  
+> **Version:** 0.2  
 > **Validation:** NOT VALIDATED
+
+[Arabic version](learning-outcomes-ar.md)
+
+The six outcomes below use the canonical identifiers and wording defined in `detailed-curriculum.md`. This file provides operational success criteria and evidence expectations; it does not create a second outcome namespace.
 
 | ID | Measurable outcome | Success criteria | Evidence |
 |---|---|---|---|
-| LO-01 | Distinguish events, alerts, investigations, suspected incidents, and confirmed incidents. | Correctly classify at least 4 of 5 examples and justify an ambiguous case. | Knowledge check |
-| LO-02 | Perform structured initial triage. | Record source, time/time zone, affected entities, facts, hypotheses, unknowns, owner, and next checkpoint. | Triage note |
-| LO-03 | Build an evidence-based timeline and scope statement. | Include at least 5 time-ordered observations where supplied; cite each source and mark gaps/time uncertainty. | Timeline and evidence matrix |
-| LO-04 | Assign and reassess a provisional category and severity. | Explain impact, scope, urgency, exposure, confidence, and what would change the rating. | Classification record |
-| LO-05 | Recommend proportionate containment and recovery options. | Compare at least 2 options by risk reduction, business impact, authority, rollback, and verification. | Decision log |
-| LO-06 | Communicate status and escalate appropriately. | Produce an update with impact, confidence, actions, decisions needed, owner, and next update time. | Situation report |
-| LO-07 | Maintain a traceable incident record. | Include a unique ID, timestamps, evidence references, decisions, action owners, and closure criteria. | Incident record |
-| LO-08 | Conduct a debrief and identify improvements. | Propose at least 2 evidence-supported actions, each with an owner and verification measure. | After-action review |
+| LO-08-01 | Distinguish events, alerts, investigations, suspected incidents, and confirmed incidents. | Correctly classify at least 4 of 5 examples and justify an ambiguous case. | Knowledge check; incident intake and classification record |
+| LO-08-02 | Validate an incident hypothesis and define scope, facts, unknowns, and confidence. | Record affected entities, facts, hypotheses, unknowns, confidence, and what evidence could change the assessment. | Triage note; tabletop incident record |
+| LO-08-03 | Classify and prioritize an incident using impact, scope, urgency, exposure, and confidence. | Explain the provisional category and priority, distinguish impact from urgency and confidence, and state reassessment triggers. | Classification record; priority rationale |
+| LO-08-04 | Construct a source-referenced timeline and maintain evidence provenance. | Include at least 5 time-ordered observations where supplied; cite each source and mark gaps and timestamp uncertainty. | Timeline and evidence matrix |
+| LO-08-05 | Compare proportionate containment, eradication, and recovery options with authority, impact, rollback, and verification. | Compare at least 2 options by risk reduction, business impact, authority, rollback, and verification. | Response decision log |
+| LO-08-06 | Communicate status, escalate, maintain an incident record, and identify measurable improvements. | Produce an update with impact, confidence, actions, decisions needed, owner, and next update time; maintain a traceable record; propose at least 2 measurable improvements. | Situation report; incident record; after-action review |
 
 ## Proposed assessment thresholds
 
-- LO-01: at least 4/5 classifications correct.
-- LO-02 through LO-07: each artifact meets the Proficient rubric descriptor.
-- LO-08: two actionable improvements with owners and verification measures.
+- LO-08-01: at least 4/5 classifications correct.
+- LO-08-02 through LO-08-06: each relevant artifact meets the Proficient rubric descriptor.
+- LO-08-06: at least two actionable improvements with owners and verification measures.
 - Safety and evidence integrity are mandatory; unsafe actions or fabricated evidence require remediation regardless of score.
 
-These thresholds are instructional proposals, not approved program policy.
+These thresholds are instructional proposals, not approved program policy. Confirm assessment conditions, weighting, pass threshold, and remediation policy with the Project Owner before formal grading.
 
 ## Prerequisite mapping
 
