@@ -35,3 +35,8 @@ The repository separates governance, curriculum, teaching modules, shared lab in
 ## Module structure
 
 See [Module Architecture](module-architecture.md). A module contains only the subdirectories needed for its actual learning package.
+
+
+## Bilingual content architecture
+
+Arabic and English are first-class languages maintained as paired documents within the same repository structure. Do not create parallel language trees. English filenames remain canonical; Arabic counterparts append `-ar` before the extension and stay in the same directory. Shared identifiers and machine-readable assets remain language-neutral. Substantial documents link to counterparts. Update both variants together or explicitly mark pending translation. Translation status, content review, and practical validation are separate. See `governance/policies/bilingual-content-policy.md`.
