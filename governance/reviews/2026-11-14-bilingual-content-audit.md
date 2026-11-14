@@ -145,3 +145,14 @@ Translation work exposed and remediated two internal inconsistencies in the Engl
 - Some instructor materials were labeled instructor-only despite residing in a public repository. Public-repository boundaries were clarified and detailed expected analyst reasoning was removed from the public scenario design. The inject sequence itself remains visible in the public repository; use a private access-controlled copy if concealment is required.
 
 No independent bilingual content review, tabletop delivery, or operational lab validation has yet been performed.
+
+
+## 11. Post-remediation structural checks
+
+- All 42 English Markdown files under the `lectures/` tree have Arabic counterparts using the `-ar.md` suffix.
+- No orphan Arabic file without an English basename counterpart was found.
+- No broken local links were found in the Arabic README indexes for Module 01, the curriculum, and Module 08, or in the Arabic and English Module 08 indexes checked.
+- The six Module 08 learning outcome IDs (LO-08-01 through LO-08-06) match across the English and Arabic outcome files and the lesson plan.
+- Module 08 lesson durations were aligned to the 480-minute detailed curriculum baseline; classroom piloting and operational validation remain unperformed.
+
+These are limited automated/structural checks and do not replace an independent semantic review of every translation.
