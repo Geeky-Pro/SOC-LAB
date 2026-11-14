@@ -1,9 +1,11 @@
 # Incident Response
 
+[Arabic module guide](README-ar.md)
+
 > **Status:** draft — pending independent review and Project Owner approval  
 > **Module ID:** 08-incident-response  
 > **Curriculum version:** 0.1  
-> **Learning package version:** 0.1
+> **Learning package version:** 0.2
 
 ## Purpose
 
@@ -15,11 +17,11 @@ Learners following SOC-LAB. Proposed prerequisites come from SOC fundamentals, l
 
 ## Measurable learning outcomes
 
-See [Learning Outcomes](learning-outcomes.md). Eight outcomes cover terminology, triage, evidence/timeline, severity, response decisions, communications, incident records, and improvement.
+See [Learning Outcomes](learning-outcomes.md). Six canonical outcomes (LO-08-01 through LO-08-06) cover incident classification, hypothesis validation, severity/priority, evidence timelines, response options, communications, incident records, and measurable improvement.
 
 ## Lesson sequence
 
-See [Lesson Plan](lesson-plan.md) for the proposed 6-hour teaching sequence, 2-hour tabletop, and 30-minute debrief. Timing is provisional.
+See [Lesson Plan](lesson-plan.md) for the proposed 8-hour (480-minute) sequence, including the 120-minute tabletop and debrief. Timing is provisional.
 
 1. L08-01 — Incident response foundations, terminology, and authority.
 2. L08-02 — Incident intake, triage, and severity.
@@ -30,11 +32,13 @@ See [Lesson Plan](lesson-plan.md) for the proposed 6-hour teaching sequence, 2-h
 
 ## Practical scenario
 
-The first tabletop is [Suspicious Web Server Activity — Student Brief](scenarios/student-brief.md). The instructor-controlled [Tabletop Master](scenarios/tabletop-suspicious-web-server-compromise.md) contains injects and facilitator guidance; do not distribute it to learners.
+The first tabletop is [Suspicious Web Server Activity — Student Brief](scenarios/student-brief.md). The public [Tabletop Master](scenarios/tabletop-suspicious-web-server-compromise.md) contains the inject sequence and facilitator prompts. Because this repository is public, students may be able to read it; use an access-controlled private version if inject concealment is required.
 
 The exercise is discussion-based by default. Use synthetic evidence unless the instructor supplies verified, sanitized lab telemetry. Do not assert successful compromise, exfiltration, or persistence without supporting evidence.
 
 ## Learning materials
+
+[Arabic learning package](README-ar.md)
 
 - [Student Guide](student/student-guide.md)
 - [Instructor Guide](instructor/instructor-guide.md)
