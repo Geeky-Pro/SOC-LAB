@@ -1,6 +1,8 @@
 # Detailed Curriculum — Module 02: SOC Lab Architecture & Deployment
 
-> **Status:** draft — pending independent review and Project Owner approval  
+[النسخة العربية](./detailed-curriculum-ar.md)
+
+> **Status:** draft — independently re-reviewed (PASS WITH NOTES); pending Project Owner approval  
 > **Module ID:** 02-soc-lab-architecture  
 > **Curriculum version:** 0.3  
 > **Proposed contact time:** 8 hours
