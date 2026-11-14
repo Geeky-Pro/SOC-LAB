@@ -1,5 +1,7 @@
 # L01-03 — الفرز الأولي للتنبيهات والاستدلال التحليلي
 
+[English version](./l01-03-alert-triage-and-analytical-reasoning.md)
+
 > **الحالة:** مسودة  
 > **الوحدة:** 01-soc-fundamentals  
 > **المدة:** 60 دقيقة  
