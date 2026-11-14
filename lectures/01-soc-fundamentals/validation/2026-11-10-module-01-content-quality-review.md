@@ -1,5 +1,7 @@
 # Quality Review — Module 01 Teaching Package
 
+[التقرير باللغة العربية](2026-11-10-module-01-content-quality-review-ar.md)
+
 > **Review status:** PASS WITH NOTES  
 > **Review date:** 2026-11-10  
 > **Reviewer:** SOC-LAB Quality Reviewer  
