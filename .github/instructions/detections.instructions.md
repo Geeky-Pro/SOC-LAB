@@ -21,3 +21,11 @@ Never fabricate events, field names, test output, screenshots, source readiness,
 
 ## Safety
 Use synthetic data and benign test events within the isolated authorized lab. Never run tests against production or external targets without explicit authorization. Record scope, impact, cleanup, and recovery.
+
+
+## Bilingual authoring requirements
+
+- Arabic and English are first-class project languages. Follow `governance/policies/bilingual-content-policy.md`.
+- Keep paired documents in the same directory; English uses the canonical filename and Arabic appends `-ar` before the extension.
+- Preserve stable IDs, technical meaning, commands, code, SPL, field names, configuration keys, numeric values, safety boundaries, evidence, and assessment requirements.
+- Update both language variants together when meaning changes, or mark the counterpart `needs-update`/pending. Do not claim parity without reviewing both.
