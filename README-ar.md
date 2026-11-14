@@ -60,3 +60,9 @@
 العربية والإنجليزية لغتان أساسيتان للمشروع وليستا منهجين منفصلين. توضع النسخ المتقابلة في المجلد نفسه، ويضاف `-ar` إلى اسم الملف العربي. يجب الحفاظ على مخرجات التعلم والمعرفات والخطوات والأدلة وضوابط السلامة ومعايير التقييم بين النسختين. راجع [سياسة المحتوى ثنائي اللغة](governance/policies/bilingual-content-policy-ar.md) و[معمارية المستودع](governance/architecture/repository-architecture-ar.md).
 
 فرع التطوير النشط هو `arabic-content`. تظل الوثائق والمحتويات مسودات ما لم يعتمدها مالك المشروع صراحة.
+
+
+## تدقيق المحتوى ثنائي اللغة
+
+- [تقرير التدقيق بالعربية](governance/reviews/2026-11-14-bilingual-content-audit-ar.md)
+- [English audit report](governance/reviews/2026-11-14-bilingual-content-audit.md)
