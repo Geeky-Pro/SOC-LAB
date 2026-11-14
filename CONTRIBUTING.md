@@ -23,3 +23,12 @@ Use a focused branch and descriptive commits. Submit substantial content for ind
 ## Do not contribute
 
 Do not commit credentials, personal student information, unlicensed courseware, proprietary datasets, malware binaries, or VM disk images.
+
+
+## Bilingual contributions
+
+- Arabic and English are first-class project languages.
+- For substantial instructional changes, update the paired language variant in the same contribution. If not feasible, mark the counterpart pending and identify the remaining work.
+- Follow `governance/policies/bilingual-content-policy.md` for pairing, terminology, parity, and review.
+- Preserve stable IDs, commands, code, SPL, configuration keys, product names, and standards identifiers.
+- Review Arabic for technical meaning and instructional clarity, not literal word-for-word similarity.
