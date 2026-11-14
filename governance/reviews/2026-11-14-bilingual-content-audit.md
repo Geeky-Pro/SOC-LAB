@@ -156,3 +156,8 @@ No independent bilingual content review, tabletop delivery, or operational lab v
 - Module 08 lesson durations were aligned to the 480-minute detailed curriculum baseline; classroom piloting and operational validation remain unperformed.
 
 These are limited automated/structural checks and do not replace an independent semantic review of every translation.
+
+
+## 12. Module detailed-curriculum status synchronization
+
+The English `detailed-curriculum.md` files and their Arabic counterparts for all 11 modules were updated to reflect the curriculum re-review result: PASS WITH NOTES, pending Project Owner approval. Reciprocal links between the English and Arabic versions were also added.
