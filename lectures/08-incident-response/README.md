@@ -4,7 +4,7 @@
 
 > **Status:** draft — pending independent review and Project Owner approval  
 > **Module ID:** 08-incident-response  
-> **Curriculum version:** 0.1  
+> **Curriculum version:** 0.3  
 > **Learning package version:** 0.2
 
 ## Purpose
