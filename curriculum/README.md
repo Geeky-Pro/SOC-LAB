@@ -1,11 +1,14 @@
 # SOC-LAB Curriculum
 
-> **Status:** draft — revised after independent review; pending re-review and Project Owner approval  
+> **Status:** draft — independently re-reviewed (PASS WITH NOTES); pending Project Owner approval  
 > **Version:** 0.3
 
 This directory is the source of truth for the learning pathway, outcomes, module sequencing, competencies, prerequisites, assessment approach, lab dependencies, and ATT&CK mapping policy.
 
 ## Documents
+
+- [Bilingual content audit — 2026-11-14](reviews/../reviews/../reviews/2026-11-14-bilingual-content-audit.md)
+- [Arabic curriculum index](README-ar.md)
 - [Overview](curriculum-overview.md)
 - [Detailed curriculum design — all 11 modules](detailed-curriculum-design.md)
 - [Initial independent review — 2026-11-10](reviews/2026-11-10-detailed-curriculum-quality-review.md)
@@ -22,4 +25,4 @@ This directory is the source of truth for the learning pathway, outcomes, module
 
 Each module's detailed curriculum lives in its own `lectures/<module>/detailed-curriculum.md`. Module designs now identify more specific lesson evidence and practical activity blueprints. They are still curriculum-level designs, not final student lab instructions or proof of runtime validation.
 
-The proposed 89 contact hours, outcomes, sequence, and assessment design remain provisional until independently re-reviewed and explicitly approved by the Project Owner.
+The proposed 89 contact hours, outcomes, sequence, and assessment design received an independent re-review with PASS WITH NOTES (see the v0.3 re-review report). They remain provisional pending Project Owner decisions and explicit approval.
