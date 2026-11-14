@@ -1,5 +1,7 @@
 # Tabletop Master — Suspicious Web Server Compromise
 
+[النسخة العربية](./tabletop-suspicious-web-server-compromise-ar.md)
+
 > **Status:** draft — public-safe scenario design; protected answer guidance excluded  
 > **Scenario ID:** IR-TTX-01  
 > **Difficulty:** foundational / intermediate  
