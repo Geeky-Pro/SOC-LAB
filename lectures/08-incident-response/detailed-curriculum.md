@@ -1,5 +1,7 @@
 # Detailed Curriculum — Module 08: Incident Response
 
+[النسخة العربية](./detailed-curriculum-ar.md)
+
 > **Status:** draft — pending independent review and Project Owner approval  
 > **Module ID:** 08-incident-response  
 > **Curriculum version:** 0.3  
