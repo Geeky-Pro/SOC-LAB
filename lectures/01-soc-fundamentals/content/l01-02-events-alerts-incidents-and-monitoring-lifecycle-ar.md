@@ -1,5 +1,7 @@
 # L01-02 — الأحداث والتنبيهات والحوادث ودورة حياة المراقبة
 
+[English version](./l01-02-events-alerts-incidents-and-monitoring-lifecycle.md)
+
 > **الحالة:** مسودة  
 > **الوحدة:** 01-soc-fundamentals  
 > **المدة:** 45 دقيقة  
