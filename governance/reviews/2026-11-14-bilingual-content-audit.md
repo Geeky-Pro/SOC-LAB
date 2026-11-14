@@ -29,7 +29,7 @@ At the initial audit snapshot, 81 English files lacked a `-ar.md` counterpart: 1
 - Compared selected English/Arabic pairs for document length, heading count, table count, link count, and stable identifiers.
 - Spot-checked the curriculum overview/index and Module 01 package navigation and status metadata.
 
-This is an initial structural and targeted parity audit. It is **not** a line-by-line semantic review of all 113 Arabic files. Character-count and heading/table comparisons are triage signals, not proof of translation quality. No classroom, runtime lab, or learner usability validation was performed.
+This is an initial structural and targeted parity audit. It is **not** a line-by-line semantic review of all 113 Arabic files in the initial audit snapshot. Character-count and heading/table comparisons are triage signals, not proof of translation quality. No classroom, runtime lab, or learner usability validation was performed.
 
 ## 3. Missing Arabic counterparts — active instructional content
 
@@ -115,7 +115,7 @@ The lesson plan says independent review is pending. The package-level independen
 
 ## 8. Current conclusion
 
-**Structural pairing:** strong but incomplete. All 113 Arabic `-ar.md` files have an English basename counterpart.
+**Structural pairing:** strong but incomplete. At the initial audit snapshot, all 113 Arabic `-ar.md` files had an English basename counterpart.
 
 **Learner-facing bilingual completeness:** improved. The nine identified Module 01 gaps have been translated; seven active instructional documents remain without Arabic counterparts, all in Module 08.
 
