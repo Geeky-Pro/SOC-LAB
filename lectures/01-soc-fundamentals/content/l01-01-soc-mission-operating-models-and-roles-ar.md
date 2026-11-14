@@ -1,5 +1,7 @@
 # L01-01 — رسالة مركز العمليات الأمنية ونماذج تشغيله وأدواره وحدود خدماته
 
+[English version](./l01-01-soc-mission-operating-models-and-roles.md)
+
 > **الحالة:** مسودة  
 > **الوحدة:** 01-soc-fundamentals  
 > **المدة:** 45 دقيقة  
