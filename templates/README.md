@@ -27,8 +27,17 @@ This directory is the single source of truth for reusable SOC-LAB deliverable st
 
 ## Conventions
 
-- New files use English `kebab-case`.
+- New files use English `kebab-case`; Arabic counterparts append `-ar` before the extension.
+- Reusable learner-facing templates must support equivalent Arabic and English content and include counterpart/language metadata where appropriate.
 - Use lifecycle status values: `planned`, `draft`, `in-review`, `approved`, `released`, `deprecated`.
 - Templates are starting structures, not evidence that a deliverable is complete or validated.
 - Approval and release require explicit Project Owner authorization.
 - Student and instructor materials must be separated where answers, hints, or assessment solutions are sensitive.
+
+
+## Bilingual authoring requirements
+
+- Arabic and English are first-class project languages. Follow `governance/policies/bilingual-content-policy.md`.
+- Keep paired documents in the same directory; English uses the canonical filename and Arabic appends `-ar` before the extension.
+- Preserve stable IDs, technical meaning, commands, code, SPL, field names, configuration keys, numeric values, safety boundaries, evidence, and assessment requirements.
+- Update both language variants together when meaning changes, or mark the counterpart `needs-update`/pending. Do not claim parity without reviewing both.
