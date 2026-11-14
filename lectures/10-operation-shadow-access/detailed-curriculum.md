@@ -1,6 +1,8 @@
 # Detailed Curriculum — Module 10: Integrated Threat Investigation — Operation Shadow Access
 
-> **Status:** draft — pending independent review and Project Owner approval  
+[النسخة العربية](./detailed-curriculum-ar.md)
+
+> **Status:** draft — independently re-reviewed (PASS WITH NOTES); pending Project Owner approval  
 > **Module ID:** 10-operation-shadow-access  
 > **Curriculum version:** 0.3  
 > **Proposed contact time:** 10 hours
