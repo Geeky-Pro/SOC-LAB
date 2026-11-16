@@ -1,5 +1,7 @@
 # LAB-01-B — Queue Prioritization and Shift Handoff
 
+[النسخة العربية](./lab-01-b-queue-prioritization-and-handoff-ar.md)
+
 > **Status:** draft — authored, not classroom-tested  
 > **Module:** 01-soc-fundamentals  
 > **Lab ID:** LAB-01-B  

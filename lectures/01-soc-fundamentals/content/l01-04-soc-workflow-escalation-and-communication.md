@@ -1,5 +1,7 @@
 # L01-04 — SOC Workflow, Escalation, and Communication
 
+[النسخة العربية](./l01-04-soc-workflow-escalation-and-communication-ar.md)
+
 > **Status:** draft  
 > **Module:** 01-soc-fundamentals  
 > **Duration:** 60 minutes  

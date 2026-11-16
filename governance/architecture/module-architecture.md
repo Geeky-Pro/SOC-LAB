@@ -29,3 +29,8 @@ Every practical activity must define learning purpose, prerequisites, authorized
 ## Audience separation
 
 Student-facing materials must not accidentally expose instructor answer keys or assessment solutions. Apply repository visibility and release packaging decisions accordingly.
+
+
+## Bilingual module documents
+
+Do not create separate Arabic and English module trees. Keep paired documents in the same module subdirectory, for example `README.md` / `README-ar.md`, `lesson-plan.md` / `lesson-plan-ar.md`, and `student-guide.md` / `student-guide-ar.md`. Keep module, lesson, LO, lab, scenario, assessment, and evidence IDs identical. Both variants must describe the same scope, steps, expected evidence, safety controls, cleanup, and assessment requirements. Missing counterparts must be explicitly marked pending. See the Bilingual Content Policy.

@@ -18,3 +18,11 @@ applyTo: "incident-response/**/*.md,lectures/**/playbooks/**/*.md,lectures/**/in
 - Use canonical templates in `incident-response/templates/`; do not create conflicting copies.
 - Distinguish document review, tabletop exercise, lab execution, technical validation, and independent review.
 - Never invent execution results, evidence, approvals, or test outcomes. Preserve draft and NOT VALIDATED status until evidence and authorization exist.
+
+
+## Bilingual authoring requirements
+
+- Arabic and English are first-class project languages. Follow `governance/policies/bilingual-content-policy.md`.
+- Keep paired documents in the same directory; English uses the canonical filename and Arabic appends `-ar` before the extension.
+- Preserve stable IDs, technical meaning, commands, code, SPL, field names, configuration keys, numeric values, safety boundaries, evidence, and assessment requirements.
+- Update both language variants together when meaning changes, or mark the counterpart `needs-update`/pending. Do not claim parity without reviewing both.

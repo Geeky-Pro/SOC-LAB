@@ -30,3 +30,15 @@ Content status does not prove practical execution. Record validation independent
 ## Required traceability
 
 For significant content, record owner, reviewer, review date, source references, applicable versions, validation evidence, and known limitations.
+
+
+## Language and translation status
+
+Track language status separately from content lifecycle:
+- `not-started`: no counterpart exists.
+- `draft`: counterpart is being authored.
+- `in-review`: language and parity review is in progress.
+- `synchronized`: a documented parity check found the pair equivalent within scope.
+- `needs-update`: source changes may have made the counterpart stale.
+
+A synchronized pair is not necessarily approved, released, or practically validated. Record counterpart paths, content version, review date, and reviewer where appropriate.

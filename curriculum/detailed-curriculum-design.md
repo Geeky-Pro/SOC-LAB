@@ -1,6 +1,6 @@
 # Detailed Curriculum Design — SOC-LAB
 
-> **Status:** draft — revised following independent review; pending re-review and Project Owner approval  
+> **Status:** draft — independently re-reviewed (PASS WITH NOTES); pending Project Owner decisions and approval  
 > **Curriculum version:** 0.3  
 > **Scope:** all 11 modules  
 > **Design basis:** capability-led, evidence-based, lab-supported SOC analyst learning

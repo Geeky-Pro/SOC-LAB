@@ -19,6 +19,7 @@ This directory contains reusable, task-focused Agent Skills. Skills define repea
 | `soc-scenario-development` | Investigation scenarios and evidence design | Content Engineer |
 | `soc-detection-engineering` | Detection specifications, SPL, data readiness, ATT&CK mapping, validation | Content Engineer |
 | `soc-incident-response` | Incident response frameworks, triage, severity, playbooks, evidence records, and safe response exercises | Content Engineer |
+| `soc-bilingual-content` | Create, translate, synchronize, and review Arabic/English paired documents | Content Engineer and Quality Reviewer |
 | `soc-quality-review` | Independent evidence-based quality review | Quality Reviewer |
 
 ## Boundaries
@@ -28,3 +29,8 @@ This directory contains reusable, task-focused Agent Skills. Skills define repea
 - Keep task-specific prompt scaffolds in `.github/prompts/`.
 - Add supporting `references/`, `examples/`, or `scripts/` only when they materially improve the skill.
 - Verify skill discovery and invocation in the intended agent runtime; repository presence alone does not guarantee automatic discovery.
+
+
+## Bilingual work
+
+All applicable skills follow `governance/policies/bilingual-content-policy.md`. Authoring skills preserve paired Arabic/English assets and stable identifiers. The quality-review skill checks cross-language parity and terminology. These checks do not replace technical review or Project Owner approval.

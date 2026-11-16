@@ -1,5 +1,7 @@
 # L01-03 — Alert Triage and Analytical Reasoning
 
+[النسخة العربية](./l01-03-alert-triage-and-analytical-reasoning-ar.md)
+
 > **Status:** draft  
 > **Module:** 01-soc-fundamentals  
 > **Duration:** 60 minutes  

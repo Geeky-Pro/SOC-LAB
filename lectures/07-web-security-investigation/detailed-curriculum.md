@@ -1,6 +1,8 @@
 # Detailed Curriculum — Module 07: Web Security Monitoring & Investigation
 
-> **Status:** draft — pending independent review and Project Owner approval  
+[النسخة العربية](./detailed-curriculum-ar.md)
+
+> **Status:** draft — independently re-reviewed (PASS WITH NOTES); pending Project Owner approval  
 > **Module ID:** 07-web-security-investigation  
 > **Curriculum version:** 0.3  
 > **Proposed contact time:** 7 hours

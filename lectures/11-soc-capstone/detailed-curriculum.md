@@ -1,6 +1,8 @@
 # Detailed Curriculum — Module 11: SOC Capstone Project
 
-> **Status:** draft — pending independent review and Project Owner approval  
+[النسخة العربية](./detailed-curriculum-ar.md)
+
+> **Status:** draft — independently re-reviewed (PASS WITH NOTES); pending Project Owner approval  
 > **Module ID:** 11-soc-capstone  
 > **Curriculum version:** 0.3  
 > **Proposed contact time:** 12 hours

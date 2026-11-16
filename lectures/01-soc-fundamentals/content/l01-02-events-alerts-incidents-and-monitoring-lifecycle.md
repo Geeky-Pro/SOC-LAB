@@ -1,5 +1,7 @@
 # L01-02 — Security Events, Alerts, Incidents, and the Monitoring Lifecycle
 
+[النسخة العربية](./l01-02-events-alerts-incidents-and-monitoring-lifecycle-ar.md)
+
 > **Status:** draft  
 > **Module:** 01-soc-fundamentals  
 > **Duration:** 45 minutes  

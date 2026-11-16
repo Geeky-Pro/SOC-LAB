@@ -1,5 +1,7 @@
 # Module 01 — Lecture Plan
 
+[الخطة باللغة العربية](lesson-plan-ar.md)
+
 > **Status:** draft — content-engineer working draft; not approved for delivery  
 > **Module:** 01-soc-fundamentals  
 > **Proposed contact time:** 6 hours (360 minutes)  
@@ -130,5 +132,5 @@ Use the common rubric in [Assessment Rubric](../../../curriculum/assessment-rubr
 - **Static timing check:** 45 + 45 + 60 + 60 + 60 + 90 = 360 minutes.
 - **Technical runtime:** not applicable; no live lab required.
 - **Classroom pilot:** not performed.
-- **Independent review:** pending.
+- **Independent review:** included in the Module 01 package review — PASS WITH NOTES ([review report](../validation/2026-11-10-module-01-content-quality-review.md)); this was not a separate standalone review of the lesson plan.
 - **Project Owner approval:** pending.

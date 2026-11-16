@@ -1,5 +1,7 @@
 # L01-06 — Integrated Triage Workshop
 
+[النسخة العربية](./l01-06-integrated-triage-workshop-ar.md)
+
 > **Status:** draft  
 > **Module:** 01-soc-fundamentals  
 > **Duration:** 90 minutes  

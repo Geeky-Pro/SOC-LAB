@@ -34,7 +34,12 @@ Do not silently substitute Splunk ES, Wazuh, standalone Suricata, or any other o
 - Historical assets remain in `Archive/` until reviewed and deliberately promoted.
 
 ## Authoring rules
-- Use English `kebab-case` for paths and filenames.
+- Treat Arabic and English as first-class project languages.
+- Use English `kebab-case` paths; Arabic counterparts append `-ar` before the extension.
+- Read `governance/policies/bilingual-content-policy.md` before substantive bilingual authoring.
+- Update paired variants together where practical; otherwise disclose the pending counterpart.
+- Preserve stable IDs, commands, code, SPL, field names, configuration keys, IPs, product names, and standards identifiers.
+- Review technical equivalence and instructional clarity, not literal translation symmetry.
 - Keep technical concepts vendor-neutral where possible; document tool-specific implementation separately.
 - Align learning content with measurable outcomes and assessments.
 - Identify prerequisites, versions, assumptions, limitations, expected evidence, troubleshooting, cleanup, and rollback as applicable.
@@ -63,6 +68,11 @@ Do not silently substitute Splunk ES, Wazuh, standalone Suricata, or any other o
 - Do not assume EDR, SOAR, automated response, Splunk Enterprise Security, or unverified lab capabilities.
 - Keep legal, privacy, regulatory, and external notification decisions with qualified authorized personnel.
 - Follow `incident-response/` and `.github/instructions/incident-response.instructions.md`.
+
+## Bilingual quality checks
+- Compare paired variants for omitted steps, changed scope, mismatched evidence, inconsistent safety controls, and assessment drift.
+- Retain canonical English technical terms with Arabic explanations where useful.
+- Do not assume machine translation establishes synchronization.
 
 ## Agent workflow
 - Use `.github/agents/soc-lab-content-engineer.agent.md` for drafting and content maintenance.

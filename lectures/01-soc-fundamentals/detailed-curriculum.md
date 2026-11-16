@@ -1,6 +1,8 @@
 # Detailed Curriculum — Module 01: SOC Fundamentals & Security Operations
 
-> **Status:** draft — pending independent review and Project Owner approval  
+[النسخة العربية](./detailed-curriculum-ar.md)
+
+> **Status:** draft — independently re-reviewed (PASS WITH NOTES); pending Project Owner approval  
 > **Module ID:** 01-soc-fundamentals  
 > **Curriculum version:** 0.3  
 > **Proposed contact time:** 6 hours

@@ -1,5 +1,7 @@
 # Student Brief — Suspicious Web Server Activity
 
+[النسخة العربية](./student-brief-ar.md)
+
 > **Status:** draft  
 > **Scenario ID:** IR-TTX-01  
 > **Audience:** Student  

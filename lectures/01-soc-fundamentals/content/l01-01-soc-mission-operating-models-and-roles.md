@@ -1,5 +1,7 @@
 # L01-01 — SOC Mission, Operating Models, Roles, and Service Boundaries
 
+[النسخة العربية](./l01-01-soc-mission-operating-models-and-roles-ar.md)
+
 > **Status:** draft  
 > **Module:** 01-soc-fundamentals  
 > **Duration:** 45 minutes  
